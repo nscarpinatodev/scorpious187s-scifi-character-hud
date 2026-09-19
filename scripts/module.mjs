@@ -34,6 +34,16 @@ Hooks.once('init', () => {
 		precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
 	});
 
+});
+
+/*
+ * Registration happens on `setup`, not `init`.
+ *
+ * Every system registers its own sheets inside its `init` hook, and module scripts load
+ * before the system's, so a module that registers on `init` looks for a sheet class that
+ * does not exist yet. `setup` runs after every `init` callback has completed.
+ */
+Hooks.once('setup', () => {
 	const adapter = ADAPTERS[game.system.id];
 	if (!adapter) {
 		console.log(`${MOD} | ${game.system.id} is not supported; the HUD stays out of the sheet picker.`);
@@ -42,7 +52,9 @@ Hooks.once('init', () => {
 
 	const Base = adapter.find();
 	if (!Base) {
-		console.error(`${MOD} | could not find ${game.system.id}'s character sheet class; not registering.`);
+		const seen = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
+			.map(([id, e]) => `${id} → ${e.cls?.name}`);
+		console.error(`${MOD} | could not find ${game.system.id}'s character sheet class; not registering. Sheets seen:`, seen);
 		return;
 	}
 
@@ -52,7 +64,7 @@ Hooks.once('init', () => {
 		Actor, MOD, adapter.make(Base),
 		{ types: ['character'], label: 'SFH.SheetLabel', makeDefault: false },
 	);
-	console.log(`${MOD} | registered the HUD sheet for ${game.system.id}.`);
+	console.log(`${MOD} | registered the HUD sheet for ${game.system.id}, over ${Base.name}.`);
 });
 
 Hooks.once('ready', () => {
@@ -64,6 +76,14 @@ Hooks.once('ready', () => {
 			themeFor,
 			openThemePicker,
 			refresh: refreshOpenHuds,
+			/** Console diagnostics: `game.modules.get('scorpious187s-scifi-character-hud').api.debug()` */
+			debug: () => {
+				const sheets = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
+					.map(([id, e]) => ({ id, cls: e.cls?.name, default: !!e.default }));
+				const ours = sheets.find((s) => s.id.startsWith(`${MOD}.`));
+				console.log(`${MOD} | system=${game.system.id} registered=${!!ours}`, { sheets, hudSheetsOpen: document.querySelectorAll('.sfh-app').length });
+				return { registered: !!ours, sheets };
+			},
 		};
 	}
 
