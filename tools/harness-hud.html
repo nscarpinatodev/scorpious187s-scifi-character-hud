@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sci-Fi HUD harness — standalone sheet</title>
+<link rel="stylesheet" href="../styles/themes.css">
+<link rel="stylesheet" href="../styles/hud-core.css">
+<link rel="stylesheet" href="../styles/hud-sheet.css">
+<style>
+	body { margin: 0; background: #202024; font-family: system-ui, sans-serif; color: #ddd; }
+	.app { position: relative; width: var(--w, 1120px); height: 780px; margin: 16px auto; border: 1px solid #555; }
+	.window-content { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+<div class="app sfh-app sfh-window" id="app">
+	<div class="window-content sfh-window-content" id="content"></div>
+</div>
+<script type="module" src="./harness-hud.mjs"></script>
+</body>
+</html>

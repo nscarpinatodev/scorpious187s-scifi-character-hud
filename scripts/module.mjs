@@ -1,15 +1,23 @@
 import { MOD, S } from './constants.mjs';
 import { registerSettings, setting, refreshOpenHuds } from './settings.mjs';
 import { findBaseSheet, makePf2eHudSheet } from './adapters/pf2e-family.mjs';
-import { findBase5eSheet, makeDnd5eHudSheet } from './adapters/dnd5e.mjs';
+import { makeHudSheet } from './hud-app.mjs';
+import * as dnd5eSystem from './systems/dnd5e.mjs';
 import { isHidden, setHidden, hideKeyLabel, themeFor } from './shell.mjs';
 import { openThemePicker } from './ui/theme-picker.mjs';
 
-/** Each supported system, with how to find its sheet class and how to subclass it. */
-const ADAPTERS = {
-	pf2e: { find: findBaseSheet, make: makePf2eHudSheet },
-	sf2e: { find: findBaseSheet, make: makePf2eHudSheet },
-	dnd5e: { find: findBase5eSheet, make: makeDnd5eHudSheet },
+/*
+ * Two kinds of support, for now.
+ *
+ * `standalone` is the HUD proper: our own sheet, our own markup, built from a system
+ * adapter that reads the actor and calls the system's API for everything that rolls or
+ * changes. `skin` is the older approach, which re-arranges the system's own sheet; PF2e
+ * and SF2e still use it until they get their adapters.
+ */
+const SYSTEMS = {
+	dnd5e: { kind: 'standalone', system: dnd5eSystem },
+	pf2e: { kind: 'skin', find: findBaseSheet, make: makePf2eHudSheet },
+	sf2e: { kind: 'skin', find: findBaseSheet, make: makePf2eHudSheet },
 };
 
 Hooks.once('init', () => {
@@ -46,15 +54,30 @@ Hooks.once('init', () => {
 export function registerHudSheet() {
 	if (isRegistered()) return true;
 
-	const adapter = ADAPTERS[game.system.id];
-	if (!adapter) {
+	const entry = SYSTEMS[game.system.id];
+	if (!entry) {
 		console.log(`${MOD} | ${game.system.id} is not supported; the HUD stays out of the sheet picker.`);
 		return false;
 	}
 
+	if (entry.kind === 'standalone') {
+		const cls = makeHudSheet(entry.system);
+		foundry.applications.apps.DocumentSheetConfig.registerSheet(
+			Actor, MOD, cls,
+			{ types: ['character'], label: game.i18n.localize('SFH.SheetLabel'), makeDefault: false },
+		);
+		if (!isRegistered()) {
+			console.error(`${MOD} | the HUD sheet did not register for ${game.system.id}.`);
+			return false;
+		}
+		cls.hookUp();
+		console.log(`${MOD} | registered the standalone HUD sheet for ${game.system.id}.`);
+		return true;
+	}
+
 	const seen = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
 		.map(([id, e]) => `${id} → ${e.cls?.name}`);
-	const Base = adapter.find();
+	const Base = entry.find();
 	if (!Base) {
 		// Expected during startup: Foundry's initializeSheets() empties
 		// CONFIG.Actor.sheetClasses and only then applies the registrations queued during
@@ -69,7 +92,7 @@ export function registerHudSheet() {
 	// over without choosing it.
 	try {
 		foundry.applications.apps.DocumentSheetConfig.registerSheet(
-			Actor, MOD, adapter.make(Base),
+			Actor, MOD, entry.make(Base),
 			{ types: ['character'], label: game.i18n.localize('SFH.SheetLabel'), makeDefault: false },
 		);
 	} catch (err) {

@@ -51,6 +51,7 @@
 	"styles": [
 		"styles/hud-core.css",
 		"styles/themes.css",
+		"styles/hud-sheet.css",
 		"styles/pf2e-overrides.css",
 		"styles/dnd5e-overrides.css"
 	],
