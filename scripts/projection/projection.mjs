@@ -1,5 +1,5 @@
-import { EL, MOD, SEQ } from '../constants.mjs';
-import { currentDevice } from '../settings.mjs';
+import { EL, MOD, SEQ, S } from '../constants.mjs';
+import { currentDevice, setting } from '../settings.mjs';
 import { layout, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav } from './panels.mjs';
@@ -80,7 +80,10 @@ export class Projection {
 		const width = Math.max(480, Math.min(innerWidth / 2 - leftEdge, innerWidth / 2 - rightEdge) * 2);
 		const height = Math.max(320, innerHeight - topEdge - bottomEdge);
 		const board = BOARD[currentDevice()] ?? BOARD.omni;
-		const scale = Math.min(width / board.w, height / board.h);
+		// filling the free area makes the projection swallow the screen; the user decides how
+		// much of that space it actually takes
+		const share = Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
+		const scale = Math.min(width / board.w, height / board.h) * share;
 
 		el.style.setProperty('--sfh-proj-width', `${Math.round(width)}px`);
 		el.style.setProperty('--sfh-proj-height', `${Math.round(height)}px`);

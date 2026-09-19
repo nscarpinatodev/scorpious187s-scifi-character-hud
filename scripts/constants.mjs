@@ -26,6 +26,7 @@ export const S = {
 	device: 'device',             // client — which device this user wears
 	sequences: 'sequences',       // client — play the power sequences
 	deckSize: 'deckSize',         // client — macro bar key size on the device, px
+	projScale: 'projScale',       // client — projection size, % of the space available
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
 	hideKey: 'hideKey',           // client — key that hides the whole HUD
 	worldDevice: 'worldDevice',   // world  — the device a user gets before they pick one

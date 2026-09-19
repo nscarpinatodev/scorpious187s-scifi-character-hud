@@ -53,6 +53,17 @@ export function registerSettings(onDeviceChange) {
 		onChange: () => onDeviceChange?.(),
 	});
 
+	game.settings.register(MOD, S.projScale, {
+		name: 'SFH.Settings.ProjScale',
+		hint: 'SFH.Settings.ProjScaleHint',
+		scope: 'client',
+		config: true,
+		type: Number,
+		range: { min: 35, max: 100, step: 5 },
+		default: 55,
+		onChange: () => onDeviceChange?.(),
+	});
+
 	game.settings.register(MOD, S.grid, {
 		name: 'SFH.Settings.Grid',
 		hint: 'SFH.Settings.GridHint',
