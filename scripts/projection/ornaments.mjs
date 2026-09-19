@@ -18,6 +18,9 @@ export function ornBack(device) {
 			</pattern></defs>
 			<rect class="hexbg" width="1280" height="740" fill="url(#sfh-hx)"/></svg>`;
 	}
+	// The wrist unit's housing folds with the screen, so it is drawn in ornDev, not here.
+	if (device === 'wrist') return '';
+
 	// EVA: a console has a back panel, so the space between its bays is not thin air
 	const bezel = device === 'gdi' ? '#3a3d2c' : '#3a2020';
 	const back = device === 'gdi'
@@ -94,7 +97,7 @@ export function ornDev(device) {
 			<rect x="580" y="16" width="120" height="6" rx="3" fill="#ff3ea5" fill-opacity=".85"/>
 			<circle cx="1222" cy="34" r="6" fill="#35ecf2"/>
 			<path d="M300 846 v14 M980 846 v14" stroke="#8a55d6" stroke-width="10"/></svg>
-		<div style="position:absolute;left:18px;top:8px;width:1244px;height:834px;box-sizing:border-box;border-radius:52px;
+		<div style="position:absolute;left:44px;top:40px;width:1192px;height:772px;box-sizing:border-box;border-radius:34px;
 			border:3px solid #05020c;box-shadow:inset 0 0 60px rgba(255,62,165,.18),0 0 0 1px #8a55d6;
 			background:radial-gradient(ellipse at 50% 40%,#1d0f3a 0%,#0d0620 75%)"></div>`;
 }

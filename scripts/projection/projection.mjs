@@ -74,9 +74,14 @@ export class Projection {
 		const top = spread('ui-top', (r) => r.bottom);
 		const topEdge = top === null ? gap : top + gap;
 		const art = document.querySelector(`#${EL.device} svg.sfh-art`);
+		/*
+		 * The art box reaches above the plate to hold the emitter's glow, so measuring it
+		 * would float the sheet. The plate itself is what the projection stands on.
+		 */
+		const plate = rect(document.getElementById('sfh-arm'));
 		const device = rect(document.getElementById(EL.device)) ?? rect(document.getElementById('hotbar'));
-		// a device with art is the thing the projection comes out of, so it sits right on it
-		const bottomEdge = shown(device) ? innerHeight - device.top + (art ? 2 : gap) : gap;
+		const foot = art && shown(plate) ? plate : device;
+		const bottomEdge = shown(foot) ? innerHeight - foot.top + (art ? 0 : gap) : gap;
 
 		// centred on the window, so the projection stays in line with the device below it
 		const width = Math.max(480, Math.min(innerWidth / 2 - leftEdge, innerWidth / 2 - rightEdge) * 2);
@@ -110,7 +115,7 @@ export class Projection {
 			boardEl.style.setProperty('--scanline', `${(px * (device2 >= 2 ? 0.5 : 1)).toFixed(3)}px`);
 			boardEl.style.setProperty('--scanpitch', `${(px * 3).toFixed(3)}px`);
 		}
-		this.#beam(el.getBoundingClientRect());
+		this.#beam();
 	}
 
 	/**
@@ -120,10 +125,13 @@ export class Projection {
 	 * interface and the projection is a layer over the canvas, so the beam has to bridge
 	 * them: it is drawn from the band's edges up to the projection's bottom corners.
 	 */
-	static #beam(projRect) {
+	static #beam() {
 		const band = document.querySelector('#sfh-band')?.getBoundingClientRect();
+		// the light lands on the main panel, as it does in the mock-up, not on the whole
+		// projection — the side columns are lit by it, not part of it
+		const lit = this.element?.querySelector('[data-slot="projection"]')?.getBoundingClientRect();
 		let beam = document.getElementById(EL.beam);
-		if (!band || !band.width || !this.#open) {
+		if (!band || !band.width || !lit?.width || !this.#open) {
 			beam?.remove();
 			return;
 		}
@@ -132,12 +140,12 @@ export class Projection {
 			beam.id = EL.beam;
 			(document.getElementById('interface') ?? document.body).append(beam);
 		}
-		const top = projRect.bottom;
+		const top = lit.bottom;
 		const bottom = band.top + band.height * 0.45;
 		beam.style.top = `${Math.round(top)}px`;
 		beam.style.height = `${Math.max(0, Math.round(bottom - top))}px`;
-		beam.style.clipPath = `polygon(${Math.round(projRect.left)}px 0, ${Math.round(projRect.right)}px 0,`
-			+ ` ${Math.round(band.right)}px 100%, ${Math.round(band.left)}px 100%)`;
+		beam.style.clipPath = `polygon(${Math.round(lit.left)}px 0, ${Math.round(lit.right)}px 0,`
+			+ ` ${Math.round(band.right - band.width * 0.15)}px 100%, ${Math.round(band.left + band.width * 0.15)}px 100%)`;
 	}
 
 	static scheduleFit() {
@@ -247,10 +255,13 @@ export class Projection {
 			<div class="proj-b scroll" data-key="${esc(`${actor.id}:${tab.id}`)}">${adapter.tabBody(actor, tab.id)}</div>
 			<div class="scanfx"></div></section>`;
 
+		// the wrist unit's panels sit inside its case rather than flush to the board edge
+		const inset = device === 'wrist';
 		stage.innerHTML = `<div class="ornlayer">${ornBack(device)}</div>
 		<div class="foldwrap">
 			<div class="ornlayer">${ornDev(device)}</div>
 			<div class="sweep"></div><div class="flare"></div>
+			${inset ? '<div class="sfh-inset">' : ''}
 			${eva ? evaReadouts(c) : ''}
 			${panel('identity', L.identity, renderIdentity(c, device), 'ident')}
 			${panel('vitals', L.vitals, renderVitals(c))}
@@ -261,6 +272,7 @@ export class Projection {
 			${panel('readout', L.readout, `<div class="ro scroll" id="sfh-readout" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;flex:1">${renderReadout(this.#entry(actor))}</div>`)}
 			${projection}
 			${renderNav(c, device, L, this.#tab)}
+			${inset ? '</div>' : ''}
 		</div>`;
 
 		this.#stagger(stage);

@@ -8,7 +8,10 @@
 
 /** The board each device's layout was drawn on. */
 export const BOARD = {
-	omni: { w: 1280, h: 740 },   // the arm is part of the interface now, so its strip is gone
+	// The arm belongs to the interface now, so the board ends where the panels do (726) and
+	// its foot is set on the arm plate itself — anything more is empty space holding the
+	// sheet up off the device.
+	omni: { w: 1280, h: 728 },
 	wrist: { w: 1280, h: 860 },
 	gdi: { w: 1280, h: 860 },
 	nod: { w: 1280, h: 860 },
