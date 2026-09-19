@@ -51,6 +51,7 @@ scripts/
     dnd5e.mjs           D&D 5e: the same, from its own API
 styles/
   device.css            device palettes, the arm, the macro bar skin, device sequences
+  interface.css         the device palette mapped onto Foundry's own interface colours
   projection.css        (next) the projection frame, panels, and its half of the sequences
 tools/
   harness-device.html   Foundry's game-view regions and real hotbar markup, no Foundry
@@ -89,5 +90,5 @@ effects, Mass Effect dossier, readout), the system's own sheet docked into the t
 three power sequences, and the rule that the projection is centred on the window but never
 reaches under the sidebar, controls, scene bar or macro bar.
 
-**After that.** Hide-everything key for small monitors; the Paragon/Renegade dossier reading the
-conversion module's flags; compact layout.
+**After that.** See TODO.md — the sidebar panels one at a time, the hide-everything key, the
+compact layout and the Paragon/Renegade dossier.

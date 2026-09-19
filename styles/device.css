@@ -9,6 +9,7 @@
 /* One palette per device, taken from the approved mock-up. */
 
 body[data-sfh-device] {
+	--sfh-bg-rgb: 8 11 17;
 	--sfh-hot: #ff9a3c;
 	--sfh-glow: rgb(255 154 60 / 70%);
 	--sfh-bright: #fff0de;
@@ -26,6 +27,7 @@ body[data-sfh-device] {
 }
 
 body[data-sfh-device="wrist"] {
+	--sfh-bg-rgb: 18 7 34;
 	--sfh-hot: #ff4fb4;
 	--sfh-glow: rgb(255 79 180 / 70%);
 	--sfh-bright: #fff;
@@ -43,6 +45,7 @@ body[data-sfh-device="wrist"] {
 }
 
 body[data-sfh-device="gdi"] {
+	--sfh-bg-rgb: 7 11 6;
 	--sfh-hot: #6dff5a;
 	--sfh-glow: rgb(109 255 90 / 60%);
 	--sfh-bright: #effde8;
@@ -60,6 +63,7 @@ body[data-sfh-device="gdi"] {
 }
 
 body[data-sfh-device="nod"] {
+	--sfh-bg-rgb: 14 5 5;
 	--sfh-hot: #ff3b30;
 	--sfh-glow: rgb(255 59 48 / 65%);
 	--sfh-bright: #fff3f0;

@@ -49,7 +49,8 @@
 		"scripts/module.mjs"
 	],
 	"styles": [
-		"styles/device.css"
+		"styles/device.css",
+		"styles/interface.css"
 	],
 	"languages": [
 		{

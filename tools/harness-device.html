@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/css/foundry2.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Chakra+Petch:wght@400;500;600;700&family=VT323&family=Oxanium:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="../styles/device.css">
+<link rel="stylesheet" href="../styles/interface.css">
 <style>
 	html, body { height: 100%; margin: 0; }
 	body.game {
@@ -20,6 +21,34 @@
 			repeating-linear-gradient(90deg, rgb(255 255 255 / 2.5%) 0 1px, transparent 1px 72px);
 		color: #ddd;
 	}
+	/* the regions Foundry lays out around the canvas, close enough to measure against */
+	#ui-left { position: absolute; left: 0; width: 50%; display: flex; align-items: flex-start;
+		padding: 16px; gap: 16px; pointer-events: none; height: 100%; }
+	#ui-left-column-1 { flex: none; width: 72px; display: flex; flex-direction: column; gap: 16px; }
+	#ui-right { position: absolute; inset: 0 0 0 auto; display: flex; align-items: flex-start; gap: 16px;
+		padding: 16px 16px 14px; pointer-events: none; }
+	#scene-controls { display: flex; gap: 6px; pointer-events: all; }
+	#scene-controls .control-layers, #scene-controls .control-tools { display: flex; flex-direction: column; gap: 5px;
+		padding: 5px; background: var(--color-cool-5-90, #0b0a13); }
+	#scene-controls .control { width: 32px; height: 32px; display: grid; place-items: center;
+		border: 1px solid var(--color-cool-4, #302831); color: var(--color-light-2, #efe6d8); cursor: pointer; font-size: 13px; }
+	#scene-navigation { display: flex; flex-direction: column; gap: 4px; pointer-events: all; }
+	.scene-navigation-menu { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+	#scene-navigation .scene { padding: 4px 10px; background: var(--color-cool-5-90, #0b0a13);
+		border: 1px solid var(--color-cool-4, #302831); color: var(--color-light-2, #efe6d8); font-size: 13px; cursor: pointer; }
+	#sidebar { width: 300px; height: 420px; display: flex; flex-direction: column; pointer-events: all;
+		background: var(--sidebar-background, rgb(11 10 19 / 90%)); color: var(--color-light-2, #efe6d8); }
+	#sidebar-tabs { display: flex; gap: 2px; padding: 6px; border-bottom: var(--sidebar-separator, 1px solid #302831); }
+	#sidebar-tabs .item { width: 30px; height: 30px; display: grid; place-items: center;
+		border: 1px solid transparent; color: var(--color-light-4, #999); cursor: pointer; font-size: 13px; }
+	#chat-log { flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
+	#chat-log .message { padding: 6px 8px; background: var(--color-cool-5-50, rgb(11 10 19 / 50%));
+		border-left: 2px solid var(--color-cool-4, #302831); }
+	#chat-log .message b { color: var(--color-warm-1, #ee9b3a); }
+	#players { width: 180px; padding: 8px 10px; pointer-events: all; font-size: 12px;
+		background: var(--color-cool-5-75, rgb(11 10 19 / 75%)); color: var(--color-light-2, #efe6d8); }
+	#players .player { display: flex; gap: 6px; padding: 2px 0; list-style: none; }
+	.players-list { margin: 0; padding: 0; }
 	#interface { display: flex; flex: 1; justify-content: center; position: relative; height: 100%; }
 	#ui-middle { flex: none; width: 60%; display: flex; flex-direction: column;
 		justify-content: space-between; align-items: center; pointer-events: none; height: 100%; }
@@ -45,6 +74,55 @@
 </head>
 <body class="game">
 <div id="interface">
+	<div id="ui-left">
+		<div id="ui-left-column-1">
+			<div id="scene-controls">
+				<div class="control-layers">
+					<button type="button" class="control active">⬤</button>
+					<button type="button" class="control">▦</button>
+					<button type="button" class="control">✎</button>
+					<button type="button" class="control">☀</button>
+				</div>
+				<div class="control-tools">
+					<button type="button" class="control active">↖</button>
+					<button type="button" class="control">◻</button>
+					<button type="button" class="control">◯</button>
+				</div>
+			</div>
+			<nav id="scene-navigation">
+				<menu id="scene-navigation-viewed" class="scene-navigation-menu">
+					<li class="ui-control scene view">Cargo Bay 4</li>
+					<li class="ui-control scene">Omega Markets</li>
+					<li class="ui-control scene">Liveship Deck</li>
+				</menu>
+			</nav>
+			<div id="players">
+				<ol class="players-list">
+					<li class="player"><span class="player-name">Gamemaster</span></li>
+					<li class="player"><span class="player-name">Nick · Vex</span></li>
+					<li class="player"><span class="player-name">Sam</span></li>
+				</ol>
+			</div>
+		</div>
+	</div>
+
+	<div id="ui-right">
+		<aside id="sidebar">
+			<nav id="sidebar-tabs">
+				<button type="button" class="item active">✉</button>
+				<button type="button" class="item">⚔</button>
+				<button type="button" class="item">☗</button>
+				<button type="button" class="item">⚒</button>
+				<button type="button" class="item">⚙</button>
+			</nav>
+			<div id="chat-log">
+				<div class="message"><b>Vex Kaori</b> Laser Pistol — 21 vs AC</div>
+				<div class="message"><b>Vex Kaori</b> Damage — 3d6+4 → 17 radiant</div>
+				<div class="message"><b>GM</b> The drone banks around the cargo stack.</div>
+			</div>
+		</aside>
+	</div>
+
 	<div id="ui-middle">
 		<div id="ui-top"></div>
 		<div id="ui-bottom">

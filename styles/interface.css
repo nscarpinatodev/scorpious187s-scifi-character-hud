@@ -1,0 +1,89 @@
+/* =========================================================================
+   The interface, in the device's colours.
+
+   Foundry's own furniture is built on a small palette of custom properties.
+   Rather than restyling every panel by hand, the device's palette is mapped
+   onto those properties inside the interface regions — so the sidebar, scene
+   bar, controls, player list and everything they contain follow the device.
+
+   Scoped to `#ui-left`, `#ui-right`, `#ui-middle`, `#ui-top` and the tooltip
+   deliberately: character sheets, dialogs and system windows render elsewhere
+   and keep their own look. Individual sidebar panels get their own treatment
+   later (see TODO.md).
+   ========================================================================= */
+
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #tooltip, #context-menu) {
+	/* panel darks */
+	--color-cool-5: rgb(var(--sfh-bg-rgb));
+	--color-cool-5-25: rgb(var(--sfh-bg-rgb) / 25%);
+	--color-cool-5-50: rgb(var(--sfh-bg-rgb) / 50%);
+	--color-cool-5-75: rgb(var(--sfh-bg-rgb) / 75%);
+	--color-cool-5-90: rgb(var(--sfh-bg-rgb) / 90%);
+	--color-cool-4: var(--sfh-line-2);
+	--color-cool-3: var(--sfh-hover);
+
+	/* accents: warm-1 is Foundry's highlight, warm-2 its secondary */
+	--color-warm-1: var(--sfh-hot);
+	--color-warm-2: var(--sfh-acc);
+
+	/* text */
+	--color-light-1: var(--sfh-bright);
+	--color-light-2: var(--sfh-text);
+	--color-light-3: var(--sfh-text);
+	--color-light-4: var(--sfh-dim);
+	--color-light-5: var(--sfh-dim);
+	--color-text-emphatic: var(--sfh-bright);
+	--color-text-primary: var(--sfh-text);
+	--color-text-secondary: var(--sfh-dim);
+	--color-text-subtle: var(--sfh-dim);
+
+	/* the sidebar's own tokens */
+	--sidebar-background: var(--sfh-panel);
+	--sidebar-separator: 1px solid var(--sfh-line-2);
+	--sidebar-entry-hover-bg: var(--sfh-hover);
+
+	font-family: var(--sfh-face);
+}
+
+/* ---------------------------------------------------------------- edges */
+/*
+ * The palette alone leaves Foundry's panels looking correct but anonymous. A thin
+ * themed edge and the device's glow are what make it read as one machine.
+ */
+
+body[data-sfh-device] :is(#sidebar, #players, #scene-controls .control-tools, #camera-views) {
+	border: 1px solid var(--sfh-line);
+	box-shadow: 0 0 18px rgb(0 0 0 / 45%), inset 0 0 22px rgb(var(--sfh-bg-rgb) / 60%);
+}
+
+body[data-sfh-device] #sidebar-tabs .item.active,
+body[data-sfh-device] #scene-navigation .scene.view,
+body[data-sfh-device] #scene-controls .control.active {
+	color: var(--sfh-bright);
+	border-color: var(--sfh-hot);
+	box-shadow: 0 0 14px var(--sfh-glow);
+}
+
+body[data-sfh-device] :is(#sidebar-tabs .item, #scene-navigation .scene, #scene-controls .control):hover {
+	color: var(--sfh-bright);
+	box-shadow: 0 0 12px var(--sfh-glow);
+}
+
+/* headings and labels take the device's display face */
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .window-title, legend) {
+	font-family: var(--sfh-face);
+	letter-spacing: 0.04em;
+}
+
+/* the scene bar reads as a row of stations rather than parchment tabs */
+body[data-sfh-device] #scene-navigation .scene {
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line-2);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	color: var(--sfh-text);
+}
+
+/* the player list keeps its per-user colours; only its shell is themed */
+body[data-sfh-device] #players .player-name {
+	color: var(--sfh-text);
+}

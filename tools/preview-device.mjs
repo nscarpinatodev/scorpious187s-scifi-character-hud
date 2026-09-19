@@ -39,7 +39,7 @@ const measure = () => page.evaluate(() => {
 for (const device of ['omni', 'wrist', 'gdi', 'nod']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	await wait(400);
-	shots.push(await page.screenshot({ clip: { x: 200, y: 590, width: 1200, height: 310 } }));
+	shots.push(await page.screenshot());
 	report[device] = await measure();
 }
 console.log('errors:', errors.length ? errors.slice(0, 4) : 'none');

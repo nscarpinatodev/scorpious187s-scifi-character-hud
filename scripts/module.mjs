@@ -19,7 +19,7 @@ import { DeviceChrome } from './device/chrome.mjs';
  * manifest afterwards is never linked until the world is restarted. Link ours ourselves
  * if they are missing — it costs nothing when they are already there.
  */
-const STYLES = ['styles/device.css'];
+const STYLES = ['styles/device.css', 'styles/interface.css'];
 
 function ensureStyles() {
 	for (const path of STYLES) {
