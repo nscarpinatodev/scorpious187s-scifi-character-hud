@@ -1,79 +1,97 @@
 /*
  * Sci-Fi Character HUD — D&D 5e fitting.
  *
- * The 5e sheet is an ApplicationV2 that re-renders its parts independently, so we leave
- * its layout alone entirely. Our panels dock to the right of it and the window content
- * makes room with padding. That means a 5e system update can change everything inside the
- * sheet without touching the HUD.
+ * The sheet's content element becomes our grid and 5e's own blocks are placed into slots
+ * where they stand. The system keeps drawing everything inside those blocks; we own the
+ * frame, the arrangement and the panels beside them.
+ *
+ * Earlier attempts are worth not repeating: painting the device art behind 5e's content,
+ * and padding the window to make room for a dock, both left two layouts fighting in one
+ * box. Anything here that reaches inside a block is a bug.
  */
 
-.sfh-sheet.sfh-v2 .window-content.sfh-dock {
-	position: relative;
+.sfh-v2.sfh-app .window-content.sfh-v2-frame {
+	display: grid;
+	gap: var(--sfh-gap, 8px);
+	padding: var(--sfh-pad, 10px);
 	box-sizing: border-box;
-	padding-right: calc(var(--sfh-side-w, 268px) + 14px);
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
 	background: var(--sfh-bg);
-	gap: 0;
-	display: block;      /* the system lays its own parts out inside this box */
+	background-image: none;     /* 5e's own parchment art has no place in the HUD */
+	color: var(--sfh-text);
+
+	grid-template-columns: var(--sfh-rail-w, 56px) var(--sfh-aside-w, 250px) minmax(0, 1fr) var(--sfh-side-w, 268px);
+	grid-template-rows: auto auto minmax(0, 1fr) minmax(0, auto);
+	grid-template-areas:
+		"identity identity identity   bar"
+		"scores   scores   scores     readout"
+		"nav      aside    projection readout"
+		"nav      aside    projection extras";
 }
 
-/* The system's parts paint above the art layer. */
-.sfh-sheet.sfh-v2 .sfh-dock > *:not(.sfh-own) {
-	position: relative;
-	z-index: 1;
+/* 5e keeps its sidebar inside the main container, so there is no separate side block:
+   the tab rail, the sheet body and our panels share the row. */
+.sfh-v2 .sfh-v2-frame[data-has-aside="no"] {
+	grid-template-columns: var(--sfh-rail-w, 56px) minmax(0, 1fr) var(--sfh-side-w, 268px);
+	grid-template-areas:
+		"identity identity   bar"
+		"scores   scores     readout"
+		"nav      projection readout"
+		"nav      projection extras";
 }
 
-/* Docked panels. */
-.sfh-sheet.sfh-v2 .sfh-dock > :is(.sfh-readout, .sfh-extras) {
-	position: absolute;
-	right: 8px;
-	width: var(--sfh-side-w, 268px);
-	z-index: 2;
+.sfh-v2 .sfh-v2-frame > [data-slot="scores"] { grid-area: scores; }
+.sfh-v2 .sfh-v2-frame > [data-slot="warnings"] { grid-area: identity; justify-self: start; align-self: end; }
+.sfh-v2 .sfh-v2-frame > [data-slot="loose"] { grid-column: 1 / -1; }
+
+/* Blocks fill their slots and scroll inside them, not the window. */
+.sfh-v2 .sfh-v2-frame > [data-slot="projection"],
+.sfh-v2 .sfh-v2-frame > [data-slot="aside"] {
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden auto;
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius, 0);
+	background: var(--sfh-panel);
+	clip-path: var(--sfh-clip, none);
 }
 
-.sfh-sheet.sfh-v2 .sfh-dock > .sfh-extras { top: 46px; max-height: 40%; }
-.sfh-sheet.sfh-v2 .sfh-dock > .sfh-readout { top: calc(46px + 40% + 8px); bottom: 8px; }
-.sfh-sheet.sfh-v2 .sfh-dock:not(:has(.sfh-extras)) > .sfh-readout { top: 46px; }
-
-.sfh-sheet.sfh-v2 .sfh-dock > [data-slot="bar"] {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-	z-index: 3;
+.sfh-v2 .sfh-v2-frame > [data-slot="identity"] {
+	min-width: 0;
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius, 0);
+	background: var(--sfh-panel);
+	clip-path: var(--sfh-clip, none);
 }
 
-/* Compact: the dock's room disappears and the panels become the drawer that
-   hud-core.css already defines. */
-.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) {
-	padding-right: 0;
+/* 5e's tab rail: ours runs down the left of the sheet. */
+.sfh-v2 .sfh-v2-frame > [data-slot="nav"] {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 4px;
+	overflow: hidden auto;
 }
 
-.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) > :is(.sfh-readout, .sfh-extras) {
-	top: 8px;
-	bottom: 8px;
-	max-height: none;
-	width: min(320px, 82%);
+/* Compact and mini reuse hud-core.css's drawer, with 5e's own blocks in it. */
+.sfh-v2 .sfh-v2-frame[data-size="compact"] {
+	grid-template-columns: var(--sfh-rail-w, 56px) minmax(0, 1fr);
+	grid-template-rows: auto auto minmax(0, 1fr);
+	grid-template-areas:
+		"identity identity"
+		"scores   scores"
+		"nav      projection";
 }
 
-.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) > .sfh-extras {
-	top: auto;
-	bottom: calc(24% + 8px);
-	height: 18%;
+.sfh-v2 .sfh-v2-frame[data-size="mini"] {
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-rows: auto auto auto minmax(0, 1fr);
+	grid-template-areas:
+		"identity"
+		"scores"
+		"nav"
+		"projection";
 }
-
-.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) > .sfh-readout {
-	top: auto;
-	height: 24%;
-}
-
-/* Recolour, without touching layout: 5e paints its own parchment surfaces, so we tint
-   the sheet's ground and let its cards sit on it. */
-.sfh-sheet.sfh-v2 .sfh-dock { color: var(--sfh-text); }
-
-.sfh-sheet.sfh-v2 .sfh-dock :is(.tab-body, .main-content) {
-	background: transparent;
-}
-
-/* `clean` drops the art; the window keeps a readable ground. */
-.sfh-sheet.sfh-v2 .sfh-dock[data-chrome="clean"] { background: rgb(8 10 14 / 92%); }
-
-.sfh-sheet.sfh-v2 form.sfh-failed > .sfh-own { display: none; }

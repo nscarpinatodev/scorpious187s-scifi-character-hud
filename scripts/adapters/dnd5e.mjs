@@ -37,10 +37,10 @@ export function makeDnd5eHudSheet(Base) {
 		_onRender(context, options) {
 			super._onRender(context, options);
 			try {
-				this.element?.classList.add('sfh-sheet', 'sfh-v2');
+				this.element?.classList.add('sfh-v2');
 				applyDockShell(this, this.element);
 			} catch (err) {
-				console.error(`${MOD} | dock failed, leaving the standard sheet in place`, err);
+				console.error(`${MOD} | shell failed, leaving the standard sheet in place`, err);
 				this.element?.classList.add('sfh-failed');
 				ui.notifications.error(game.i18n.localize('SFH.ShellFailed'));
 			}

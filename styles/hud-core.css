@@ -38,7 +38,7 @@
 	transition: opacity 90ms linear;
 }
 
-.sfh-app .window-content {
+.sfh-app.sfh-framed .window-content {
 	padding: 0;
 	overflow: hidden;
 }

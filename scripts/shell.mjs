@@ -143,7 +143,7 @@ export function applyShell(app, form) {
 
 	const root = app.element instanceof HTMLElement ? app.element : app.element?.[0];
 	if (root) {
-		root.classList.add('sfh-app');
+		root.classList.add('sfh-app', 'sfh-framed');
 		root.classList.toggle('sfh-hidden', hidden);
 		root.style.setProperty('--sfh-scale', String(setting(S.scale)));
 		observeSize(app, root, frame);
