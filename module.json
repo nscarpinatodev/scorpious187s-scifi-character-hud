@@ -50,7 +50,8 @@
 	],
 	"styles": [
 		"styles/device.css",
-		"styles/interface.css"
+		"styles/interface.css",
+		"styles/projection.css"
 	],
 	"languages": [
 		{

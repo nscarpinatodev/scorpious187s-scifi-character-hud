@@ -157,12 +157,9 @@ export class DeviceChrome {
 		this.#power = on;
 		document.body.dataset.sfhPower = on ? 'on' : 'off';
 		document.getElementById(EL.power)?.setAttribute('aria-pressed', String(on));
-		if (silent || !setting(S.sequences)) {
-			Hooks.callAll('sfhPower', on, { sequence: false });
-			return;
-		}
-		this.playSequence(on ? 'on' : 'off');
-		Hooks.callAll('sfhPower', on, { sequence: true });
+		// The projection is raised by whoever listens to this hook, and only then is there
+		// anything to animate — so the sequence is played from there, not here.
+		Hooks.callAll('sfhPower', on, { sequence: !silent && setting(S.sequences) });
 	}
 
 	static toggle() {

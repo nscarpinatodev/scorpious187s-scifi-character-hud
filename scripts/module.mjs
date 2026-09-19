@@ -1,6 +1,7 @@
-import { MOD, S, EL } from './constants.mjs';
+import { MOD, S, EL, SEQ } from './constants.mjs';
 import { registerSettings, currentDevice } from './settings.mjs';
 import { DeviceChrome } from './device/chrome.mjs';
+import { Projection } from './projection/projection.mjs';
 
 /**
  * Scorpious187's Sci-Fi Character HUD.
@@ -19,7 +20,7 @@ import { DeviceChrome } from './device/chrome.mjs';
  * manifest afterwards is never linked until the world is restarted. Link ours ourselves
  * if they are missing — it costs nothing when they are already there.
  */
-const STYLES = ['styles/device.css', 'styles/interface.css'];
+const STYLES = ['styles/device.css', 'styles/interface.css', 'styles/projection.css'];
 
 function ensureStyles() {
 	for (const path of STYLES) {
@@ -37,7 +38,10 @@ function ensureStyles() {
 /* -------------------------------------------- */
 
 Hooks.once('init', () => {
-	registerSettings(() => DeviceChrome.refresh());
+	registerSettings(() => {
+		DeviceChrome.refresh();
+		Projection.syncDevice();
+	});
 });
 
 Hooks.once('ready', () => {
@@ -48,13 +52,40 @@ Hooks.once('ready', () => {
 
 	game.modules.get(MOD).api = {
 		chrome: DeviceChrome,
+		projection: Projection,
 		setPower: (on) => DeviceChrome.setPower(on),
 		toggle: () => DeviceChrome.toggle(),
 		refresh: () => DeviceChrome.refresh(),
-		unmount: () => DeviceChrome.unmount(),
+		unmount: () => { Projection.close(); DeviceChrome.unmount(); },
 		debug,
 	};
 });
+
+/* -------------------------------------------- */
+/*  The projection                               */
+/* -------------------------------------------- */
+
+/**
+ * The switch only changes the power state and says so. Raising and lowering the projection
+ * happens here, so the sequence starts once there is something on screen to animate.
+ */
+Hooks.on('sfhPower', async (on, { sequence } = {}) => {
+	if (on) {
+		const raised = await Projection.open();
+		if (!raised) return DeviceChrome.setPower(false, { silent: true });
+		if (sequence) DeviceChrome.playSequence('on');
+		return;
+	}
+	if (!sequence) return Projection.close();
+	DeviceChrome.playSequence('off');
+	setTimeout(() => Projection.close(), SEQ.off);
+});
+
+/* The free area changes whenever Foundry's own furniture does. */
+for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {
+	Hooks.on(hook, () => Projection.scheduleFit());
+}
+addEventListener('resize', () => Projection.scheduleFit());
 
 /**
  * Foundry only inserts a frameless application's element on its first render, so the
@@ -76,6 +107,8 @@ function debug() {
 		mounted: !!document.getElementById(EL.device),
 		hotbarParent: hotbar?.parentElement?.id ?? null,
 		power: DeviceChrome.power,
+		projectionOpen: Projection.isOpen,
+		character: Projection.actor()?.name ?? null,
 		deckSize: game.settings.get(MOD, S.deckSize),
 		styles: STYLES.map((p) => !!document.querySelector(`link[href^="modules/${MOD}/${p}"]`)),
 	};

@@ -45,18 +45,20 @@ scripts/
   device/
     art.mjs             the arm, in the mock-up's own coordinates
     chrome.mjs          mounts the device, moves the macro bar onto it, power + sequences
-  projection/           (next) the projected sheet: frame, panels, the docked system sheet
+  projection/
+    projection.mjs      the layer: free-area fit, device frame, docking the system sheet
   adapters/
     pf2e-family.mjs     SF2e and PF2e: the numbers our panels show
     dnd5e.mjs           D&D 5e: the same, from its own API
 styles/
   device.css            device palettes, the arm, the macro bar skin, device sequences
   interface.css         the device palette mapped onto Foundry's own interface colours
-  projection.css        (next) the projection frame, panels, and its half of the sequences
+  projection.css        the projection frame per device, the docked sheet, the sequences
 tools/
   harness-device.html   Foundry's game-view regions and real hotbar markup, no Foundry
   harness-device.mjs    stubs game.settings / i18n / Hooks, runs the real chrome.mjs
   preview-device.mjs    screenshots all four devices and prints their geometry
+  preview-projection.mjs  raises the projection on each device and asserts its clearances
 ```
 
 ### Why a harness
@@ -85,10 +87,17 @@ bar is moved onto the omni-tool's arm and sized to it, or docked with a power ke
 the band and the power key raise and lower the power state and play the sequence classes; per-user
 settings for device, key size, sequences and the etched grid.
 
-**Next — the projection.** The frame and panels from the mock-up (identity, vitals, defenses,
-effects, Mass Effect dossier, readout), the system's own sheet docked into the tab body, the
-three power sequences, and the rule that the projection is centred on the window but never
-reaches under the sidebar, controls, scene bar or macro bar.
+**Done — the projection shell.** The switch raises a framed projection over the canvas with the
+system's own sheet docked inside it, window furniture hidden. Each device has its housing (none
+for the omni-tool, the wrist case, the EVA bezel) and its sequence. The free area is measured
+from Foundry's own regions, so the projection is centred on the window and never reaches under
+the controls, sidebar, scene bar or device. Checked headlessly against a stand-in application
+window: docked, header hidden, and clear on every side, on all four devices.
+
+**Next — the panels.** Identity, vitals, defenses, effects, the Mass Effect dossier and the
+readout from the mock-up, around the docked sheet, fed by the per-system adapters. Then the real
+sheets: SF2e/PF2e are ApplicationV1 and D&D 5e is ApplicationV2, so each needs its own pass of
+CSS to sit inside the frame.
 
 **After that.** See TODO.md — the sidebar panels one at a time, the hide-everything key, the
 compact layout and the Paragon/Renegade dossier.

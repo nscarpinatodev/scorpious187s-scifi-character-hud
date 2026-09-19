@@ -1,0 +1,300 @@
+/* =========================================================================
+   The projection: the sheet the device raises over the canvas.
+
+   The frame and the sequences are ours. What is inside the screen is the game
+   system's own sheet element, moved here — so everything below `.sfh-docked`
+   is about making somebody else's markup sit in our frame without changing
+   how it works.
+   ========================================================================= */
+
+#sfh-projection {
+	position: fixed;
+	left: 50%;
+	bottom: var(--sfh-proj-bottom, 90px);
+	width: var(--sfh-proj-width, 60vw);
+	height: var(--sfh-proj-height, 60vh);
+	transform: translateX(-50%);
+	z-index: calc(var(--z-index-app, 60) - 1);
+	display: none;
+	pointer-events: none;
+	font-family: var(--sfh-face);
+	color: var(--sfh-text);
+}
+
+#sfh-projection.sfh-visible {
+	display: block;
+}
+
+.sfh-frame {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	min-height: 0;
+}
+
+.sfh-screen {
+	position: relative;
+	flex: 1;
+	display: flex;
+	min-width: 0;
+	min-height: 0;
+	pointer-events: auto;
+	background: rgb(var(--sfh-bg-rgb) / 82%);
+	border: 1px solid var(--sfh-line);
+	box-shadow: inset 0 0 40px rgb(var(--sfh-bg-rgb) / 70%), 0 0 26px rgb(0 0 0 / 55%);
+}
+
+.sfh-body {
+	flex: 1;
+	display: flex;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- the borrowed sheet */
+/*
+ * The sheet arrives as a floating application window: absolutely positioned, with a
+ * header, a resize handle and its own background. It keeps all of that machinery — it is
+ * only told to fill the screen instead of floating. `!important` is deliberate: Foundry
+ * writes position and size to the element's inline style on every render.
+ */
+
+#sfh-projection .sfh-docked {
+	position: static !important;
+	inset: auto !important;
+	width: 100% !important;
+	height: 100% !important;
+	min-width: 0 !important;
+	min-height: 0 !important;
+	max-width: none !important;
+	max-height: none !important;
+	margin: 0 !important;
+	transform: none !important;
+	z-index: auto !important;
+	display: flex !important;
+	flex-direction: column;
+	background: none !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	backdrop-filter: none !important;
+	opacity: 1 !important;
+}
+
+/* the window furniture belongs to a floating window, not to a projection */
+#sfh-projection .sfh-docked > :is(.window-header, header.window-header),
+#sfh-projection .sfh-docked > .window-resize-handle,
+#sfh-projection .sfh-docked > .window-resizable-handle {
+	display: none !important;
+}
+
+#sfh-projection .sfh-docked > :is(.window-content, section.window-content, form) {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	max-height: none;
+	background: none;
+	overflow: auto;
+}
+
+/* ---------------------------------------------------------------- device frames */
+
+/* Mass Effect: no housing at all — the panels are light in the air. */
+#sfh-projection[data-device="omni"] .sfh-screen {
+	background: rgb(var(--sfh-bg-rgb) / 55%);
+	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+}
+
+/* The wrist unit's case, hinged at the base. */
+#sfh-projection[data-device="wrist"] .sfh-frame {
+	padding: 14px 14px 22px;
+	border-radius: 18px;
+	background: linear-gradient(180deg, #31215c 0%, #1a0e33 55%, #0f0820 100%);
+	box-shadow: inset 0 0 0 1px var(--sfh-acc), 0 18px 40px rgb(0 0 0 / 55%);
+}
+
+#sfh-projection[data-device="wrist"] .sfh-screen {
+	border-radius: 12px;
+}
+
+#sfh-projection[data-device="wrist"] .sfh-frame::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: 7px;
+	width: 120px;
+	height: 6px;
+	border-radius: 3px;
+	transform: translateX(-50%);
+	background: var(--sfh-hot);
+	box-shadow: 0 0 14px var(--sfh-glow);
+}
+
+/* The EVA console: a bezel around its own screen, and nothing else. */
+#sfh-projection[data-device="gdi"] .sfh-frame,
+#sfh-projection[data-device="nod"] .sfh-frame {
+	padding: 14px;
+	background: var(--sfh-bezel, #3a3d2c);
+	box-shadow: inset 0 0 0 2px #000, inset 0 0 0 4px var(--sfh-line), 0 18px 40px rgb(0 0 0 / 55%);
+}
+
+#sfh-projection[data-device="nod"] .sfh-frame {
+	--sfh-bezel: #3a2020;
+}
+
+#sfh-projection[data-device="gdi"] .sfh-frame::before,
+#sfh-projection[data-device="nod"] .sfh-frame::before,
+#sfh-projection[data-device="gdi"] .sfh-frame::after,
+#sfh-projection[data-device="nod"] .sfh-frame::after {
+	content: "";
+	position: absolute;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 35%, #9a9a8a, #2a2a24);
+	box-shadow: calc(100% + 0px) 0 0 #2a2a24;
+}
+
+#sfh-projection[data-device="gdi"] .sfh-frame::before,
+#sfh-projection[data-device="nod"] .sfh-frame::before {
+	left: 4px;
+	top: 4px;
+	box-shadow: calc(var(--sfh-proj-width, 60vw) - 25px) 0 0 #2a2a24;
+}
+
+#sfh-projection[data-device="gdi"] .sfh-frame::after,
+#sfh-projection[data-device="nod"] .sfh-frame::after {
+	left: 4px;
+	bottom: 4px;
+	box-shadow: calc(var(--sfh-proj-width, 60vw) - 25px) 0 0 #2a2a24;
+}
+
+/* ---------------------------------------------------------------- sequences */
+/*
+ * Driven by the same two classes the device layer uses, so the emitter flare, the beam
+ * and the picture all move together.
+ */
+
+/* Mass Effect: the picture elevates out of the band. */
+#sfh-projection[data-device="omni"].sfh-seq-on .sfh-frame {
+	animation: sfh-rise 520ms cubic-bezier(0.16, 0.9, 0.3, 1) backwards;
+}
+
+@keyframes sfh-rise {
+	from { opacity: 0; transform: translateY(120px) scaleY(0.5) scaleX(0.94); filter: blur(3px); }
+	60% { opacity: 1; }
+	to { opacity: 1; transform: none; filter: none; }
+}
+
+#sfh-projection[data-device="omni"].sfh-seq-off .sfh-frame {
+	animation: sfh-fall 400ms cubic-bezier(0.5, 0, 0.85, 0.4) forwards;
+}
+
+@keyframes sfh-fall {
+	from { opacity: 1; transform: none; }
+	to { opacity: 0; transform: translateY(110px) scaleY(0.45) scaleX(0.9); filter: blur(3px); }
+}
+
+/* The wrist unit: the case hinges at its base — it swings up, and folds away. */
+#sfh-projection[data-device="wrist"] {
+	perspective: 1700px;
+	perspective-origin: 50% 90%;
+}
+
+#sfh-projection[data-device="wrist"].sfh-seq-on .sfh-frame {
+	transform-origin: 50% 100%;
+	animation: sfh-unfold 600ms cubic-bezier(0.17, 0.85, 0.3, 1.02) backwards;
+}
+
+@keyframes sfh-unfold {
+	from { transform: rotateX(86deg); opacity: 0.15; }
+	55% { opacity: 1; }
+	to { transform: none; opacity: 1; }
+}
+
+#sfh-projection[data-device="wrist"].sfh-seq-off .sfh-frame {
+	transform-origin: 50% 100%;
+	animation: sfh-fold 460ms cubic-bezier(0.45, 0, 0.85, 0.35) 180ms forwards;
+}
+
+@keyframes sfh-fold {
+	from { transform: none; opacity: 1; }
+	to { transform: rotateX(86deg); opacity: 0.12; }
+}
+
+/*
+ * EVA: a pulse draws across the centre of the screen, and the picture opens out of that
+ * line in both directions — an old CRT finding its raster.
+ */
+#sfh-projection[data-device="gdi"].sfh-seq-on .sfh-screen,
+#sfh-projection[data-device="nod"].sfh-seq-on .sfh-screen {
+	transform-origin: 50% 50%;
+	animation: sfh-crt-open 520ms cubic-bezier(0.2, 0.9, 0.25, 1) 200ms backwards;
+}
+
+@keyframes sfh-crt-open {
+	from { transform: scaleY(0.005); filter: brightness(2.4); }
+	70% { transform: scaleY(1.03); filter: brightness(1.3); }
+	to { transform: none; filter: none; }
+}
+
+#sfh-projection[data-device="gdi"].sfh-seq-off .sfh-screen,
+#sfh-projection[data-device="nod"].sfh-seq-off .sfh-screen {
+	transform-origin: 50% 50%;
+	animation: sfh-crt-shut 300ms ease-in 160ms forwards;
+}
+
+@keyframes sfh-crt-shut {
+	from { transform: none; filter: none; }
+	to { transform: scaleY(0.005); filter: brightness(2.6); }
+}
+
+/* the pulse itself */
+#sfh-projection[data-device="gdi"].sfh-seq-on .sfh-frame::after,
+#sfh-projection[data-device="nod"].sfh-seq-on .sfh-frame::after,
+#sfh-projection[data-device="gdi"].sfh-seq-off .sfh-frame::after,
+#sfh-projection[data-device="nod"].sfh-seq-off .sfh-frame::after {
+	content: "";
+	position: absolute;
+	left: 4%;
+	top: 50%;
+	width: 92%;
+	height: 3px;
+	border-radius: 0;
+	background: var(--sfh-hot);
+	box-shadow: 0 0 26px 6px var(--sfh-glow);
+	z-index: 20;
+	pointer-events: none;
+}
+
+#sfh-projection[data-device="gdi"].sfh-seq-on .sfh-frame::after,
+#sfh-projection[data-device="nod"].sfh-seq-on .sfh-frame::after {
+	animation: sfh-crt-pulse-on 620ms ease-out forwards;
+}
+
+@keyframes sfh-crt-pulse-on {
+	0% { transform: scaleX(0.02); opacity: 1; }
+	32% { transform: scaleX(1); opacity: 1; }
+	55% { transform: scaleX(1) scaleY(2.2); opacity: 0.75; }
+	100% { transform: scaleX(1) scaleY(1); opacity: 0; }
+}
+
+#sfh-projection[data-device="gdi"].sfh-seq-off .sfh-frame::after,
+#sfh-projection[data-device="nod"].sfh-seq-off .sfh-frame::after {
+	animation: sfh-crt-pulse-off 340ms ease-in 440ms forwards;
+}
+
+@keyframes sfh-crt-pulse-off {
+	0% { transform: scaleX(1) scaleY(1.6); opacity: 1; }
+	45% { transform: scaleX(1); opacity: 1; }
+	100% { transform: scaleX(0.02); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-projection .sfh-frame,
+	#sfh-projection .sfh-screen,
+	#sfh-projection .sfh-frame::after {
+		animation: none !important;
+	}
+}
