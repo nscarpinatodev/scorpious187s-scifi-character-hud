@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Device chrome harness</title>
+<!--
+	A stand-in for the Foundry game view: the same region ids, the same hotbar markup
+	(templates/ui/hotbar.hbs) and, when it can be reached, Foundry's own stylesheet. The
+	module's real chrome.mjs runs against it, so what this page shows is what Foundry gets.
+-->
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/css/foundry2.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Chakra+Petch:wght@400;500;600;700&family=VT323&family=Oxanium:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../styles/device.css">
+<style>
+	html, body { height: 100%; margin: 0; }
+	body.game {
+		background:
+			radial-gradient(ellipse at 50% 32%, #17212c 0%, #080b10 72%),
+			repeating-linear-gradient(0deg, rgb(255 255 255 / 2.5%) 0 1px, transparent 1px 72px),
+			repeating-linear-gradient(90deg, rgb(255 255 255 / 2.5%) 0 1px, transparent 1px 72px);
+		color: #ddd;
+	}
+	#interface { display: flex; flex: 1; justify-content: center; position: relative; height: 100%; }
+	#ui-middle { flex: none; width: 60%; display: flex; flex-direction: column;
+		justify-content: space-between; align-items: center; pointer-events: none; height: 100%; }
+	#ui-top { width: 100%; height: 50%; }
+	#ui-bottom { width: 100%; height: 50%; display: flex; flex-direction: column;
+		justify-content: flex-end; align-items: center; }
+	#hotbar { --hotbar-size: 60px; display: flex; flex: none; width: max-content;
+		height: var(--hotbar-size); margin: 0 0 16px; gap: 8px; align-items: stretch; }
+	#action-bar { display: flex; flex: none; gap: 8px; margin: 0; padding: 0; list-style: none; height: 100%; }
+	#action-bar .slot { position: relative; flex: none; width: var(--hotbar-size); height: var(--hotbar-size);
+		border: 2px solid transparent; border-radius: 10px; background: #2b3242; cursor: pointer; }
+	#action-bar .slot .key { position: absolute; top: 0; left: 0; width: 20px; line-height: 20px;
+		background: #3a445a; border-radius: 10px 0 8px 0; color: #eee; text-align: center; font-size: 12px; }
+	.hotbar-controls { display: flex; gap: 4px; }
+	.hotbar-controls.flexcol, #hotbar-page-controls { flex-direction: column; }
+	#hotbar button { width: 24px; height: 24px; padding: 0; border: 0; background: none; color: #ddd; cursor: pointer; }
+	.hotbar-page-number { display: block; text-align: center; font-size: 12px; }
+	/* the harness's own controls, not part of the module */
+	#rig { position: fixed; right: 12px; bottom: 12px; z-index: 90; display: flex; flex-direction: column; gap: 6px;
+		padding: 10px; background: rgb(8 11 17 / 88%); border: 1px solid #556; font: 12px system-ui; color: #ccd; }
+	#rig select, #rig input { font: inherit; }
+</style>
+</head>
+<body class="game">
+<div id="interface">
+	<div id="ui-middle">
+		<div id="ui-top"></div>
+		<div id="ui-bottom">
+			<aside id="hotbar" class="faded-ui flexrow">
+				<div id="hotbar-controls-left" class="hotbar-controls flexcol">
+					<button type="button" class="ui-control fa-solid fa-volume icon" data-action="mute" aria-label="Mute">🔊</button>
+					<button type="button" class="ui-control fa-solid fa-bars icon" data-action="menu" aria-label="Menu">☰</button>
+				</div>
+				<menu id="action-bar" class="flexrow"></menu>
+				<div id="hotbar-controls-right" class="hotbar-controls flexrow">
+					<nav id="hotbar-page-controls" class="flexcol">
+						<button type="button" class="plain hotbar-page-control page-next icon" data-action="page" data-direction="1">▲</button>
+						<span class="hotbar-page-number">1</span>
+						<button type="button" class="plain hotbar-page-control page-prev icon" data-action="page" data-direction="-1">▼</button>
+					</nav>
+					<div class="flexcol">
+						<button type="button" class="ui-control fa-solid fa-lock-open icon" data-action="lock" aria-label="Lock">🔓</button>
+						<button type="button" class="ui-control fa-solid fa-trash icon" data-action="clear" aria-label="Clear">🗑</button>
+					</div>
+				</div>
+			</aside>
+		</div>
+	</div>
+</div>
+
+<div id="rig">
+	<label>Device <select id="rigDevice">
+		<option value="omni">Omni-tool arm</option>
+		<option value="wrist">Wrist computer</option>
+		<option value="gdi">EVA · GDI</option>
+		<option value="nod">EVA · Nod</option>
+	</select></label>
+	<label>Key size <input id="rigSize" type="range" min="28" max="60" step="2" value="40"></label>
+	<button id="rigPower" type="button">Toggle power</button>
+</div>
+
+<script type="module" src="./harness-device.mjs"></script>
+</body>
+</html>

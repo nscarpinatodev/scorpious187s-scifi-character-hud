@@ -1,0 +1,262 @@
+/* =========================================================================
+   The device at the foot of the interface, and the macro bar mounted on it.
+
+   Everything here is a skin. `#hotbar` is Foundry's own element, moved and
+   recoloured — its slots, page controls and drop targets are untouched.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- tokens */
+/* One palette per device, taken from the approved mock-up. */
+
+body[data-sfh-device] {
+	--sfh-hot: #ff9a3c;
+	--sfh-glow: rgb(255 154 60 / 70%);
+	--sfh-bright: #fff0de;
+	--sfh-text: #ffdcb8;
+	--sfh-dim: #e0985a;
+	--sfh-line: rgb(255 140 42 / 55%);
+	--sfh-line-2: rgb(255 140 42 / 18%);
+	--sfh-hover: rgb(255 140 42 / 16%);
+	--sfh-panel: rgb(8 11 17 / 88%);
+	--sfh-cell: rgb(4 7 11 / 78%);
+	--sfh-acc: #5ec8ff;
+	--sfh-face: Rajdhani, "Arial Narrow", sans-serif;
+	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
+	--sfh-radius: 0px;
+}
+
+body[data-sfh-device="wrist"] {
+	--sfh-hot: #ff4fb4;
+	--sfh-glow: rgb(255 79 180 / 70%);
+	--sfh-bright: #fff;
+	--sfh-text: #eadcff;
+	--sfh-dim: #c79bff;
+	--sfh-line: rgb(53 236 242 / 55%);
+	--sfh-line-2: rgb(199 155 255 / 18%);
+	--sfh-hover: rgb(53 236 242 / 16%);
+	--sfh-panel: rgb(22 9 48 / 88%);
+	--sfh-cell: rgb(16 6 36 / 80%);
+	--sfh-acc: #35ecf2;
+	--sfh-face: "Chakra Petch", sans-serif;
+	--sfh-mono: VT323, ui-monospace, monospace;
+	--sfh-radius: 10px;
+}
+
+body[data-sfh-device="gdi"] {
+	--sfh-hot: #6dff5a;
+	--sfh-glow: rgb(109 255 90 / 60%);
+	--sfh-bright: #effde8;
+	--sfh-text: #d6f2c9;
+	--sfh-dim: #8fbf7c;
+	--sfh-line: rgb(118 214 96 / 50%);
+	--sfh-line-2: rgb(118 214 96 / 16%);
+	--sfh-hover: rgb(109 255 90 / 14%);
+	--sfh-panel: rgb(10 16 9 / 90%);
+	--sfh-cell: rgb(6 10 5 / 85%);
+	--sfh-acc: #f2c230;
+	--sfh-face: Oxanium, sans-serif;
+	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
+	--sfh-radius: 0px;
+}
+
+body[data-sfh-device="nod"] {
+	--sfh-hot: #ff3b30;
+	--sfh-glow: rgb(255 59 48 / 65%);
+	--sfh-bright: #fff3f0;
+	--sfh-text: #f5d9d4;
+	--sfh-dim: #c9847c;
+	--sfh-line: rgb(255 60 50 / 50%);
+	--sfh-line-2: rgb(255 60 50 / 16%);
+	--sfh-hover: rgb(255 59 48 / 14%);
+	--sfh-panel: rgb(20 7 7 / 90%);
+	--sfh-cell: rgb(12 4 4 / 85%);
+	--sfh-acc: #efe6d2;
+	--sfh-face: Oxanium, sans-serif;
+	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
+	--sfh-radius: 0px;
+}
+
+/* ---------------------------------------------------------------- the device */
+
+#sfh-device {
+	position: relative;
+	flex: none;
+	/* replaced by fit() with a width measured from the macro bar */
+	width: clamp(420px, 38vw, 900px);
+	max-width: 100%;
+	pointer-events: none;
+}
+
+/* Devices that draw nothing at the foot of the screen only need room for the bar. */
+#sfh-device:not(:has(svg.sfh-art)) {
+	width: max-content;
+}
+
+#sfh-device svg.sfh-art {
+	display: block;
+	width: 100%;
+	height: auto;
+	pointer-events: none;
+}
+
+#sfh-band {
+	pointer-events: auto;
+	cursor: var(--cursor-pointer, pointer);
+}
+
+#sfh-band:hover,
+#sfh-band:focus-visible {
+	filter: brightness(1.35);
+	outline: none;
+}
+
+/* ---------------------------------------------------------------- the macro bar */
+
+#sfh-deck {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 8px;
+	pointer-events: auto;
+}
+
+/* On a device with art the bar is mounted on the plate, under the band. */
+#sfh-device:has(svg.sfh-art) #sfh-deck {
+	position: absolute;
+	left: 50%;
+	bottom: var(--sfh-deck-bottom, 6%);
+	width: max-content;
+	transform: translateX(-50%);
+}
+
+#sfh-deck #hotbar {
+	background: none;
+}
+
+/* flush with the plate when it is mounted on one; Foundry's own margin otherwise */
+#sfh-device:has(svg.sfh-art) #hotbar {
+	margin: 0;
+}
+
+#sfh-device:not(:has(svg.sfh-art)) #sfh-deck {
+	margin-bottom: 16px;
+}
+
+#sfh-device:not(:has(svg.sfh-art)) #hotbar {
+	margin: 0;
+}
+
+/* the keys */
+#sfh-deck #action-bar .slot {
+	border: 1px solid var(--sfh-line);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	background: var(--sfh-cell);
+	box-shadow: inset 0 0 12px rgb(0 0 0 / 45%);
+}
+
+#sfh-deck #action-bar .slot:hover {
+	border: 1px solid var(--sfh-hot);
+	box-shadow: 0 0 14px var(--sfh-glow);
+}
+
+#sfh-deck #action-bar .slot.drop-target {
+	border: 1px solid var(--sfh-hot);
+	background: var(--sfh-hover);
+}
+
+#sfh-deck #action-bar .slot .key {
+	width: 16px;
+	line-height: 16px;
+	border-radius: 0;
+	background: transparent;
+	color: var(--sfh-dim);
+	font-family: var(--sfh-mono);
+	font-size: 11px;
+	text-align: left;
+	padding-left: 3px;
+}
+
+#sfh-deck #action-bar .slot.full .key {
+	background: transparent;
+	color: var(--sfh-hot);
+}
+
+#sfh-deck #action-bar .slot .slot-icon {
+	border-radius: calc(var(--sfh-radius) * 0.5);
+}
+
+/* the mute, menu, lock, clear and page controls */
+#sfh-deck #hotbar button {
+	--button-text-color: var(--sfh-text);
+	--button-hover-text-color: var(--sfh-bright);
+	color: var(--sfh-text);
+}
+
+#sfh-deck #hotbar button:hover {
+	color: var(--sfh-bright);
+	text-shadow: 0 0 10px var(--sfh-glow);
+}
+
+#sfh-deck .hotbar-page-number {
+	color: var(--sfh-hot);
+	font-family: var(--sfh-mono);
+}
+
+/* the power key, for the devices whose switch is not on the device itself */
+.sfh-power {
+	flex: none;
+	width: var(--hotbar-size, 40px);
+	height: var(--hotbar-size, 40px);
+	display: grid;
+	place-items: center;
+	padding: 0;
+	border: 1px solid var(--sfh-hot);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	background: var(--sfh-hover);
+	color: var(--sfh-bright);
+	box-shadow: 0 0 14px var(--sfh-glow);
+	cursor: var(--cursor-pointer, pointer);
+	font-size: calc(var(--hotbar-size, 40px) * 0.4);
+}
+
+.sfh-power[aria-pressed="false"] {
+	border-color: var(--sfh-line);
+	background: var(--sfh-cell);
+	color: var(--sfh-dim);
+	box-shadow: none;
+}
+
+.sfh-power:hover {
+	color: var(--sfh-bright);
+	box-shadow: 0 0 18px var(--sfh-glow);
+}
+
+/* ---------------------------------------------------------------- sequences */
+/*
+ * The device's own part of the power sequence. The projection's half lives in
+ * styles/projection.css; both are driven by the same two classes so they stay in step.
+ */
+
+/* Mass Effect: the emitter flares as the projection rises out of the band. */
+#sfh-device.sfh-seq-on #sfh-band,
+#sfh-device.sfh-seq-off #sfh-band {
+	animation: sfh-band-flare 550ms ease-out;
+}
+
+@keyframes sfh-band-flare {
+	0% { filter: brightness(1); }
+	35% { filter: brightness(2.6); }
+	100% { filter: brightness(1); }
+}
+
+/* Dormant: the band idles at half strength so it still reads as a switch. */
+body[data-sfh-power="off"] #sfh-band {
+	filter: brightness(0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-device.sfh-seq-on #sfh-band,
+	#sfh-device.sfh-seq-off #sfh-band {
+		animation: none;
+	}
+}
