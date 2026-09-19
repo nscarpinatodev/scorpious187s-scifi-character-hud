@@ -19,7 +19,7 @@ export function registerSettings() {
 
 	game.settings.register(MOD, S.chrome, {
 		name: 'SFH.Settings.Chrome', hint: 'SFH.Settings.ChromeHint',
-		scope: 'client', config: true, type: String, default: 'full',
+		scope: 'client', config: true, type: String, default: 'clean',
 		choices: {
 			full: 'SFH.Settings.ChromeFull',
 			bare: 'SFH.Settings.ChromeBare',

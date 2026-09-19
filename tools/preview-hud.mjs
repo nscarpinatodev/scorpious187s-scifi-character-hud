@@ -26,7 +26,7 @@ await page.evaluate(() => harness.tab('spells')); await wait(400); shots.push(aw
 await page.evaluate(() => { harness.tab('details'); harness.set('defaultTheme', 'gdi'); }); await wait(500); shots.push(await shot());
 await page.evaluate(() => { harness.set('defaultTheme', 'omni'); harness.size('compact'); }); await wait(600); shots.push(await shot());
 console.log('errors:', errors.length ? errors.slice(0, 5) : 'none');
-console.log('slots:', await page.evaluate(() => [...document.querySelectorAll('.sfh-frame > [data-slot]')].map(e => e.dataset.slot)));
+console.log('slots:', await page.evaluate(() => [...document.querySelectorAll('.sfh-hud > [data-slot]')].map(e => e.dataset.slot)));
 const imgs = await Promise.all(shots.map(b => sharp(b).resize(560, null, { fit: 'inside' }).toBuffer()));
 const metas = await Promise.all(imgs.map(b => sharp(b).metadata()));
 const h = Math.max(...metas.map(m => m.height));

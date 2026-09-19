@@ -61,7 +61,7 @@ export function makeHudSheet(adapter) {
 			const chrome = setting(S.chrome);
 
 			const frame = document.createElement('div');
-			frame.className = 'sfh-frame sfh-hud';
+			frame.className = 'sfh-hud';
 			frame.dataset.hudTheme = themeId;
 			frame.dataset.chrome = chrome;
 			frame.dataset.sequence = theme.sequence;
@@ -73,8 +73,10 @@ export function makeHudSheet(adapter) {
 				${chrome === 'clean' ? '' : `<div class="sfh-art" data-chrome="${chrome}">${theme.art()}</div>`}
 				${this.#identity(data)}
 				${this.#bar()}
-				${this.#vitals(data)}
-				${this.#defenses(data)}
+				<div class="sfh-slot sfh-col" data-slot="aside">
+					${this.#vitals(data)}
+					${this.#defenses(data)}
+				</div>
 				<section class="sfh-slot sfh-projection" data-slot="projection">
 					<header class="sfh-proj-head">
 						<span class="sfh-proj-title">${L(adapter.TABS.find((t) => t.id === this.tab)?.label ?? '')}</span>
@@ -83,11 +85,13 @@ export function makeHudSheet(adapter) {
 					<div class="sfh-proj-body" data-scroll="${this.tab}">${this.#tab(data)}</div>
 				</section>
 				${this.#nav()}
-				<aside class="sfh-slot sfh-readout" data-slot="readout">
-					<header class="sfh-panel-head"><span class="sfh-label">${L('SFH.Readout.Title')}</span></header>
-					<div class="sfh-readout-body"><p class="sfh-dim">${L('SFH.Readout.Empty')}</p></div>
-				</aside>
-				<aside class="sfh-slot sfh-extras sfh-own" data-slot="extras" hidden></aside>
+				<div class="sfh-slot sfh-col" data-slot="readout">
+					<aside class="sfh-readout">
+						<header class="sfh-panel-head"><span class="sfh-label">${L('SFH.Readout.Title')}</span></header>
+						<div class="sfh-readout-body"><p class="sfh-dim">${L('SFH.Readout.Empty')}</p></div>
+					</aside>
+					<aside class="sfh-extras sfh-own" hidden></aside>
+				</div>
 				<div class="sfh-glass"></div>`;
 
 			return frame;
@@ -137,7 +141,7 @@ export function makeHudSheet(adapter) {
 			const pips = (n, total, action, cls = '') => Array.from({ length: total }, (_, i) =>
 				`<button type="button" class="sfh-pip ${cls} ${i < n ? 'is-on' : ''}" data-sfh="${action}" data-i="${i}" aria-label="${i + 1}"></button>`).join('');
 			return `
-			<section class="sfh-slot sfh-vitals" data-slot="aside">
+			<section class="sfh-vitals">
 				<div class="sfh-cell sfh-cell-wide">
 					<div class="sfh-row"><span class="sfh-label">${L('SFH.Stat.HP')}</span><span class="sfh-num">${L('SFH.Stat.Temp')} ${v.hp.temp}</span></div>
 					<div class="sfh-row sfh-hp-row">
@@ -175,7 +179,7 @@ export function makeHudSheet(adapter) {
 			const cells = d.defenses.map((s) => s.action
 				? `<button type="button" class="sfh-cell sfh-click" data-sfh="${s.action}"><span class="sfh-label">${L(s.label)}</span><span class="sfh-v">${esc(s.value)}</span></button>`
 				: `<div class="sfh-cell ${s.primary ? 'is-primary' : ''}"><span class="sfh-label">${L(s.label)}</span><span class="sfh-v">${esc(s.value)}</span></div>`).join('');
-			return `<section class="sfh-slot sfh-defenses" data-slot="defenses">${cells}</section>`;
+			return `<section class="sfh-defenses">${cells}</section>`;
 		}
 
 		#nav() {
@@ -272,7 +276,7 @@ export function makeHudSheet(adapter) {
 			root.classList.toggle('sfh-hidden', isHidden());
 			root.style.setProperty('--sfh-scale', String(setting(S.scale)));
 
-			const frame = root.querySelector('.sfh-frame');
+			const frame = root.querySelector('.sfh-hud');
 			root.addEventListener('click', this.#onClick.bind(this));
 			root.addEventListener('pointerover', this.#onHover.bind(this));
 
@@ -300,7 +304,7 @@ export function makeHudSheet(adapter) {
 			switch (action) {
 				case 'tab': this.tab = tab; return this.render();
 				case 'drawer': {
-					const frame = this.element.querySelector('.sfh-frame');
+					const frame = this.element.querySelector('.sfh-hud');
 					this._sfhDrawer = frame.dataset.drawer === 'open' ? 'closed' : 'open';
 					frame.dataset.drawer = this._sfhDrawer;
 					return;
@@ -354,7 +358,7 @@ export function makeHudSheet(adapter) {
 		/* ---------- lifecycle ---------- */
 
 		async close(options = {}) {
-			const frame = this.element?.querySelector('.sfh-frame');
+			const frame = this.element?.querySelector('.sfh-hud');
 			if (frame && setting(S.closeSequence) && !options.sfhSkipSequence) await playSequence(frame, 'off');
 			this._sfhResize?.disconnect();
 			this._sfhResize = null;
