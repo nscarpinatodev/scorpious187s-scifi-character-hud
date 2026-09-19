@@ -56,7 +56,12 @@ export function registerHudSheet() {
 		.map(([id, e]) => `${id} → ${e.cls?.name}`);
 	const Base = adapter.find();
 	if (!Base) {
-		console.error(`${MOD} | could not find ${game.system.id}'s character sheet class. Sheets seen:`, seen);
+		// Expected during startup: Foundry's initializeSheets() empties
+		// CONFIG.Actor.sheetClasses and only then applies the registrations queued during
+		// init, and that happens after the setup hook. So the registry is genuinely empty
+		// here, and `ready` is where the real attempt happens.
+		if (!game.ready) console.log(`${MOD} | sheet registry not populated yet; deferring registration to ready.`);
+		else console.error(`${MOD} | could not find ${game.system.id}'s character sheet class. Sheets seen:`, seen);
 		return false;
 	}
 
