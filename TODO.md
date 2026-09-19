@@ -2,6 +2,22 @@
 
 Work that is known, wanted and not done yet. Ordered roughly by when it should happen.
 
+## Editing from the projection
+
+Hit points are typed now — an amount with Heal and Damage, the value itself editable, and
+right-click for maximum and temporary. The same treatment is wanted for everything else that
+changes during play. Anything that changes at level-up or character creation stays on the
+system's own sheet, which the book button opens.
+
+- [ ] **Conditions** — add from a picker, and raise or lower valued ones, on both systems.
+- [ ] **Spell slots (5e)** — spend and regain from the Spells tab.
+- [ ] **Currency** — editable in the Inventory tab.
+- [ ] **Experience and level** — typed, like hit points.
+- [ ] **Item names, quantities and notes** — quantity and equipped are there; the rest is not.
+- [ ] **Biography** — currently read-only text; make it editable in place.
+- [ ] **Right-click elsewhere** — the same editor pattern for any value with more behind it
+      than one number (temporary hit points, shields, hero points).
+
 ## Next
 
 - [ ] **Remaining tab bodies** — PF2e crafting and spellcasting, 5e bastion and special traits.

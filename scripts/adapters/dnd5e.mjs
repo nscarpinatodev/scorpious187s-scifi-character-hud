@@ -197,8 +197,11 @@ export async function act(actor, action, key, event) {
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'toggleEffect': return toggleEffect(actor, key);
 		case 'deleteEffect': return actor.effects.get(key)?.delete();
-		case 'hp': return changeHp(actor, Number(key));
-		case 'temp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, (actor.system.attributes.hp.temp ?? 0) + Number(key)) });
+		case 'heal': return applyDamage(actor, -Math.abs(Number(key)));
+		case 'damage': return applyDamage(actor, Math.abs(Number(key)));
+		case 'setHp': return setHp(actor, Number(key));
+		case 'setMax': return actor.update({ 'system.attributes.hp.max': Math.max(1, Number(key)) });
+		case 'setTemp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, Number(key)) });
 		case 'stat': return actor.update({ [`system.attributes.${a}`]: Math.max(0, Number(b)) });
 		default: return null;
 	}
@@ -222,8 +225,22 @@ async function toggleEffect(actor, id) {
 	return effect.update({ disabled: !effect.disabled });
 }
 
-async function changeHp(actor, delta) {
+async function setHp(actor, value) {
 	const hp = actor.system.attributes.hp;
-	const value = Math.max(0, Math.min(hp.max ?? 0, (hp.value ?? 0) + delta));
-	return actor.update({ 'system.attributes.hp.value': value });
+	return actor.update({ 'system.attributes.hp.value': Math.max(0, Math.min(hp.max ?? value, value)) });
+}
+
+/**
+ * 5e's own damage application: it spends temporary hit points, applies resistance and
+ * immunity, and a negative amount heals. If it is not there, write the number instead.
+ */
+async function applyDamage(actor, amount) {
+	if (typeof actor.applyDamage === 'function') {
+		try {
+			return await actor.applyDamage(amount);
+		} catch (err) {
+			console.warn('sfh | applyDamage refused, writing hit points directly', err);
+		}
+	}
+	return setHp(actor, (actor.system.attributes.hp.value ?? 0) - amount);
 }

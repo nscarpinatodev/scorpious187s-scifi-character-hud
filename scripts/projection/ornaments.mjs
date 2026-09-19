@@ -78,15 +78,23 @@ export function evaReadouts(c) {
  */
 export function ornDev(device) {
 	if (device !== 'wrist') return '';
+	/*
+	 * The mock-up's case, expanded rather than redrawn: the same double edge, the same pink
+	 * indicator on the top rail, the same cyan lamp and the same two feet — only the shell is
+	 * large enough now to hold every panel instead of three of them floating above it.
+	 *
+	 * Mock-up:  case 136,206 1008x640  ·  here: 14,4 1252x842
+	 */
 	return `<svg width="1280" height="860" viewBox="0 0 1280 860" style="position:absolute;inset:0" aria-hidden="true">
 			<defs><linearGradient id="sfh-case" x1="0" y1="0" x2="0" y2="1">
 				<stop offset="0" stop-color="#2d1a52"/><stop offset=".5" stop-color="#1a0e33"/><stop offset="1" stop-color="#0f0820"/>
 			</linearGradient></defs>
-			<rect x="8" y="0" width="1264" height="852" rx="44" fill="url(#sfh-case)" stroke="#8a55d6" stroke-width="2"/>
-			<rect x="15" y="7" width="1250" height="838" rx="38" fill="none" stroke="#35ecf2" stroke-opacity=".5"/>
-			<rect x="580" y="846" width="120" height="6" rx="3" fill="#ff3ea5" fill-opacity=".85"/>
-			<circle cx="1232" cy="26" r="6" fill="#35ecf2"/></svg>
-		<div style="position:absolute;left:24px;top:16px;width:1232px;height:820px;box-sizing:border-box;border-radius:30px;
-			border:3px solid #05020c;box-shadow:inset 0 0 60px rgba(255,62,165,.16),0 0 0 1px #8a55d6;
+			<rect x="14" y="4" width="1252" height="842" rx="54" fill="url(#sfh-case)" stroke="#8a55d6" stroke-width="2"/>
+			<rect x="20" y="10" width="1240" height="830" rx="50" fill="none" stroke="#35ecf2" stroke-opacity=".5"/>
+			<rect x="580" y="16" width="120" height="6" rx="3" fill="#ff3ea5" fill-opacity=".85"/>
+			<circle cx="1222" cy="34" r="6" fill="#35ecf2"/>
+			<path d="M300 846 v14 M980 846 v14" stroke="#8a55d6" stroke-width="10"/></svg>
+		<div style="position:absolute;left:18px;top:8px;width:1244px;height:834px;box-sizing:border-box;border-radius:52px;
+			border:3px solid #05020c;box-shadow:inset 0 0 60px rgba(255,62,165,.18),0 0 0 1px #8a55d6;
 			background:radial-gradient(ellipse at 50% 40%,#1d0f3a 0%,#0d0620 75%)"></div>`;
 }

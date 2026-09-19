@@ -250,8 +250,11 @@ export async function act(actor, action, key, event) {
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'delete': return actor.items.get(key)?.delete();
 		case 'cond': return setCondition(actor, a, Number(b));
-		case 'hp': return changeHp(actor, Number(key));
-		case 'temp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, (actor.system.attributes.hp.temp ?? 0) + Number(key)) });
+		case 'heal': return heal(actor, Number(key));
+		case 'damage': return damage(actor, Number(key));
+		case 'setHp': return setHp(actor, Number(key));
+		case 'setMax': return actor.update({ 'system.attributes.hp.max': Math.max(1, Number(key)) });
+		case 'setTemp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, Number(key)) });
 		case 'hero': return actor.update({ 'system.resources.heroPoints.value': Number(key) });
 		case 'stat': return actor.update({ [`system.attributes.${a}.value`]: Math.max(0, Number(b)) });
 		case 'rest': return game.pf2e?.actions?.restForTheNight?.({ actors: [actor] }) ?? ui.notifications.info('Rest is handled by the system.');
@@ -286,8 +289,30 @@ async function setCondition(actor, slug, value) {
 	return value > 0 ? actor.increaseCondition?.(slug) : actor.decreaseCondition?.(slug);
 }
 
-async function changeHp(actor, delta) {
+async function setHp(actor, value) {
 	const hp = actor.system.attributes.hp;
-	const value = Math.clamp?.(hp.value + delta, 0, hp.max) ?? Math.max(0, Math.min(hp.max, hp.value + delta));
-	return actor.update({ 'system.attributes.hp.value': value });
+	return actor.update({ 'system.attributes.hp.value': Math.max(0, Math.min(hp.max ?? value, value)) });
+}
+
+/** Healing is plain: nothing resists it. */
+async function heal(actor, amount) {
+	const hp = actor.system.attributes.hp;
+	return setHp(actor, (hp.value ?? 0) + Math.abs(amount));
+}
+
+/**
+ * Damage goes through the system where it can, so temporary hit points, resistances and
+ * anything else the system applies are honoured. Only if that is unavailable does it fall
+ * back to writing the number itself.
+ */
+async function damage(actor, amount) {
+	const value = Math.abs(amount);
+	if (typeof actor.applyDamage === 'function') {
+		try {
+			return await actor.applyDamage({ damage: value, token: actor.getActiveTokens?.()[0]?.document });
+		} catch (err) {
+			console.warn('sfh | applyDamage refused, writing hit points directly', err);
+		}
+	}
+	return setHp(actor, (actor.system.attributes.hp.value ?? 0) - value);
 }

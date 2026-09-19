@@ -43,12 +43,24 @@ export function renderIdentity(c, device) {
 /* -------------------------------------------- */
 
 export function renderVitals(c) {
-	const hp = `<div class="cell wide" style="align-items:stretch;gap:5px;padding:8px 10px">
-		<div class="row sp">${lbl('Hit Points')}${actBtn(`TEMP ${c.hp.temp}`, 'temp', '5', { cls: 'sm', title: 'Add 5 temporary hit points' })}</div>
-		<div class="row sp" style="gap:3px">
-			${actBtn('−5', 'hp', '-5', { cls: 'sm' })}${actBtn('−', 'hp', '-1', { cls: 'sm' })}
-			<span class="big grow" style="font-size:26px;text-align:center">${c.hp.value}<span style="font-size:14px;color:var(--dim)">/${c.hp.max}</span></span>
-			${actBtn('+', 'hp', '1', { cls: 'sm' })}${actBtn('+5', 'hp', '5', { cls: 'sm' })}</div>
+	/*
+	 * Hit points are the one number people change constantly, so they are typed, not
+	 * nudged: an amount, a Heal and a Damage button, and the value itself editable.
+	 * Right-clicking the panel opens the maximum and the temporary pool as well.
+	 */
+	const hp = `<div class="cell wide sfh-hp" style="align-items:stretch;gap:5px;padding:8px 10px" data-menu="hp">
+		<div class="row sp">${lbl('Hit Points')}
+			<label class="sfh-temp">${lbl('Temp')}<input class="sfh-in mono" type="number" inputmode="numeric"
+				value="${c.hp.temp}" data-commit="temp" aria-label="Temporary hit points"></label></div>
+		<div class="row sp" style="gap:6px">
+			<span class="big grow" style="font-size:26px;text-align:center;white-space:nowrap">
+				<input class="sfh-in sfh-in-hp mono" type="number" inputmode="numeric" value="${c.hp.value}"
+					data-commit="hp" aria-label="Hit points"><span style="font-size:14px;color:var(--dim)">/${c.hp.max}</span></span></div>
+		<div class="row" style="gap:4px">
+			<input class="sfh-in mono grow" type="number" inputmode="numeric" min="0" placeholder="0"
+				data-amount="1" aria-label="Amount to heal or damage">
+			${actBtn('Heal', 'heal', '', { cls: 'sm ghost' })}
+			${actBtn('Damage', 'damage', '', { cls: 'sm ghost' })}</div>
 		${bar(c.hp.value, c.hp.max)}</div>`;
 
 	const v = c.vitals;

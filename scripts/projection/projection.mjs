@@ -103,6 +103,12 @@ export class Projection {
 			boardEl.style.width = `${board.w}px`;
 			boardEl.style.height = `${board.h}px`;
 			boardEl.style.transform = `translateX(-50%) scale(${scale})`;
+			// The board is scaled, so a pattern drawn in board pixels is resampled into
+			// uneven bands. Pitch the scan so it lands on whole screen pixels instead.
+			const device2 = window.devicePixelRatio || 1;
+			const px = 1 / scale;
+			boardEl.style.setProperty('--scanline', `${(px * (device2 >= 2 ? 0.5 : 1)).toFixed(3)}px`);
+			boardEl.style.setProperty('--scanpitch', `${(px * 3).toFixed(3)}px`);
 		}
 		this.#beam(el.getBoundingClientRect());
 	}
@@ -251,6 +257,7 @@ export class Projection {
 			${panel('defenses', L.defenses, renderDefenses(c, device), eva ? '' : 'pad')}
 			${panel('effects', L.effects, renderEffectsSlot(c))}
 			${extras ? panel('extras', L.extras, renderExtras(c)) : ''}
+			${eva || device === 'wrist' ? '<div class="scanfx"></div>' : ''}
 			${panel('readout', L.readout, `<div class="ro scroll" id="sfh-readout" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;flex:1">${renderReadout(this.#entry(actor))}</div>`)}
 			${projection}
 			${renderNav(c, device, L, this.#tab)}
@@ -346,18 +353,80 @@ export class Projection {
 				return this.#refreshReadout();
 			}
 			if (action === 'sheet') return this.actor()?.sheet?.render(true);
+			if (action === 'menu-close') return target.closest('.sfh-menu')?.remove();
 			if (action === 'settings') return game.settings.sheet.render(true);
 
 			// everything else belongs to the game system
 			const adapter = getAdapter();
 			const actor = this.actor();
 			if (!adapter || !actor) return;
+
+			// Heal and Damage take their amount from the box beside them.
+			let value = key;
+			if (action === 'heal' || action === 'damage') {
+				const box = target.closest('.sfh-hp')?.querySelector('[data-amount]');
+				value = Math.abs(Number(box?.value) || 0);
+				if (!value) return box?.focus();
+				if (box) box.value = '';
+			}
+
 			try {
-				await adapter.act(actor, action, key, event);
+				await adapter.act(actor, action, value, event);
 			} catch (err) {
 				console.error(`${MOD} | "${action}" failed`, err);
 				ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action }));
 			}
+		});
+
+		// typed values commit on Enter or when the field is left
+		el.addEventListener('change', async (event) => {
+			const field = event.target.closest('[data-commit]');
+			if (!field) return;
+			const adapter = getAdapter();
+			const actor = this.actor();
+			if (!adapter || !actor) return;
+			const value = Number(field.value);
+			if (!Number.isFinite(value)) return this.render();
+			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax' }[field.dataset.commit];
+			if (!action) return;
+			try {
+				await adapter.act(actor, action, value, event);
+			} catch (err) {
+				console.error(`${MOD} | "${action}" failed`, err);
+				this.render();
+			}
+		});
+		el.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter' && event.target.matches('[data-commit],[data-amount]')) event.target.blur();
+			if (event.key === 'Escape') {
+				el.querySelector('.sfh-menu')?.remove();
+				this.render();
+			}
+		});
+
+		// right-click a value that has more to it than one number
+		el.addEventListener('contextmenu', (event) => {
+			const host = event.target.closest('[data-menu="hp"]');
+			if (!host) return;
+			event.preventDefault();
+			el.querySelector('.sfh-menu')?.remove();
+			const c = getAdapter()?.read(this.actor());
+			if (!c) return;
+			const menu = document.createElement('div');
+			menu.className = 'sfh-menu';
+			menu.innerHTML = `
+				<label>Hit points<input class="sfh-in mono" type="number" value="${c.hp.value}" data-commit="hp" autofocus></label>
+				<label>Maximum<input class="sfh-in mono" type="number" value="${c.hp.max}" data-commit="max"></label>
+				<label>Temporary<input class="sfh-in mono" type="number" value="${c.hp.temp}" data-commit="temp"></label>
+				<button type="button" class="b sm" data-act="menu-close" data-k="">Close</button>`;
+			host.append(menu);
+			menu.querySelector('input')?.focus();
+		});
+
+		// clicking away closes the editor
+		document.addEventListener('pointerdown', (event) => {
+			const menu = el.querySelector('.sfh-menu');
+			if (menu && !menu.contains(event.target)) menu.remove();
 		});
 
 		// the readout follows the pointer, as it does in the mock-up
