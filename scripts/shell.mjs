@@ -159,7 +159,7 @@ export function applyShell(app, form) {
 }
 
 /** Per-slot animation delays, so the sequence runs in a deliberate order. */
-function staggerSlots(frame) {
+export function staggerSlots(frame) {
 	for (const el of frame.querySelectorAll(':scope > [data-slot]')) {
 		const i = SLOT_ORDER.indexOf(el.dataset.slot);
 		const n = i < 0 ? SLOT_ORDER.length : i;
@@ -189,7 +189,7 @@ export function playSequence(frame, kind) {
 /*  Chrome bar                                   */
 /* -------------------------------------------- */
 
-function buildBar(app, themeId) {
+export function buildBar(app, themeId) {
 	const bar = document.createElement('div');
 	bar.className = 'sfh-bar';
 	bar.innerHTML = `
@@ -256,7 +256,7 @@ export function hideKeyLabel() {
  * The layout follows the sheet's own width, not the window's, so a player who drags the
  * sheet narrow gets the compact arrangement without touching a setting.
  */
-function observeSize(app, root, frame) {
+export function observeSize(app, root, frame) {
 	const compactAt = setting(S.compactAt);
 	const apply = (width) => {
 		const size = width < SIZES.mini ? 'mini' : width < compactAt ? 'compact' : 'wide';

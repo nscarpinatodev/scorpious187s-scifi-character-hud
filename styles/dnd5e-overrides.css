@@ -1,0 +1,79 @@
+/*
+ * Sci-Fi Character HUD — D&D 5e fitting.
+ *
+ * The 5e sheet is an ApplicationV2 that re-renders its parts independently, so we leave
+ * its layout alone entirely. Our panels dock to the right of it and the window content
+ * makes room with padding. That means a 5e system update can change everything inside the
+ * sheet without touching the HUD.
+ */
+
+.sfh-sheet.sfh-v2 .window-content.sfh-dock {
+	position: relative;
+	box-sizing: border-box;
+	padding-right: calc(var(--sfh-side-w, 268px) + 14px);
+	background: var(--sfh-bg);
+	gap: 0;
+	display: block;      /* the system lays its own parts out inside this box */
+}
+
+/* The system's parts paint above the art layer. */
+.sfh-sheet.sfh-v2 .sfh-dock > *:not(.sfh-own) {
+	position: relative;
+	z-index: 1;
+}
+
+/* Docked panels. */
+.sfh-sheet.sfh-v2 .sfh-dock > :is(.sfh-readout, .sfh-extras) {
+	position: absolute;
+	right: 8px;
+	width: var(--sfh-side-w, 268px);
+	z-index: 2;
+}
+
+.sfh-sheet.sfh-v2 .sfh-dock > .sfh-extras { top: 46px; max-height: 40%; }
+.sfh-sheet.sfh-v2 .sfh-dock > .sfh-readout { top: calc(46px + 40% + 8px); bottom: 8px; }
+.sfh-sheet.sfh-v2 .sfh-dock:not(:has(.sfh-extras)) > .sfh-readout { top: 46px; }
+
+.sfh-sheet.sfh-v2 .sfh-dock > [data-slot="bar"] {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 3;
+}
+
+/* Compact: the dock's room disappears and the panels become the drawer that
+   hud-core.css already defines. */
+.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) {
+	padding-right: 0;
+}
+
+.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) > :is(.sfh-readout, .sfh-extras) {
+	top: 8px;
+	bottom: 8px;
+	max-height: none;
+	width: min(320px, 82%);
+}
+
+.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) > .sfh-extras {
+	top: auto;
+	bottom: calc(24% + 8px);
+	height: 18%;
+}
+
+.sfh-sheet.sfh-v2 .sfh-dock:is([data-size="compact"], [data-size="mini"]) > .sfh-readout {
+	top: auto;
+	height: 24%;
+}
+
+/* Recolour, without touching layout: 5e paints its own parchment surfaces, so we tint
+   the sheet's ground and let its cards sit on it. */
+.sfh-sheet.sfh-v2 .sfh-dock { color: var(--sfh-text); }
+
+.sfh-sheet.sfh-v2 .sfh-dock :is(.tab-body, .main-content) {
+	background: transparent;
+}
+
+/* `clean` drops the art; the window keeps a readable ground. */
+.sfh-sheet.sfh-v2 .sfh-dock[data-chrome="clean"] { background: rgb(8 10 14 / 92%); }
+
+.sfh-sheet.sfh-v2 form.sfh-failed > .sfh-own { display: none; }

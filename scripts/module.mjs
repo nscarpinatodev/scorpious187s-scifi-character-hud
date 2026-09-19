@@ -1,11 +1,16 @@
 import { MOD, S } from './constants.mjs';
 import { registerSettings, setting, refreshOpenHuds } from './settings.mjs';
 import { findBaseSheet, makePf2eHudSheet } from './adapters/pf2e-family.mjs';
+import { findBase5eSheet, makeDnd5eHudSheet } from './adapters/dnd5e.mjs';
 import { isHidden, setHidden, hideKeyLabel, themeFor } from './shell.mjs';
 import { openThemePicker } from './ui/theme-picker.mjs';
 
-/** Systems this release can skin. D&D 5e lands in the next phase. */
-const SUPPORTED = ['pf2e', 'sf2e'];
+/** Each supported system, with how to find its sheet class and how to subclass it. */
+const ADAPTERS = {
+	pf2e: { find: findBaseSheet, make: makePf2eHudSheet },
+	sf2e: { find: findBaseSheet, make: makePf2eHudSheet },
+	dnd5e: { find: findBase5eSheet, make: makeDnd5eHudSheet },
+};
 
 Hooks.once('init', () => {
 	registerSettings();
@@ -15,6 +20,12 @@ Hooks.once('init', () => {
 		hint: 'SFH.Keybind.HideHint',
 		editable: [{ key: 'KeyH', modifiers: ['Alt'] }],
 		onDown: () => {
+			// Nothing to hide is worth saying out loud: it is the difference between "the
+			// key is broken" and "this sheet is not a HUD".
+			if (!document.querySelector('.sfh-app')) {
+				ui.notifications.warn(game.i18n.localize('SFH.NoHud'));
+				return true;
+			}
 			setHidden(!isHidden());
 			if (isHidden()) ui.notifications.info(game.i18n.format('SFH.HiddenHint', { key: hideKeyLabel() }));
 			return true;
@@ -23,23 +34,25 @@ Hooks.once('init', () => {
 		precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
 	});
 
-	if (!SUPPORTED.includes(game.system.id)) {
-		console.log(`${MOD} | ${game.system.id} is not supported yet; the HUD stays out of the sheet picker.`);
+	const adapter = ADAPTERS[game.system.id];
+	if (!adapter) {
+		console.log(`${MOD} | ${game.system.id} is not supported; the HUD stays out of the sheet picker.`);
 		return;
 	}
 
-	const Base = findBaseSheet();
+	const Base = adapter.find();
 	if (!Base) {
-		console.error(`${MOD} | could not find the system's character sheet class; not registering.`);
+		console.error(`${MOD} | could not find ${game.system.id}'s character sheet class; not registering.`);
 		return;
 	}
 
 	// One more choice in Foundry's sheet picker. Never a default: nobody is switched
 	// over without choosing it.
 	foundry.applications.apps.DocumentSheetConfig.registerSheet(
-		Actor, MOD, makePf2eHudSheet(Base),
+		Actor, MOD, adapter.make(Base),
 		{ types: ['character'], label: 'SFH.SheetLabel', makeDefault: false },
 	);
+	console.log(`${MOD} | registered the HUD sheet for ${game.system.id}.`);
 });
 
 Hooks.once('ready', () => {

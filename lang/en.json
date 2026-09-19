@@ -5,6 +5,7 @@
 	"SFH.Unbound": "unbound",
 	"SFH.HiddenHint": "HUD hidden — press {key}, or click the eye at the edge of the screen.",
 	"SFH.Restore": "Show HUD ({key})",
+	"SFH.NoHud": "No Sci-Fi HUD sheet is open. Pick \"Sci-Fi HUD\" in a character's Sheet Configuration first.",
 
 	"SFH.Bar.Panels": "Side panels",
 	"SFH.Bar.Chrome": "Device art: full, backdrop only, panels only",
