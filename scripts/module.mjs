@@ -2,6 +2,7 @@ import { MOD, S } from './constants.mjs';
 import { registerSettings, setting, refreshOpenHuds } from './settings.mjs';
 import { findBaseSheet, makePf2eHudSheet } from './adapters/pf2e-family.mjs';
 import { makeHudSheet } from './hud-app.mjs';
+import { initCombatHud, render as renderCombatHud, hideCombatHud } from './combat-hud.mjs';
 import * as dnd5eSystem from './systems/dnd5e.mjs';
 import { isHidden, setHidden, hideKeyLabel, themeFor } from './shell.mjs';
 import { openThemePicker } from './ui/theme-picker.mjs';
@@ -59,11 +60,12 @@ Hooks.once('init', () => {
 		onDown: () => {
 			// Nothing to hide is worth saying out loud: it is the difference between "the
 			// key is broken" and "this sheet is not a HUD".
-			if (!document.querySelector('.sfh-app')) {
+			if (!document.querySelector('.sfh-app, #sfh-combat-hud')) {
 				ui.notifications.warn(game.i18n.localize('SFH.NoHud'));
 				return true;
 			}
 			setHidden(!isHidden());
+			hideCombatHud(isHidden());
 			if (isHidden()) ui.notifications.info(game.i18n.format('SFH.HiddenHint', { key: hideKeyLabel() }));
 			return true;
 		},
@@ -161,7 +163,7 @@ Hooks.once('ready', () => {
 	const mod = game.modules.get(MOD);
 	if (mod) {
 		mod.api = {
-			hide: (value = true) => setHidden(value),
+			hide: (value = true) => { setHidden(value); hideCombatHud(value); },
 			toggleHidden: () => setHidden(!isHidden()),
 			themeFor,
 			openThemePicker,
@@ -187,4 +189,11 @@ Hooks.once('ready', () => {
 	Hooks.on('closeDocumentSheetConfig', () => refreshOpenHuds());
 
 	if (setting(S.scale) !== 1) document.documentElement.style.setProperty('--sfh-scale', String(setting(S.scale)));
+
+	// The combat HUD: a bar over the canvas for whichever token you control.
+	const entry = SYSTEMS[game.system.id];
+	if (entry?.kind === 'standalone') {
+		initCombatHud(entry.system);
+		Hooks.on('sfhRefreshCombatHud', () => renderCombatHud());
+	}
 });

@@ -13,6 +13,7 @@ export const S = {
 	closeSequence: 'closeSequence', // client — play the shutdown before the window closes
 	compactAt: 'compactAt',         // client — px width below which the compact layout kicks in
 	readout: 'readout',             // client — show the readout panel
+	combatHud: 'combatHud',         // client — the bottom-docked combat HUD
 };
 
 /** Per-actor flag holding that character's own theme choice. */

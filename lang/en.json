@@ -108,5 +108,14 @@
 	"SFH.Traits.Languages": "Languages",
 	"SFH.Traits.Tools": "Tools",
 	"SFH.Traits.Armor": "Armor",
-	"SFH.Traits.Weapons": "Weapons"
+	"SFH.Traits.Weapons": "Weapons",
+	"SFH.Hud.Action": "Action",
+	"SFH.Hud.BonusAction": "Bonus",
+	"SFH.Hud.Reaction": "Reaction",
+	"SFH.Hud.Free": "Other",
+	"SFH.Hud.NoActions": "Nothing here",
+	"SFH.Hud.Saves": "Saving throws",
+	"SFH.Hud.OpenSheet": "Open the character sheet",
+	"SFH.Settings.CombatHud": "Combat HUD",
+	"SFH.Settings.CombatHudHint": "A bar across the bottom of the canvas for the token you control: portrait, hit points, the action economy, and drawers for skills, saves and inventory."
 }

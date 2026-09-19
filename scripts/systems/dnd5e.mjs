@@ -105,6 +105,59 @@ export function read(actor) {
 	};
 }
 
+/* -------------------------------------------- */
+/*  The combat HUD's view model                  */
+/* -------------------------------------------- */
+
+/** Which action-economy group an item belongs to, from its activities. */
+function activationOf(item) {
+	const activities = item.system?.activities;
+	const first = activities?.contents?.[0] ?? (activities ? [...activities][0] : null);
+	return first?.activation?.type ?? item.system?.activation?.type ?? null;
+}
+
+const GROUPS = [
+	{ id: 'action', label: 'SFH.Hud.Action', types: ['action', 'attack'] },
+	{ id: 'bonus', label: 'SFH.Hud.BonusAction', types: ['bonus'] },
+	{ id: 'reaction', label: 'SFH.Hud.Reaction', types: ['reaction'] },
+	{ id: 'free', label: 'SFH.Hud.Free', types: ['special', 'legendary', 'lair', 'crew'] },
+];
+
+export function hud(actor) {
+	const sys = actor.system ?? {};
+	const attrs = sys.attributes ?? {};
+	const hp = attrs.hp ?? {};
+
+	const usable = actor.items.filter((i) => activationOf(i));
+	const groups = GROUPS.map((g) => ({
+		id: g.id,
+		label: g.label,
+		items: usable.filter((i) => g.types.includes(activationOf(i))).map(itemRow),
+	}));
+
+	return {
+		name: actor.name,
+		img: actor.img,
+		subtitle: [sys.details?.race, Object.values(actor.classes ?? {}).map((c) => `${c.name} ${c.system?.levels ?? ''}`.trim()).join(' / ')]
+			.filter(Boolean).join(' · '),
+		img2: actor.prototypeToken?.texture?.src,
+		hp: { value: num(hp.value), max: num(hp.max), temp: num(hp.temp), pct: pct(num(hp.value), num(hp.max)) },
+		ac: attrs.ac?.value ?? 10,
+		speed: `${attrs.movement?.walk ?? 0} ${attrs.movement?.units ?? 'ft'}`,
+		groups,
+		effects: actor.effects.contents.filter((e) => !e.disabled).map((e) => ({ name: e.name, img: e.img })),
+		skills: Object.entries(sys.skills ?? {}).map(([key, s]) => ({
+			key, label: CONFIG.DND5E?.skills?.[key]?.label ?? key, total: sgn(num(s.total)),
+		})).sort((a, b) => a.label.localeCompare(b.label)),
+		saves: Object.entries(sys.abilities ?? {}).map(([key, a]) => ({
+			key, label: CONFIG.DND5E?.abilities?.[key]?.label ?? key.toUpperCase(), total: sgn(num(a.save?.value ?? a.save)),
+		})),
+		inventory: actor.items
+			.filter((i) => ['weapon', 'equipment', 'consumable', 'tool'].includes(i.type))
+			.map(itemRow),
+	};
+}
+
 /** The reference block beside the skills: senses, languages and proficiencies. */
 function traits(actor) {
 	const sys = actor.system ?? {};

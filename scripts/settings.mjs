@@ -37,6 +37,12 @@ export function registerSettings() {
 		scope: 'client', config: true, type: Boolean, default: true, onChange: reRender,
 	});
 
+	game.settings.register(MOD, S.combatHud, {
+		name: 'SFH.Settings.CombatHud', hint: 'SFH.Settings.CombatHudHint',
+		scope: 'client', config: true, type: Boolean, default: true,
+		onChange: () => Hooks.callAll('sfhRefreshCombatHud'),
+	});
+
 	game.settings.register(MOD, S.sequences, {
 		name: 'SFH.Settings.Sequences', hint: 'SFH.Settings.SequencesHint',
 		scope: 'client', config: true, type: Boolean, default: true,
