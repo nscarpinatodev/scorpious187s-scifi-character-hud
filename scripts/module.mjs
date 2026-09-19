@@ -20,7 +20,36 @@ const SYSTEMS = {
 	sf2e: { kind: 'skin', find: findBaseSheet, make: makePf2eHudSheet },
 };
 
+/*
+ * Stylesheets, self-healed.
+ *
+ * Foundry reads module.json when the world launches, so a stylesheet added to the
+ * manifest afterwards is not linked until the world is relaunched — the sheet then
+ * renders as unstyled markup, which looks like a broken module rather than a stale
+ * manifest. Checking and adding the link costs nothing and removes that failure mode.
+ */
+const STYLES = [
+	'styles/hud-core.css',
+	'styles/themes.css',
+	'styles/hud-sheet.css',
+	'styles/pf2e-overrides.css',
+	'styles/dnd5e-overrides.css',
+];
+
+function ensureStyles() {
+	for (const path of STYLES) {
+		const href = `modules/${MOD}/${path}`;
+		if (document.querySelector(`link[rel="stylesheet"][href^="${href}"]`)) continue;
+		const link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = href;
+		document.head.append(link);
+		console.warn(`${MOD} | ${path} was not linked by the manifest (relaunch the world to fix properly); added it now.`);
+	}
+}
+
 Hooks.once('init', () => {
+	ensureStyles();
 	registerSettings();
 
 	game.keybindings.register(MOD, 'hideHud', {
@@ -126,6 +155,7 @@ function isRegistered() {
 Hooks.once('setup', () => registerHudSheet());
 
 Hooks.once('ready', () => {
+	ensureStyles();
 	registerHudSheet();
 
 	const mod = game.modules.get(MOD);
@@ -142,8 +172,13 @@ Hooks.once('ready', () => {
 				const sheets = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
 					.map(([id, e]) => ({ id, cls: e.cls?.name, default: !!e.default }));
 				const ours = sheets.find((s) => s.id.startsWith(`${MOD}.`));
-				console.log(`${MOD} | system=${game.system.id} registered=${!!ours}`, { sheets, hudSheetsOpen: document.querySelectorAll('.sfh-app').length });
-				return { registered: !!ours, sheets };
+				const styles = STYLES.map((p) => ({
+					file: p,
+					linked: !!document.querySelector(`link[rel="stylesheet"][href^="modules/${MOD}/${p}"]`),
+				}));
+				const open = [...document.querySelectorAll('.sfh-app')].map((el) => el.className);
+				console.log(`${MOD} | system=${game.system.id} registered=${!!ours}`, { sheets, styles, open });
+				return { registered: !!ours, sheets, styles, open };
 			},
 		};
 	}
