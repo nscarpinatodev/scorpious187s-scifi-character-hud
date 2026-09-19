@@ -82,6 +82,8 @@ export function read(actor) {
 
 		abilities,
 		skills,
+		traits: traits(actor),
+		conditions: conditions(actor),
 
 		inventory: physical.map(itemRow),
 		features: items.filter((i) => ['feat', 'race', 'background', 'class', 'subclass'].includes(i.type)).map(itemRow),
@@ -100,6 +102,39 @@ export function read(actor) {
 			max: Math.round(num(attrs.encumbrance?.max)),
 			pct: num(attrs.encumbrance?.pct),
 		},
+	};
+}
+
+/** The reference block beside the skills: senses, languages and proficiencies. */
+function traits(actor) {
+	const sys = actor.system ?? {};
+	const list = (values, config) => [...(values ?? [])]
+		.map((v) => config?.[v]?.label ?? config?.[v] ?? v)
+		.filter(Boolean)
+		.join(', ');
+	const out = [
+		['SFH.Traits.Senses', `${game.i18n.localize('SFH.Stat.Passive')} ${num(sys.skills?.prc?.passive)}`],
+		['SFH.Traits.Languages', list(sys.traits?.languages?.value, CONFIG.DND5E?.languages)],
+		['SFH.Traits.Tools', Object.keys(sys.tools ?? {}).map((t) => CONFIG.DND5E?.tools?.[t]?.label ?? t).join(', ')],
+		['SFH.Traits.Armor', list(sys.traits?.armorProf?.value, CONFIG.DND5E?.armorProficiencies)],
+		['SFH.Traits.Weapons', list(sys.traits?.weaponProf?.value, CONFIG.DND5E?.weaponProficiencies)],
+	];
+	return out.filter(([, value]) => value).map(([label, value]) => ({ label, value }));
+}
+
+/** Conditions the character has, and the ones that can be added. */
+function conditions(actor) {
+	const statuses = CONFIG.statusEffects ?? [];
+	const active = [...(actor.statuses ?? [])];
+	return {
+		active: active.map((id) => {
+			const status = statuses.find((s) => s.id === id);
+			return { id, name: game.i18n.localize(status?.name ?? status?.label ?? id) };
+		}),
+		available: statuses
+			.filter((s) => !active.includes(s.id))
+			.map((s) => ({ id: s.id, name: game.i18n.localize(s.name ?? s.label ?? s.id) }))
+			.sort((a, b) => a.name.localeCompare(b.name)),
 	};
 }
 
@@ -164,12 +199,17 @@ export async function act(actor, action, data = {}) {
 			const effect = actor.effects.get(data.effectId);
 			return effect?.update({ disabled: !effect.disabled });
 		}
+		case 'toggle-status': return actor.toggleStatusEffect(data.key);
 		case 'toggle-inspiration':
 			return actor.update({ 'system.attributes.inspiration': !actor.system.attributes.inspiration });
 		case 'adjust-hp': {
 			const hp = actor.system.attributes.hp;
 			const value = Math.clamp(num(hp.value) + num(data.delta), 0, num(hp.max));
 			return actor.update({ 'system.attributes.hp.value': value });
+		}
+		case 'adjust-temp': {
+			const temp = num(actor.system.attributes.hp.temp) + num(data.delta);
+			return actor.update({ 'system.attributes.hp.temp': Math.max(0, temp) });
 		}
 		case 'adjust-exhaustion': {
 			const value = Math.clamp(num(actor.system.attributes.exhaustion) + num(data.delta), 0, 6);

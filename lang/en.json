@@ -100,5 +100,13 @@
 	"SFH.Empty.List": "Nothing here yet.",
 	"SFH.Empty.Spells": "No spells known.",
 	"SFH.Empty.Effects": "No active effects.",
-	"SFH.Empty.Biography": "No biography written."
+	"SFH.Empty.Biography": "No biography written.",
+	"SFH.Tab.Traits": "Traits",
+	"SFH.Stat.Save": "save",
+	"SFH.Action.AddCondition": "+ Add condition…",
+	"SFH.Traits.Senses": "Senses",
+	"SFH.Traits.Languages": "Languages",
+	"SFH.Traits.Tools": "Tools",
+	"SFH.Traits.Armor": "Armor",
+	"SFH.Traits.Weapons": "Weapons"
 }

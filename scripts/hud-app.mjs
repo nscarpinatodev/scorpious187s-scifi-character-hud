@@ -72,26 +72,26 @@ export function makeHudSheet(adapter) {
 			frame.innerHTML = `
 				${chrome === 'clean' ? '' : `<div class="sfh-art" data-chrome="${chrome}">${theme.art()}</div>`}
 				${this.#identity(data)}
-				${this.#bar()}
 				<div class="sfh-slot sfh-col" data-slot="aside">
 					${this.#vitals(data)}
-					${this.#defenses(data)}
+					${this.#conditionPanel(data)}
+					<aside class="sfh-extras sfh-own" hidden></aside>
 				</div>
 				<section class="sfh-slot sfh-projection" data-slot="projection">
 					<header class="sfh-proj-head">
 						<span class="sfh-proj-title">${L(adapter.TABS.find((t) => t.id === this.tab)?.label ?? '')}</span>
-						<span class="sfh-src">${esc(adapter.id)} · ${esc(this.tab)}</span>
+						<span class="sfh-src">${esc(adapter.id)} · parts/${esc(this.tab)}</span>
 					</header>
 					<div class="sfh-proj-body" data-scroll="${this.tab}">${this.#tab(data)}</div>
 				</section>
-				${this.#nav()}
-				<div class="sfh-slot sfh-col" data-slot="readout">
+				<div class="sfh-slot sfh-col" data-slot="side">
+					${this.#defenses(data)}
 					<aside class="sfh-readout">
 						<header class="sfh-panel-head"><span class="sfh-label">${L('SFH.Readout.Title')}</span></header>
 						<div class="sfh-readout-body"><p class="sfh-dim">${L('SFH.Readout.Empty')}</p></div>
 					</aside>
-					<aside class="sfh-extras sfh-own" hidden></aside>
 				</div>
+				${this.#nav()}
 				<div class="sfh-glass"></div>`;
 
 			return frame;
@@ -108,32 +108,26 @@ export function makeHudSheet(adapter) {
 		/* ---------- slots ---------- */
 
 		#identity(d) {
+			const box = (action, label) => `<button type="button" class="sfh-boxed sfh-click" data-sfh="${action}"><span class="sfh-boxed-label">${L(label)}</span></button>`;
+			const iconBtn = (action, label, ic) => `<button type="button" class="sfh-boxed sfh-click sfh-icon" data-sfh="${action}" data-tooltip="${L(label)}" aria-label="${L(label)}"><i class="fa-solid ${ic}"></i></button>`;
 			return `
 			<header class="sfh-slot sfh-identity" data-slot="identity">
-				<img class="sfh-portrait" src="${esc(d.img)}" alt="">
 				<div class="sfh-ident-text">
 					<h2 class="sfh-name">${esc(d.name)}</h2>
 					<span class="sfh-sub">${esc(d.subtitle)}</span>
 				</div>
 				<div class="sfh-xp">
 					<span class="sfh-label">${L('SFH.Stat.XP')}</span>
-					<span class="sfh-num">${d.xp.value} / ${d.xp.max}</span>
+					<span class="sfh-num">${d.xp.value.toLocaleString()} / ${d.xp.max.toLocaleString()}</span>
 					<div class="sfh-bar"><i style="width:${d.xp.pct}%"></i></div>
 				</div>
-				<div class="sfh-level"><span class="sfh-label">${L('SFH.Stat.Level')}</span><span class="sfh-big">${d.level}</span></div>
+				<div class="sfh-boxed sfh-level"><span class="sfh-label">${L('SFH.Stat.Level')}</span><span class="sfh-big">${d.level}</span></div>
+				${box('rest-short', 'SFH.Action.ShortRest')}
+				${box('rest-long', 'SFH.Action.LongRest')}
+				${iconBtn('theme', 'SFH.Bar.Theme', 'fa-sun')}
+				${iconBtn('chrome', 'SFH.Bar.Chrome', 'fa-image')}
+				${iconBtn('hide', 'SFH.Bar.Hide', 'fa-eye-slash')}
 			</header>`;
-		}
-
-		#bar() {
-			const b = (action, label, ic) => `<button type="button" class="sfh-btn" data-sfh="${action}" data-tooltip="${L(label)}" aria-label="${L(label)}"><i class="fa-solid ${ic}"></i></button>`;
-			return `<div class="sfh-slot sfh-bar" data-slot="bar">
-				${b('rest-short', 'SFH.Action.ShortRest', 'fa-mug-hot')}
-				${b('rest-long', 'SFH.Action.LongRest', 'fa-bed')}
-				${b('drawer', 'SFH.Bar.Panels', 'fa-table-columns')}
-				${b('chrome', 'SFH.Bar.Chrome', 'fa-image')}
-				${b('hide', 'SFH.Bar.Hide', 'fa-eye-slash')}
-				${b('theme', 'SFH.Bar.Theme', 'fa-palette')}
-			</div>`;
 		}
 
 		#vitals(d) {
@@ -141,37 +135,62 @@ export function makeHudSheet(adapter) {
 			const pips = (n, total, action, cls = '') => Array.from({ length: total }, (_, i) =>
 				`<button type="button" class="sfh-pip ${cls} ${i < n ? 'is-on' : ''}" data-sfh="${action}" data-i="${i}" aria-label="${i + 1}"></button>`).join('');
 			return `
-			<section class="sfh-vitals">
-				<div class="sfh-cell sfh-cell-wide">
-					<div class="sfh-row"><span class="sfh-label">${L('SFH.Stat.HP')}</span><span class="sfh-num">${L('SFH.Stat.Temp')} ${v.hp.temp}</span></div>
+			<section class="sfh-panel sfh-vitals">
+				<div class="sfh-hp">
+					<div class="sfh-row sfh-between">
+						<span class="sfh-label">${L('SFH.Stat.HP')}</span>
+						<button type="button" class="sfh-chip sfh-click" data-sfh="temp">${L('SFH.Stat.Temp')} ${v.hp.temp}</button>
+					</div>
 					<div class="sfh-row sfh-hp-row">
 						<button type="button" class="sfh-btn sfh-sm" data-sfh="hp" data-delta="-5">−5</button>
 						<button type="button" class="sfh-btn sfh-sm" data-sfh="hp" data-delta="-1">−</button>
-						<span class="sfh-big">${v.hp.value}<span class="sfh-of">/${v.hp.max}</span></span>
+						<span class="sfh-big sfh-grow">${v.hp.value}<span class="sfh-of">/${v.hp.max}</span></span>
 						<button type="button" class="sfh-btn sfh-sm" data-sfh="hp" data-delta="1">+</button>
 						<button type="button" class="sfh-btn sfh-sm" data-sfh="hp" data-delta="5">+5</button>
 					</div>
 					<div class="sfh-bar"><i style="width:${v.hp.pct}%"></i></div>
 				</div>
-				<button type="button" class="sfh-cell sfh-click" data-sfh="roll-hd">
-					<span class="sfh-label">${L('SFH.Stat.HitDice')}</span><span class="sfh-v">${v.hitDice.value}/${v.hitDice.max}</span>
-				</button>
-				<button type="button" class="sfh-cell sfh-click" data-sfh="toggle-inspiration" aria-pressed="${v.inspiration}">
-					<span class="sfh-label">${L('SFH.Stat.Inspiration')}</span><span class="sfh-v">${v.inspiration ? '●' : '○'}</span>
-				</button>
-				<div class="sfh-cell">
-					<span class="sfh-label">${L('SFH.Stat.DeathSaves')}</span>
-					<div class="sfh-pips">${pips(v.death.success, 3, 'roll-death')}</div>
-					<div class="sfh-pips">${pips(v.death.failure, 3, 'roll-death', 'is-bad')}</div>
-				</div>
-				<div class="sfh-cell">
-					<span class="sfh-label">${L('SFH.Stat.Exhaustion')}</span>
-					<div class="sfh-row">
-						<button type="button" class="sfh-btn sfh-sm" data-sfh="exhaustion" data-delta="-1">−</button>
-						<span class="sfh-v">${v.exhaustion}</span>
-						<button type="button" class="sfh-btn sfh-sm" data-sfh="exhaustion" data-delta="1">+</button>
+				<div class="sfh-cells">
+					<button type="button" class="sfh-cell sfh-click" data-sfh="roll-hd">
+						<span class="sfh-label">${L('SFH.Stat.HitDice')}</span><span class="sfh-v">${v.hitDice.value}/${v.hitDice.max}</span>
+					</button>
+					<button type="button" class="sfh-cell sfh-click" data-sfh="toggle-inspiration" aria-pressed="${v.inspiration}">
+						<span class="sfh-label">${L('SFH.Stat.Inspiration')}</span><span class="sfh-v ${v.inspiration ? 'is-lit' : ''}">${v.inspiration ? '●' : '○'}</span>
+					</button>
+					<div class="sfh-cell">
+						<span class="sfh-label">${L('SFH.Stat.DeathSaves')}</span>
+						<div class="sfh-pips">${pips(v.death.success, 3, 'roll-death')}</div>
+						<div class="sfh-pips">${pips(v.death.failure, 3, 'roll-death', 'is-bad')}</div>
+					</div>
+					<div class="sfh-cell">
+						<span class="sfh-label">${L('SFH.Stat.Exhaustion')}</span>
+						<div class="sfh-row">
+							<button type="button" class="sfh-btn sfh-sm" data-sfh="exhaustion" data-delta="-1">−</button>
+							<span class="sfh-v">${v.exhaustion}</span>
+							<button type="button" class="sfh-btn sfh-sm" data-sfh="exhaustion" data-delta="1">+</button>
+						</div>
 					</div>
 				</div>
+			</section>`;
+		}
+
+		/** Conditions as chips with a picker, the way the mock-up's Effects panel works. */
+		#conditionPanel(d) {
+			const chips = d.conditions.active.map((c) => `
+				<span class="sfh-chip is-on">${esc(c.name)}
+					<button type="button" data-sfh="toggle-status" data-key="${c.id}" aria-label="Remove">×</button>
+				</span>`).join('');
+			const options = d.conditions.available.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+			return `
+			<section class="sfh-panel sfh-effects">
+				<div class="sfh-row sfh-between">
+					<span class="sfh-label">${L('SFH.Tab.Effects')}</span>
+					<span class="sfh-num">${d.conditions.active.length}</span>
+				</div>
+				<div class="sfh-chips">${chips || `<span class="sfh-dim">${L('SFH.Empty.Effects')}</span>`}</div>
+				<select class="sfh-select" data-sfh-select="status" aria-label="${L('SFH.Action.AddCondition')}">
+					<option value="">${L('SFH.Action.AddCondition')}</option>${options}
+				</select>
 			</section>`;
 		}
 
@@ -179,14 +198,24 @@ export function makeHudSheet(adapter) {
 			const cells = d.defenses.map((s) => s.action
 				? `<button type="button" class="sfh-cell sfh-click" data-sfh="${s.action}"><span class="sfh-label">${L(s.label)}</span><span class="sfh-v">${esc(s.value)}</span></button>`
 				: `<div class="sfh-cell ${s.primary ? 'is-primary' : ''}"><span class="sfh-label">${L(s.label)}</span><span class="sfh-v">${esc(s.value)}</span></div>`).join('');
-			return `<section class="sfh-defenses">${cells}</section>`;
+			return `<section class="sfh-panel sfh-defenses"><div class="sfh-cells">${cells}</div></section>`;
 		}
 
 		#nav() {
-			return `<nav class="sfh-slot sfh-nav" data-slot="nav" role="tablist">
-				${adapter.TABS.map((t) => `
-					<button type="button" class="sfh-navb ${t.id === this.tab ? 'is-on' : ''}" data-sfh="tab" data-tab="${t.id}"
-						role="tab" aria-selected="${t.id === this.tab}" data-tooltip="${L(t.label)}" aria-label="${L(t.label)}">${icon(t.icon)}</button>`).join('')}
+			const tabs = adapter.TABS;
+			const mid = (tabs.length - 1) / 2;
+			const buttons = tabs.map((t, i) => {
+				const k = mid ? (i - mid) / mid : 0;
+				const lift = Math.round(16 * (1 - k * k));      // an arc, highest in the middle
+				const on = t.id === this.tab;
+				return `<button type="button" class="sfh-navb ${on ? 'is-on' : ''}" data-sfh="tab" data-tab="${t.id}"
+					role="tab" aria-selected="${on}" style="--sfh-lift:${lift}px"
+					data-tooltip="${L(t.label)}" aria-label="${L(t.label)}">${icon(t.icon)}</button>`;
+			}).join('');
+			const current = tabs.find((t) => t.id === this.tab);
+			return `<nav class="sfh-nav" data-slot="nav" role="tablist">
+				<div class="sfh-nav-arc">${buttons}</div>
+				<span class="sfh-nav-label">${L(current?.label ?? '')}</span>
 			</nav>`;
 		}
 
@@ -208,20 +237,34 @@ export function makeHudSheet(adapter) {
 			const abilities = d.abilities.map((a) => `
 				<div class="sfh-ability">
 					<span class="sfh-label">${esc(a.label)}</span>
-					<button type="button" class="sfh-btn sfh-roll" data-sfh="roll-ability" data-key="${a.key}">${esc(a.mod)}</button>
+					<button type="button" class="sfh-btn sfh-roll sfh-mod" data-sfh="roll-ability" data-key="${a.key}">${esc(a.mod)}</button>
 					<span class="sfh-score">${a.score}</span>
-					<button type="button" class="sfh-btn sfh-sm" data-sfh="roll-save" data-key="${a.key}">${a.proficient ? '●' : '○'} ${esc(a.save)}</button>
+					<button type="button" class="sfh-btn sfh-sm sfh-save" data-sfh="roll-save" data-key="${a.key}">${a.proficient ? '●' : '○'} ${L('SFH.Stat.Save')} ${esc(a.save)}</button>
 				</div>`).join('');
 			const skills = d.skills.map((s) => `
 				<div class="sfh-line">
 					<span class="sfh-prof" data-rank="${s.rank}">${s.rank === 2 ? '◆' : s.rank >= 1 ? '●' : '○'}</span>
-					<button type="button" class="sfh-link" data-sfh="roll-skill" data-key="${s.key}">${esc(s.label)}</button>
-					<span class="sfh-dim">${esc(s.ability)}</span>
+					<button type="button" class="sfh-link sfh-grow" data-sfh="roll-skill" data-key="${s.key}">${esc(s.label)}</button>
+					<span class="sfh-dim sfh-abbr">${esc(s.ability)}</span>
 					<button type="button" class="sfh-btn sfh-roll sfh-sm" data-sfh="roll-skill" data-key="${s.key}">${esc(s.total)}</button>
 				</div>`).join('');
-			return `<div class="sfh-abilities">${abilities}</div>
-				<h3 class="sfh-sec">${L('SFH.Tab.Skills')}</h3>
-				<div class="sfh-two">${skills}</div>`;
+			const traits = d.traits.map((t) => `
+				<div class="sfh-trait">
+					<span class="sfh-label">${L(t.label)}</span>
+					<span>${esc(t.value)}</span>
+				</div>`).join('');
+			return `
+				<div class="sfh-abilities">${abilities}</div>
+				<div class="sfh-details-body">
+					<div>
+						<h3 class="sfh-sec">${L('SFH.Tab.Skills')}</h3>
+						<div class="sfh-two">${skills}</div>
+					</div>
+					<div>
+						<h3 class="sfh-sec">${L('SFH.Tab.Traits')}</h3>
+						<div class="sfh-traits">${traits}</div>
+					</div>
+				</div>`;
 		}
 
 		#inventory(d) {
@@ -277,8 +320,18 @@ export function makeHudSheet(adapter) {
 			root.style.setProperty('--sfh-scale', String(setting(S.scale)));
 
 			const frame = root.querySelector('.sfh-hud');
-			root.addEventListener('click', this.#onClick.bind(this));
-			root.addEventListener('pointerover', this.#onHover.bind(this));
+			// Bind once. ApplicationV2 keeps the same root element across re-renders, so
+			// binding per render stacks handlers: one click would then open as many theme
+			// dialogs as there had been renders, which reads as a dialog that will not close.
+			if (!this._sfhBound) {
+				this._sfhBound = true;
+				root.addEventListener('click', this.#onClick.bind(this));
+				root.addEventListener('change', (event) => {
+					const select = event.target.closest('[data-sfh-select="status"]');
+					if (select?.value) adapter.act(this.actor, 'toggle-status', { key: select.value });
+				});
+				root.addEventListener('pointerover', this.#onHover.bind(this));
+			}
 
 			const extras = root.querySelector('.sfh-extras');
 			if (extras && extrasEnabled(this.actor)) {
@@ -318,6 +371,7 @@ export function makeHudSheet(adapter) {
 					return ui.notifications.info(game.i18n.format('SFH.HiddenHint', { key: hideKeyLabel() }));
 				case 'theme': return openThemePicker(this.actor, themeFor(this.actor));
 				case 'hp': return adapter.act(this.actor, 'adjust-hp', { delta });
+				case 'temp': return adapter.act(this.actor, 'adjust-temp', { delta: 5 });
 				case 'exhaustion': return adapter.act(this.actor, 'adjust-exhaustion', { delta });
 				case 'slot': return adapter.act(this.actor, 'spend-slot', { level, delta: -1 });
 				default:
