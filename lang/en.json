@@ -3,7 +3,8 @@
 	"SFH.ShellFailed": "Sci-Fi HUD: the layout could not be applied, so the standard sheet is being shown. See the console for details.",
 	"SFH.NotOwner": "You do not own this character.",
 	"SFH.Unbound": "unbound",
-	"SFH.HiddenHint": "HUD hidden — press {key} to bring it back.",
+	"SFH.HiddenHint": "HUD hidden — press {key}, or click the eye at the edge of the screen.",
+	"SFH.Restore": "Show HUD ({key})",
 
 	"SFH.Bar.Panels": "Side panels",
 	"SFH.Bar.Chrome": "Device art: full, backdrop only, panels only",

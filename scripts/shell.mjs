@@ -28,6 +28,25 @@ export function isHidden() {
 export function setHidden(value) {
 	hidden = value;
 	for (const el of document.querySelectorAll('.sfh-app')) el.classList.toggle('sfh-hidden', hidden);
+	renderRestoreTab();
+}
+
+/**
+ * While the HUD is hidden there has to be something to click, or the only way back is
+ * remembering a keybinding. This is that something: a small tab at the screen edge.
+ */
+function renderRestoreTab() {
+	const existing = document.getElementById('sfh-restore');
+	if (!hidden) return existing?.remove();
+	if (existing) return;
+
+	const tab = document.createElement('button');
+	tab.type = 'button';
+	tab.id = 'sfh-restore';
+	tab.className = 'sfh-restore';
+	tab.innerHTML = `<i class="fa-solid fa-eye"></i><span>${game.i18n.format('SFH.Restore', { key: hideKeyLabel() })}</span>`;
+	tab.addEventListener('click', () => setHidden(false));
+	document.body.appendChild(tab);
 }
 
 /** The theme this actor uses: its own choice, else the world default. */
@@ -130,8 +149,11 @@ export function applyShell(app, form) {
 		observeSize(app, root, frame);
 	}
 
-	if (setting(S.sequences) && !app._sfhBooted) {
+	if (!app._sfhBooted) {
 		app._sfhBooted = true;
+		// Opening a sheet is a request to see it, so it comes back from hidden. A
+		// re-render (damage, an item change) leaves a hidden HUD hidden.
+		if (hidden) setHidden(false);
 		playSequence(frame, 'on');
 	}
 }

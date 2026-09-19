@@ -6,6 +6,32 @@
  * system-specific fitting in pf2e-overrides.css.
  */
 
+.sfh-restore {
+	position: fixed;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 70;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	max-width: 44px;
+	padding: 10px 12px;
+	border: 1px solid var(--sfh-line, #888);
+	border-right: 0;
+	border-radius: 6px 0 0 6px;
+	background: var(--sfh-panel-solid, #15181d);
+	color: var(--sfh-hot, #eee);
+	font-size: 0.8rem;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+	transition: max-width 160ms ease;
+}
+
+.sfh-restore:hover,
+.sfh-restore:focus-visible { max-width: 220px; }
+
 .sfh-app.sfh-hidden {
 	opacity: 0;
 	pointer-events: none;
