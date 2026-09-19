@@ -117,5 +117,7 @@
 	"SFH.Settings.GridPanels": "On the panels",
 	"SFH.Settings.GridFull": "Across the projection",
 	"SFH.Settings.GridOff": "Off",
-	"SFH.NoCharacter": "No character to project. Assign one to yourself in the player list, or open the sheet you want and try again."
+	"SFH.NoCharacter": "No character to project. Assign one to yourself in the player list, or open the sheet you want and try again.",
+	"SFH.NoAdapter": "The Sci-Fi HUD has no adapter for the {system} system yet, so there is nothing to project.",
+	"SFH.ActionFailed": "The \"{action}\" action failed. See the console for details."
 }

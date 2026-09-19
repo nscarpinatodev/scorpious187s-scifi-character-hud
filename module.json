@@ -51,7 +51,8 @@
 	"styles": [
 		"styles/device.css",
 		"styles/interface.css",
-		"styles/projection.css"
+		"styles/projection.css",
+		"styles/projection-frame.css"
 	],
 	"languages": [
 		{

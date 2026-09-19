@@ -1,14 +1,109 @@
 /*
- * Harness glue. Stubs just enough of Foundry — settings, i18n, hooks — for the module's
- * own chrome.mjs to run unmodified, then drives it from the rig controls.
+ * Harness glue.
+ *
+ * Stubs just enough of Foundry — settings, i18n, hooks, notifications — for the module's
+ * own code to run unmodified, and supplies a character shaped like a real PF2e/SF2e actor
+ * so the adapter and the projection can be rendered and measured without Foundry.
  */
 const store = { device: 'omni', worldDevice: 'omni', sequences: true, deckSize: 40, grid: 'panels' };
 const onChange = {};
+const hooks = {};
+
+const skill = (label, mod, rank) => ({ label, mod, rank, roll: () => console.log('roll', label) });
+
+/** A stand-in Starfinder 2e character: the shapes the adapter reads, and nothing else. */
+const actor = {
+	id: 'asha',
+	name: 'Asha Rourke',
+	type: 'character',
+	isOwner: true,
+	hasPlayerOwner: true,
+	system: {
+		attributes: {
+			hp: { value: 71, max: 84, temp: 0 },
+			ac: { value: 25 },
+			speed: { value: 25 },
+			dying: { value: 0, max: 4 },
+			wounded: { value: 0 },
+			doomed: { value: 0 },
+		},
+		details: { level: { value: 6 }, xp: { value: 640, max: 1000 }, languages: { value: ['Common', 'Thessian'] }, biography: {} },
+		traits: { size: { value: 'Medium' } },
+	},
+	heroPoints: { value: 2, max: 3 },
+	classDC: { value: 22 },
+	saves: {
+		fortitude: { mod: 13, rank: 3, roll: () => {} },
+		reflex: { mod: 18, rank: 4, roll: () => {} },
+		will: { mod: 11, rank: 2, roll: () => {} },
+	},
+	perception: { mod: 11, rank: 2, roll: () => {} },
+	abilities: { str: { mod: 2 }, dex: { mod: 4 }, con: { mod: 3 }, int: { mod: 1 }, wis: { mod: 1 }, cha: { mod: 5 } },
+	skills: {
+		acrobatics: skill('Acrobatics', 14, 3),
+		athletics: skill('Athletics', 10, 2),
+		computers: skill('Computers', 9, 2),
+		diplomacy: skill('Diplomacy', 13, 3),
+		intimidation: skill('Intimidation', 13, 3),
+		medicine: skill('Medicine', 7, 1),
+		occultism: skill('Occultism', 9, 2),
+		piloting: skill('Piloting', 12, 2),
+		stealth: skill('Stealth', 12, 2),
+		survival: skill('Survival', 7, 1),
+	},
+	ancestry: { name: 'Human' },
+	heritage: { name: 'Alliance Biotic' },
+	class: { name: 'Vanguard' },
+	background: { name: 'Biotic Prodigy' },
+	conditions: [{ id: 'c1', name: 'Quickened', value: null, slug: 'quickened' }],
+	effects: [],
+	itemTypes: {
+		effect: [{ id: 'e1', name: 'Biotic Barrier', system: { duration: { value: 1, unit: 'minute' } } }],
+		action: [
+			{ id: 'a1', name: 'Biotic Charge', system: { actionType: { value: 'action' }, actions: { value: 2 }, traits: { value: ['biotic', 'manipulate'] } } },
+			{ id: 'a2', name: 'Nova', system: { actionType: { value: 'action' }, actions: { value: 1 }, traits: { value: ['biotic'] } } },
+			{ id: 'a3', name: 'Shockwave', system: { actionType: { value: 'action' }, actions: { value: 2 }, traits: { value: ['biotic', 'manipulate'] } } },
+			{ id: 'a4', name: 'Adrenaline Rush', system: { actionType: { value: 'action' }, actions: { value: 1 }, traits: { value: [] } } },
+			{ id: 'a5', name: 'Take Cover', system: { actionType: { value: 'action' }, actions: { value: 1 }, traits: { value: ['basic'] } } },
+			{ id: 'a6', name: 'Aid', system: { actionType: { value: 'reaction' }, traits: { value: ['basic'] } } },
+		],
+		feat: [
+			{ id: 'f1', name: 'Combat Training', system: { category: 'class', level: { value: 1 }, traits: { value: [] } } },
+			{ id: 'f2', name: 'Tenacious Survivor', system: { category: 'ancestry', level: { value: 1 }, traits: { value: ['human'] } } },
+			{ id: 'f3', name: 'Battle-Hardened', system: { category: 'ancestry', level: { value: 5 }, traits: { value: ['human'] } } },
+		],
+	},
+	items: {
+		get: () => null,
+		find: () => null,
+		filter: () => [],
+	},
+	getFlag: (scope, key) => ({ paragon: 62, renegade: 18 }[key] ?? null),
+};
+
+// the strikes the adapter reads off system.actions
+actor.system.actions = [
+	{ label: 'M-23 Eviscerator', totalModifier: 11, traits: [{ label: 'scatter 5' }, { label: 'tech' }], variants: [{ label: '+11' }, { label: '+6' }, { label: '+1' }], damage: () => {}, critical: () => {} },
+	{ label: 'M-11 Suppressor', totalModifier: 11, traits: [{ label: 'tech' }], variants: [{ label: '+11' }, { label: '+6' }, { label: '+1' }], damage: () => {}, critical: () => {} },
+	{ label: 'Fist', totalModifier: 13, traits: [{ label: 'agile' }, { label: 'nonlethal' }], variants: [{ label: '+13' }, { label: '+9' }, { label: '+5' }], damage: () => {}, critical: () => {} },
+];
+
+// inventory is a collection with extras hanging off it, as PF2e's is
+actor.inventory = [
+	{ id: 'i1', name: 'M-23 Eviscerator', type: 'weapon', quantity: 1, isEquipped: true, system: { bulk: { value: 2 } } },
+	{ id: 'i2', name: 'M-11 Suppressor', type: 'weapon', quantity: 1, isEquipped: false, system: { bulk: { value: 1 } } },
+	{ id: 'i3', name: 'Colossus Armor', type: 'armor', quantity: 1, isEquipped: true, system: { bulk: { value: 2 } } },
+	{ id: 'i4', name: 'Medi-Gel', type: 'consumable', quantity: 4, isEquipped: false, system: { bulk: { value: 'L' } } },
+	{ id: 'i5', name: 'Omni-Gel', type: 'consumable', quantity: 6, isEquipped: false, system: { bulk: { value: 0 } } },
+];
+actor.inventory.bulk = { value: '4.6', encumberedAt: 7, max: 12 };
+actor.inventory.coins = { toString: () => '4,820 cr' };
 
 globalThis.game = {
 	ready: true,
+	system: { id: 'pf2e' },
 	get user() { return { character: actor }; },
-	get actors() { return [actor]; },
+	get actors() { return Object.assign([actor], { get: (id) => (id === actor.id ? actor : null) }); },
 	settings: {
 		register(mod, key, cfg) {
 			if (cfg.onChange) onChange[key] = cfg.onChange;
@@ -19,11 +114,15 @@ globalThis.game = {
 			store[key] = value;
 			onChange[key]?.(value);
 		},
+		sheet: { render: () => {} },
 	},
-	i18n: { localize: (k) => k },
-	modules: { get: () => ({ version: 'harness' }) },
+	i18n: {
+		localize: (k) => k,
+		format: (k, data) => `${k} ${JSON.stringify(data)}`,
+	},
+	modules: { get: () => ({ version: 'harness', active: true }) },
 };
-const hooks = {};
+globalThis.ui = { notifications: { warn: (m) => console.warn('notify:', m), error: (m) => console.error('notify:', m) } };
 globalThis.Hooks = {
 	on(name, fn) { (hooks[name] ??= []).push(fn); },
 	once(name, fn) { this.on(name, fn); },
@@ -32,43 +131,6 @@ globalThis.Hooks = {
 		for (const fn of hooks[name] ?? []) fn(...args);
 	},
 };
-globalThis.ui = { notifications: { warn: (m) => console.warn('notify:', m) } };
-
-/*
- * A stand-in for a system character sheet: a floating application window with the header,
- * content and inline position Foundry gives one. If the projection can dock this, it can
- * dock a real sheet — the mechanics are the same node move.
- */
-class FakeSheet {
-	element = null;
-
-	async render() {
-		if (this.element) return this;
-		const el = document.createElement('div');
-		el.className = 'application sheet actor character';
-		el.style.cssText = 'position:absolute;left:180px;top:90px;width:560px;height:520px;z-index:101;background:#1b1b22;border:1px solid #444';
-		el.innerHTML = `
-			<header class="window-header"><h1 class="window-title">Asha Rourke</h1><button class="header-control">✕</button></header>
-			<section class="window-content">
-				<nav class="sheet-tabs"><a class="item active">Character</a><a class="item">Actions</a><a class="item">Inventory</a><a class="item">Feats</a></nav>
-				<div class="tab active">
-					<p>The system's own sheet content lives here: strikes, skills, items, everything.</p>
-					${Array.from({ length: 14 }, (_, i) => `<div class="row">Row ${i + 1} — the system rendered this</div>`).join('')}
-				</div>
-			</section>`;
-		document.body.append(el);
-		this.element = el;
-		return this;
-	}
-
-	async close() {
-		this.element?.remove();
-		this.element = null;
-	}
-}
-
-const sheet = new FakeSheet();
-const actor = { name: 'Asha Rourke', sheet, isOwner: true, hasPlayerOwner: true, type: 'character' };
 
 const { DeviceChrome } = await import('../scripts/device/chrome.mjs');
 const { registerSettings } = await import('../scripts/settings.mjs');
@@ -80,15 +142,22 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	if (on) {
 		const raised = await Projection.open();
 		if (!raised) return DeviceChrome.setPower(false, { silent: true });
-		if (sequence) DeviceChrome.playSequence('on');
+		if (sequence) {
+			DeviceChrome.playSequence('on');
+			Projection.playSequence('on');
+		}
 		return;
 	}
 	if (!sequence) return Projection.close();
 	DeviceChrome.playSequence('off');
+	Projection.playSequence('off');
 	setTimeout(() => Projection.close(), SEQ.off);
 });
 
-registerSettings(() => { DeviceChrome.refresh(); Projection.syncDevice(); });
+registerSettings(() => {
+	DeviceChrome.refresh();
+	Projection.syncDevice();
+});
 DeviceChrome.mount();
 
 // the ten macro slots Foundry would have rendered
@@ -101,5 +170,6 @@ DeviceChrome.fit();   // Foundry renders the bar before we mount; the harness do
 document.getElementById('rigDevice').addEventListener('change', (e) => game.settings.set(null, 'device', e.target.value));
 document.getElementById('rigSize').addEventListener('input', (e) => game.settings.set(null, 'deckSize', Number(e.target.value)));
 document.getElementById('rigPower').addEventListener('click', () => DeviceChrome.toggle());
+addEventListener('resize', () => Projection.scheduleFit());
 
-globalThis.SFH = { DeviceChrome, Projection, store };
+globalThis.SFH = { DeviceChrome, Projection, store, actor };

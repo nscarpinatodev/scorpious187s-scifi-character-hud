@@ -40,13 +40,13 @@ for (const device of ['omni', 'wrist', 'gdi', 'nod']) {
 		const sidebar = r(document.getElementById('sidebar'));
 		const leftCol = r(document.getElementById('ui-left-column-1'));
 		const device = r(document.getElementById('sfh-device'));
-		const docked = document.querySelector('#sfh-projection .sfh-docked');
+		const slots = [...document.querySelectorAll('#sfh-projection [data-slot]')].map((n) => n.dataset.slot);
 		return {
 			open: SFH.Projection.isOpen,
 			proj,
-			docked: !!docked,
-			dockedFills: docked ? Math.round(docked.getBoundingClientRect().width) : null,
-			headerHidden: docked ? getComputedStyle(docked.querySelector('.window-header')).display === 'none' : null,
+			slots,
+			tabs: document.querySelectorAll('#sfh-projection .navb').length,
+			body: document.querySelector('#sfh-projection .proj-b')?.children.length ?? 0,
 			clear: {
 				left: proj && leftCol ? proj.l - leftCol.r : null,
 				right: proj && sidebar ? sidebar.l - proj.r : null,
@@ -60,8 +60,10 @@ for (const device of ['omni', 'wrist', 'gdi', 'nod']) {
 console.log('errors:', errors.length ? errors.slice(0, 4) : 'none');
 console.dir(report, { depth: 4 });
 
-const bad = Object.entries(report).filter(([, v]) => !v.open || !v.docked || Object.values(v.clear).some((c) => c !== null && c < 0));
-console.log(bad.length ? `FAIL: ${bad.map(([k]) => k).join(', ')}` : 'PASS: docked and clear of the interface on every device');
+const needed = ['identity', 'vitals', 'defenses', 'effects', 'readout', 'projection'];
+const bad = Object.entries(report).filter(([, v]) =>
+	!v.open || !v.tabs || !v.body || needed.some((s) => !v.slots.includes(s)) || Object.values(v.clear).some((c) => c !== null && c < 0));
+console.log(bad.length ? `FAIL: ${bad.map(([k]) => k).join(', ')}` : 'PASS: every panel drawn, tabs present, clear of the interface');
 
 const imgs = await Promise.all(shots.map((b) => sharp(b).resize(780).toBuffer()));
 const m = await sharp(imgs[0]).metadata();

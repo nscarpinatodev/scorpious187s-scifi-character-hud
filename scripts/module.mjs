@@ -20,7 +20,12 @@ import { Projection } from './projection/projection.mjs';
  * manifest afterwards is never linked until the world is restarted. Link ours ourselves
  * if they are missing — it costs nothing when they are already there.
  */
-const STYLES = ['styles/device.css', 'styles/interface.css', 'styles/projection.css'];
+const STYLES = [
+	'styles/device.css',
+	'styles/interface.css',
+	'styles/projection.css',
+	'styles/projection-frame.css',
+];
 
 function ensureStyles() {
 	for (const path of STYLES) {
@@ -73,13 +78,22 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	if (on) {
 		const raised = await Projection.open();
 		if (!raised) return DeviceChrome.setPower(false, { silent: true });
-		if (sequence) DeviceChrome.playSequence('on');
+		if (sequence) {
+			DeviceChrome.playSequence('on');
+			Projection.playSequence('on');
+		}
 		return;
 	}
 	if (!sequence) return Projection.close();
 	DeviceChrome.playSequence('off');
+	Projection.playSequence('off');
 	setTimeout(() => Projection.close(), SEQ.off);
 });
+
+/* The projection shows live data, so it follows the actor. */
+for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'createActiveEffect', 'updateActiveEffect', 'deleteActiveEffect']) {
+	Hooks.on(hook, (doc) => Projection.refreshFor(doc));
+}
 
 /* The free area changes whenever Foundry's own furniture does. */
 for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {

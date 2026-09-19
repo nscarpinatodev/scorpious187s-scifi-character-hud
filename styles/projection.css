@@ -1,300 +1,228 @@
 /* =========================================================================
-   The projection: the sheet the device raises over the canvas.
+   The projection, generated from the approved mock-up.
 
-   The frame and the sequences are ours. What is inside the screen is the game
-   system's own sheet element, moved here — so everything below `.sfh-docked`
-   is about making somebody else's markup sit in our frame without changing
-   how it works.
+   DO NOT EDIT BY HAND. This file is produced by tools/port-css.py from
+   design/1-head.html, which is the mock-up's own stylesheet. Change the
+   design there and re-run the script, so the module and the mock-up cannot
+   drift apart.
+
+   Everything is scoped to #sfh-projection: none of it reaches Foundry's own
+   interface, which is themed separately in interface.css.
    ========================================================================= */
 
-#sfh-projection {
-	position: fixed;
-	left: 50%;
-	bottom: var(--sfh-proj-bottom, 90px);
-	width: var(--sfh-proj-width, 60vw);
-	height: var(--sfh-proj-height, 60vh);
-	transform: translateX(-50%);
-	z-index: calc(var(--z-index-app, 60) - 1);
-	display: none;
-	pointer-events: none;
-	font-family: var(--sfh-face);
-	color: var(--sfh-text);
+/* ---------- theme tokens ---------- */
+#sfh-projection .sfh-stage{position:absolute;inset:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);font-size:var(--fs)}
+#sfh-projection .sfh-stage[data-device="omni"]{--bg:radial-gradient(ellipse at 50% 36%,#111723 0%,#05070b 68%);--pnl:rgba(255,120,20,.07);--pnl2:rgba(0,0,0,.28);--line:rgba(255,140,42,.55);--line2:rgba(255,140,42,.18);--text:#ffdcb8;--bright:#fff0de;--dim:#e0985a;--hot:#ff9a3c;--hotbg:rgba(255,140,42,.28);--hover:rgba(255,140,42,.16);--glow:rgba(255,140,42,.7);--acc:#5ec8ff;--accbg:rgba(94,200,255,.16);--bad:#ff5a4a;--good:#8dffb0;--font:Rajdhani,'Arial Narrow',sans-serif;--display:Rajdhani,'Arial Narrow',sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:15px;--r:0px;--clip:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));--pshadow:inset 0 0 22px rgba(255,120,20,.15),0 0 14px rgba(255,120,20,.1)}
+#sfh-projection .sfh-stage[data-device="wrist"]{--bg:#0b0418;--pnl:rgba(22,9,48,.86);--pnl2:rgba(255,255,255,.04);--line:rgba(53,236,242,.55);--line2:rgba(199,155,255,.18);--text:#eadcff;--bright:#ffffff;--dim:#c79bff;--hot:#ff4fb4;--hotbg:rgba(255,79,180,.26);--hover:rgba(53,236,242,.14);--glow:rgba(255,79,180,.7);--acc:#35ecf2;--accbg:rgba(53,236,242,.14);--bad:#ff6b6b;--good:#7dffc8;--font:'Chakra Petch',sans-serif;--display:Audiowide,'Chakra Petch',sans-serif;--mono:VT323,ui-monospace,monospace;--fs:14px;--r:10px;--clip:none;--pshadow:0 0 18px rgba(53,236,242,.18),inset 0 0 16px rgba(255,79,180,.1)}
+#sfh-projection .sfh-stage[data-device="gdi"]{--bg:#060805;--pnl:#0c1209;--pnl2:rgba(0,0,0,.35);--line:rgba(118,214,96,.45);--line2:rgba(118,214,96,.16);--text:#d6f2c9;--bright:#effde8;--dim:#8fbf7c;--hot:#6dff5a;--hotbg:rgba(109,255,90,.2);--hover:rgba(109,255,90,.12);--glow:rgba(109,255,90,.6);--acc:#f2c230;--accbg:rgba(242,194,48,.16);--bad:#ff4a3a;--good:#6dff5a;--font:Oxanium,sans-serif;--display:Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:0px;--clip:none;--pshadow:inset 0 0 0 1px #000,inset 0 0 24px rgba(0,0,0,.6)}
+#sfh-projection .sfh-stage[data-device="nod"]{--bg:#080404;--pnl:#140707;--pnl2:rgba(0,0,0,.35);--line:rgba(255,60,50,.45);--line2:rgba(255,60,50,.16);--text:#f5d9d4;--bright:#fff3f0;--dim:#c9847c;--hot:#ff3b30;--hotbg:rgba(255,59,48,.22);--hover:rgba(255,59,48,.13);--glow:rgba(255,59,48,.65);--acc:#efe6d2;--accbg:rgba(239,230,210,.14);--bad:#ffd060;--good:#efe6d2;--font:Oxanium,sans-serif;--display:Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:0px;--clip:none;--pshadow:inset 0 0 0 1px #000,inset 0 0 24px rgba(0,0,0,.6)}
+/* ---------- slots ---------- */
+#sfh-projection .slot{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#sfh-projection .slot>*{min-height:0;max-width:100%}
+#sfh-projection .pnl{background:var(--pnl);border:1px solid var(--line);box-shadow:var(--pshadow);clip-path:var(--clip);border-radius:var(--r)}
+#sfh-projection .pad{padding:12px 14px;gap:10px}
+#sfh-projection .slot.pad, #sfh-projection .slot-in{overflow:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+#sfh-projection .lbl{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#sfh-projection .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+#sfh-projection .big{font-family:var(--mono);color:var(--bright);text-shadow:0 0 10px var(--glow);line-height:1}
+#sfh-projection .hot{color:var(--hot)}
+#sfh-projection .acc{color:var(--acc)}
+#sfh-projection .brt{color:var(--bright)}
+#sfh-projection .dimc{color:var(--dim)}
+#sfh-projection .row{display:flex;align-items:center;gap:8px}
+#sfh-projection .sp{justify-content:space-between}
+#sfh-projection .grow{flex:1 1 auto;min-width:0}
+#sfh-projection .scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent;min-height:0}
+#sfh-projection .sep{border-top:1px solid var(--line2);padding-top:10px}
+#sfh-projection .b{font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:calc(var(--r)*.6);cursor:pointer;min-height:30px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#sfh-projection .b:hover{background:var(--hover)}
+#sfh-projection .b:focus-visible, #sfh-projection .slot [tabindex]:focus-visible{outline:2px solid var(--bright);outline-offset:1px}
+#sfh-projection .b.on{background:var(--hotbg);border-color:var(--hot);color:var(--bright)}
+#sfh-projection .b:disabled{opacity:.4;cursor:not-allowed}
+#sfh-projection .b.sm{min-height:24px;padding:0 7px;font-size:12px}
+#sfh-projection .b.ic{width:30px;padding:0}
+#sfh-projection .roll{font-family:var(--mono);font-size:1.05em;color:var(--bright);background:var(--hotbg);min-width:46px}
+#sfh-projection .ghost{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hot)}
+#sfh-projection .chip{display:inline-flex;align-items:center;gap:5px;min-height:20px;padding:0 7px;border:1px solid var(--line);border-radius:calc(var(--r)*.5);font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--hot);white-space:nowrap}
+#sfh-projection .chip.me{border-color:var(--acc);color:var(--acc)}
+#sfh-projection .chip button{font:inherit;color:inherit;background:none;border:0;padding:0 1px;cursor:pointer;min-height:18px}
+#sfh-projection .barx{height:8px;background:var(--line2);border-radius:calc(var(--r)*.3);overflow:hidden}
+#sfh-projection .barx>i{display:block;height:100%;background:var(--hot);box-shadow:0 0 10px var(--glow)}
+#sfh-projection .barx.a>i{background:var(--acc);box-shadow:0 0 10px var(--acc)}
+#sfh-projection .cells{--cw:86px;min-height:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));gap:6px}
+#sfh-projection .sfh-stage[data-device="omni"] .cells{--cw:74px}
+#sfh-projection .sfh-stage[data-device="wrist"] .cell{min-height:40px}
+#sfh-projection .sfh-stage[data-device="wrist"] .cell .v{font-size:17px}
+#sfh-projection .big{white-space:nowrap}
+#sfh-projection .cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:46px;padding:4px;border:1px solid var(--line2);background:var(--pnl2);border-radius:calc(var(--r)*.6);font:inherit;color:inherit}
+#sfh-projection button.cell{cursor:pointer;border-color:var(--line)}
+#sfh-projection button.cell:hover{background:var(--hover)}
+#sfh-projection .cell{overflow:hidden}
+#sfh-projection .cell .lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;line-height:1.1}
+#sfh-projection .cell .v{font-family:var(--mono);font-size:20px;color:var(--bright);line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sfh-projection .cell.wide{grid-column:1/-1}
+#sfh-projection .pips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:100%}
+#sfh-projection .pip{width:15px;height:15px;border:1px solid var(--hot);background:transparent;cursor:pointer;padding:0;transform:rotate(45deg);border-radius:calc(var(--r)*.2)}
+#sfh-projection .pip.on{background:var(--hot);box-shadow:0 0 8px var(--glow)}
+#sfh-projection .pip.bad{border-color:var(--bad)}
+#sfh-projection .pip.bad.on{background:var(--bad);box-shadow:0 0 8px var(--bad)}
+#sfh-projection .sfh-stage[data-device="wrist"] .pip, #sfh-projection .sfh-stage[data-device="wrist"] .dot{transform:none;border-radius:50%;width:17px;height:17px}
+/* ---------- projection ---------- */
+#sfh-projection .proj{padding:0}
+#sfh-projection .proj-h{display:flex;align-items:center;gap:6px;min-height:42px;padding:0 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#sfh-projection .proj-t{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--bright);margin-right:10px}
+#sfh-projection .src{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--dim);opacity:.8}
+#sfh-projection .proj-b{padding:12px 16px 18px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto}
+#sfh-projection .sec{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:8px;margin-top:4px}
+#sfh-projection .sec::after{content:'';flex:1;border-top:1px solid var(--line2)}
+#sfh-projection .li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-height:38px;padding:4px 10px;border:1px solid var(--line2);background:var(--pnl2);border-radius:calc(var(--r)*.6)}
+#sfh-projection .li.flat{border-width:0 0 1px;background:none;border-radius:0}
+#sfh-projection .li>.grow{display:flex;flex-direction:column;align-items:flex-start;gap:2px;overflow:hidden}
+#sfh-projection .li>.chip, #sfh-projection .li>.b, #sfh-projection .li>.cost, #sfh-projection .li>.rk, #sfh-projection .li>.pips, #sfh-projection .li>.row, #sfh-projection .li>.mono{flex:none}
+#sfh-projection .li .nm{font-weight:700;color:var(--bright);font-size:1.05em;cursor:pointer;background:none;border:0;padding:0;font-family:inherit;text-align:left;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.15}
+#sfh-projection .li .nm:hover{color:var(--hot)}
+#sfh-projection .li .sub{font-size:12px;color:var(--dim);letter-spacing:.04em}
+#sfh-projection .cost{font-family:var(--mono);color:var(--hot);min-width:28px}
+#sfh-projection .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px}
+#sfh-projection .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#sfh-projection .grid6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#sfh-projection .kv{display:flex;flex-direction:column;gap:3px;padding:8px 10px;border:1px solid var(--line2);background:var(--pnl2);border-radius:calc(var(--r)*.6)}
+#sfh-projection .kv b{font-weight:600;color:var(--bright)}
+#sfh-projection .rk{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--line2);color:var(--dim);flex:none}
+#sfh-projection .rk.T{border-color:var(--line);color:var(--text);background:var(--pnl2)}
+#sfh-projection .rk.E, #sfh-projection .rk.M, #sfh-projection .rk.L{border-color:var(--hot);color:var(--bright);background:var(--hotbg)}
+#sfh-projection .empty{padding:28px 16px;text-align:center;color:var(--dim);border:1px dashed var(--line);border-radius:calc(var(--r)*.6)}
+#sfh-projection .ta{width:100%;box-sizing:border-box;min-height:64px;resize:vertical;font:inherit;color:var(--text);background:var(--pnl2);border:1px solid var(--line2);border-radius:calc(var(--r)*.6);padding:8px 10px}
+#sfh-projection .ta:focus{outline:1px solid var(--hot)}
+#sfh-projection .sel{font:inherit;font-size:12px;color:var(--text);background:var(--pnl2);border:1px solid var(--line);border-radius:calc(var(--r)*.6);height:30px;padding:0 6px}
+/* the etched grid: off, across the whole ground, or only on the panels */
+#sfh-projection .hexbg{display:none}
+body[data-sfh-grid="full"] #sfh-projection .hexbg{display:block}
+body[data-sfh-grid="panels"] #sfh-projection .sfh-stage[data-device="omni"] :is(.pnl,.proj){background-image:
+  repeating-linear-gradient(60deg,rgba(255,255,255,.04) 0 1px,transparent 1px 18px),
+  repeating-linear-gradient(-60deg,rgba(255,255,255,.04) 0 1px,transparent 1px 18px)}
+#sfh-projection .scanfx{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px);display:none}
+#sfh-projection .scan-on .scanfx{display:block}
+#sfh-projection .scan-on.sfh-stage[data-device="omni"] .pnl, #sfh-projection .scan-on.sfh-stage[data-device="wrist"] .tile{text-shadow:0 0 1px currentColor}
+/* ---------- identity ---------- */
+#sfh-projection .ident{flex-direction:row;align-items:center;gap:16px;padding:6px 16px}
+#sfh-projection .ident .nm{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:.06em;color:var(--bright);text-shadow:0 0 10px var(--glow);line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sfh-projection .ident .st{font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sfh-projection .lvl{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:44px;border:1px solid var(--hot);background:var(--hotbg)}
+#sfh-projection .sfh-stage[data-device="wrist"] .ident{flex-direction:column;align-items:stretch;padding:14px 16px;gap:8px}
+#sfh-projection .sfh-stage[data-device="wrist"] .ident .nm{font-size:24px;color:#ff4fb4;text-shadow:0 0 12px rgba(255,79,180,.8);white-space:normal}
+#sfh-projection .sfh-stage[data-device="wrist"] .ident .st{white-space:normal}
+#sfh-projection .ticker{flex:1 1 auto;min-width:0;font-family:var(--mono);font-size:14px;color:var(--text);padding-left:14px;border-left:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sfh-projection .ticker i{color:var(--hot);font-style:normal;animation:sfh-blink 1s steps(1) infinite}
+@keyframes sfh-blink {50%{opacity:0}}
+/* ---------- readout ---------- */
+#sfh-projection .ro h3{margin:0;font-family:var(--display);font-size:17px;font-weight:700;color:var(--bright);text-wrap:balance}
+#sfh-projection .ro p{margin:0;font-size:13.5px;line-height:1.4;color:var(--text)}
+#sfh-projection .ro .meta{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px}
+#sfh-projection .ro .meta dt{color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;font-weight:700;padding-top:2px}
+#sfh-projection .ro .meta dd{margin:0;color:var(--bright)}
+#sfh-projection .tier{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+#sfh-projection .tier.off{opacity:.45}
+#sfh-projection .tier b{font-family:var(--mono);min-width:26px}
+/* ---------- nav ---------- */
+#sfh-projection .navb{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;color:var(--hot);font:inherit}
+#sfh-projection .navb svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8}
+#sfh-projection .sfh-stage[data-device="omni"] .navb{width:56px;height:56px;border:1px solid var(--line);border-radius:50%;background:rgba(6,8,12,.85)}
+#sfh-projection .sfh-stage[data-device="omni"] .navb.on{background:rgba(255,140,42,.3);border-color:#ffc58a;box-shadow:0 0 18px var(--glow);color:var(--bright)}
+#sfh-projection .navlbl{position:absolute;width:90px;text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--bright);text-shadow:0 0 8px var(--glow)}
+#sfh-projection .sfh-stage[data-device="wrist"] .navb{width:44px;height:52px;border-radius:10px;border:1px solid #6b3fa8;background:linear-gradient(180deg,#3a2066,#1a0d33);color:#c79bff;box-shadow:inset 0 2px 0 rgba(255,255,255,.12),0 3px 0 #0a0416}
+#sfh-projection .sfh-stage[data-device="wrist"] .navb.on{color:#0b0418;background:linear-gradient(180deg,#ff7fcb,#ff3ea5);border-color:#ffb3df;box-shadow:0 0 16px rgba(255,62,165,.8)}
+#sfh-projection .cameos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#sfh-projection .cam{position:static;flex-direction:column;gap:5px;border:1px solid var(--line);background:linear-gradient(180deg,var(--camt),var(--camb));font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.5)}
+#sfh-projection .cam.on{background:var(--hot);color:#050605;box-shadow:0 0 16px var(--glow)}
+#sfh-projection .sfh-stage[data-device="gdi"]{--camt:#223019;--camb:#0f160b}
+#sfh-projection .sfh-stage[data-device="nod"]{--camt:#361111;--camb:#170606}
+/* ---------- wrist tiles / eva bays ---------- */
+#sfh-projection .sfh-stage[data-device="wrist"] .tile{border-radius:12px}
+#sfh-projection .cap{display:flex;align-items:center;min-height:24px;padding:0 10px;background:var(--hotbg);border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);flex:none}
+#sfh-projection .sfh-stage[data-device="gdi"] .slot.pnl, #sfh-projection .sfh-stage[data-device="nod"] .slot.pnl{padding-top:0}
+/* ---------- toasts & dialog ---------- */
+#sfh-projection #sfh-toasts{position:absolute;display:flex;flex-direction:column;gap:8px;pointer-events:none;z-index:30;width:250px}
+#sfh-projection .toast{pointer-events:auto;box-sizing:border-box;padding:10px 12px;background:var(--pnl);border:1px solid var(--hot);box-shadow:0 0 20px var(--glow);clip-path:var(--clip);border-radius:var(--r);font-family:var(--font);color:var(--text);animation:sfh-tin .25s ease-out}
+#sfh-projection .toast .tt{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#sfh-projection .toast .tv{font-family:var(--mono);font-size:30px;color:var(--bright);text-shadow:0 0 10px var(--glow);line-height:1.1}
+#sfh-projection .toast .tf{font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+#sfh-projection .toast.crit{border-color:var(--good)}
+#sfh-projection .toast.crit .tv{color:var(--good)}
+#sfh-projection .toast.fumble{border-color:var(--bad)}
+#sfh-projection .toast.fumble .tv{color:var(--bad)}
+@keyframes sfh-tin {from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){
+#sfh-projection .toast{animation:sfh-none}
+#sfh-projection .ticker i{animation:sfh-none}
 }
-
-#sfh-projection.sfh-visible {
-	display: block;
+/* ---------- chrome modes, hide ---------- */
+#sfh-projection .chrome-clean{background:transparent!important}
+#sfh-projection .hud-hidden{background:transparent!important}
+#sfh-projection .hidepill{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 22px;border:1px dashed var(--line);border-radius:var(--r);color:var(--dim);font-size:12px;letter-spacing:.16em;text-transform:uppercase;background:rgba(0,0,0,.35)}
+#sfh-projection .hidepill b{color:var(--bright);font-size:13px}
+#sfh-projection .hidepill kbd{font-family:var(--mono);border:1px solid var(--line);border-radius:3px;padding:1px 7px;color:var(--hot)}
+#sfh-projection .keycap{min-width:64px}
+#sfh-projection .keycap.armed{border-color:var(--hot);color:var(--bright);background:var(--hotbg)}
+/* ---------- power sequences ---------- */
+#sfh-projection .ornlayer{position:absolute;inset:0;pointer-events:none}
+#sfh-projection .powerbtn{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:inherit;color:var(--hot);background:transparent;border:1px dashed var(--line);border-radius:var(--r);cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;z-index:12}
+#sfh-projection .powerbtn:hover{background:var(--hover);color:var(--bright)}
+#sfh-projection .powerbtn .dot2{width:12px;height:12px;border-radius:50%;background:var(--hot);box-shadow:0 0 14px var(--glow);animation:sfh-stand 2.4s ease-in-out infinite}
+@keyframes sfh-stand {0%,100%{opacity:.25}50%{opacity:1}}
+#sfh-projection .sweep{position:absolute;left:0;right:0;height:120px;pointer-events:none;z-index:11}
+#sfh-projection .flare{position:absolute;pointer-events:none;z-index:2;border-radius:50%}
+/* Omni-tool: panels elevate out of the emitter band, riding a rising sweep */
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="omni"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="omni"] .navb{animation:sfh-omniRise .52s cubic-bezier(.16,.9,.3,1) backwards;animation-delay:var(--d,0ms)}
+@keyframes sfh-omniRise {from{opacity:0;transform:translateY(120px) scaleY(.5) scaleX(.94);filter:blur(3px)}60%{opacity:1}to{opacity:1;transform:none;filter:none}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="omni"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="omni"] .navb{animation:sfh-omniFall .4s cubic-bezier(.5,0,.85,.4) forwards;animation-delay:var(--dr,0ms)}
+@keyframes sfh-omniFall {from{opacity:1;transform:none}to{opacity:0;transform:translateY(110px) scaleY(.45) scaleX(.9);filter:blur(3px)}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="omni"] .sweep{background:linear-gradient(0deg,rgba(255,154,60,0) 0%,rgba(255,154,60,.35) 55%,rgba(255,225,190,.9) 78%,rgba(255,154,60,0) 100%);animation:sfh-omniSweep .62s ease-out forwards}
+@keyframes sfh-omniSweep {from{top:760px;opacity:1}to{top:40px;opacity:0}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="omni"] .flare, #sfh-projection .sfh-seq-off.sfh-stage[data-device="omni"] .flare{left:560px;top:706px;width:160px;height:130px;background:radial-gradient(ellipse at 50% 60%,rgba(255,214,164,.95),rgba(255,140,42,.35) 45%,transparent 72%);animation:sfh-flare .55s ease-out forwards}
+@keyframes sfh-flare {from{opacity:0;transform:scale(.4)}35%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.3)}}
+/* the projected beam narrows back into the emitter as the panels drop, and widens out of
+   it as they rise — it is the light the panels are made of, not a backdrop */
+#sfh-projection .beam{transform-box:fill-box;transform-origin:50% 100%}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="omni"] .beam{animation:sfh-beamOn .62s cubic-bezier(.16,.9,.3,1) backwards}
+@keyframes sfh-beamOn {from{opacity:0;transform:scaleY(.08) scaleX(.5)}55%{opacity:1}to{opacity:1;transform:none}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="omni"] .beam{animation:sfh-beamOff .6s ease-in forwards}
+@keyframes sfh-beamOff {from{opacity:1;transform:none}45%{opacity:.55}to{opacity:0;transform:scaleY(.08) scaleX(.5)}}
+/* EVA: a pulse draws across the centre of the screen, then the picture opens out
+   of that line in both directions — an old CRT finding its raster. */
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="gdi"] .foldwrap, #sfh-projection .sfh-seq-on.sfh-stage[data-device="nod"] .foldwrap{animation:sfh-crtOpen .52s cubic-bezier(.2,.9,.25,1) .2s backwards;transform-origin:50% 50%}
+@keyframes sfh-crtOpen {from{transform:scaleY(.005);filter:brightness(2.4)}70%{transform:scaleY(1.03);filter:brightness(1.3)}to{transform:none;filter:none}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="gdi"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="nod"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="gdi"] .navb, #sfh-projection .sfh-seq-on.sfh-stage[data-device="nod"] .navb{animation:sfh-evaWake .3s ease-out backwards;animation-delay:calc(300ms + var(--d,0ms))}
+@keyframes sfh-evaWake {from{opacity:0}to{opacity:1}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="gdi"] .foldwrap, #sfh-projection .sfh-seq-off.sfh-stage[data-device="nod"] .foldwrap{animation:sfh-crtShut .3s ease-in .16s forwards;transform-origin:50% 50%}
+@keyframes sfh-crtShut {from{transform:none;filter:none}to{transform:scaleY(.005);filter:brightness(2.6)}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="gdi"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="nod"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="gdi"] .navb, #sfh-projection .sfh-seq-off.sfh-stage[data-device="nod"] .navb{animation:sfh-evaSleep .18s ease-in forwards;animation-delay:var(--dr,0ms)}
+@keyframes sfh-evaSleep {from{opacity:1}to{opacity:0}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="gdi"] .sweep, #sfh-projection .sfh-seq-on.sfh-stage[data-device="nod"] .sweep, #sfh-projection .sfh-seq-off.sfh-stage[data-device="gdi"] .sweep, #sfh-projection .sfh-seq-off.sfh-stage[data-device="nod"] .sweep{top:0;bottom:0;height:auto;display:flex;align-items:center;justify-content:center;z-index:20}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="gdi"] .sweep::after, #sfh-projection .sfh-seq-on.sfh-stage[data-device="nod"] .sweep::after{content:'';display:block;width:92%;height:3px;background:var(--hot);box-shadow:0 0 26px 6px var(--glow);animation:sfh-crtOn .62s ease-out forwards}
+@keyframes sfh-crtOn {0%{transform:scaleX(.02);opacity:1}32%{transform:scaleX(1);opacity:1}55%{transform:scaleX(1) scaleY(2.2);opacity:.75}to{transform:scaleX(1) scaleY(1);opacity:0}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="gdi"] .sweep::after, #sfh-projection .sfh-seq-off.sfh-stage[data-device="nod"] .sweep::after{content:'';display:block;width:92%;height:3px;background:var(--hot);box-shadow:0 0 26px 6px var(--glow);animation:sfh-crtOff .34s ease-in .44s forwards}
+@keyframes sfh-crtOff {0%{transform:scaleX(1) scaleY(1.6);opacity:1}45%{transform:scaleX(1);opacity:1}to{transform:scaleX(.02);opacity:0}}
+/* Wrist computer: the whole case hinges at its base — it swings up to open, and the top falls away to close */
+#sfh-projection .foldwrap{position:absolute;inset:0;pointer-events:none}
+#sfh-projection .foldwrap .slot, #sfh-projection .foldwrap .navb, #sfh-projection .foldwrap .navlbl, #sfh-projection .foldwrap .powerbtn{pointer-events:auto}
+#sfh-projection .sfh-stage[data-device="wrist"]{perspective:1700px;perspective-origin:50% 70%}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="wrist"] .foldwrap{animation:sfh-wristRaise .6s cubic-bezier(.17,.85,.3,1.02) backwards;transform-origin:50% 846px}
+@keyframes sfh-wristRaise {from{transform:rotateX(86deg);opacity:.15}55%{opacity:1}to{transform:none;opacity:1}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="wrist"] .foldwrap{animation:sfh-wristFoldDown .46s cubic-bezier(.45,0,.85,.35) .18s forwards;transform-origin:50% 846px}
+@keyframes sfh-wristFoldDown {from{transform:none;opacity:1}to{transform:rotateX(86deg);opacity:.12}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="wrist"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="wrist"] .navb{animation:sfh-screenWake .34s ease-out backwards;animation-delay:calc(280ms + var(--d,0ms))}
+@keyframes sfh-screenWake {from{opacity:0}to{opacity:1}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="wrist"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="wrist"] .navb{animation:sfh-screenSleep .16s ease-in forwards}
+@keyframes sfh-screenSleep {from{opacity:1}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+#sfh-projection .sfh-seq-on .slot, #sfh-projection .sfh-seq-off .slot, #sfh-projection .sfh-seq-on .navb, #sfh-projection .sfh-seq-off .navb, #sfh-projection .sfh-seq-on .ornlayer, #sfh-projection .sfh-seq-off .ornlayer, #sfh-projection .sfh-seq-on .foldwrap, #sfh-projection .sfh-seq-off .foldwrap{animation:sfh-none!important}
+#sfh-projection .sweep, #sfh-projection .flare, #sfh-projection .powerbtn .dot2{animation:sfh-none!important;display:none}
+#sfh-projection .beam{animation:sfh-none!important}
 }
-
-.sfh-frame {
-	position: absolute;
-	inset: 0;
-	display: flex;
-	min-height: 0;
-}
-
-.sfh-screen {
-	position: relative;
-	flex: 1;
-	display: flex;
-	min-width: 0;
-	min-height: 0;
-	pointer-events: auto;
-	background: rgb(var(--sfh-bg-rgb) / 82%);
-	border: 1px solid var(--sfh-line);
-	box-shadow: inset 0 0 40px rgb(var(--sfh-bg-rgb) / 70%), 0 0 26px rgb(0 0 0 / 55%);
-}
-
-.sfh-body {
-	flex: 1;
-	display: flex;
-	min-width: 0;
-	min-height: 0;
-	overflow: hidden;
-}
-
-/* ---------------------------------------------------------------- the borrowed sheet */
-/*
- * The sheet arrives as a floating application window: absolutely positioned, with a
- * header, a resize handle and its own background. It keeps all of that machinery — it is
- * only told to fill the screen instead of floating. `!important` is deliberate: Foundry
- * writes position and size to the element's inline style on every render.
- */
-
-#sfh-projection .sfh-docked {
-	position: static !important;
-	inset: auto !important;
-	width: 100% !important;
-	height: 100% !important;
-	min-width: 0 !important;
-	min-height: 0 !important;
-	max-width: none !important;
-	max-height: none !important;
-	margin: 0 !important;
-	transform: none !important;
-	z-index: auto !important;
-	display: flex !important;
-	flex-direction: column;
-	background: none !important;
-	border: 0 !important;
-	border-radius: 0 !important;
-	box-shadow: none !important;
-	backdrop-filter: none !important;
-	opacity: 1 !important;
-}
-
-/* the window furniture belongs to a floating window, not to a projection */
-#sfh-projection .sfh-docked > :is(.window-header, header.window-header),
-#sfh-projection .sfh-docked > .window-resize-handle,
-#sfh-projection .sfh-docked > .window-resizable-handle {
-	display: none !important;
-}
-
-#sfh-projection .sfh-docked > :is(.window-content, section.window-content, form) {
-	flex: 1;
-	min-height: 0;
-	width: 100%;
-	max-height: none;
-	background: none;
-	overflow: auto;
-}
-
-/* ---------------------------------------------------------------- device frames */
-
-/* Mass Effect: no housing at all — the panels are light in the air. */
-#sfh-projection[data-device="omni"] .sfh-screen {
-	background: rgb(var(--sfh-bg-rgb) / 55%);
-	clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-}
-
-/* The wrist unit's case, hinged at the base. */
-#sfh-projection[data-device="wrist"] .sfh-frame {
-	padding: 14px 14px 22px;
-	border-radius: 18px;
-	background: linear-gradient(180deg, #31215c 0%, #1a0e33 55%, #0f0820 100%);
-	box-shadow: inset 0 0 0 1px var(--sfh-acc), 0 18px 40px rgb(0 0 0 / 55%);
-}
-
-#sfh-projection[data-device="wrist"] .sfh-screen {
-	border-radius: 12px;
-}
-
-#sfh-projection[data-device="wrist"] .sfh-frame::after {
-	content: "";
-	position: absolute;
-	left: 50%;
-	bottom: 7px;
-	width: 120px;
-	height: 6px;
-	border-radius: 3px;
-	transform: translateX(-50%);
-	background: var(--sfh-hot);
-	box-shadow: 0 0 14px var(--sfh-glow);
-}
-
-/* The EVA console: a bezel around its own screen, and nothing else. */
-#sfh-projection[data-device="gdi"] .sfh-frame,
-#sfh-projection[data-device="nod"] .sfh-frame {
-	padding: 14px;
-	background: var(--sfh-bezel, #3a3d2c);
-	box-shadow: inset 0 0 0 2px #000, inset 0 0 0 4px var(--sfh-line), 0 18px 40px rgb(0 0 0 / 55%);
-}
-
-#sfh-projection[data-device="nod"] .sfh-frame {
-	--sfh-bezel: #3a2020;
-}
-
-#sfh-projection[data-device="gdi"] .sfh-frame::before,
-#sfh-projection[data-device="nod"] .sfh-frame::before,
-#sfh-projection[data-device="gdi"] .sfh-frame::after,
-#sfh-projection[data-device="nod"] .sfh-frame::after {
-	content: "";
-	position: absolute;
-	width: 9px;
-	height: 9px;
-	border-radius: 50%;
-	background: radial-gradient(circle at 35% 35%, #9a9a8a, #2a2a24);
-	box-shadow: calc(100% + 0px) 0 0 #2a2a24;
-}
-
-#sfh-projection[data-device="gdi"] .sfh-frame::before,
-#sfh-projection[data-device="nod"] .sfh-frame::before {
-	left: 4px;
-	top: 4px;
-	box-shadow: calc(var(--sfh-proj-width, 60vw) - 25px) 0 0 #2a2a24;
-}
-
-#sfh-projection[data-device="gdi"] .sfh-frame::after,
-#sfh-projection[data-device="nod"] .sfh-frame::after {
-	left: 4px;
-	bottom: 4px;
-	box-shadow: calc(var(--sfh-proj-width, 60vw) - 25px) 0 0 #2a2a24;
-}
-
-/* ---------------------------------------------------------------- sequences */
-/*
- * Driven by the same two classes the device layer uses, so the emitter flare, the beam
- * and the picture all move together.
- */
-
-/* Mass Effect: the picture elevates out of the band. */
-#sfh-projection[data-device="omni"].sfh-seq-on .sfh-frame {
-	animation: sfh-rise 520ms cubic-bezier(0.16, 0.9, 0.3, 1) backwards;
-}
-
-@keyframes sfh-rise {
-	from { opacity: 0; transform: translateY(120px) scaleY(0.5) scaleX(0.94); filter: blur(3px); }
-	60% { opacity: 1; }
-	to { opacity: 1; transform: none; filter: none; }
-}
-
-#sfh-projection[data-device="omni"].sfh-seq-off .sfh-frame {
-	animation: sfh-fall 400ms cubic-bezier(0.5, 0, 0.85, 0.4) forwards;
-}
-
-@keyframes sfh-fall {
-	from { opacity: 1; transform: none; }
-	to { opacity: 0; transform: translateY(110px) scaleY(0.45) scaleX(0.9); filter: blur(3px); }
-}
-
-/* The wrist unit: the case hinges at its base — it swings up, and folds away. */
-#sfh-projection[data-device="wrist"] {
-	perspective: 1700px;
-	perspective-origin: 50% 90%;
-}
-
-#sfh-projection[data-device="wrist"].sfh-seq-on .sfh-frame {
-	transform-origin: 50% 100%;
-	animation: sfh-unfold 600ms cubic-bezier(0.17, 0.85, 0.3, 1.02) backwards;
-}
-
-@keyframes sfh-unfold {
-	from { transform: rotateX(86deg); opacity: 0.15; }
-	55% { opacity: 1; }
-	to { transform: none; opacity: 1; }
-}
-
-#sfh-projection[data-device="wrist"].sfh-seq-off .sfh-frame {
-	transform-origin: 50% 100%;
-	animation: sfh-fold 460ms cubic-bezier(0.45, 0, 0.85, 0.35) 180ms forwards;
-}
-
-@keyframes sfh-fold {
-	from { transform: none; opacity: 1; }
-	to { transform: rotateX(86deg); opacity: 0.12; }
-}
-
-/*
- * EVA: a pulse draws across the centre of the screen, and the picture opens out of that
- * line in both directions — an old CRT finding its raster.
- */
-#sfh-projection[data-device="gdi"].sfh-seq-on .sfh-screen,
-#sfh-projection[data-device="nod"].sfh-seq-on .sfh-screen {
-	transform-origin: 50% 50%;
-	animation: sfh-crt-open 520ms cubic-bezier(0.2, 0.9, 0.25, 1) 200ms backwards;
-}
-
-@keyframes sfh-crt-open {
-	from { transform: scaleY(0.005); filter: brightness(2.4); }
-	70% { transform: scaleY(1.03); filter: brightness(1.3); }
-	to { transform: none; filter: none; }
-}
-
-#sfh-projection[data-device="gdi"].sfh-seq-off .sfh-screen,
-#sfh-projection[data-device="nod"].sfh-seq-off .sfh-screen {
-	transform-origin: 50% 50%;
-	animation: sfh-crt-shut 300ms ease-in 160ms forwards;
-}
-
-@keyframes sfh-crt-shut {
-	from { transform: none; filter: none; }
-	to { transform: scaleY(0.005); filter: brightness(2.6); }
-}
-
-/* the pulse itself */
-#sfh-projection[data-device="gdi"].sfh-seq-on .sfh-frame::after,
-#sfh-projection[data-device="nod"].sfh-seq-on .sfh-frame::after,
-#sfh-projection[data-device="gdi"].sfh-seq-off .sfh-frame::after,
-#sfh-projection[data-device="nod"].sfh-seq-off .sfh-frame::after {
-	content: "";
-	position: absolute;
-	left: 4%;
-	top: 50%;
-	width: 92%;
-	height: 3px;
-	border-radius: 0;
-	background: var(--sfh-hot);
-	box-shadow: 0 0 26px 6px var(--sfh-glow);
-	z-index: 20;
-	pointer-events: none;
-}
-
-#sfh-projection[data-device="gdi"].sfh-seq-on .sfh-frame::after,
-#sfh-projection[data-device="nod"].sfh-seq-on .sfh-frame::after {
-	animation: sfh-crt-pulse-on 620ms ease-out forwards;
-}
-
-@keyframes sfh-crt-pulse-on {
-	0% { transform: scaleX(0.02); opacity: 1; }
-	32% { transform: scaleX(1); opacity: 1; }
-	55% { transform: scaleX(1) scaleY(2.2); opacity: 0.75; }
-	100% { transform: scaleX(1) scaleY(1); opacity: 0; }
-}
-
-#sfh-projection[data-device="gdi"].sfh-seq-off .sfh-frame::after,
-#sfh-projection[data-device="nod"].sfh-seq-off .sfh-frame::after {
-	animation: sfh-crt-pulse-off 340ms ease-in 440ms forwards;
-}
-
-@keyframes sfh-crt-pulse-off {
-	0% { transform: scaleX(1) scaleY(1.6); opacity: 1; }
-	45% { transform: scaleX(1); opacity: 1; }
-	100% { transform: scaleX(0.02); opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-	#sfh-projection .sfh-frame,
-	#sfh-projection .sfh-screen,
-	#sfh-projection .sfh-frame::after {
-		animation: none !important;
-	}
-}
+#sfh-projection .dlg-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:40;display:flex;align-items:center;justify-content:center}
+#sfh-projection .dlg{width:620px;max-height:640px;display:flex;flex-direction:column;gap:14px;padding:18px 20px}
+#sfh-projection .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#sfh-projection .card{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:8px;text-align:left;min-height:0}
+#sfh-projection .card .sw{height:54px;border-radius:4px}
+#sfh-projection .card small{font-size:12px;color:var(--dim)}

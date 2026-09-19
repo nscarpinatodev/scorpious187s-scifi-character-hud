@@ -4,9 +4,13 @@ Work that is known, wanted and not done yet. Ordered roughly by when it should h
 
 ## Next
 
-- **The projection.** The projected sheet raised by the device's switch: frame, panels
-  (identity, vitals, defenses, effects, Mass Effect dossier, readout), the system's own sheet
-  docked into the tab body, and the three power sequences. See PLAN.md.
+- [ ] **Remaining tab bodies** — PF2e crafting and spellcasting, 5e bastion and special traits.
+- [ ] **Adding conditions** from the projection (the mock-up's "+ Add condition" picker).
+- [ ] **The omni-tool's beam** — the cone of light between the arm's band and the projection,
+      widening and dimming with the power sequence. It lived inside the mock-up's stage; now
+      the arm is in the interface and the projection is separate, so it has to bridge them.
+- [ ] **The readout** — currently name, type, traits and description. The mock-up also showed
+      per-kind detail (skill breakdowns, tier lists for Paragon/Renegade).
 
 ## Sidebar panels, one at a time
 

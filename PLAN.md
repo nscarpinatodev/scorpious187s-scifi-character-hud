@@ -38,6 +38,7 @@ That rule is enforced structurally, not by discipline:
 ## Architecture
 
 ```
+design/                 the approved mock-up, kept as the design source of truth
 scripts/
   module.mjs            entry: settings, lifecycle, stylesheet self-heal, api + debug()
   constants.mjs         module id, device table, setting keys, sequence timings, element ids
@@ -46,20 +47,39 @@ scripts/
     art.mjs             the arm, in the mock-up's own coordinates
     chrome.mjs          mounts the device, moves the macro bar onto it, power + sequences
   projection/
-    projection.mjs      the layer: free-area fit, device frame, docking the system sheet
+    projection.mjs      the layer: board, fit, render, the delegated listener
+    layout.mjs          where each panel sits, per device, in board coordinates
+    panels.mjs          identity, vitals, defenses, effects, dossier, readout, tab ring
+    ornaments.mjs       each device's housing and the EVA's own readouts
+    dossier.mjs         reads the conversion module's Paragon/Renegade and shields
+    helpers.mjs         the mock-up's markup helpers
   adapters/
-    pf2e-family.mjs     SF2e and PF2e: the numbers our panels show
-    dnd5e.mjs           D&D 5e: the same, from its own API
+    index.mjs           picks the adapter for the running system
+    pf2e-family.mjs     SF2e and PF2e: what the panels show, what each button does
+    dnd5e.mjs           D&D 5e: the same, through its own API
 styles/
   device.css            device palettes, the arm, the macro bar skin, device sequences
   interface.css         the device palette mapped onto Foundry's own interface colours
-  projection.css        the projection frame per device, the docked sheet, the sequences
+  projection.css        GENERATED from design/1-head.html by tools/port-css.py
+  projection-frame.css  where the board sits on screen
 tools/
+  port-css.py           regenerates projection.css from the mock-up
   harness-device.html   Foundry's game-view regions and real hotbar markup, no Foundry
-  harness-device.mjs    stubs game.settings / i18n / Hooks, runs the real chrome.mjs
+  harness-device.mjs    stubs game/Hooks/ui and a character, runs the real module code
   preview-device.mjs    screenshots all four devices and prints their geometry
-  preview-projection.mjs  raises the projection on each device and asserts its clearances
+  preview-projection.mjs  raises the projection on each device and asserts what it drew
 ```
+
+## Why the projection is ours
+
+The panels, the tab ring and the tab bodies are the mock-up's markup, not the system's
+sheet. That was tried — the system's sheet docked into a frame — and it simply looked like
+the system's sheet in a box, because it was. What makes the design the design is the layout.
+
+Mechanics are still the system's: every control carries a `data-act`, one delegated listener
+hands it to the adapter, and the adapter calls `skill.roll()`, `save.roll()`,
+`strike.variants[n].roll()`, `item.use()` and so on. The projection shows numbers and sends
+intent; it never rolls anything itself.
 
 ### Why a harness
 
@@ -82,22 +102,19 @@ screen, which is why only the omni-tool has art in `device/art.mjs`.
 
 ## Status
 
-**Done — the device chrome (v0.2.0).** All four devices mount into `#ui-bottom`; the real macro
-bar is moved onto the omni-tool's arm and sized to it, or docked with a power key for the others;
-the band and the power key raise and lower the power state and play the sequence classes; per-user
-settings for device, key size, sequences and the etched grid.
+**Done — the device chrome.** All four devices mount into `#ui-bottom`; the real macro bar is
+moved onto the omni-tool's arm and sized to it, or docked with a power key for the others; the
+band and the power key raise and lower the projection; per-user settings.
 
-**Done — the projection shell.** The switch raises a framed projection over the canvas with the
-system's own sheet docked inside it, window furniture hidden. Each device has its housing (none
-for the omni-tool, the wrist case, the EVA bezel) and its sequence. The free area is measured
-from Foundry's own regions, so the projection is centred on the window and never reaches under
-the controls, sidebar, scene bar or device. Checked headlessly against a stand-in application
-window: docked, header hidden, and clear on every side, on all four devices.
+**Done — the interface palette.** The device's colours are mapped onto Foundry's own colour
+properties inside the interface regions, so the sidebar, chat, scene bar, controls and player
+list follow the device.
 
-**Next — the panels.** Identity, vitals, defenses, effects, the Mass Effect dossier and the
-readout from the mock-up, around the docked sheet, fed by the per-system adapters. Then the real
-sheets: SF2e/PF2e are ApplicationV1 and D&D 5e is ApplicationV2, so each needs its own pass of
-CSS to sit inside the frame.
+**Done — the projection, to the mock-up.** The board is drawn at the size the design was made
+at and scaled into whatever room the interface leaves. Identity, vitals, defenses, effects, the
+Mass Effect dossier and the readout are all there, with the tab ring and tab bodies fed by the
+adapters. Verified headlessly on all four devices.
 
-**After that.** See TODO.md — the sidebar panels one at a time, the hide-everything key, the
-compact layout and the Paragon/Renegade dossier.
+**Next.** The remaining tab bodies (PF2e crafting and spellcasting, 5e bastion), adding
+conditions from the projection, the omni-tool's beam between the arm and the projection, and
+the hide-everything key. See TODO.md.

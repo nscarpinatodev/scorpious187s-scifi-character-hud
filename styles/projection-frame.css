@@ -1,0 +1,48 @@
+/* =========================================================================
+   Where the projection sits.
+
+   The board inside it is the mock-up's own, generated into projection.css and
+   never touched by hand. This file only places that board on the screen.
+   ========================================================================= */
+
+#sfh-projection {
+	position: fixed;
+	left: 50%;
+	bottom: var(--sfh-proj-bottom, 90px);
+	width: var(--sfh-proj-width, 60vw);
+	height: var(--sfh-proj-height, 60vh);
+	transform: translateX(-50%);
+	z-index: calc(var(--z-index-app, 60) - 1);
+	display: none;
+	pointer-events: none;
+}
+
+#sfh-projection.sfh-visible {
+	display: block;
+}
+
+/*
+ * The board is drawn at the size the design was made at and scaled to fit, so the layout
+ * keeps its proportions. It is anchored at the bottom: the projection grows upward out of
+ * the device, which is what the activation sequence is drawn against.
+ */
+#sfh-projection .sfh-board {
+	position: absolute;
+	left: 50%;
+	bottom: 0;
+	transform-origin: 50% 100%;
+	pointer-events: auto;
+}
+
+/*
+ * Nothing where there are no panels. The mock-up's stage paints a backdrop because it was
+ * a page; over a battle map it has to be air — each device's housing brings its own
+ * background where it needs one.
+ */
+#sfh-projection .sfh-stage {
+	background: transparent !important;
+}
+
+#sfh-projection .ornlayer {
+	pointer-events: none;
+}

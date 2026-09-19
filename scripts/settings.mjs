@@ -9,6 +9,8 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
 export function registerSettings(onDeviceChange) {
 	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
 
+	// Both device settings repaint immediately: a player following the world default has to
+	// see the GM's change without reloading.
 	game.settings.register(MOD, S.worldDevice, {
 		name: 'SFH.Settings.WorldDevice',
 		hint: 'SFH.Settings.WorldDeviceHint',
@@ -17,6 +19,7 @@ export function registerSettings(onDeviceChange) {
 		type: String,
 		choices: deviceChoices,
 		default: DEFAULT_DEVICE,
+		onChange: () => onDeviceChange?.(),
 	});
 
 	game.settings.register(MOD, S.device, {

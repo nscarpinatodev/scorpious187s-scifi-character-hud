@@ -1,0 +1,20 @@
+
+<header class="bar">
+<div class="brand"><strong>Sci-Fi Character HUD</strong><span>Interactive prototype. Rolls here are simulated; in Foundry every button runs the game system's own code.</span></div>
+<div class="ctl">
+<label for="selTheme">Theme</label>
+<select id="selTheme"><option value="omni">Mass Effect Omni-tool</option><option value="wrist">Wrist Computer</option><option value="gdi">EVA · GDI</option><option value="nod">EVA · Nod</option></select>
+<label for="selChar">Character</label>
+<select id="selChar"><option value="asha">Asha Rourke · SF2e (Mass Effect)</option><option value="dana">Dana Holt · SF2e</option><option value="vex">Vex Kaori · D&amp;D 5e</option></select>
+<button id="tgPower" type="button" aria-pressed="true">Power</button>
+<label for="selChrome">Chrome</label>
+<select id="selChrome"><option value="full">Device frame</option><option value="bare">Backdrop only</option><option value="clean">Panels only</option></select>
+<label for="selWin">Window</label>
+<select id="selWin"><option value="1280">1280 wide</option><option value="1040">1040 wide</option><option value="880">880 wide</option></select>
+<button id="tgScan" type="button" aria-pressed="true">Scanlines</button>
+<button id="tgMe" type="button" aria-pressed="true">Mass Effect extras</button>
+<button id="btnReset" type="button">Reset sample data</button>
+</div>
+</header>
+<div id="wrap"><div id="scaler"><div id="stage" class="stage"></div><div id="toasts" aria-live="polite"></div></div></div>
+<p class="foot"><b>Small screens:</b> press <kbd>H</kbd> to hide the whole HUD and again to bring it back (rebindable in the gear dialog). <b>Chrome</b> drops the device art and then the background entirely, leaving only the panels; <b>Window</b> simulates a smaller monitor.<br><b>Power:</b> use the Power button, or the standby panel on a dormant device, to play the activation and shutdown sequence — the omni-tool and EVA screens rise out of the device, the wrist computer folds down. Switching theme replays it.<br><b>Try:</b> the tab buttons, any roll (strikes use the multiple attack penalty), HP −/+, hero points, conditions, carry states in Inventory, and the Paragon/Renegade tracks in the Dossier. Hover or click anything with a name to see it in the readout panel. The gear in the name bar opens the per-character theme picker. Sample characters only: Asha uses real items from the Mass Effect conversion; Dana's and Vex's gear is placeholder.</p>
