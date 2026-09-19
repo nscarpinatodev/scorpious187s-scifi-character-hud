@@ -260,6 +260,12 @@ export async function act(actor, action, data = {}) {
 			const value = Math.clamp(num(hp.value) + num(data.delta), 0, num(hp.max));
 			return actor.update({ 'system.attributes.hp.value': value });
 		}
+		case 'set-hp': {
+			const max = num(actor.system.attributes.hp.max);
+			return actor.update({ 'system.attributes.hp.value': Math.clamp(num(data.value), 0, max) });
+		}
+		case 'set-temp':
+			return actor.update({ 'system.attributes.hp.temp': Math.max(0, num(data.value)) });
 		case 'adjust-temp': {
 			const temp = num(actor.system.attributes.hp.temp) + num(data.delta);
 			return actor.update({ 'system.attributes.hp.temp': Math.max(0, temp) });

@@ -77,6 +77,38 @@
 #sfh-combat-hud .sfh-chud-hpbar > i { display: block; height: 100%; background: var(--sfh-hot); box-shadow: 0 0 12px var(--sfh-glow); }
 #sfh-combat-hud .sfh-chud-hpbar > span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--sfh-mono); font-size: 0.8rem; color: var(--sfh-bright); text-shadow: 0 1px 2px #000; }
 
+#sfh-combat-hud .sfh-chud-hpbar > span { gap: 4px; }
+#sfh-combat-hud .sfh-chud-hpinput,
+#sfh-combat-hud .sfh-chud-temp input {
+	width: 42px;
+	height: 16px;
+	padding: 0 2px;
+	border: 1px solid transparent;
+	background: rgb(0 0 0 / 35%);
+	color: var(--sfh-bright);
+	font-family: var(--sfh-mono);
+	font-size: 0.8rem;
+	text-align: center;
+	appearance: textfield;
+}
+
+#sfh-combat-hud :is(.sfh-chud-hpinput, .sfh-chud-temp input):focus { border-color: var(--sfh-hot); outline: none; }
+#sfh-combat-hud :is(.sfh-chud-hpinput, .sfh-chud-temp input)::-webkit-inner-spin-button { appearance: none; }
+#sfh-combat-hud .sfh-chud-hpbar em { font-family: var(--sfh-mono); font-style: normal; }
+
+#sfh-combat-hud .sfh-chud-temp {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	font-size: 0.58rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--sfh-dim);
+}
+
+#sfh-combat-hud .sfh-chud-temp input { width: 34px; }
+
 #sfh-combat-hud .sfh-chud-mini {
 	width: 20px;
 	height: 20px;

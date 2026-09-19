@@ -2,7 +2,7 @@ import { MOD, S } from './constants.mjs';
 import { registerSettings, setting, refreshOpenHuds } from './settings.mjs';
 import { findBaseSheet, makePf2eHudSheet } from './adapters/pf2e-family.mjs';
 import { makeHudSheet } from './hud-app.mjs';
-import { initCombatHud, render as renderCombatHud, hideCombatHud } from './combat-hud.mjs';
+import { initCombatHud, render as renderCombatHud, hideCombatHud, showFor, hudDebug } from './combat-hud.mjs';
 import * as dnd5eSystem from './systems/dnd5e.mjs';
 import { isHidden, setHidden, hideKeyLabel, themeFor } from './shell.mjs';
 import { openThemePicker } from './ui/theme-picker.mjs';
@@ -33,6 +33,7 @@ const STYLES = [
 	'styles/hud-core.css',
 	'styles/themes.css',
 	'styles/hud-sheet.css',
+	'styles/combat-hud.css',
 	'styles/pf2e-overrides.css',
 	'styles/dnd5e-overrides.css',
 ];
@@ -169,6 +170,8 @@ Hooks.once('ready', () => {
 			openThemePicker,
 			refresh: refreshOpenHuds,
 			register: registerHudSheet,
+			showHud: showFor,
+			hudDebug,
 			/** Console diagnostics: `game.modules.get('scorpious187s-scifi-character-hud').api.debug()` */
 			debug: () => {
 				const sheets = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})

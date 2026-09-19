@@ -117,5 +117,7 @@
 	"SFH.Hud.Saves": "Saving throws",
 	"SFH.Hud.OpenSheet": "Open the character sheet",
 	"SFH.Settings.CombatHud": "Combat HUD",
-	"SFH.Settings.CombatHudHint": "A bar across the bottom of the canvas for the token you control: portrait, hit points, the action economy, and drawers for skills, saves and inventory."
+	"SFH.Settings.CombatHudHint": "A bar across the bottom of the canvas for the token you control: portrait, hit points, the action economy, and drawers for skills, saves and inventory.",
+	"SFH.Hud.On": "Combat HUD on.",
+	"SFH.Hud.Off": "Combat HUD off."
 }
