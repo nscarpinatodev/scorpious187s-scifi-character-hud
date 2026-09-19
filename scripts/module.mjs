@@ -43,31 +43,63 @@ Hooks.once('init', () => {
  * before the system's, so a module that registers on `init` looks for a sheet class that
  * does not exist yet. `setup` runs after every `init` callback has completed.
  */
-Hooks.once('setup', () => {
+export function registerHudSheet() {
+	if (isRegistered()) return true;
+
 	const adapter = ADAPTERS[game.system.id];
 	if (!adapter) {
 		console.log(`${MOD} | ${game.system.id} is not supported; the HUD stays out of the sheet picker.`);
-		return;
+		return false;
 	}
 
+	const seen = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
+		.map(([id, e]) => `${id} → ${e.cls?.name}`);
 	const Base = adapter.find();
 	if (!Base) {
-		const seen = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
-			.map(([id, e]) => `${id} → ${e.cls?.name}`);
-		console.error(`${MOD} | could not find ${game.system.id}'s character sheet class; not registering. Sheets seen:`, seen);
-		return;
+		console.error(`${MOD} | could not find ${game.system.id}'s character sheet class. Sheets seen:`, seen);
+		return false;
 	}
 
 	// One more choice in Foundry's sheet picker. Never a default: nobody is switched
 	// over without choosing it.
-	foundry.applications.apps.DocumentSheetConfig.registerSheet(
-		Actor, MOD, adapter.make(Base),
-		{ types: ['character'], label: 'SFH.SheetLabel', makeDefault: false },
-	);
+	try {
+		foundry.applications.apps.DocumentSheetConfig.registerSheet(
+			Actor, MOD, adapter.make(Base),
+			{ types: ['character'], label: game.i18n.localize('SFH.SheetLabel'), makeDefault: false },
+		);
+	} catch (err) {
+		console.error(`${MOD} | registerSheet threw for ${game.system.id} over ${Base.name}:`, err);
+		return false;
+	}
+
+	// Registering can fail quietly, so confirm the entry actually landed.
+	if (!isRegistered()) {
+		console.error(`${MOD} | registerSheet ran without error but no entry appeared. Sheets before:`, seen,
+			'after:', Object.keys(CONFIG.Actor.sheetClasses?.character ?? {}));
+		return false;
+	}
+
 	console.log(`${MOD} | registered the HUD sheet for ${game.system.id}, over ${Base.name}.`);
-});
+	return true;
+}
+
+function isRegistered() {
+	return Object.keys(CONFIG.Actor.sheetClasses?.character ?? {}).some((id) => id.startsWith(`${MOD}.`));
+}
+
+/*
+ * Registration happens on `setup`, not `init`.
+ *
+ * Every system registers its own sheets inside its `init` hook, and module scripts load
+ * before the system's, so a module that registers on `init` looks for a sheet class that
+ * does not exist yet. `setup` runs after every `init` callback has completed. `ready` is a
+ * second chance for a system that registers later still.
+ */
+Hooks.once('setup', () => registerHudSheet());
 
 Hooks.once('ready', () => {
+	registerHudSheet();
+
 	const mod = game.modules.get(MOD);
 	if (mod) {
 		mod.api = {
@@ -76,6 +108,7 @@ Hooks.once('ready', () => {
 			themeFor,
 			openThemePicker,
 			refresh: refreshOpenHuds,
+			register: registerHudSheet,
 			/** Console diagnostics: `game.modules.get('scorpious187s-scifi-character-hud').api.debug()` */
 			debug: () => {
 				const sheets = Object.entries(CONFIG.Actor.sheetClasses?.character ?? {})
