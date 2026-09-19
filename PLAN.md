@@ -26,13 +26,27 @@ Data prep (`getData` / `_prepareContext`), listeners and actions are inherited u
 | Base class | `CharacterSheetPF2e`, from `foundry.appv1.sheets.ActorSheet` (older style) | `CharacterActorSheet`, from `ApplicationV2` (newer style) |
 | How content is built | One `sheet.hbs` pulling in 10 tab partials plus sidebar and header partials, via `resolvePath` | A static `PARTS` map (header, sidebar, 9 tab parts, ability scores, tabs) |
 | How behaviour is attached | jQuery listeners bound by **CSS selector**; tabs keyed to `nav.sheet-navigation` → `.sheet-content` | `data-action` attributes, so **position-independent** |
-| What we override | the `template` getter (our shell, which includes the system's partials); `defaultOptions` (classes, size, tab selectors) | `PARTS` (re-parent the same templates into our containers), `DEFAULT_OPTIONS`, `_onRender` for chrome |
+| What we override | `activateListeners` — the system renders and binds as usual, then we assign its own elements to layout slots (see below) — plus `defaultOptions` | `PARTS` (re-parent the same templates into our containers), `DEFAULT_OPTIONS`, `_onRender` for chrome |
 | Layout constraint | Must keep the containers the listeners query: `nav.sheet-navigation`, `.sheet-content`, `aside .sidebar`, header elements, `.tab[data-tab]` | Almost none; parts can go anywhere |
 
 We get the class at runtime from `CONFIG.Actor.sheetClasses.character` rather than importing it
 (the system bundles are minified). Foundry fires render hooks for every class in the chain, so
 modules that hook `renderCharacterSheetPF2e` or `renderCharacterActorSheet` (Toolbelt, Dorako UX,
 Tidy integrations and so on) keep working.
+
+**Built (v0.1.0): we do not replace the template at all.** The earlier plan was to supply our own
+`sheet.hbs` that included the system's partials. In practice that meant copying the system's
+navigation markup, which is exactly the thing that changes between releases. Instead the system
+renders its own sheet, and `activateListeners` then assigns *its* elements — the same nodes, with
+the system's listeners already bound — to slots by setting `data-slot` on them. Two consequences
+worth keeping in mind:
+
+- The **form itself becomes the grid**. We deliberately do not wrap the system's children,
+  because PF2e's CSS uses direct-child selectors such as `form > aside`; a wrapper would silently
+  unstyle the sidebar.
+- The sidebar stays **one slot**. Splitting it into separate vitals and defenses panels, as the
+  mock-ups show, needs selectors for its inner blocks and is therefore version-sensitive. That is
+  a later, opt-in refinement, not a precondition.
 
 ## Architecture
 
