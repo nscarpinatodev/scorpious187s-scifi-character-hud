@@ -5,7 +5,7 @@ import { pos, esc } from './helpers.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav } from './panels.mjs';
 import { getAdapter } from '../adapters/index.mjs';
 import { readDossier } from './dossier.mjs';
-import { ornBack, evaReadouts } from './ornaments.mjs';
+import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 
 /**
  * The projection: the character sheet the device raises over the canvas.
@@ -73,17 +73,27 @@ export class Projection {
 		const rightEdge = shown(sidebar) ? innerWidth - sidebar.left + gap : gap;
 		const top = spread('ui-top', (r) => r.bottom);
 		const topEdge = top === null ? gap : top + gap;
+		const art = document.querySelector(`#${EL.device} svg.sfh-art`);
 		const device = rect(document.getElementById(EL.device)) ?? rect(document.getElementById('hotbar'));
-		const bottomEdge = shown(device) ? innerHeight - device.top + gap : gap;
+		// a device with art is the thing the projection comes out of, so it sits right on it
+		const bottomEdge = shown(device) ? innerHeight - device.top + (art ? 2 : gap) : gap;
 
 		// centred on the window, so the projection stays in line with the device below it
 		const width = Math.max(480, Math.min(innerWidth / 2 - leftEdge, innerWidth / 2 - rightEdge) * 2);
 		const height = Math.max(320, innerHeight - topEdge - bottomEdge);
-		const board = BOARD[currentDevice()] ?? BOARD.omni;
-		// filling the free area makes the projection swallow the screen; the user decides how
-		// much of that space it actually takes
-		const share = Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
-		const scale = Math.min(width / board.w, height / board.h) * share;
+		const deviceId = currentDevice();
+		const board = BOARD[deviceId] ?? BOARD.omni;
+		const room = Math.min(width / board.w, height / board.h);
+
+		/*
+		 * With a device at the foot of the screen the projection is tied to it: the main panel
+		 * comes out exactly as wide as the plate below, so the two read as one machine. Without
+		 * one there is nothing to match, and the size setting decides how much room it takes.
+		 */
+		const L = layout(deviceId, true);
+		const scale = art
+			? Math.min(room, (art.getBoundingClientRect().width || board.w) / L.projection[2])
+			: room * Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
 
 		el.style.setProperty('--sfh-proj-width', `${Math.round(width)}px`);
 		el.style.setProperty('--sfh-proj-height', `${Math.round(height)}px`);
@@ -94,6 +104,34 @@ export class Projection {
 			boardEl.style.height = `${board.h}px`;
 			boardEl.style.transform = `translateX(-50%) scale(${scale})`;
 		}
+		this.#beam(el.getBoundingClientRect());
+	}
+
+	/**
+	 * The cone of light between the emitter band and the projection.
+	 *
+	 * In the mock-up both were on one board and the beam was part of it. Here the arm is
+	 * interface and the projection is a layer over the canvas, so the beam has to bridge
+	 * them: it is drawn from the band's edges up to the projection's bottom corners.
+	 */
+	static #beam(projRect) {
+		const band = document.querySelector('#sfh-band')?.getBoundingClientRect();
+		let beam = document.getElementById(EL.beam);
+		if (!band || !band.width || !this.#open) {
+			beam?.remove();
+			return;
+		}
+		if (!beam) {
+			beam = document.createElement('div');
+			beam.id = EL.beam;
+			(document.getElementById('interface') ?? document.body).append(beam);
+		}
+		const top = projRect.bottom;
+		const bottom = band.top + band.height * 0.45;
+		beam.style.top = `${Math.round(top)}px`;
+		beam.style.height = `${Math.max(0, Math.round(bottom - top))}px`;
+		beam.style.clipPath = `polygon(${Math.round(projRect.left)}px 0, ${Math.round(projRect.right)}px 0,`
+			+ ` ${Math.round(band.right)}px 100%, ${Math.round(band.left)}px 100%)`;
 	}
 
 	static scheduleFit() {
@@ -132,14 +170,17 @@ export class Projection {
 		this.#build();
 		this.#open = true;
 		this.render();
-		this.fit();
+		// visible first: a hidden element measures as nothing, and the beam is built from
+		// the projection's own rectangle
 		this.element.classList.add('sfh-visible');
+		this.fit();
 		return true;
 	}
 
 	static async close() {
 		this.#open = false;
 		this.element?.classList.remove('sfh-visible');
+		document.getElementById(EL.beam)?.remove();
 	}
 
 	static syncDevice() {
@@ -202,6 +243,7 @@ export class Projection {
 
 		stage.innerHTML = `<div class="ornlayer">${ornBack(device)}</div>
 		<div class="foldwrap">
+			<div class="ornlayer">${ornDev(device)}</div>
 			<div class="sweep"></div><div class="flare"></div>
 			${eva ? evaReadouts(c) : ''}
 			${panel('identity', L.identity, renderIdentity(c, device), 'ident')}

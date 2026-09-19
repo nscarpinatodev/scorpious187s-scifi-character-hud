@@ -46,3 +46,29 @@
 #sfh-projection .ornlayer {
 	pointer-events: none;
 }
+
+/* ---------------------------------------------------------------- the beam */
+/*
+ * Light between the emitter and the picture. Its shape is set from the two rectangles it
+ * joins; all this does is colour it and fade it in with the power.
+ */
+#sfh-beam {
+	position: fixed;
+	left: 0;
+	right: 0;
+	z-index: calc(var(--z-index-app, 60) - 2);
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 400ms ease;
+	background: linear-gradient(to top,
+		color-mix(in srgb, var(--sfh-hot) 34%, transparent),
+		color-mix(in srgb, var(--sfh-hot) 6%, transparent));
+}
+
+body[data-sfh-power="on"] #sfh-beam {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-beam { transition: none; }
+}

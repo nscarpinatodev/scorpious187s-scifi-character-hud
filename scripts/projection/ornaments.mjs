@@ -9,7 +9,7 @@ import { esc, lbl, pct } from './helpers.mjs';
  * in the air. The wrist unit has a case; the EVA has a bezel and its own readout bays.
  */
 
-/** Behind the panels. */
+/** Behind the panels, and outside the fold: housing that stays put. */
 export function ornBack(device) {
 	if (device === 'omni') {
 		return `<svg width="1280" height="740" viewBox="0 0 1280 740" style="position:absolute;inset:0" aria-hidden="true">
@@ -18,26 +18,16 @@ export function ornBack(device) {
 			</pattern></defs>
 			<rect class="hexbg" width="1280" height="740" fill="url(#sfh-hx)"/></svg>`;
 	}
-	if (device === 'wrist') {
-		return `<svg width="1280" height="860" viewBox="0 0 1280 860" style="position:absolute;inset:0" aria-hidden="true">
-			<defs><linearGradient id="sfh-case" x1="0" y1="0" x2="0" y2="1">
-				<stop offset="0" stop-color="#2d1a52"/><stop offset=".5" stop-color="#1a0e33"/><stop offset="1" stop-color="#0f0820"/>
-			</linearGradient></defs>
-			<rect x="136" y="206" width="1008" height="640" rx="54" fill="url(#sfh-case)" stroke="#8a55d6" stroke-width="2"/>
-			<rect x="142" y="212" width="996" height="628" rx="50" fill="none" stroke="#35ecf2" stroke-opacity=".5"/>
-			<rect x="580" y="218" width="120" height="6" rx="3" fill="#ff3ea5" fill-opacity=".85"/>
-			<circle cx="1100" cy="236" r="6" fill="#35ecf2"/>
-			<path d="M300 846 v14 M980 846 v14" stroke="#8a55d6" stroke-width="10"/></svg>
-			<div style="position:absolute;left:212px;top:250px;width:856px;height:560px;box-sizing:border-box;border-radius:22px;
-				border:3px solid #05020c;box-shadow:inset 0 0 40px rgba(255,62,165,.18),0 0 0 1px #8a55d6;
-				background:radial-gradient(ellipse at 50% 40%,#1d0f3a 0%,#0d0620 75%)"></div>`;
-	}
-	// EVA: the bezel of the console, and its corner screws
+	// EVA: a console has a back panel, so the space between its bays is not thin air
 	const bezel = device === 'gdi' ? '#3a3d2c' : '#3a2020';
+	const back = device === 'gdi'
+		? 'radial-gradient(ellipse at 50% 38%, #0d1509 0%, #050803 78%)'
+		: 'radial-gradient(ellipse at 50% 38%, #170808 0%, #080303 78%)';
+	const backing = `<div style="position:absolute;inset:14px;background:${back};box-shadow:inset 0 0 60px rgb(0 0 0 / 70%);pointer-events:none"></div>`;
 	const screws = ['left:2px;top:2px', 'right:2px;top:2px', 'left:2px;bottom:2px', 'right:2px;bottom:2px']
 		.map((p) => `<span style="position:absolute;${p};width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#9a9a8a,#2a2a24);z-index:6"></span>`)
 		.join('');
-	return `<div style="position:absolute;inset:0;border:14px solid ${bezel};box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px var(--line);pointer-events:none;z-index:5"></div>${screws}`;
+	return `${backing}<div style="position:absolute;inset:0;border:14px solid ${bezel};box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px var(--line);pointer-events:none;z-index:5"></div>${screws}`;
 }
 
 /**
@@ -77,4 +67,26 @@ export function evaReadouts(c) {
 				${lbl('Status')}<b style="font-size:13px;color:${hp < 35 ? 'var(--bad)' : 'var(--hot)'}">${status}</b></div></div>
 		<div class="slot" style="left:976px;top:534px;width:24px;height:302px;box-sizing:border-box;border:1px solid var(--line);background:#000;display:flex;flex-direction:column-reverse;padding:3px;gap:2px"
 			role="img" aria-label="Hit points ${c.hp.value} of ${c.hp.max}">${ladder}</div>`;
+}
+
+
+/**
+ * Housing that belongs to the screen rather than behind it.
+ *
+ * The wrist unit's case hinges at its base and takes the whole display with it, so it is
+ * drawn inside the fold — with every panel inside the case, not floating over it.
+ */
+export function ornDev(device) {
+	if (device !== 'wrist') return '';
+	return `<svg width="1280" height="860" viewBox="0 0 1280 860" style="position:absolute;inset:0" aria-hidden="true">
+			<defs><linearGradient id="sfh-case" x1="0" y1="0" x2="0" y2="1">
+				<stop offset="0" stop-color="#2d1a52"/><stop offset=".5" stop-color="#1a0e33"/><stop offset="1" stop-color="#0f0820"/>
+			</linearGradient></defs>
+			<rect x="8" y="0" width="1264" height="852" rx="44" fill="url(#sfh-case)" stroke="#8a55d6" stroke-width="2"/>
+			<rect x="15" y="7" width="1250" height="838" rx="38" fill="none" stroke="#35ecf2" stroke-opacity=".5"/>
+			<rect x="580" y="846" width="120" height="6" rx="3" fill="#ff3ea5" fill-opacity=".85"/>
+			<circle cx="1232" cy="26" r="6" fill="#35ecf2"/></svg>
+		<div style="position:absolute;left:24px;top:16px;width:1232px;height:820px;box-sizing:border-box;border-radius:30px;
+			border:3px solid #05020c;box-shadow:inset 0 0 60px rgba(255,62,165,.16),0 0 0 1px #8a55d6;
+			background:radial-gradient(ellipse at 50% 40%,#1d0f3a 0%,#0d0620 75%)"></div>`;
 }

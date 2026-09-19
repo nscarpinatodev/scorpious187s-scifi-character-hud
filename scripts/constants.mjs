@@ -44,6 +44,7 @@ export const EL = {
 	deck: 'sfh-deck',          // where the macro bar sits when it rides on a device
 	power: 'sfh-power',        // the power key added to the macro bar
 	projection: 'sfh-projection',
+	beam: 'sfh-beam',           // the cone of light from the emitter to the projection
 };
 
 /** The Mass Effect conversion, whose data the Dossier panel reads. */

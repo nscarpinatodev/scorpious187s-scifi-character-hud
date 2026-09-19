@@ -190,10 +190,11 @@ export function renderNav(c, device, L, current) {
 
 	if (device === 'wrist') {
 		const half = Math.ceil(tabs.length / 2);
-		const buttons = tabs.map((tab, i) => btn(tab, `left:${i < half ? 150 : 1086}px;top:${292 + (i < half ? i : i - half) * 64}px`)).join('');
+		// 52px buttons on a 76px pitch: the label under one clears the next
+		const buttons = tabs.map((tab, i) => btn(tab, `left:${i < half ? 66 : 1170}px;top:${212 + (i < half ? i : i - half) * 76}px`)).join('');
 		const ci = Math.max(0, tabs.findIndex((t) => t.id === current));
 		const label = tabs[ci]?.label ?? '';
-		return buttons + `<div class="mono" style="position:absolute;left:${ci < half ? 136 : 1072}px;top:${292 + (ci < half ? ci : ci - half) * 64 + 54}px;width:72px;text-align:center;font-size:15px;color:var(--hot)">${esc(label.toUpperCase())}</div>`;
+		return buttons + `<div class="mono" style="position:absolute;left:${ci < half ? 52 : 1156}px;top:${212 + (ci < half ? ci : ci - half) * 76 + 54}px;width:72px;text-align:center;font-size:14px;line-height:1;color:var(--hot)">${esc(label.toUpperCase())}</div>`;
 	}
 
 	const N = L.nav;
