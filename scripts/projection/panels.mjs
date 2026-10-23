@@ -111,10 +111,15 @@ export function renderDefenses(c, device) {
 /* -------------------------------------------- */
 
 export function renderEffectsSlot(c) {
-	const chip = (name, extra, act, k) => `<span class="chip" ${ro(k)}>${esc(name)}${extra}
-		<button type="button" data-act="${act}" data-k="${esc(k.split(':')[1] ?? '')}" aria-label="Remove ${esc(name)}">×</button></span>`;
-	const effects = c.effects.map((e) => chip(e.name, e.duration ? ` · ${esc(e.duration)}` : '', c.system === 'dnd5e' ? 'deleteEffect' : 'delete', `item:${e.id}`)).join('');
-	const conditions = c.conditions.map((x) => chip(x.name, x.value != null ? ` ${x.value}` : '', c.system === 'dnd5e' ? 'deleteEffect' : 'cond', `item:${x.id}`)).join('');
+	// `key` is what the readout describes; `act` and `k` are what the × asks the adapter to do
+	const chip = (name, extra, key, act, k) => `<span class="chip" ${ro(key)}>${esc(name)}${extra}
+		<button type="button" data-act="${act}" data-k="${esc(k)}" aria-label="Remove ${esc(name)}">×</button></span>`;
+	const dnd = c.system === 'dnd5e';
+	const effects = c.effects.map((e) => chip(e.name, e.duration ? ` · ${esc(e.duration)}` : '', `item:${e.id}`,
+		dnd ? 'deleteEffect' : 'delete', e.id)).join('');
+	// PF2e removes a condition by its slug, through the system's own decreaseCondition
+	const conditions = c.conditions.map((x) => chip(x.name, x.value != null ? ` ${x.value}` : '', `item:${x.id}`,
+		dnd ? 'deleteEffect' : 'cond', dnd ? x.id : `${x.slug}:0`)).join('');
 	const empty = !effects && !conditions ? '<span class="dimc" style="font-size:13px">No active effects.</span>' : '';
 	return `<div class="row sp">${lbl('Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
 		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>`;

@@ -38,11 +38,29 @@ function ensureStyles() {
 	}
 }
 
+/**
+ * The mock-up's typefaces. Without them every device falls back to Arial Narrow and the
+ * system monospace, which is most of what makes the devices look like themselves. Linked
+ * at init so they are loading before anything is drawn in them.
+ */
+const FONTS = 'https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700'
+	+ '&family=Share+Tech+Mono&family=Audiowide&family=Chakra+Petch:wght@400;500;600;700'
+	+ '&family=VT323&family=Oxanium:wght@400;500;600;700;800&display=swap';
+
+function ensureFonts() {
+	if (document.querySelector(`link[href="${FONTS}"]`)) return;
+	const link = document.createElement('link');
+	link.rel = 'stylesheet';
+	link.href = FONTS;
+	document.head.append(link);
+}
+
 /* -------------------------------------------- */
 /*  Lifecycle                                    */
 /* -------------------------------------------- */
 
 Hooks.once('init', () => {
+	ensureFonts();
 	registerSettings(() => {
 		DeviceChrome.refresh();
 		Projection.syncDevice();

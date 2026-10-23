@@ -60,7 +60,7 @@ export function registerSettings(onDeviceChange) {
 		config: true,
 		type: Number,
 		range: { min: 35, max: 100, step: 5 },
-		default: 55,
+		default: 100,
 		onChange: () => onDeviceChange?.(),
 	});
 

@@ -83,8 +83,14 @@ export class Projection {
 		const foot = art && shown(plate) ? plate : device;
 		const bottomEdge = shown(foot) ? innerHeight - foot.top + (art ? 0 : gap) : gap;
 
-		// centred on the window, so the projection stays in line with the device below it
-		const width = Math.max(480, Math.min(innerWidth / 2 - leftEdge, innerWidth / 2 - rightEdge) * 2);
+		/*
+		 * Centred on the device, so the projection stays in line with what raised it. Foundry
+		 * centres the macro bar between the controls and the sidebar, not on the window, so
+		 * centring on the window would set the two off from each other and waste the room on
+		 * the wider side.
+		 */
+		const centre = shown(foot) ? foot.left + foot.width / 2 : innerWidth / 2;
+		const width = Math.max(480, Math.min(centre - leftEdge, innerWidth - rightEdge - centre) * 2);
 		const height = Math.max(320, innerHeight - topEdge - bottomEdge);
 		const deviceId = currentDevice();
 		const board = BOARD[deviceId] ?? BOARD.omni;
@@ -92,14 +98,15 @@ export class Projection {
 
 		/*
 		 * With a device at the foot of the screen the projection is tied to it: the main panel
-		 * comes out exactly as wide as the plate below, so the two read as one machine. Without
-		 * one there is nothing to match, and the size setting decides how much room it takes.
+		 * comes out no wider than the plate below, so the two read as one machine. The size
+		 * setting then scales every device alike — the board's text is drawn small, so anything
+		 * much under the full room stops being readable.
 		 */
 		const L = layout(deviceId, true);
-		const scale = art
-			? Math.min(room, (art.getBoundingClientRect().width || board.w) / L.projection[2])
-			: room * Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
+		const fill = art ? Math.min(room, (art.getBoundingClientRect().width || board.w) / L.projection[2]) : room;
+		const scale = fill * Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 100) / 100));
 
+		el.style.setProperty('--sfh-proj-left', `${Math.round(centre)}px`);
 		el.style.setProperty('--sfh-proj-width', `${Math.round(width)}px`);
 		el.style.setProperty('--sfh-proj-height', `${Math.round(height)}px`);
 		el.style.setProperty('--sfh-proj-bottom', `${Math.round(bottomEdge)}px`);

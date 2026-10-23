@@ -21,7 +21,11 @@ system's own sheet, which the book button opens.
 ## Next
 
 - [ ] **Remaining tab bodies** — PF2e crafting and spellcasting, 5e bastion and special traits.
-- [ ] **Adding conditions** from the projection (the mock-up's "+ Add condition" picker).
+- [ ] **Translatable strings** — every label in `projection/panels.mjs` and the adapters is
+      written in English in the markup. Move them to `lang/en.json`; `tools/check.mjs` will
+      then hold them to it.
+- [ ] **Bundled fonts** — the devices' typefaces come from Google Fonts at load, so an offline
+      table gets fallbacks. All six are OFL; ship them in `fonts/` with the licence.
 - [ ] **The readout** — currently name, type, traits and description. The mock-up also showed
       per-kind detail (skill breakdowns, tier lists for Paragon/Renegade).
 
@@ -49,9 +53,7 @@ the palette gets the colours right, not the shape.
 - [ ] **Hide everything** — a rebindable key that clears the HUD off small monitors, with an
       obvious way back.
 - [ ] **Compact layout** — the projection's panels rearranged below a width threshold.
-- [ ] **Paragon/Renegade dossier** — read the conversion module's `flags.world.paragon` and
-      `.renegade` rather than duplicating the tracker.
-- [ ] **Per-character device** — a character can carry its own device choice (`FLAG_DEVICE`),
-      overriding the player's.
+- [ ] **Per-character device** — a character can carry its own device choice in an actor
+      flag, overriding the player's.
 - [ ] **Scene controls and scene bar shapes** — currently only recoloured; the mock-up's cut
       corners and station look are not applied.

@@ -48,8 +48,11 @@ export function buildArt(art) {
 	const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 	svg.setAttribute('viewBox', art.viewBox);
 	svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
-	svg.setAttribute('aria-hidden', 'true');
 	svg.classList.add('sfh-art');
 	svg.innerHTML = art.svg;
+	// Not aria-hidden: the band inside is the power switch. Its label is written as a key.
+	for (const el of svg.querySelectorAll('[aria-label^="SFH."]')) {
+		el.setAttribute('aria-label', game.i18n.localize(el.getAttribute('aria-label')));
+	}
 	return svg;
 }

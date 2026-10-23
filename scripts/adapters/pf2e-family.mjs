@@ -152,7 +152,7 @@ function strikeRow(strike, index) {
 		</div>
 		<div class="row" style="gap:4px">${map}</div>
 		<div class="row" style="gap:4px">
-			${actBtn('Damage', 'damage', String(index), { cls: 'sm ghost' })}
+			${actBtn('Damage', 'strikeDamage', String(index), { cls: 'sm ghost' })}
 			${actBtn('Critical', 'critical', String(index), { cls: 'sm ghost' })}
 		</div></div>`;
 }
@@ -243,7 +243,7 @@ export async function act(actor, action, key, event) {
 		case 'initiative': return actor.initiative?.roll({ event }) ?? actor.rollInitiative?.({ createCombatants: true });
 		case 'ability': return actor.abilities?.[key] ? rollAbility(actor, key) : null;
 		case 'strike': return actor.system?.actions?.[Number(a)]?.variants?.[Number(b)]?.roll({ event });
-		case 'damage': return actor.system?.actions?.[Number(a)]?.damage?.({ event });
+		case 'strikeDamage': return actor.system?.actions?.[Number(a)]?.damage?.({ event });
 		case 'critical': return actor.system?.actions?.[Number(a)]?.critical?.({ event });
 		case 'use': return actor.items.get(key)?.toMessage?.(event);
 		case 'equip': return toggleEquip(actor, key);
@@ -256,7 +256,9 @@ export async function act(actor, action, key, event) {
 		case 'setMax': return actor.update({ 'system.attributes.hp.max': Math.max(1, Number(key)) });
 		case 'setTemp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, Number(key)) });
 		case 'hero': return actor.update({ 'system.resources.heroPoints.value': Number(key) });
-		case 'stat': return actor.update({ [`system.attributes.${a}.value`]: Math.max(0, Number(b)) });
+		// dying, wounded and doomed are conditions; the attributes are derived from them
+		case 'dying': return setConditionValue(actor, 'dying', Number(key));
+		case 'stat': return setConditionValue(actor, a, Number(b));
 		case 'rest': return game.pf2e?.actions?.restForTheNight?.({ actors: [actor] }) ?? ui.notifications.info('Rest is handled by the system.');
 		default: return null;
 	}
@@ -287,6 +289,15 @@ async function setCondition(actor, slug, value) {
 	if (!slug) return;
 	if (value === 0) return actor.decreaseCondition?.(slug, { forceRemove: true });
 	return value > 0 ? actor.increaseCondition?.(slug) : actor.decreaseCondition?.(slug);
+}
+
+/** Set a valued condition to an exact number, adding or removing it as needed. */
+async function setConditionValue(actor, slug, value) {
+	if (!slug || !Number.isFinite(value)) return;
+	if (value <= 0) return actor.decreaseCondition?.(slug, { forceRemove: true });
+	const existing = actor.itemTypes?.condition?.find((c) => c.slug === slug);
+	if (existing) return existing.update({ 'system.value.value': value });
+	return actor.increaseCondition?.(slug, { value });
 }
 
 async function setHp(actor, value) {

@@ -31,9 +31,9 @@ That rule is enforced structurally, not by discipline:
   frameless application's element on its *first* render only, so once moved it stays moved and
   later renders only rewrite its contents. That is why the power key lives *outside* `#hotbar`:
   its contents are replaced whenever a macro is dropped or the page turns.
-- **The projection's tab body is the system's own sheet.** Our panels surround it; the big
-  tabbed area is the real sheet element, relocated into the projection frame and restyled. A
-  DOM move keeps every listener bound, so the system keeps working as it always did.
+- **The projection only sends intent.** Its markup is ours (see below), but every control
+  carries a `data-act` that the adapter turns into the system's own call. Nothing in the
+  projection computes a roll, a modifier or a damage total.
 
 ## Architecture
 
@@ -63,6 +63,7 @@ styles/
   projection.css        GENERATED from design/1-head.html by tools/port-css.py
   projection-frame.css  where the board sits on screen
 tools/
+  check.mjs             pre-flight: manifest files, i18n keys both ways, CSS braces, palettes
   port-css.py           regenerates projection.css from the mock-up
   harness-device.html   Foundry's game-view regions and real hotbar markup, no Foundry
   harness-device.mjs    stubs game/Hooks/ui and a character, runs the real module code
@@ -115,6 +116,15 @@ at and scaled into whatever room the interface leaves. Identity, vitals, defense
 Mass Effect dossier and the readout are all there, with the tab ring and tab bodies fed by the
 adapters. Verified headlessly on all four devices.
 
-**Next.** The remaining tab bodies (PF2e crafting and spellcasting, 5e bastion), adding
-conditions from the projection, the omni-tool's beam between the arm and the projection, and
-the hide-everything key. See TODO.md.
+**Done — the beam.** The omni-tool's cone of light is drawn from the band's edges to the
+main panel's bottom corners, measured from both, so it bridges the interface and the layer
+over the canvas.
+
+**Sizing.** The projection is centred on the device, not the window — Foundry centres the
+macro bar between the controls and the sidebar — and every device fills the room it has by
+default. The board is drawn at 1280 wide with ~13px text, so much below full size it stops
+being readable; the size setting is there to give the map back, not as a sensible default.
+
+**Next.** Editing from the projection (conditions, spell slots, currency), the remaining tab
+bodies, translatable strings in the panels and adapters, and the hide-everything key. See
+TODO.md.

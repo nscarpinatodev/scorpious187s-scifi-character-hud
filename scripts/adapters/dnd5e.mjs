@@ -46,12 +46,13 @@ export function read(actor) {
 			inspiration: !!sys.attributes?.inspiration,
 			exhaustion: sys.attributes?.exhaustion ?? 0,
 		},
-		effects: actor.effects.filter((e) => !e.disabled).map((e) => ({
+		// a status effect is a condition, and is listed once, as one
+		effects: actor.effects.filter((e) => !e.disabled && !e.statuses?.size).map((e) => ({
 			id: e.id,
 			name: e.name,
 			duration: e.duration?.label ?? '',
 		})),
-		conditions: actor.effects.filter((e) => e.isStatusEffect ?? e.statuses?.size).map((e) => ({
+		conditions: actor.effects.filter((e) => e.statuses?.size).map((e) => ({
 			id: e.id,
 			name: e.name,
 			value: null,

@@ -39,9 +39,7 @@ for (const file of scripts) {
 	for (const m of src.matchAll(/['"`](SFH\.[A-Za-z0-9._]+)['"`]/g)) used.add(m[1]);
 }
 for (const key of used) if (!langKeys.has(key)) fail(`i18n key used in code but missing from en.json: ${key}`);
-for (const key of langKeys) if (!used.has(key) && !key.startsWith('SFH.Settings.') && !key.startsWith('SFH.Theme')) {
-	fail(`i18n key in en.json that no script uses: ${key}`);
-}
+for (const key of langKeys) if (!used.has(key)) fail(`i18n key in en.json that no script uses: ${key}`);
 
 /* ---- styles ---- */
 for (const file of manifest.styles) {
@@ -51,12 +49,15 @@ for (const file of manifest.styles) {
 	if (open !== close) fail(`${file}: unbalanced braces (${open} open, ${close} close)`);
 }
 
-/* ---- the CSS custom properties the themes must all define ---- */
-const themeCss = readFileSync(join(root, 'styles/themes.css'), 'utf8');
-const required = ['--sfh-bg', '--sfh-panel', '--sfh-line', '--sfh-text', '--sfh-bright', '--sfh-dim', '--sfh-hot', '--sfh-hover', '--sfh-glow', '--sfh-acc'];
-for (const theme of ['omni', 'wrist', 'gdi', 'nod']) {
-	const block = themeCss.split(`[data-hud-theme="${theme}"]`)[1]?.split('}')[0] ?? '';
-	for (const prop of required) if (!block.includes(prop)) fail(`theme ${theme} is missing ${prop}`);
+/* ---- the palette every device must define (the omni-tool's is the unqualified default) ---- */
+const deviceCss = readFileSync(join(root, 'styles/device.css'), 'utf8');
+const required = ['--sfh-bg-rgb', '--sfh-hot', '--sfh-glow', '--sfh-bright', '--sfh-text', '--sfh-dim', '--sfh-line',
+	'--sfh-line-2', '--sfh-hover', '--sfh-panel', '--sfh-cell', '--sfh-acc', '--sfh-face', '--sfh-mono'];
+const { DEVICES } = await import(new URL('../scripts/constants.mjs', import.meta.url));
+for (const device of Object.keys(DEVICES)) {
+	const selector = device === 'omni' ? 'body[data-sfh-device] {' : `body[data-sfh-device="${device}"] {`;
+	const block = deviceCss.split(selector)[1]?.split('}')[0] ?? '';
+	for (const prop of required) if (!block.includes(`${prop}:`)) fail(`device ${device} is missing ${prop} in styles/device.css`);
 }
 
 /* ---- report ---- */

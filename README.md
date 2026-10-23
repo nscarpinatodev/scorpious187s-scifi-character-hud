@@ -1,11 +1,15 @@
 # Scorpious187's Sci-Fi Character HUD
 
-Turns the player character sheet into an in-fiction device — a **Mass Effect omni-tool**, a
-**synthwave wrist computer**, or a **Command & Conquer EVA console** — on Foundry VTT v13–v14.
+Turns the Foundry VTT interface into the device your character is wearing — a **Mass Effect
+omni-tool**, a **synthwave wrist computer**, or a **Command & Conquer EVA console** — on
+Foundry v13–v14.
 
-**Nothing about how the sheet works changes.** Every roll, drag, rest, spell slot and tab is
-still the game system's own code. The module changes where things sit and what they look like,
-and that is all.
+The foot of the screen becomes the device, Foundry's macro bar rides on it, and the device's
+switch raises a projected character sheet over the canvas.
+
+**Nothing about how the game system works changes.** Every roll, rest, condition and item
+use goes through the system's own code. The HUD shows the numbers and passes on what you
+pressed; it never rolls anything itself.
 
 ---
 
@@ -21,53 +25,74 @@ https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/lat
 
 - Foundry VTT **v13+** (verified on **v14**)
 - **[Scorpious187's Module Library](https://github.com/nscarpinatodev/scorpious187s-lib)**
-- One of: **PF2e** 7.0+, **SF2e** 1.0+. *(D&D 5e is next; it is declared in the manifest but not
-  yet registered.)*
+- One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+
 
-## Making it your character sheet
+The devices use Google Fonts (Rajdhani, Share Tech Mono, Chakra Petch, VT323, Oxanium,
+Audiowide). They are fetched when the world loads; a table with no internet connection
+gets fallback fonts.
 
-Open a character, click the **gear** in the sheet's window header, and choose **Sci-Fi HUD** in
-**Sheet Configuration**. The choice is stored on that actor, so every player can decide for
-their own character; the module never changes the world default.
+## Using it
 
-Inside the HUD, the same gear sits in the chrome bar, along with a palette button for choosing
-that character's device.
+Enable the module and the device appears at the foot of the screen. Raise the projection
+with the device's switch:
+
+- **Omni-tool** — click the glowing emitter band on the forearm.
+- **Wrist computer and EVA** — the power key at the left end of the macro bar.
+
+The projection shows your assigned character (set it in the player list). If you own exactly
+one character and have none assigned, it shows that one.
 
 ## What you get
 
-- **Four devices.** Omni-tool, wrist computer, EVA (GDI) and EVA (Nod). The GM sets a world
-  default; any character can override it.
-- **Power sequences.** The omni-tool and EVA screens rise out of the device on open; the wrist
-  computer's case swings up from its base. Closing reverses it (off by default, since it delays
-  the window closing).
-- **A readout panel** that shows the description of whatever you point at — weapon, item, feat
-  or action — and pins it when you click.
-- **A Mass Effect Dossier**, when the
-  [Mass Effect conversion](https://github.com/nscarpinatodev/mass-effect-sf2e-conversion) is
-  active: shields, biotic barrier, armour frame, Paragon and Renegade, and omni-gel. It reads
-  that module's data and opens its tracker; it never edits those values itself.
+- **Four devices.** Omni-tool, wrist computer, EVA (GDI) and EVA (Nod). The GM sets the
+  world default; each player can pick their own in the module settings.
+- **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
+  drop, paging and keybinds all work as they always do.
+- **The projection.** Identity, vitals, defenses, effects and a tabbed main panel, laid out
+  to each device's design:
+  - **Hit points** are typed: an amount with Heal and Damage, the value itself editable, and
+    right-click for maximum and temporary hit points. Damage goes through the system's own
+    damage application where it has one.
+  - **Rolls** — skills, saves, perception, initiative, strikes and damage — are the
+    system's own.
+  - **Conditions and effects** can be removed from the projection; PF2e's valued conditions
+    can be raised and lowered.
+  - **The book button** opens the system's own sheet, for anything that changes at level-up.
+- **A readout panel** describing whatever you point at, and pinning it when you click.
+- **A Mass Effect dossier**, when the
+  [Mass Effect conversion](https://github.com/nscarpinatodev/mass-effect-sf2e-conversion) or
+  the shield automation module is active: shields and the Paragon/Renegade tracks. It reads
+  those modules' data and never edits it.
+- **The whole interface in the device's colours** — sidebar, chat, scene bar, controls and
+  player list. Sheets and dialogs keep their own look.
+- **Power sequences.** The omni-tool's panels rise out of the band, the wrist computer's
+  case swings up from its base, and the EVA's picture opens out of a scan line.
 
-## Small screens
+### Tabs
 
-Three things keep the HUD usable on a laptop:
+| PF2e / SF2e | D&D 5e |
+|---|---|
+| Character, Actions, Inventory, Feats, Skills, Effects, Biography | Details, Inventory, Features, Spells, Effects, Biography |
 
-- **A hide key** (default **Alt+H**, rebindable in *Configure Controls*). It hides every open
-  HUD without closing it, so your tab, scroll position and any open dialog survive.
-- **Device art** in three steps — device and background, background only, or **panels only**,
-  which drops the artwork entirely. There is a button for it in the chrome bar.
-- **A compact layout** that switches itself on when the sheet is narrow: the tabs become a rail
-  and the side panels move into a drawer you open with the panels button. Nothing is removed —
-  a narrow sheet still reaches every part of the character. The width it kicks in at is a
-  setting.
+## Settings
 
-## How it works, for the curious
+| Setting | Scope | What it does |
+|---|---|---|
+| Default device | world | The device players get before they choose one. |
+| My device | client | The device you wear. |
+| Power sequences | client | Play the rise/fold/scan animations. |
+| Macro key size | client | Size of the macro bar keys. The omni-tool's arm follows it. |
+| Projection size | client | How much of the free space the projection takes. |
+| Etched grid | client | The hex etching on the omni-tool projection. |
 
-The module subclasses the system's own character sheet. After the system has rendered and bound
-its listeners, the HUD takes the elements the system drew — the same nodes, with those listeners
-still on them — assigns them to layout slots, and adds its own panels beside them. It never
-rewrites the system's markup, so a system update changes what is in the panels and never the
-HUD's structure. If the layout ever throws, the sheet falls back to the standard one and tells
-you.
+## For macro writers
+
+```js
+const hud = game.modules.get('scorpious187s-scifi-character-hud').api;
+hud.toggle();          // raise or lower the projection
+hud.setPower(true);    // raise it
+hud.debug();           // log what is mounted and where
+```
 
 ## Licence
 

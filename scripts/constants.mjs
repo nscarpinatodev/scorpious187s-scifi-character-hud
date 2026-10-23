@@ -28,12 +28,8 @@ export const S = {
 	deckSize: 'deckSize',         // client — macro bar key size on the device, px
 	projScale: 'projScale',       // client — projection size, % of the space available
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
-	hideKey: 'hideKey',           // client — key that hides the whole HUD
 	worldDevice: 'worldDevice',   // world  — the device a user gets before they pick one
 };
-
-/** Per-actor flag holding that character's own device choice. */
-export const FLAG_DEVICE = 'device';
 
 /** Timings for the power sequences, in ms. Keep in step with styles/device.css. */
 export const SEQ = { on: 940, off: 780 };
