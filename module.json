@@ -49,6 +49,7 @@
 		"scripts/module.mjs"
 	],
 	"styles": [
+		"styles/fonts.css",
 		"styles/device.css",
 		"styles/interface.css",
 		"styles/projection.css",

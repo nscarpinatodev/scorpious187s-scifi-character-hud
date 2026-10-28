@@ -1,0 +1,98 @@
+/* =========================================================================
+   The devices' typefaces, shipped with the module.
+
+   All of them are under the SIL Open Font License; the licence for each is
+   beside it in fonts/. The woff2 files are cut down to Latin, Latin Extended
+   and the punctuation, arrows and shapes the projection uses. Audiowide and
+   Share Tech Mono reserve their names, so they ship as their authors' own
+   files, unmodified.
+
+   Michroma is the omni-tool's display face: wide, squared capitals in the
+   manner of Mass Effect's headings. A player who owns the game's fonts, or
+   any other, can put their own in its place in the module settings.
+   ========================================================================= */
+
+@font-face {
+	font-family: Michroma;
+	src: url("../fonts/Michroma-Regular.woff2") format("woff2");
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Rajdhani;
+	src: url("../fonts/Rajdhani-Medium.woff2") format("woff2");
+	font-weight: 500;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Rajdhani;
+	src: url("../fonts/Rajdhani-SemiBold.woff2") format("woff2");
+	font-weight: 600;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Rajdhani;
+	src: url("../fonts/Rajdhani-Bold.woff2") format("woff2");
+	font-weight: 700 900;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Share Tech Mono";
+	src: url("../fonts/ShareTechMono-Regular.ttf") format("truetype");
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Chakra Petch";
+	src: url("../fonts/ChakraPetch-Regular.woff2") format("woff2");
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Chakra Petch";
+	src: url("../fonts/ChakraPetch-Medium.woff2") format("woff2");
+	font-weight: 500;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Chakra Petch";
+	src: url("../fonts/ChakraPetch-SemiBold.woff2") format("woff2");
+	font-weight: 600;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Chakra Petch";
+	src: url("../fonts/ChakraPetch-Bold.woff2") format("woff2");
+	font-weight: 700 900;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Audiowide;
+	src: url("../fonts/Audiowide-Regular.ttf") format("truetype");
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: VT323;
+	src: url("../fonts/VT323-Regular.woff2") format("woff2");
+	font-weight: 400;
+	font-display: swap;
+}
+
+/* variable: one file for every weight */
+@font-face {
+	font-family: Oxanium;
+	src: url("../fonts/Oxanium-Variable.woff2") format("woff2");
+	font-weight: 200 800;
+	font-display: swap;
+}

@@ -33,5 +33,16 @@
 	"SFH.Settings.ControlIcons": "Sci-fi control icons",
 	"SFH.Settings.ControlIconsHint": "Gives the scene controls on the left of the screen sci-fi icons — an astronaut for tokens, a radar for measuring, a datapad for notes. Turn it off to keep Foundry's own.",
 	"SFH.Settings.ProjScale": "Wrist computer and EVA projection size",
-	"SFH.Settings.ProjScaleHint": "How much of the free space the Wrist Computer and EVA projections take, as a percentage. Lower it to keep more of the map in view. The Mass Effect omni-tool is not affected: its projection always matches the width of its arm, which follows Macro key size."
+	"SFH.Settings.ProjScaleHint": "How much of the free space the Wrist Computer and EVA projections take, as a percentage. Lower it to keep more of the map in view. The Mass Effect omni-tool is not affected: its projection always matches the width of its arm, which follows Macro key size.",
+	"SFH.Settings.FontDisplay": "Heading font",
+	"SFH.Settings.FontDisplayHint": "Your own font for headings, names and panel titles, in place of the device's. Type the font's name as your font list shows it, such as Myriad Pro. A font installed on this computer works, as does one the GM has added under Additional Fonts in Foundry's Core settings, or any Google Fonts family. Add a fallback after a comma. Leave empty for the device's own.",
+	"SFH.Settings.FontBody": "Text font",
+	"SFH.Settings.FontBodyHint": "Your own font for the interface's text — the sidebar, chat, labels and the projection's panels. Type the font's name as your font list shows it, such as Myriad Pro. A font installed on this computer works, as does one the GM has added under Additional Fonts in Foundry's Core settings, or any Google Fonts family. Add a fallback after a comma. Leave empty for the device's own.",
+	"SFH.Settings.FontMono": "Number font",
+	"SFH.Settings.FontMonoHint": "Your own font for numbers and readouts — hit points, modifiers, macro key numbers. A monospaced font keeps columns of numbers lined up. Type the font's name as your font list shows it, such as Myriad Pro. A font installed on this computer works, as does one the GM has added under Additional Fonts in Foundry's Core settings, or any Google Fonts family. Add a fallback after a comma. Leave empty for the device's own.",
+	"SFH.Fonts.Missing": "The font \"{font}\" is not installed on this computer, so the Sci-Fi HUD is using a stand-in. Install it, have the GM add it under Additional Fonts in Foundry's Core settings, or turn on Fetch fonts from Google Fonts.",
+	"SFH.Fonts.Placeholder": "The device's own",
+	"SFH.Settings.GoogleFonts": "Fetch fonts from Google Fonts",
+	"SFH.Settings.GoogleFontsHint": "When a font named above is not on this computer or in Foundry, fetch it from Google Fonts. Turn it off to keep the table offline. The devices' own fonts ship with the module either way, so they never need fetching.",
+	"SFH.Fonts.MissingGoogle": "The font \"{font}\" is not installed on this computer and Google Fonts does not have it, so the Sci-Fi HUD is using a stand-in. Install it, or have the GM add it under Additional Fonts in Foundry's Core settings."
 }

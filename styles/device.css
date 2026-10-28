@@ -22,6 +22,8 @@ body[data-sfh-device] {
 	--sfh-cell: rgb(4 7 11 / 78%);
 	--sfh-acc: #5ec8ff;
 	--sfh-face: Rajdhani, "Arial Narrow", sans-serif;
+	/* wide, squared capitals, in the manner of Mass Effect's headings */
+	--sfh-display: Michroma, Rajdhani, sans-serif;
 	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
 	--sfh-radius: 0px;
 }
@@ -40,6 +42,7 @@ body[data-sfh-device="wrist"] {
 	--sfh-cell: rgb(16 6 36 / 80%);
 	--sfh-acc: #35ecf2;
 	--sfh-face: "Chakra Petch", sans-serif;
+	--sfh-display: Audiowide, "Chakra Petch", sans-serif;
 	--sfh-mono: VT323, ui-monospace, monospace;
 	--sfh-radius: 10px;
 }
@@ -58,6 +61,7 @@ body[data-sfh-device="gdi"] {
 	--sfh-cell: rgb(6 10 5 / 85%);
 	--sfh-acc: #f2c230;
 	--sfh-face: Oxanium, sans-serif;
+	--sfh-display: Oxanium, sans-serif;
 	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
 	--sfh-radius: 0px;
 }
@@ -76,8 +80,25 @@ body[data-sfh-device="nod"] {
 	--sfh-cell: rgb(12 4 4 / 85%);
 	--sfh-acc: #efe6d2;
 	--sfh-face: Oxanium, sans-serif;
+	--sfh-display: Oxanium, sans-serif;
 	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
 	--sfh-radius: 0px;
+}
+
+/*
+ * A player's own fonts, from the module settings, in place of the device's. The family is
+ * put on <body> by scripts/interface/fonts.mjs, with an attribute saying it is there.
+ */
+body[data-sfh-device][data-sfh-font-display] {
+	--sfh-display: var(--sfh-font-display), sans-serif;
+}
+
+body[data-sfh-device][data-sfh-font-body] {
+	--sfh-face: var(--sfh-font-body), sans-serif;
+}
+
+body[data-sfh-device][data-sfh-font-mono] {
+	--sfh-mono: var(--sfh-font-mono), monospace;
 }
 
 /* ---------------------------------------------------------------- the device */

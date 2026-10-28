@@ -85,3 +85,19 @@ body[data-sfh-power="on"] #sfh-beam {
 @media (prefers-reduced-motion: reduce) {
 	#sfh-beam { transition: none; }
 }
+
+/*
+ * A player's own fonts, from the module settings, in place of the device's. The board's
+ * faces come from the mock-up (projection.css); these outrank them only while a font is set.
+ */
+body[data-sfh-font-display] #sfh-projection .sfh-stage[data-device] {
+	--display: var(--sfh-font-display), sans-serif;
+}
+
+body[data-sfh-font-body] #sfh-projection .sfh-stage[data-device] {
+	--font: var(--sfh-font-body), sans-serif;
+}
+
+body[data-sfh-font-mono] #sfh-projection .sfh-stage[data-device] {
+	--mono: var(--sfh-font-mono), monospace;
+}

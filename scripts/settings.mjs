@@ -6,7 +6,7 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
  * The device is a per-user choice: two players at the same table can wear different
  * hardware. The world setting only decides what a user gets before they have chosen.
  */
-export function registerSettings(onDeviceChange, onControlIconsChange) {
+export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange) {
 	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
 
 	// Both device settings repaint immediately: a player following the world default has to
@@ -84,6 +84,34 @@ export function registerSettings(onDeviceChange, onControlIconsChange) {
 		type: Boolean,
 		default: true,
 		onChange: () => onControlIconsChange?.(),
+	});
+
+	// Typed rather than picked, so a font installed only on this computer can be used.
+	const fonts = [
+		[S.fontDisplay, 'SFH.Settings.FontDisplay', 'SFH.Settings.FontDisplayHint'],
+		[S.fontBody, 'SFH.Settings.FontBody', 'SFH.Settings.FontBodyHint'],
+		[S.fontMono, 'SFH.Settings.FontMono', 'SFH.Settings.FontMonoHint'],
+	];
+	for (const [key, name, hint] of fonts) {
+		game.settings.register(MOD, key, {
+			name,
+			hint,
+			scope: 'client',
+			config: true,
+			type: String,
+			default: '',
+			onChange: () => onFontChange?.(key),
+		});
+	}
+
+	game.settings.register(MOD, S.googleFonts, {
+		name: 'SFH.Settings.GoogleFonts',
+		hint: 'SFH.Settings.GoogleFontsHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: true,
+		onChange: () => onFontChange?.(),
 	});
 }
 

@@ -23,8 +23,12 @@ device, and the character sheet is a projection it raises over the canvas.
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- The devices' fonts ship with the module, so an offline table looks the same. The
+  omni-tool's headings are Michroma.
+- Your own heading, text and number fonts: installed on your computer, added in Foundry's
+  Additional Fonts, or fetched from Google Fonts.
 - Settings: world and personal device, power sequences, macro key size, wrist computer and EVA projection size,
-  etched grid.
+  etched grid, your own fonts, Google Fonts.
 
 ## 0.1.0 — not released
 

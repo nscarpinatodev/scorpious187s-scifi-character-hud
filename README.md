@@ -27,9 +27,9 @@ https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/lat
 - **[Scorpious187's Module Library](https://github.com/nscarpinatodev/scorpious187s-lib)**
 - One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+
 
-The devices use Google Fonts (Rajdhani, Share Tech Mono, Chakra Petch, VT323, Oxanium,
-Audiowide). They are fetched when the world loads; a table with no internet connection
-gets fallback fonts.
+The devices' fonts (Michroma, Rajdhani, Share Tech Mono, Chakra Petch, VT323, Oxanium,
+Audiowide) ship with the module under the SIL Open Font License, so the HUD looks the same
+at a table with no internet connection.
 
 ## Using it
 
@@ -69,6 +69,11 @@ one character and have none assigned, it shows that one.
 - **The whole interface in the device's colours** — sidebar, chat, scene bar, controls and
   player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
   icons; each control still does exactly what it did.
+- **Your own fonts.** Each player can set a heading, text and number font of their own:
+  one installed on their computer (Myriad Pro, say), one the GM has added under
+  *Additional Fonts* in Foundry's Core settings, or any Google Fonts family, fetched when
+  it is not installed. The omni-tool's own headings are Michroma, wide squared capitals
+  in the manner of Mass Effect's.
 - **Power sequences.** The omni-tool's panels rise out of the band, the wrist computer's
   case swings up from its base, and the EVA's picture opens out of a scan line.
 
@@ -96,6 +101,8 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's is not affected. |
 | Etched grid | client | The hex etching on the omni-tool projection. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
+| Heading font, Text font, Number font | client | Your own font in place of the device's. Type its name; the settings window suggests the fonts it finds. Empty keeps the device's. |
+| Fetch fonts from Google Fonts | client | Fetch a font named above from Google Fonts when it is not installed or in Foundry. Off keeps the table offline. |
 
 ## For macro writers
 
@@ -109,4 +116,5 @@ hud.debug();           // log what is mounted and where
 
 ## Licence
 
-MIT.
+MIT. The fonts in `fonts/` are under the SIL Open Font License; each one's licence is
+beside it.

@@ -3,6 +3,7 @@ import { registerSettings, currentDevice } from './settings.mjs';
 import { DeviceChrome } from './device/chrome.mjs';
 import { Projection } from './projection/projection.mjs';
 import { restyleControls, redrawControls } from './interface/controls.mjs';
+import { applyFonts, onFontChange, reportMissingFonts, suggestFonts } from './interface/fonts.mjs';
 
 /**
  * Scorpious187's Sci-Fi Character HUD.
@@ -22,6 +23,7 @@ import { restyleControls, redrawControls } from './interface/controls.mjs';
  * if they are missing — it costs nothing when they are already there.
  */
 const STYLES = [
+	'styles/fonts.css',
 	'styles/device.css',
 	'styles/interface.css',
 	'styles/projection.css',
@@ -39,33 +41,16 @@ function ensureStyles() {
 	}
 }
 
-/**
- * The mock-up's typefaces. Without them every device falls back to Arial Narrow and the
- * system monospace, which is most of what makes the devices look like themselves. Linked
- * at init so they are loading before anything is drawn in them.
- */
-const FONTS = 'https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700'
-	+ '&family=Share+Tech+Mono&family=Audiowide&family=Chakra+Petch:wght@400;500;600;700'
-	+ '&family=VT323&family=Oxanium:wght@400;500;600;700;800&display=swap';
-
-function ensureFonts() {
-	if (document.querySelector(`link[href="${FONTS}"]`)) return;
-	const link = document.createElement('link');
-	link.rel = 'stylesheet';
-	link.href = FONTS;
-	document.head.append(link);
-}
-
 /* -------------------------------------------- */
 /*  Lifecycle                                    */
 /* -------------------------------------------- */
 
 Hooks.once('init', () => {
-	ensureFonts();
 	registerSettings(() => {
 		DeviceChrome.refresh();
 		Projection.syncDevice();
-	}, redrawControls);
+	}, redrawControls, onFontChange);
+	applyFonts();
 
 	// rebindable in Configure Controls
 	game.keybindings.register(MOD, KEYS.hide, {
@@ -81,6 +66,8 @@ Hooks.once('init', () => {
 
 Hooks.once('ready', () => {
 	ensureStyles();
+	// by now Foundry has loaded the fonts added in its own settings, so they can be told apart
+	reportMissingFonts();
 	if (!DeviceChrome.mount()) {
 		console.warn(`${MOD} | the interface has no #ui-bottom or #hotbar to mount on; the device is not shown`);
 	}
@@ -129,6 +116,9 @@ for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'cr
 
 /* The scene controls take the devices' icons each time Foundry prepares them. */
 Hooks.on('getSceneControlButtons', restyleControls);
+
+/* The font settings are typed; the settings window suggests the fonts there are. */
+Hooks.on('renderSettingsConfig', suggestFonts);
 
 /* The free area changes whenever Foundry's own furniture does. */
 for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {

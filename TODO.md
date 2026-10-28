@@ -26,8 +26,6 @@ system's own sheet, which the book button opens.
 - [ ] **Translatable strings** — every label in `projection/panels.mjs` and the adapters is
       written in English in the markup. Move them to `lang/en.json`; `tools/check.mjs` will
       then hold them to it.
-- [ ] **Bundled fonts** — the devices' typefaces come from Google Fonts at load, so an offline
-      table gets fallbacks. All six are OFL; ship them in `fonts/` with the licence.
 - [ ] **The readout** — currently name, type, traits and description. The mock-up also showed
       per-kind detail (skill breakdowns, tier lists for Paragon/Renegade).
 

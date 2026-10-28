@@ -29,6 +29,10 @@ export const S = {
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
 	controlIcons: 'controlIcons', // client — sci-fi icons on the scene controls
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
+	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names
+	fontBody: 'fontBody',         // client — the player's own font for text
+	fontMono: 'fontMono',         // client — the player's own font for numbers and readouts
+	googleFonts: 'googleFonts',   // client — fetch a typed font from Google Fonts when it is not installed
 	worldDevice: 'worldDevice',   // world  — the device a user gets before they pick one
 };
 

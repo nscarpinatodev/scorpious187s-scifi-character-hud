@@ -39,7 +39,7 @@ jobs:
         run: |
           zip -r module.zip \
             module.json \
-            scripts styles lang \
+            scripts styles lang fonts \
             README.md LICENSE CHANGELOG.md
 
       - name: Publish release

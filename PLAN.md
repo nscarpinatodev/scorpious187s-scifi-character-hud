@@ -55,11 +55,15 @@ scripts/
     helpers.mjs         the mock-up's markup helpers
   interface/
     controls.mjs        sci-fi icons for the scene controls, through getSceneControlButtons
+    fonts.mjs           a player's own fonts: applied as custom properties, fetched from
+                        Google Fonts when missing, suggested in the settings window
   adapters/
     index.mjs           picks the adapter for the running system
     pf2e-family.mjs     SF2e and PF2e: what the panels show, what each button does
     dnd5e.mjs           D&D 5e: the same, through its own API
+fonts/                  the devices' typefaces (OFL), each with its licence
 styles/
+  fonts.css             @font-face for everything in fonts/
   device.css            device palettes, the arm, the macro bar skin, device sequences
   interface.css         the device palette mapped onto Foundry's own interface colours
   projection.css        GENERATED from design/1-head.html by tools/port-css.py
@@ -137,6 +141,14 @@ the tab's last content until it resolves, and only the newest render may fill it
 
 **Done — hiding.** A rebindable key clears the art, the projection and the beam off the
 screen without switching anything off; the macro bar stays with a restore key on it.
+
+**Done — fonts.** The devices' typefaces ship in `fonts/`, so nothing is fetched to draw
+them. Each device has a body, display and mono face (`--sfh-face`, `--sfh-display`,
+`--sfh-mono`); the omni-tool's display face is Michroma, in the mock-up too. A player can
+type their own font for each role: one installed on their computer, one from Foundry's
+Additional Fonts, or a Google Fonts family fetched when it is missing. The game's own
+fonts (BioMass, Tigensu) and Myriad Pro cannot ship under the module's licence, which is
+why the player brings them.
 
 **Next.** Translatable strings in the panels and adapters, the chat panel, the rest of
 editing from the projection (spell slots, currency), and the mock-up's remaining details.

@@ -3,3 +3,5 @@
 
 # Treat binary assets as binary.
 *.png binary
+*.woff2 binary
+*.ttf binary

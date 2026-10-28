@@ -49,10 +49,24 @@ for (const file of manifest.styles) {
 	if (open !== close) fail(`${file}: unbalanced braces (${open} open, ${close} close)`);
 }
 
+/* ---- every font a stylesheet points at is there, and every font has its licence beside it ---- */
+for (const file of manifest.styles) {
+	const css = readFileSync(join(root, file), 'utf8');
+	for (const [, url] of css.matchAll(/url\("?(\.\.\/fonts\/[^")]+)"?\)/g)) {
+		if (!existsSync(join(root, 'styles', url))) fail(`${file} points at a missing font: ${url}`);
+	}
+}
+const fontDir = join(root, 'fonts');
+for (const font of existsSync(fontDir) ? readdirSync(fontDir) : []) {
+	if (!/\.(woff2|ttf)$/.test(font)) continue;
+	const licence = `OFL-${font.split(/[-.]/)[0].toLowerCase()}.txt`;
+	if (!existsSync(join(fontDir, licence))) fail(`fonts/${font} has no ${licence} beside it`);
+}
+
 /* ---- the palette every device must define (the omni-tool's is the unqualified default) ---- */
 const deviceCss = readFileSync(join(root, 'styles/device.css'), 'utf8');
 const required = ['--sfh-bg-rgb', '--sfh-hot', '--sfh-glow', '--sfh-bright', '--sfh-text', '--sfh-dim', '--sfh-line',
-	'--sfh-line-2', '--sfh-hover', '--sfh-panel', '--sfh-cell', '--sfh-acc', '--sfh-face', '--sfh-mono'];
+	'--sfh-line-2', '--sfh-hover', '--sfh-panel', '--sfh-cell', '--sfh-acc', '--sfh-face', '--sfh-display', '--sfh-mono'];
 const { DEVICES } = await import(new URL('../scripts/constants.mjs', import.meta.url));
 for (const device of Object.keys(DEVICES)) {
 	const selector = device === 'omni' ? 'body[data-sfh-device] {' : `body[data-sfh-device="${device}"] {`;

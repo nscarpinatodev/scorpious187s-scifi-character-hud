@@ -72,7 +72,7 @@ body[data-sfh-device] :is(#sidebar-tabs .item, #scene-navigation .scene, #scene-
 
 /* headings and labels take the device's display face */
 body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .window-title, legend) {
-	font-family: var(--sfh-face);
+	font-family: var(--sfh-display);
 	letter-spacing: 0.04em;
 }
 
