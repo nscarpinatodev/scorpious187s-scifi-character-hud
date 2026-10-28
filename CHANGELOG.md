@@ -23,6 +23,11 @@ device, and the character sheet is a projection it raises over the canvas.
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- Hero points, dying and 5e death saves as segmented tracks. Dying above zero puts its box
+  on alert, and doomed shows as locked segments where dying's maximum has been lowered.
+- The Mass Effect dossier is only as tall as what it shows; the effects panel gets the rest.
+- Boxes in the panels keep their full height instead of being cut off (the hit points box
+  lost its bar, and on the EVA its buttons), and labels like Perception fit.
 - The devices' fonts ship with the module, so an offline table looks the same. The
   omni-tool's headings are Michroma.
 - Your own heading, text and number fonts: installed on your computer, added in Foundry's

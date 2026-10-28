@@ -1,6 +1,6 @@
 import { EL, MOD, SEQ, S } from '../constants.mjs';
 import { currentDevice, setting } from '../settings.mjs';
-import { layout, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
+import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav } from './panels.mjs';
 import { getAdapter } from '../adapters/index.mjs';
@@ -115,7 +115,7 @@ export class Projection {
 		const height = Math.max(320, innerHeight - topEdge - bottomEdge);
 		const deviceId = currentDevice();
 		const board = BOARD[deviceId] ?? BOARD.omni;
-		const L = layout(deviceId, true);
+		const L = layout(deviceId);
 		const standsAt = innerHeight - bottomEdge;
 
 		/*
@@ -305,7 +305,7 @@ export class Projection {
 		}
 		const device = currentDevice();
 		const extras = !!c.extras;
-		const L = layout(device, extras);
+		const L = layout(device, dossierHeight(device, c.extras));
 		const eva = device === 'gdi' || device === 'nod';
 		this.#tab = c.tabs.some((t) => t.id === this.#tab) ? this.#tab : c.tabs[0].id;
 

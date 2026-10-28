@@ -17,18 +17,40 @@ export const BOARD = {
 	nod: { w: 1280, h: 860 },
 };
 
+/** The dossier's parts, in board pixels: its heading, a shields bar, a Paragon or Renegade track. */
+const DOSSIER = { head: 20, shields: 26, track: 36, gap: 10 };
+
+/**
+ * How tall the Mass Effect dossier needs to be for what it shows. Where it shares a column
+ * with the effects panel, the effects panel gets the rest.
+ * @param {string} device
+ * @param {object|null} x  What readDossier() found, or nothing.
+ */
+export function dossierHeight(device, x) {
+	if (!x) return 0;
+	const rows = [x.shields && DOSSIER.shields, x.paragon != null && DOSSIER.track, x.renegade != null && DOSSIER.track]
+		.filter(Boolean);
+	const body = rows.reduce((h, row) => h + DOSSIER.gap + row, 0);
+	// the EVA's caption and bay padding stand in for the panel's own heading
+	if (device === 'gdi' || device === 'nod') return 46 + body - DOSSIER.gap;
+	return 26 + DOSSIER.head + body;
+}
+
 /**
  * Slot rectangles: [x, y, width, height].
  * @param {string} device
- * @param {boolean} extras  Whether the Mass Effect dossier panel is shown.
+ * @param {number} dossier  The dossier's height (dossierHeight()), or 0 when it is not shown.
  */
-export function layout(device, extras) {
+export function layout(device, dossier = 0) {
+	const extras = dossier > 0;
 	if (device === 'omni') {
+		// the effects and the dossier share the column under the vitals, 370–726
+		const d = Math.min(dossier, 194);
 		return {
 			identity: [250, 20, 780, 60],
-			vitals: [28, 96, 204, 300],
-			effects: extras ? [28, 408, 204, 112] : [28, 408, 204, 318],
-			extras: [28, 532, 204, 194],
+			vitals: [28, 96, 204, 262],
+			effects: extras ? [28, 370, 204, 344 - d] : [28, 370, 204, 356],
+			extras: [28, 726 - d, 204, d],
 			defenses: [1048, 96, 204, 250],
 			readout: [1048, 360, 204, 366],
 			projection: [250, 92, 780, 470],
@@ -47,12 +69,13 @@ export function layout(device, extras) {
 			nav: [24, 266, 188, 532],
 		};
 	}
-	// EVA, both schemes
+	// EVA, both schemes: the effects and the dossier share the bay under the vitals, 530–836
+	const d = Math.min(dossier, 214);
 	return {
 		identity: [26, 24, 1228, 50],
-		vitals: [26, 258, 262, 236],
-		effects: extras ? [26, 506, 262, 104] : [26, 506, 262, 330],
-		extras: [26, 622, 262, 214],
+		vitals: [26, 258, 262, 260],
+		effects: extras ? [26, 530, 262, 294 - d] : [26, 530, 262, 306],
+		extras: [26, 836 - d, 262, d],
 		projection: [300, 86, 664, 660],
 		defenses: [300, 758, 664, 78],
 		readout: [976, 322, 278, 200],

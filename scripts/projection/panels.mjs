@@ -48,60 +48,86 @@ export function renderVitals(c) {
 	 * nudged: an amount, a Heal and a Damage button, and the value itself editable.
 	 * Right-clicking the panel opens the maximum and the temporary pool as well.
 	 */
-	const hp = `<div class="cell wide sfh-hp" style="align-items:stretch;gap:5px;padding:8px 10px" data-menu="hp">
-		<div class="row sp">${lbl('Hit Points')}
+	// the value's box is as wide as its digits, so it sits against its maximum
+	const digits = Math.max(1, String(c.hp.value).length);
+	const hp = `<div class="cell wide sfh-hp" data-menu="hp">
+		<div class="row sp hp-h">${lbl('Hit Points')}
 			<label class="sfh-temp">${lbl('Temp')}<input class="sfh-in mono" type="number" inputmode="numeric"
 				value="${c.hp.temp}" data-commit="temp" aria-label="Temporary hit points"></label></div>
-		<div class="row sp" style="gap:6px">
-			<span class="big grow" style="font-size:26px;text-align:center;white-space:nowrap">
-				<input class="sfh-in sfh-in-hp mono" type="number" inputmode="numeric" value="${c.hp.value}"
-					data-commit="hp" aria-label="Hit points"><span style="font-size:14px;color:var(--dim)">/${c.hp.max}</span></span></div>
-		<div class="row" style="gap:4px">
-			<input class="sfh-in mono grow" type="number" inputmode="numeric" min="0" placeholder="0"
+		<div class="row hp-v" style="justify-content:center;align-items:baseline;gap:2px">
+			<input class="sfh-in sfh-in-hp mono" type="number" inputmode="numeric" value="${c.hp.value}" style="width:${digits + 0.6}ch"
+				data-commit="hp" aria-label="Hit points"><span class="mono" style="font-size:15px;color:var(--dim)">/ ${c.hp.max}</span></div>
+		${bar(c.hp.value, c.hp.max, 'hp-b')}
+		<div class="row hp-a" style="gap:4px">
+			<input class="sfh-in mono" type="number" inputmode="numeric" min="0" placeholder="amt" style="width:3.6em;flex:none"
 				data-amount="1" aria-label="Amount to heal or damage">
-			${actBtn('Heal', 'heal', '', { cls: 'sm ghost' })}
-			${actBtn('Damage', 'damage', '', { cls: 'sm ghost' })}</div>
-		${bar(c.hp.value, c.hp.max)}</div>`;
+			${actBtn('Heal', 'heal', '', { cls: 'sm ghost', extra: 'grow' })}
+			${actBtn('Damage', 'damage', '', { cls: 'sm ghost', extra: 'grow' })}</div></div>`;
 
 	const v = c.vitals;
 	let cells = '';
 	if (v.kind === 'pf2e') {
-		const pips = (n, current, act, cls = '') => Array.from({ length: n }, (_, i) =>
-			`<button type="button" class="pip ${cls} ${i < current ? 'on' : ''}" data-act="${act}" data-k="${i + 1 === current ? i : i + 1}" aria-label="${act} ${i + 1}"></button>`).join('');
-		cells = `<div class="cell">${lbl('Hero Points')}<div class="pips" style="padding:4px 0">${pips(v.hero.max, v.hero.value, 'hero')}</div></div>
-			<div class="cell">${lbl('Dying')}<div class="pips" style="padding:4px 0">${pips(v.dying.max, v.dying.value, 'dying', 'bad')}</div></div>
-			${counter('Wounded', v.wounded, 'wounded')}
-			${counter('Doomed', v.doomed, 'doomed')}`;
+		// the system has already taken doomed off dying's maximum; those points show as locked
+		cells = `${track('Hero Points', v.hero, 'hero')}
+			${track('Dying', v.dying, 'dying', { bad: true, locked: v.doomed })}
+			${counter('Wounded', v.wounded, 'wounded', 'warn')}
+			${counter('Doomed', v.doomed, 'doomed', 'bad')}`;
 	} else {
+		// one track: three successes, a divider, three failures
 		const death = (key, count, cls) => Array.from({ length: 3 }, (_, i) =>
-			`<button type="button" class="pip ${cls} ${i < count ? 'on' : ''}" data-act="death" data-k="${key}" aria-label="Death save ${key} ${i + 1}"></button>`).join('');
+			`<button type="button" class="seg ${cls} ${i < count ? 'on' : ''}" data-act="death" data-k="${key}" aria-label="Death save ${key} ${i + 1}"></button>`).join('');
+		const saves = `Death saves: ${v.death.success} succeeded, ${v.death.failure} failed`;
 		cells = `<button type="button" class="cell" data-act="hd" data-k="">${lbl('Hit Dice')}<span class="v">${v.hd.value}/${v.hd.max}</span></button>
 			<button type="button" class="cell" data-act="insp" data-k="" aria-pressed="${v.inspiration}">${lbl('Inspiration')}<span class="v ${v.inspiration ? 'hot' : 'dimc'}">${v.inspiration ? '●' : '○'}</span></button>
-			<div class="cell">${lbl('Death Saves')}<div class="pips">${death('success', v.death.success, '')}</div><div class="pips">${death('failure', v.death.failure, 'bad')}</div></div>
-			${counter('Exhaustion', v.exhaustion, 'exhaustion')}`;
+			<div class="cell trk ${v.death.failure > 0 ? 'alert' : ''}" data-tooltip="${saves}" aria-label="${saves}">${lbl('Death Saves')}
+				<div class="segs">${death('success', v.death.success, '')}<span class="segsep"></span>${death('failure', v.death.failure, 'bad')}</div></div>
+			${counter('Exhaustion', v.exhaustion, 'exhaustion', 'warn')}`;
 	}
 	return `<div class="cells scroll">${hp}${cells}</div>`;
 }
 
-const counter = (label, value, key) => `<div class="cell">${lbl(label)}<div class="row">
+/** A count with − and +. `lit` is how the number shows while it is above zero. */
+const counter = (label, value, key, lit = '') => `<div class="cell">${lbl(label)}<div class="row">
 	${actBtn('−', 'stat', `${key}:${Math.max(0, value - 1)}`, { cls: 'sm' })}
-	<span class="v">${value}</span>
+	<span class="v ${value > 0 ? lit : ''}">${value}</span>
 	${actBtn('+', 'stat', `${key}:${value + 1}`, { cls: 'sm' })}</div></div>`;
+
+/**
+ * A segmented track, one segment per point. Clicking a segment sets the value to it, and
+ * clicking the last lit one takes it back off. `locked` adds dead segments at the end, for
+ * points the maximum has lost; a dying track above zero puts its cell on alert.
+ */
+const track = (label, { value, max }, act, { bad = false, locked = 0 } = {}) => {
+	const name = label.toLowerCase();
+	const segs = Array.from({ length: max }, (_, i) => `<button type="button" class="seg ${bad ? 'bad' : ''} ${i < value ? 'on' : ''}"
+		data-act="${act}" data-k="${i + 1 === value ? i : i + 1}" aria-label="${esc(`${label} ${i + 1}`)}"></button>`).join('')
+		+ '<span class="seg lock" aria-hidden="true"></span>'.repeat(Math.max(0, locked));
+	const title = `${label}: ${value} / ${max}`;
+	return `<div class="cell trk ${bad && value > 0 ? 'alert' : ''}" data-tooltip="${esc(title)}" aria-label="${esc(title)}">${lbl(label)}
+		<div class="segs" role="group" aria-label="${esc(name)}">${segs}</div></div>`;
+};
 
 /* -------------------------------------------- */
 /*  Defenses                                     */
 /* -------------------------------------------- */
 
 export function renderDefenses(c, device) {
-	const cells = c.defenses.map((d) => {
-		const style = d.lead ? ' style="background:var(--hotbg);border-color:var(--hot)"' : '';
-		const value = `<span class="v"${d.lead ? ' style="font-size:24px;text-shadow:0 0 10px var(--glow)"' : ''}>${esc(d.value)}</span>`;
-		return d.act
-			? `<button type="button" class="cell" data-act="${esc(d.act)}" data-k="${esc(d.k ?? '')}" ${ro(`def:${d.label}`)}${style}>${lbl(d.label)}${value}</button>`
-			: `<div class="cell"${style} ${ro(`def:${d.label}`)}>${lbl(d.label)}${value}</div>`;
-	}).join('');
 	// the EVA lays its defenses out as one strip along the bottom of the console
 	const eva = device === 'gdi' || device === 'nod';
+	// the panels only two boxes wide (layout.mjs): an odd one out at the end takes the whole
+	// row rather than leaving a hole beside it
+	const pairs = device === 'omni' || (device === 'wrist' && !!c.extras);
+	const n = c.defenses.length;
+	const cells = c.defenses.map((d, i) => {
+		const style = d.lead ? ' style="background:var(--hotbg);border-color:var(--hot)"' : '';
+		// the lead defense reads larger, except in the wrist unit's short panel
+		const big = d.lead && device !== 'wrist';
+		const value = `<span class="v"${big ? ' style="font-size:24px;text-shadow:0 0 10px var(--glow)"' : d.lead ? ' style="text-shadow:0 0 10px var(--glow)"' : ''}>${esc(d.value)}</span>`;
+		const cls = pairs && n % 2 && i === n - 1 ? 'cell wide' : 'cell';
+		return d.act
+			? `<button type="button" class="${cls}" data-act="${esc(d.act)}" data-k="${esc(d.k ?? '')}" ${ro(`def:${d.label}`)}${style}>${lbl(d.label)}${value}</button>`
+			: `<div class="${cls}"${style} ${ro(`def:${d.label}`)}>${lbl(d.label)}${value}</div>`;
+	}).join('');
 	const style = eva ? ' style="grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);height:100%"' : '';
 	return `<div class="cells scroll"${style}>${cells}</div>`;
 }
@@ -137,7 +163,7 @@ export function renderEffectsSlot(c) {
 		? `<select class="sel" data-pick="condition" aria-label="Add a condition"><option value="">+ Add condition…</option>${
 			choices.map((o) => `<option value="${esc(o.id)}">${esc(o.label)}</option>`).join('')}</select>`
 		: '';
-	return `<div class="row sp">${lbl('Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
+	return `<div class="row sp hd">${lbl('Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
 		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>
 		${picker}`;
 }
@@ -159,7 +185,7 @@ export function renderExtras(c) {
 			<div class="row sp"><span class="lbl" style="color:var(--acc)">Shields</span><span class="mono" style="color:#d9f2ff">${x.shields.value} / ${x.shields.max}</span></div>
 			${bar(x.shields.value, x.shields.max, 'a')}</div>`
 		: '';
-	return `<div class="row sp">${lbl('Dossier')}<span class="chip me">ME</span></div>
+	return `<div class="row sp hd">${lbl('Dossier')}<span class="chip me">ME</span></div>
 		${shields}
 		${x.paragon != null ? track('paragon', x.paragon, '#4aa8ff') : ''}
 		${x.renegade != null ? track('renegade', x.renegade, '#ff4a3a') : ''}`;
