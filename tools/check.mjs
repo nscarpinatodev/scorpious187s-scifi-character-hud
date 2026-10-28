@@ -60,6 +60,21 @@ for (const device of Object.keys(DEVICES)) {
 	for (const prop of required) if (!block.includes(`${prop}:`)) fail(`device ${device} is missing ${prop} in styles/device.css`);
 }
 
+/* ---- the scene-control icons exist in the Font Awesome Foundry ships (when it is installed here) ---- */
+const faCss = 'C:/Program Files/Foundry Virtual Tabletop/resources/app/public/fonts/fontawesome/css/all.min.css';
+if (existsSync(faCss)) {
+	const css = readFileSync(faCss, 'utf8');
+	// aliases share a rule: `.fa-bolt,.fa-zap{--fa:...}`
+	const icons = new Set([...css.matchAll(/(?:\.fa-[a-z0-9-]+,)*\.fa-[a-z0-9-]+\{--fa:/g)]
+		.flatMap((m) => m[0].match(/\.fa-[a-z0-9-]+/g).map((c) => c.slice(4))));
+	const { CONTROL_ICONS, TOOL_ICONS } = await import(new URL('../scripts/interface/controls.mjs', import.meta.url));
+	const classes = [...Object.values(CONTROL_ICONS), ...Object.values(TOOL_ICONS).flatMap(Object.values)];
+	for (const cls of classes) {
+		const name = cls.split(' ').find((c) => c.startsWith('fa-') && !['fa-solid', 'fa-regular', 'fa-light', 'fa-thin', 'fa-duotone', 'fa-sharp'].includes(c))?.slice(3);
+		if (!icons.has(name)) fail(`scripts/interface/controls.mjs: "${cls}" is not in Foundry's Font Awesome`);
+	}
+}
+
 /* ---- report ---- */
 if (problems.length) {
 	console.error(`${problems.length} problem(s):`);

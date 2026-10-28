@@ -55,7 +55,11 @@ const actor = {
 	heritage: { name: 'Alliance Biotic' },
 	class: { name: 'Vanguard' },
 	background: { name: 'Biotic Prodigy' },
-	conditions: [{ id: 'c1', name: 'Quickened', value: null, slug: 'quickened' }],
+	conditions: [
+		{ id: 'c1', name: 'Quickened', value: null, slug: 'quickened' },
+		{ id: 'c2', name: 'Frightened', value: 2, slug: 'frightened' },
+		{ id: 'c3', name: 'Off-Guard', value: null, slug: 'off-guard', isLocked: true },
+	],
 	effects: [],
 	itemTypes: {
 		effect: [{ id: 'e1', name: 'Biotic Barrier', system: { duration: { value: 1, unit: 'minute' } } }],
@@ -99,6 +103,38 @@ actor.inventory = [
 actor.inventory.bulk = { value: '4.6', encumberedAt: 7, max: 12 };
 actor.inventory.coins = { toString: () => '4,820 cr' };
 
+// spellcasting: collections of spells, each with an entry whose sheet data is what PF2e's
+// own getSheetData returns — groups of slots, already worked out
+const spell = (id, name, time, rank) => ({ id, name, rank, system: { time: { value: time }, traits: { value: ['concentrate'] }, description: { value: '' } } });
+const collection = (id, spells, sheet) => Object.assign([...spells], {
+	get: (sid) => spells.find((s) => s.id === sid) ?? null,
+	entry: { id, cast: () => {}, getSheetData: async () => ({ id, ...sheet }) },
+});
+const warp = spell('s1', 'Warp', '2', 1);
+const lift = spell('s2', 'Lift', '2', 2);
+const stasis = spell('s3', 'Stasis', 'reaction', 1);
+const barrier = spell('s4', 'Biotic Barrier', '1', 3);
+const collections = [
+	collection('sc1', [warp, lift, stasis], {
+		name: 'Biotic Spells', sort: 1, tradition: 'occult', isPrepared: false,
+		statistic: { check: { mod: 14 }, dc: { value: 24 } },
+		groups: [
+			{ id: 'cantrips', label: 'Cantrips', active: [{ spell: stasis, castRank: 3 }] },
+			{ id: 1, label: '1st Rank', uses: { value: 2, max: 3 }, active: [{ spell: warp }] },
+			{ id: 2, label: '2nd Rank', uses: { value: 0, max: 2 }, active: [{ spell: lift, expended: true }, { spell: warp, castRank: 2, signature: true, virtual: true, expended: true }] },
+		],
+	}),
+	collection('sc2', [barrier], {
+		name: 'Vanguard Focus', sort: 2, tradition: 'occult', isPrepared: false,
+		statistic: { check: { mod: 14 }, dc: { value: 24 } },
+		groups: [{ id: 3, label: 'Focus Spells', uses: { value: 1, max: 2 }, active: [{ spell: barrier }] }],
+	}),
+];
+actor.spellcasting = Object.assign([...collections.map((c) => c.entry)], {
+	collections: Object.assign([...collections], { get: (id) => collections.find((c) => c.entry.id === id) ?? null }),
+	get: (id) => collections.find((c) => c.entry.id === id)?.entry ?? null,
+});
+
 globalThis.game = {
 	ready: true,
 	system: { id: 'pf2e' },
@@ -121,8 +157,21 @@ globalThis.game = {
 		format: (k, data) => `${k} ${JSON.stringify(data)}`,
 	},
 	modules: { get: () => ({ version: 'harness', active: true }) },
+	// the hide key, as Configure Controls would hold it
+	keybindings: { get: () => [{ key: 'KeyH', modifiers: ['Alt'] }] },
 };
-globalThis.ui = { notifications: { warn: (m) => console.warn('notify:', m), error: (m) => console.error('notify:', m) } };
+// a slice of PF2e's condition list, in its own shape: slug to label key
+globalThis.CONFIG = {
+	PF2E: {
+		conditionTypes: {
+			blinded: 'Blinded', clumsy: 'Clumsy', dazzled: 'Dazzled', doomed: 'Doomed', dying: 'Dying',
+			frightened: 'Frightened', grabbed: 'Grabbed', 'off-guard': 'Off-Guard', prone: 'Prone',
+			quickened: 'Quickened', sickened: 'Sickened', slowed: 'Slowed', stunned: 'Stunned',
+			wounded: 'Wounded', 'persistent-damage': 'Persistent Damage',
+		},
+	},
+};
+globalThis.ui = { notifications: { info: (m) => console.info('notify:', m), warn: (m) => console.warn('notify:', m), error: (m) => console.error('notify:', m) } };
 globalThis.Hooks = {
 	on(name, fn) { (hooks[name] ??= []).push(fn); },
 	once(name, fn) { this.on(name, fn); },
@@ -152,6 +201,10 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	DeviceChrome.playSequence('off');
 	Projection.playSequence('off');
 	setTimeout(() => Projection.close(), SEQ.off);
+});
+
+Hooks.on('sfhHidden', (hidden) => {
+	if (!hidden) Projection.scheduleFit();
 });
 
 registerSettings(() => {

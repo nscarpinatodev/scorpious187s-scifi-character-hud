@@ -9,7 +9,6 @@ right-click for maximum and temporary. The same treatment is wanted for everythi
 changes during play. Anything that changes at level-up or character creation stays on the
 system's own sheet, which the book button opens.
 
-- [ ] **Conditions** — add from a picker, and raise or lower valued ones, on both systems.
 - [ ] **Spell slots (5e)** — spend and regain from the Spells tab.
 - [ ] **Currency** — editable in the Inventory tab.
 - [ ] **Experience and level** — typed, like hit points.
@@ -20,7 +19,10 @@ system's own sheet, which the book button opens.
 
 ## Next
 
-- [ ] **Remaining tab bodies** — PF2e crafting and spellcasting, 5e bastion and special traits.
+- [ ] **Remaining tab bodies** — PF2e crafting, 5e bastion and special traits.
+- [ ] **What the mock-up has that the build does not** — the Actions tab's encounter /
+      exploration / downtime filter; the damage formula on each strike's Damage button
+      ("Damage 3d8+6"); the dossier's shield controls (−5, regen), credits and omni-gel.
 - [ ] **Translatable strings** — every label in `projection/panels.mjs` and the adapters is
       written in English in the markup. Move them to `lang/en.json`; `tools/check.mjs` will
       then hold them to it.
@@ -50,10 +52,8 @@ the palette gets the colours right, not the shape.
 
 ## After that
 
-- [ ] **Hide everything** — a rebindable key that clears the HUD off small monitors, with an
-      obvious way back.
 - [ ] **Compact layout** — the projection's panels rearranged below a width threshold.
 - [ ] **Per-character device** — a character can carry its own device choice in an actor
       flag, overriding the player's.
-- [ ] **Scene controls and scene bar shapes** — currently only recoloured; the mock-up's cut
-      corners and station look are not applied.
+- [ ] **Scene controls and scene bar shapes** — recoloured, and the controls have sci-fi
+      icons; the mock-up's cut corners and station look are not applied.

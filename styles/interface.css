@@ -51,7 +51,8 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #tooltip, #c
  * themed edge and the device's glow are what make it read as one machine.
  */
 
-body[data-sfh-device] :is(#sidebar, #players, #scene-controls .control-tools, #camera-views) {
+/* not the sidebar: it is unframed */
+body[data-sfh-device] :is(#players, #scene-controls .control-tools, #camera-views) {
 	border: 1px solid var(--sfh-line);
 	box-shadow: 0 0 18px rgb(0 0 0 / 45%), inset 0 0 22px rgb(var(--sfh-bg-rgb) / 60%);
 }

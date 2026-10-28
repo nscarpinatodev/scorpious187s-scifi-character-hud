@@ -25,6 +25,13 @@
 	"SFH.NoCharacter": "No character to project. Assign one to yourself in the player list, or open the sheet you want and try again.",
 	"SFH.NoAdapter": "The Sci-Fi HUD has no adapter for the {system} system yet, so there is nothing to project.",
 	"SFH.ActionFailed": "The \"{action}\" action failed. See the console for details.",
-	"SFH.Settings.ProjScale": "Projection size",
-	"SFH.Settings.ProjScaleHint": "How much of the free space the projected sheet takes, as a percentage. Lower it to keep more of the battle map visible."
+	"SFH.Keybind.Hide": "Hide / show the HUD",
+	"SFH.Keybind.HideHint": "Clears the device and the projection off the screen without switching them off, so the projection comes back on the same tab. The macro bar stays.",
+	"SFH.Hide.Restore": "Bring the HUD back",
+	"SFH.Hide.Notice": "The HUD is hidden. Press {key}, or the eye on the macro bar, to bring it back.",
+	"SFH.Hide.NoticeUnbound": "The HUD is hidden. Press the eye on the macro bar to bring it back.",
+	"SFH.Settings.ControlIcons": "Sci-fi control icons",
+	"SFH.Settings.ControlIconsHint": "Gives the scene controls on the left of the screen sci-fi icons — an astronaut for tokens, a radar for measuring, a datapad for notes. Turn it off to keep Foundry's own.",
+	"SFH.Settings.ProjScale": "Wrist computer and EVA projection size",
+	"SFH.Settings.ProjScaleHint": "How much of the free space the Wrist Computer and EVA projections take, as a percentage. Lower it to keep more of the map in view. The Mass Effect omni-tool is not affected: its projection always matches the width of its arm, which follows Macro key size."
 }

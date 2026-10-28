@@ -58,8 +58,21 @@ export function read(actor) {
 			value: null,
 			slug: [...(e.statuses ?? [])][0] ?? e.name,
 		})),
+		conditionChoices: conditionChoices(actor),
 		tabs: TABS,
 	};
+}
+
+/**
+ * What the "+ Add condition" picker offers: the list 5e's own sheet shows, without its
+ * pseudo-conditions, without exhaustion (the vitals panel counts it), and without anything
+ * already on.
+ */
+function conditionChoices(actor) {
+	return Object.entries(CONFIG.DND5E?.conditionTypes ?? {})
+		.filter(([id, c]) => !c.pseudo && id !== 'exhaustion' && !actor.statuses?.has(id))
+		.map(([id, c]) => ({ id, label: game.i18n.localize(c.name) }))
+		.sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang));
 }
 
 function defenses(actor) {
@@ -198,6 +211,7 @@ export async function act(actor, action, key, event) {
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'toggleEffect': return toggleEffect(actor, key);
 		case 'deleteEffect': return actor.effects.get(key)?.delete();
+		case 'addCondition': return actor.toggleStatusEffect?.(key, { active: true });
 		case 'heal': return applyDamage(actor, -Math.abs(Number(key)));
 		case 'damage': return applyDamage(actor, Math.abs(Number(key)));
 		case 'setHp': return setHp(actor, Number(key));

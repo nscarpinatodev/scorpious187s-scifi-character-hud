@@ -11,11 +11,19 @@ device, and the character sheet is a projection it raises over the canvas.
   built to the approved mock-up for each device and scaled to the room the interface leaves.
 - PF2e, SF2e and D&D 5e, through adapters that hand every button to the system's own API.
 - Hit points typed in place, with Heal, Damage, and right-click for maximum and temporary.
+- A condition picker in the effects panel, from the system's own list, and − / + on PF2e's
+  valued conditions.
+- A Spells tab for PF2e and SF2e, built from the system's own spellcasting sheet data, that
+  casts through the system.
+- A hide key (Alt+H) that clears the HUD off the screen without closing anything, with a
+  restore key on the macro bar.
 - The interface — sidebar, chat, scene bar, controls, player list — in the device's colours.
 - The omni-tool's beam between the band and the projection.
+- Sci-fi icons on the scene controls, from the Font Awesome Pro set Foundry ships, with a
+  setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
-- Settings: world and personal device, power sequences, macro key size, projection size,
+- Settings: world and personal device, power sequences, macro key size, wrist computer and EVA projection size,
   etched grid.
 
 ## 0.1.0 — not released

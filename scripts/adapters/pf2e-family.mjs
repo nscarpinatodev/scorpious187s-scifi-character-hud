@@ -1,4 +1,5 @@
 import { esc, sgn, lbl, bar, rollBtn, actBtn, nameBtn, ro, COST_GLYPH } from '../projection/helpers.mjs';
+import { ME_MODULE } from '../constants.mjs';
 
 /**
  * Starfinder 2e and Pathfinder 2e.
@@ -17,6 +18,7 @@ export const TABS = [
 	{ id: 'character', label: 'Character' },
 	{ id: 'actions', label: 'Actions' },
 	{ id: 'inventory', label: 'Inventory' },
+	{ id: 'spellcasting', label: 'Spells' },
 	{ id: 'feats', label: 'Feats' },
 	{ id: 'skills', label: 'Skills' },
 	{ id: 'effects', label: 'Effects' },
@@ -63,9 +65,28 @@ export function read(actor) {
 			name: c.name,
 			value: c.value ?? null,
 			slug: c.slug,
+			// granted by something else, so only that something can take it away
+			locked: !!c.isLocked,
 		})),
+		conditionChoices: conditionChoices(actor),
 		tabs: TABS,
 	};
+}
+
+/** The vitals panel owns these; the picker leaves them to it. */
+const VITAL_CONDITIONS = ['dying', 'wounded', 'doomed'];
+
+/**
+ * What the "+ Add condition" picker offers: the system's own list (SF2e keeps it under
+ * CONFIG.PF2E too), less anything already on. A valued condition that is on is raised from
+ * its chip instead. Persistent damage stays, since a character can carry several.
+ */
+function conditionChoices(actor) {
+	const on = new Set([...(actor.conditions ?? [])].map((c) => c.slug));
+	return Object.entries(CONFIG.PF2E?.conditionTypes ?? {})
+		.filter(([slug]) => !VITAL_CONDITIONS.includes(slug) && (!on.has(slug) || slug === 'persistent-damage'))
+		.map(([slug, label]) => ({ id: slug, label: game.i18n.localize(label) }))
+		.sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang));
 }
 
 function defenses(actor) {
@@ -100,6 +121,7 @@ export function tabBody(actor, tab) {
 		case 'character': return character(actor);
 		case 'actions': return actions(actor);
 		case 'inventory': return inventory(actor);
+		case 'spellcasting': return spellcasting(actor);
 		case 'feats': return feats(actor);
 		case 'skills': return skills(actor);
 		case 'effects': return effects(actor);
@@ -181,6 +203,63 @@ function inventory(actor) {
 	return `${head}<div class="row sp">${lbl('Currency')}<span class="big" style="font-size:20px">${esc(actor.inventory?.coins?.toString?.() ?? '')}</span></div>${rows}`;
 }
 
+/**
+ * Spells, as the system's own sheet lays them out: each spellcasting entry's sheet data,
+ * which already knows prepared slots, signature spells, focus points and innate uses. That
+ * data is only available asynchronously, so this tab body is a promise; the projection
+ * fills it in when it resolves.
+ */
+async function spellcasting(actor) {
+	const collections = Array.from(actor.spellcasting?.collections ?? []);
+	if (!collections.length) {
+		const me = game.modules.get(ME_MODULE)?.active;
+		return `<div class="empty"><div class="lbl" style="margin-bottom:6px">No spellcasting entries</div>${me
+			? 'Mass Effect biotic and tech powers are feats with actions, so they appear in the Actions and Feats tabs.'
+			: 'This character has no spellcasting.'}<div style="margin-top:12px">${actBtn('Open the system sheet', 'sheet', '', { cls: 'sm ghost' })}</div></div>`;
+	}
+	const entries = await Promise.all(collections.map((c) => c.entry.getSheetData({ spells: c })));
+	return entries.sort((a, b) => a.sort - b.sort).map(spellEntry).join('');
+}
+
+const SPELL_COST = { 1: '1', 2: '2', 3: '3', reaction: 'R', free: 'F' };
+
+function spellEntry(entry) {
+	const stat = entry.statistic ?? {};
+	const tradition = entry.tradition ? game.i18n.localize(CONFIG.PF2E?.magicTraditions?.[entry.tradition] ?? entry.tradition) : '';
+	const kv = (k, v) => `<div class="kv">${lbl(k)}<b class="mono">${v}</b></div>`;
+	const head = `<div class="sec">${esc(entry.name)}</div>
+		<div class="row" style="gap:10px;flex-wrap:wrap">
+			${tradition ? `<div class="kv">${lbl('Tradition')}<b>${esc(tradition)}</b></div>` : ''}
+			${stat.check ? `<div class="kv">${lbl('Spell attack')}${rollBtn(sgn(stat.check.mod ?? 0), 'spellAttack', entry.id)}</div>` : ''}
+			${stat.dc ? kv('Save DC', stat.dc.value ?? '—') : ''}
+		</div>`;
+
+	const groups = (entry.groups ?? []).map((group) => {
+		const uses = group.uses?.max && group.uses.value != null
+			? `<span class="mono dimc" style="font-size:12px">${group.uses.value} / ${group.uses.max}</span>` : '';
+		// a prepared entry casts from a particular slot, so the slot's index is kept
+		const rows = (group.active ?? []).map((slot, index) => slot && spellRow(entry, slot, entry.isPrepared ? index : '')).join('');
+		if (!rows) return '';
+		return `<div class="row sp" style="margin-top:6px">${lbl(game.i18n.localize(group.label ?? ''))}${uses}</div>${rows}`;
+	}).join('');
+
+	return head + (groups || '<p class="dimc">No spells.</p>');
+}
+
+function spellRow(entry, slot, slotId) {
+	const spell = slot.spell;
+	const rank = slot.castRank ?? spell.rank;
+	const cost = SPELL_COST[spell.system?.time?.value];
+	const uses = slot.uses?.max ? `<span class="mono dimc">${slot.uses.value ?? 0}/${slot.uses.max}</span>` : '';
+	const cast = slot.expended
+		? '<span class="mono dimc" style="font-size:12px">Expended</span>'
+		: actBtn('Cast', 'cast', `${entry.id}:${spell.id}:${rank}:${slotId}`, { cls: 'sm ghost' });
+	return `<div class="li"${slot.expended ? ' style="opacity:.55"' : ''}>
+		<span class="cost">${cost ? COST_GLYPH[cost] : ''}</span>
+		<span class="grow">${nameBtn(spell.name, `item:${spell.id}`)}</span>
+		${slot.signature ? '<span class="chip">Signature</span>' : ''}${uses}${cast}</div>`;
+}
+
 function feats(actor) {
 	const groups = [['Class', 'class'], ['Ancestry', 'ancestry'], ['General', 'general'], ['Skill', 'skill'], ['Bonus', 'bonus']];
 	return groups.map(([label, category]) => {
@@ -246,10 +325,14 @@ export async function act(actor, action, key, event) {
 		case 'strikeDamage': return actor.system?.actions?.[Number(a)]?.damage?.({ event });
 		case 'critical': return actor.system?.actions?.[Number(a)]?.critical?.({ event });
 		case 'use': return actor.items.get(key)?.toMessage?.(event);
+		case 'cast': return castSpell(actor, key);
+		case 'spellAttack': return actor.spellcasting?.get(key)?.statistic?.check?.roll({ event });
 		case 'equip': return toggleEquip(actor, key);
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'delete': return actor.items.get(key)?.delete();
 		case 'cond': return setCondition(actor, a, Number(b));
+		// persistent damage opens the system's own dialog for the damage type and formula
+		case 'addCondition': return actor.increaseCondition?.(key);
 		case 'heal': return heal(actor, Number(key));
 		case 'damage': return damage(actor, Number(key));
 		case 'setHp': return setHp(actor, Number(key));
@@ -270,6 +353,23 @@ async function rollAbility(actor, key) {
 	const mod = actor.abilities?.[key]?.mod ?? 0;
 	const roll = await new Roll(`1d20 + ${mod}`).evaluate();
 	return roll.toMessage({ flavor: `${key.toUpperCase()} check`, speaker: ChatMessage.getSpeaker({ actor }) });
+}
+
+/**
+ * Casting, as the system's sheet does it: a spell held in an item (a wand, a scroll) spends
+ * that item, and anything else is cast through its entry, which spends the slot, focus point
+ * or use and refuses if there is none left.
+ */
+async function castSpell(actor, key) {
+	const [entryId, spellId, rank, slotId] = String(key).split(':');
+	const collection = actor.spellcasting?.collections?.get(entryId);
+	const spell = collection?.get(spellId);
+	const castRank = Number(rank);
+	if (!spell || !Number.isInteger(castRank) || castRank < 1 || castRank > 10) return;
+	return spell.parentItem?.consume() ?? collection.entry.cast(spell, {
+		rank: castRank,
+		slotId: slotId === '' ? undefined : Number(slotId),
+	});
 }
 
 async function toggleEquip(actor, id) {
@@ -295,8 +395,12 @@ async function setCondition(actor, slug, value) {
 async function setConditionValue(actor, slug, value) {
 	if (!slug || !Number.isFinite(value)) return;
 	if (value <= 0) return actor.decreaseCondition?.(slug, { forceRemove: true });
-	const existing = actor.itemTypes?.condition?.find((c) => c.slug === slug);
+	// the system changes a value through its condition manager, which keeps the rest in step
+	const existing = actor.itemTypes?.condition?.find((c) => c.slug === slug && !c.isLocked);
+	const manager = game.pf2e?.ConditionManager;
+	if (existing && manager) return manager.updateConditionValue(existing.id, actor, value);
 	if (existing) return existing.update({ 'system.value.value': value });
+	// a new condition starts at the value asked for
 	return actor.increaseCondition?.(slug, { value });
 }
 

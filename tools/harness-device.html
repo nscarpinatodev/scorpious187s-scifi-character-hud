@@ -26,15 +26,22 @@
 	/* the regions Foundry lays out around the canvas, close enough to measure against */
 	#ui-left { position: absolute; left: 0; width: 50%; display: flex; align-items: flex-start;
 		padding: 16px; gap: 16px; pointer-events: none; height: 100%; }
-	#ui-left-column-1 { flex: none; width: 72px; display: flex; flex-direction: column; gap: 16px; }
+	/* the controls fill the column, so the player list sits at the foot of the screen */
+	#ui-left-column-1 { flex: none; width: 72px; display: flex; flex-direction: column; gap: 16px; align-self: stretch; }
+	#ui-left-column-1 > #scene-controls { flex: 1; align-items: flex-start; }
+	/* as in Foundry 14: column 2 fills the rest of #ui-left, and the scene navigation fills it */
+	#ui-left-column-2 { flex: 1; align-self: stretch; display: flex; flex-direction: column; }
 	#ui-right { position: absolute; inset: 0 0 0 auto; display: flex; align-items: flex-start; gap: 16px;
 		padding: 16px 16px 14px; pointer-events: none; }
-	#scene-controls { display: flex; gap: 6px; pointer-events: all; }
+	/* Foundry turns pointer events off on the containers and back on for the panels */
+	#scene-controls { display: flex; gap: 6px; pointer-events: none; }
+	#scene-controls .control-layers, #scene-controls .control-tools { pointer-events: all; }
 	#scene-controls .control-layers, #scene-controls .control-tools { display: flex; flex-direction: column; gap: 5px;
 		padding: 5px; background: var(--color-cool-5-90, #0b0a13); }
 	#scene-controls .control { width: 32px; height: 32px; display: grid; place-items: center;
 		border: 1px solid var(--color-cool-4, #302831); color: var(--color-light-2, #efe6d8); cursor: pointer; font-size: 13px; }
-	#scene-navigation { display: flex; flex-direction: column; gap: 4px; pointer-events: all; }
+	#scene-navigation { flex: 1; display: flex; flex-direction: column; gap: 4px; padding-right: 30px; pointer-events: none; }
+	#scene-navigation .scene { pointer-events: all; max-width: 20vw; }
 	.scene-navigation-menu { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
 	#scene-navigation .scene { padding: 4px 10px; background: var(--color-cool-5-90, #0b0a13);
 		border: 1px solid var(--color-cool-4, #302831); color: var(--color-light-2, #efe6d8); font-size: 13px; cursor: pointer; }
@@ -91,13 +98,6 @@
 					<button type="button" class="control">◯</button>
 				</div>
 			</div>
-			<nav id="scene-navigation">
-				<menu id="scene-navigation-viewed" class="scene-navigation-menu">
-					<li class="ui-control scene view">Cargo Bay 4</li>
-					<li class="ui-control scene">Omega Markets</li>
-					<li class="ui-control scene">Liveship Deck</li>
-				</menu>
-			</nav>
 			<div id="players">
 				<ol class="players-list">
 					<li class="player"><span class="player-name">Gamemaster</span></li>
@@ -105,6 +105,15 @@
 					<li class="player"><span class="player-name">Sam</span></li>
 				</ol>
 			</div>
+		</div>
+		<div id="ui-left-column-2">
+			<nav id="scene-navigation">
+				<menu id="scene-navigation-viewed" class="scene-navigation-menu">
+					<li class="ui-control scene view">Cargo Bay 4</li>
+					<li class="ui-control scene">Omega Markets</li>
+					<li class="ui-control scene">Liveship Deck</li>
+				</menu>
+			</nav>
 		</div>
 	</div>
 

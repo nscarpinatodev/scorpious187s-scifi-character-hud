@@ -111,18 +111,35 @@ export function renderDefenses(c, device) {
 /* -------------------------------------------- */
 
 export function renderEffectsSlot(c) {
-	// `key` is what the readout describes; `act` and `k` are what the × asks the adapter to do
-	const chip = (name, extra, key, act, k) => `<span class="chip" ${ro(key)}>${esc(name)}${extra}
-		<button type="button" data-act="${act}" data-k="${esc(k)}" aria-label="Remove ${esc(name)}">×</button></span>`;
+	// `key` is what the readout describes; `remove` is the [act, k] the × sends, if it has one
+	const chip = (name, inner, key, remove) => `<span class="chip" ${ro(key)}>${esc(name)}${inner}${remove
+		? `<button type="button" data-act="${remove[0]}" data-k="${esc(remove[1])}" aria-label="Remove ${esc(name)}">×</button>`
+		: ''}</span>`;
+	const step = (x, delta, label) =>
+		`<button type="button" data-act="cond" data-k="${esc(`${x.slug}:${delta}`)}" aria-label="${label} ${esc(x.name)}">${delta < 0 ? '−' : '+'}</button>`;
 	const dnd = c.system === 'dnd5e';
+
 	const effects = c.effects.map((e) => chip(e.name, e.duration ? ` · ${esc(e.duration)}` : '', `item:${e.id}`,
-		dnd ? 'deleteEffect' : 'delete', e.id)).join('');
-	// PF2e removes a condition by its slug, through the system's own decreaseCondition
-	const conditions = c.conditions.map((x) => chip(x.name, x.value != null ? ` ${x.value}` : '', `item:${x.id}`,
-		dnd ? 'deleteEffect' : 'cond', dnd ? x.id : `${x.slug}:0`)).join('');
+		[dnd ? 'deleteEffect' : 'delete', e.id])).join('');
+
+	// PF2e raises, lowers and removes a condition by its slug, through the system's own calls.
+	// A locked one was granted by something else, so it shows its value and nothing more.
+	const conditions = c.conditions.map((x) => {
+		const valued = x.value != null;
+		const inner = valued && !dnd && !x.locked ? ` ${step(x, -1, 'Lower')}${x.value}${step(x, 1, 'Raise')}` : valued ? ` ${x.value}` : '';
+		const remove = x.locked ? null : dnd ? ['deleteEffect', x.id] : ['cond', `${x.slug}:0`];
+		return chip(x.name, inner, `item:${x.id}`, remove);
+	}).join('');
+
 	const empty = !effects && !conditions ? '<span class="dimc" style="font-size:13px">No active effects.</span>' : '';
+	const choices = c.conditionChoices ?? [];
+	const picker = choices.length
+		? `<select class="sel" data-pick="condition" aria-label="Add a condition"><option value="">+ Add condition…</option>${
+			choices.map((o) => `<option value="${esc(o.id)}">${esc(o.label)}</option>`).join('')}</select>`
+		: '';
 	return `<div class="row sp">${lbl('Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
-		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>`;
+		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>
+		${picker}`;
 }
 
 /* -------------------------------------------- */
@@ -176,6 +193,7 @@ const ICON = {
 	actions: 'M12 3l9 9-9 9-9-9z',
 	inventory: 'M6 7h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2zM9 7V4h6v3M4 13h16',
 	spells: 'M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3',
+	spellcasting: 'M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3',
 	skills: 'M5 20V11M12 20V4M19 20v-7',
 	feats: 'M7 14a5 5 0 1 0 10 0a5 5 0 1 0-10 0M8 3l4 6 4-6',
 	features: 'M7 14a5 5 0 1 0 10 0a5 5 0 1 0-10 0M8 3l4 6 4-6',
@@ -207,11 +225,13 @@ export function renderNav(c, device, L, current) {
 
 	if (device === 'wrist') {
 		const half = Math.ceil(tabs.length / 2);
+		// the first button is level with the top of the main panel, not tucked under the top row
+		const top = L.nav[1];
 		// 52px buttons on a 76px pitch: the label under one clears the next
-		const buttons = tabs.map((tab, i) => btn(tab, `left:${i < half ? 66 : 1170}px;top:${212 + (i < half ? i : i - half) * 76}px`)).join('');
+		const buttons = tabs.map((tab, i) => btn(tab, `left:${i < half ? 66 : 1170}px;top:${top + (i < half ? i : i - half) * 76}px`)).join('');
 		const ci = Math.max(0, tabs.findIndex((t) => t.id === current));
 		const label = tabs[ci]?.label ?? '';
-		return buttons + `<div class="mono" style="position:absolute;left:${ci < half ? 52 : 1156}px;top:${212 + (ci < half ? ci : ci - half) * 76 + 54}px;width:72px;text-align:center;font-size:14px;line-height:1;color:var(--hot)">${esc(label.toUpperCase())}</div>`;
+		return buttons + `<div class="mono" style="position:absolute;left:${ci < half ? 52 : 1156}px;top:${top + (ci < half ? ci : ci - half) * 76 + 54}px;width:72px;text-align:center;font-size:14px;line-height:1;color:var(--hot)">${esc(label.toUpperCase())}</div>`;
 	}
 
 	const N = L.nav;

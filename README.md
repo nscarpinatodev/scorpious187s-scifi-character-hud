@@ -55,8 +55,11 @@ one character and have none assigned, it shows that one.
     damage application where it has one.
   - **Rolls** — skills, saves, perception, initiative, strikes and damage — are the
     system's own.
-  - **Conditions and effects** can be removed from the projection; PF2e's valued conditions
-    can be raised and lowered.
+  - **Conditions** are added from the effects panel's picker — the system's own list — and
+    removed from their chips. PF2e's valued conditions are raised and lowered on the chip.
+  - **Spells** are cast from the Spells tab through the system, which spends the slot, focus
+    point or use. PF2e's prepared, spontaneous, focus and innate entries all show as the
+    system's own sheet lays them out.
   - **The book button** opens the system's own sheet, for anything that changes at level-up.
 - **A readout panel** describing whatever you point at, and pinning it when you click.
 - **A Mass Effect dossier**, when the
@@ -64,7 +67,8 @@ one character and have none assigned, it shows that one.
   the shield automation module is active: shields and the Paragon/Renegade tracks. It reads
   those modules' data and never edits it.
 - **The whole interface in the device's colours** — sidebar, chat, scene bar, controls and
-  player list. Sheets and dialogs keep their own look.
+  player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
+  icons; each control still does exactly what it did.
 - **Power sequences.** The omni-tool's panels rise out of the band, the wrist computer's
   case swings up from its base, and the EVA's picture opens out of a scan line.
 
@@ -72,7 +76,14 @@ one character and have none assigned, it shows that one.
 
 | PF2e / SF2e | D&D 5e |
 |---|---|
-| Character, Actions, Inventory, Feats, Skills, Effects, Biography | Details, Inventory, Features, Spells, Effects, Biography |
+| Character, Actions, Inventory, Spells, Feats, Skills, Effects, Biography | Details, Inventory, Features, Spells, Effects, Biography |
+
+## Small screens
+
+**Alt+H** (rebindable in *Configure Controls*) hides the device and the projection without
+switching anything off, and brings them back on the same tab and scroll position. The macro
+bar stays, with an eye key on it that also brings the HUD back. Raising the projection
+un-hides it too, so a hidden HUD is never a lost one.
 
 ## Settings
 
@@ -81,9 +92,10 @@ one character and have none assigned, it shows that one.
 | Default device | world | The device players get before they choose one. |
 | My device | client | The device you wear. |
 | Power sequences | client | Play the rise/fold/scan animations. |
-| Macro key size | client | Size of the macro bar keys. The omni-tool's arm follows it. |
-| Projection size | client | How much of the free space the projection takes. |
+| Macro key size | client | Size of the macro bar keys. The omni-tool's arm follows it, and its projection follows the arm. |
+| Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's is not affected. |
 | Etched grid | client | The hex etching on the omni-tool projection. |
+| Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
 
 ## For macro writers
 
@@ -91,6 +103,7 @@ one character and have none assigned, it shows that one.
 const hud = game.modules.get('scorpious187s-scifi-character-hud').api;
 hud.toggle();          // raise or lower the projection
 hud.setPower(true);    // raise it
+hud.hide();            // hide the HUD; hud.hide(false) brings it back
 hud.debug();           // log what is mounted and where
 ```
 

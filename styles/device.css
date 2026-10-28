@@ -235,6 +235,36 @@ body[data-sfh-device="nod"] {
 	box-shadow: 0 0 18px var(--sfh-glow);
 }
 
+/* ---------------------------------------------------------------- hidden */
+/*
+ * Hidden: the device's art, the projection and the beam go; nothing is closed, so they
+ * come back as they were. Foundry's macro bar stays, docked as it is on a device without
+ * art, and the restore key on it is the way back.
+ */
+
+body[data-sfh-hidden="on"] :is(#sfh-device svg.sfh-art, #sfh-projection, #sfh-beam, #sfh-power) {
+	display: none !important;
+}
+
+/* fit() sizes the layer to the art in an inline style, which has to give way */
+body[data-sfh-hidden="on"] #sfh-device {
+	width: max-content !important;
+}
+
+body[data-sfh-hidden="on"] #sfh-device #sfh-deck {
+	position: static;
+	transform: none;
+	margin-bottom: 16px;
+}
+
+#sfh-restore {
+	display: none;
+}
+
+body[data-sfh-hidden="on"] #sfh-restore {
+	display: grid;
+}
+
 /* ---------------------------------------------------------------- sequences */
 /*
  * The device's own part of the power sequence. The projection's half lives in

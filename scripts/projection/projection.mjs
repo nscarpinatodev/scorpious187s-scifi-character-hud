@@ -24,6 +24,9 @@ export class Projection {
 	static #preview = null;
 	static #bound = false;
 	static #fitPending = false;
+	static #renders = 0;
+	/** What the last fit() measured and decided. */
+	static lastFit = null;
 
 	static get isOpen() {
 		return this.#open;
@@ -67,10 +70,29 @@ export class Projection {
 			return kids.length ? Math.max(...kids.map(pick)) : null;
 		};
 
-		const left = spread('ui-left', (r) => r.right);
-		const leftEdge = left === null ? gap : left + gap;
+		/*
+		 * What is actually on screen down each side. Foundry's region boxes are mostly air:
+		 * #ui-left is half the window wide and its scene navigation stretches to fill it, though
+		 * the scene buttons take only the top of it. Foundry turns pointer events off on those
+		 * containers and back on for the panels in them, so the panels are what the projection
+		 * keeps clear of — and only the ones beside it, not a scene list high above it.
+		 */
+		const panels = (root) => {
+			const out = [];
+			const walk = (node) => {
+				for (const child of node.children) {
+					const r = rect(child);
+					if (!shown(r)) continue;
+					if (getComputedStyle(child).pointerEvents !== 'none') out.push({ r, id: child.id || child.className });
+					else walk(child);
+				}
+			};
+			if (root) walk(root);
+			return out;
+		};
+		const leftPanels = panels(document.getElementById('ui-left'));
 		const sidebar = rect(document.getElementById('sidebar'));
-		const rightEdge = shown(sidebar) ? innerWidth - sidebar.left + gap : gap;
+		const rightPanels = shown(sidebar) ? [{ r: sidebar, id: 'sidebar' }] : [];
 		const top = spread('ui-top', (r) => r.bottom);
 		const topEdge = top === null ? gap : top + gap;
 		const art = document.querySelector(`#${EL.device} svg.sfh-art`);
@@ -90,21 +112,64 @@ export class Projection {
 		 * the wider side.
 		 */
 		const centre = shown(foot) ? foot.left + foot.width / 2 : innerWidth / 2;
-		const width = Math.max(480, Math.min(centre - leftEdge, innerWidth - rightEdge - centre) * 2);
 		const height = Math.max(320, innerHeight - topEdge - bottomEdge);
 		const deviceId = currentDevice();
 		const board = BOARD[deviceId] ?? BOARD.omni;
-		const room = Math.min(width / board.w, height / board.h);
+		const L = layout(deviceId, true);
+		const standsAt = innerHeight - bottomEdge;
+
+		/*
+		 * The room beside a board of a given height: it stands on the device, so it spans from
+		 * there up by its height, and only panels in that band are in its way. The taller the
+		 * board, the more it can meet, so the largest scale that clears is found by halving.
+		 */
+		const clearance = (boardHeight) => {
+			const beside = ({ r }) => r.bottom > standsAt - boardHeight && r.top < standsAt;
+			const leftBy = leftPanels.filter(beside).sort((a, b) => b.r.right - a.r.right)[0];
+			const rightBy = rightPanels.filter(beside).sort((a, b) => a.r.left - b.r.left)[0];
+			const leftEdge = leftBy ? leftBy.r.right + gap : gap;
+			const rightEdge = rightBy ? rightBy.r.left - gap : innerWidth - gap;
+			return { width: Math.max(0, Math.min(centre - leftEdge, rightEdge - centre) * 2), leftEdge, rightEdge, leftBy, rightBy };
+		};
+		const fits = (s) => clearance(s * board.h).width >= s * board.w;
+		let lo = 0.2;
+		let hi = height / board.h;
+		if (fits(hi)) lo = hi;
+		else for (let i = 0; i < 16; i++) {
+			const mid = (lo + hi) / 2;
+			if (fits(mid)) lo = mid;
+			else hi = mid;
+		}
+		const room = lo;
 
 		/*
 		 * With a device at the foot of the screen the projection is tied to it: the main panel
-		 * comes out no wider than the plate below, so the two read as one machine. The size
-		 * setting then scales every device alike — the board's text is drawn small, so anything
-		 * much under the full room stops being readable.
+		 * comes out exactly as wide as the plate below, so the two read as one machine. Without
+		 * one there is nothing to match, and the size setting decides how much of the free room
+		 * it takes — 55% by default, so it sits above the device instead of swallowing the map.
 		 */
-		const L = layout(deviceId, true);
-		const fill = art ? Math.min(room, (art.getBoundingClientRect().width || board.w) / L.projection[2]) : room;
-		const scale = fill * Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 100) / 100));
+		const fitsArm = art ? (art.getBoundingClientRect().width || board.w) / L.projection[2] : null;
+		const share = Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
+		const scale = art ? Math.min(room, fitsArm) : room * share;
+		const clear = clearance(scale * board.h);
+		// the layer is as wide as what it draws, so it never reaches over the furniture beside it
+		const width = scale * board.w;
+
+		// what decided the size, for debug(): measured in Foundry, not assumed
+		this.lastFit = {
+			viewport: [innerWidth, innerHeight],
+			standsAt: Math.round(standsAt),
+			room: { scale: +room.toFixed(3), height: Math.round(height), byHeight: +(height / board.h).toFixed(3) },
+			fitsArm: fitsArm && +fitsArm.toFixed(3),
+			share: art ? 'not used (omni-tool follows the arm)' : share,
+			scale: +scale.toFixed(3),
+			limitedBy: art && scale >= fitsArm - 0.001 ? 'arm'
+				: !art && share < 1 ? 'size setting'
+				: room >= height / board.h - 0.001 ? 'height'
+				: `width: ${clear.leftBy?.id ?? 'window'} on the left, ${clear.rightBy?.id ?? 'window'} on the right`,
+			clear: { left: Math.round(clear.leftEdge), right: Math.round(clear.rightEdge) },
+			panels: { left: leftPanels.map((p) => `${p.id} ${Math.round(p.r.left)}–${Math.round(p.r.right)} × ${Math.round(p.r.top)}–${Math.round(p.r.bottom)}`) },
+		};
 
 		el.style.setProperty('--sfh-proj-left', `${Math.round(centre)}px`);
 		el.style.setProperty('--sfh-proj-width', `${Math.round(width)}px`);
@@ -231,7 +296,13 @@ export class Projection {
 		if (!el || !actor || !adapter) return;
 
 		const c = adapter.read(actor);
-		c.extras = readDossier(actor);
+		// the dossier is other modules' data: if reading it fails, lose the panel, not the projection
+		try {
+			c.extras = readDossier(actor);
+		} catch (err) {
+			console.warn(`${MOD} | the Mass Effect dossier could not be read, so it is not shown`, err);
+			c.extras = null;
+		}
 		const device = currentDevice();
 		const extras = !!c.extras;
 		const L = layout(device, extras);
@@ -257,9 +328,21 @@ export class Projection {
 		};
 
 		const tab = c.tabs.find((t) => t.id === this.#tab);
+		const key = `${actor.id}:${tab.id}`;
+		/*
+		 * A tab body is markup, or a promise of it when the system only gives its data
+		 * asynchronously. While one is pending the tab keeps what it showed last, so an update
+		 * to the actor does not blank it.
+		 */
+		const body = adapter.tabBody(actor, tab.id);
+		const pending = typeof body?.then === 'function';
+		const holding = pending
+			? (scrolled?.key === key ? previous.innerHTML : '<p class="dimc">Reading…</p>')
+			: body;
+		const token = ++this.#renders;
 		const projection = `<section class="slot pnl proj" data-slot="projection" style="${pos(L.projection)}" aria-label="${esc(tab.label)}">
 			<div class="proj-h"><span class="proj-t">${esc(tab.label)}</span><span class="src">${esc(game.system.id)} · ${esc(tab.id)}</span></div>
-			<div class="proj-b scroll" data-key="${esc(`${actor.id}:${tab.id}`)}">${adapter.tabBody(actor, tab.id)}</div>
+			<div class="proj-b scroll" data-key="${esc(key)}">${holding}</div>
 			<div class="scanfx"></div></section>`;
 
 		// the wrist unit's panels sit inside its case rather than flush to the board edge
@@ -283,10 +366,24 @@ export class Projection {
 		</div>`;
 
 		this.#stagger(stage);
-		if (scrolled) {
+		const restore = () => {
 			const next = stage.querySelector('.proj-b');
-			if (next && next.dataset.key === scrolled.key) next.scrollTop = scrolled.top;
-		}
+			if (scrolled && next && next.dataset.key === scrolled.key) next.scrollTop = scrolled.top;
+		};
+		restore();
+		if (!pending) return;
+
+		// only the newest render may fill the tab: an older promise can resolve after it
+		body.then((html) => {
+			const next = stage.querySelector('.proj-b');
+			if (token !== this.#renders || next?.dataset.key !== key) return;
+			next.innerHTML = html;
+			restore();
+		}, (err) => {
+			console.error(`${MOD} | the "${tab.id}" tab could not be read`, err);
+			const next = stage.querySelector('.proj-b');
+			if (token === this.#renders && next) next.innerHTML = '<p class="dimc">This tab could not be read. See the console for details.</p>';
+		});
 	}
 
 	/** Panels rise in order, so the projection assembles rather than appearing. */
@@ -399,11 +496,26 @@ export class Projection {
 
 		// typed values commit on Enter or when the field is left
 		el.addEventListener('change', async (event) => {
-			const field = event.target.closest('[data-commit]');
-			if (!field) return;
 			const adapter = getAdapter();
 			const actor = this.actor();
 			if (!adapter || !actor) return;
+
+			// a picker hands its choice to the adapter; the new chip arrives with the actor's update
+			const pick = event.target.closest('[data-pick]');
+			if (pick) {
+				const action = { condition: 'addCondition' }[pick.dataset.pick];
+				if (!action || !pick.value) return;
+				try {
+					await adapter.act(actor, action, pick.value, event);
+				} catch (err) {
+					console.error(`${MOD} | "${action}" failed`, err);
+					ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action }));
+				}
+				return this.render();
+			}
+
+			const field = event.target.closest('[data-commit]');
+			if (!field) return;
 			const value = Number(field.value);
 			if (!Number.isFinite(value)) return this.render();
 			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax' }[field.dataset.commit];

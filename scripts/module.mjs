@@ -1,7 +1,8 @@
-import { MOD, S, EL, SEQ } from './constants.mjs';
+import { MOD, S, EL, SEQ, KEYS } from './constants.mjs';
 import { registerSettings, currentDevice } from './settings.mjs';
 import { DeviceChrome } from './device/chrome.mjs';
 import { Projection } from './projection/projection.mjs';
+import { restyleControls, redrawControls } from './interface/controls.mjs';
 
 /**
  * Scorpious187's Sci-Fi Character HUD.
@@ -64,6 +65,17 @@ Hooks.once('init', () => {
 	registerSettings(() => {
 		DeviceChrome.refresh();
 		Projection.syncDevice();
+	}, redrawControls);
+
+	// rebindable in Configure Controls
+	game.keybindings.register(MOD, KEYS.hide, {
+		name: 'SFH.Keybind.Hide',
+		hint: 'SFH.Keybind.HideHint',
+		editable: [{ key: 'KeyH', modifiers: ['Alt'] }],
+		onDown: () => {
+			DeviceChrome.toggleHidden();
+			return true;
+		},
 	});
 });
 
@@ -78,6 +90,8 @@ Hooks.once('ready', () => {
 		projection: Projection,
 		setPower: (on) => DeviceChrome.setPower(on),
 		toggle: () => DeviceChrome.toggle(),
+		hide: (on = true) => DeviceChrome.setHidden(on),
+		toggleHidden: () => DeviceChrome.toggleHidden(),
 		refresh: () => DeviceChrome.refresh(),
 		unmount: () => { Projection.close(); DeviceChrome.unmount(); },
 		debug,
@@ -113,11 +127,19 @@ for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'cr
 	Hooks.on(hook, (doc) => Projection.refreshFor(doc));
 }
 
+/* The scene controls take the devices' icons each time Foundry prepares them. */
+Hooks.on('getSceneControlButtons', restyleControls);
+
 /* The free area changes whenever Foundry's own furniture does. */
 for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {
 	Hooks.on(hook, () => Projection.scheduleFit());
 }
 addEventListener('resize', () => Projection.scheduleFit());
+
+/* A hidden projection measures as nothing, so it is fitted again when it comes back. */
+Hooks.on('sfhHidden', (hidden) => {
+	if (!hidden) Projection.scheduleFit();
+});
 
 /**
  * Foundry only inserts a frameless application's element on its first render, so the
@@ -139,9 +161,12 @@ function debug() {
 		mounted: !!document.getElementById(EL.device),
 		hotbarParent: hotbar?.parentElement?.id ?? null,
 		power: DeviceChrome.power,
+		hidden: DeviceChrome.hidden,
 		projectionOpen: Projection.isOpen,
 		character: Projection.actor()?.name ?? null,
 		deckSize: game.settings.get(MOD, S.deckSize),
+		projScale: game.settings.get(MOD, S.projScale),
+		fit: Projection.lastFit ?? null,
 		styles: STYLES.map((p) => !!document.querySelector(`link[href^="modules/${MOD}/${p}"]`)),
 	};
 	console.log(`${MOD} |`, info);

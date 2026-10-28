@@ -26,9 +26,15 @@ export const S = {
 	device: 'device',             // client — which device this user wears
 	sequences: 'sequences',       // client — play the power sequences
 	deckSize: 'deckSize',         // client — macro bar key size on the device, px
-	projScale: 'projScale',       // client — projection size, % of the space available
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
+	controlIcons: 'controlIcons', // client — sci-fi icons on the scene controls
+	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
 	worldDevice: 'worldDevice',   // world  — the device a user gets before they pick one
+};
+
+/** Keybinding actions. */
+export const KEYS = {
+	hide: 'hide',                 // clear the HUD off the screen, and bring it back
 };
 
 /** Timings for the power sequences, in ms. Keep in step with styles/device.css. */
@@ -39,6 +45,7 @@ export const EL = {
 	device: 'sfh-device',      // the art layer at the foot of the interface
 	deck: 'sfh-deck',          // where the macro bar sits when it rides on a device
 	power: 'sfh-power',        // the power key added to the macro bar
+	restore: 'sfh-restore',    // the key that brings a hidden HUD back
 	projection: 'sfh-projection',
 	beam: 'sfh-beam',           // the cone of light from the emitter to the projection
 };

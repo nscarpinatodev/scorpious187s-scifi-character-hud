@@ -6,7 +6,7 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
  * The device is a per-user choice: two players at the same table can wear different
  * hardware. The world setting only decides what a user gets before they have chosen.
  */
-export function registerSettings(onDeviceChange) {
+export function registerSettings(onDeviceChange, onControlIconsChange) {
 	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
 
 	// Both device settings repaint immediately: a player following the world default has to
@@ -53,17 +53,6 @@ export function registerSettings(onDeviceChange) {
 		onChange: () => onDeviceChange?.(),
 	});
 
-	game.settings.register(MOD, S.projScale, {
-		name: 'SFH.Settings.ProjScale',
-		hint: 'SFH.Settings.ProjScaleHint',
-		scope: 'client',
-		config: true,
-		type: Number,
-		range: { min: 35, max: 100, step: 5 },
-		default: 100,
-		onChange: () => onDeviceChange?.(),
-	});
-
 	game.settings.register(MOD, S.grid, {
 		name: 'SFH.Settings.Grid',
 		hint: 'SFH.Settings.GridHint',
@@ -73,6 +62,28 @@ export function registerSettings(onDeviceChange) {
 		choices: { panels: 'SFH.Settings.GridPanels', full: 'SFH.Settings.GridFull', off: 'SFH.Settings.GridOff' },
 		default: 'panels',
 		onChange: (v) => document.body.setAttribute('data-sfh-grid', v),
+	});
+
+	// The omni-tool's projection always matches its arm, so this sizes only the others.
+	game.settings.register(MOD, S.projScale, {
+		name: 'SFH.Settings.ProjScale',
+		hint: 'SFH.Settings.ProjScaleHint',
+		scope: 'client',
+		config: true,
+		type: Number,
+		range: { min: 35, max: 100, step: 5 },
+		default: 55,
+		onChange: () => onDeviceChange?.(),
+	});
+
+	game.settings.register(MOD, S.controlIcons, {
+		name: 'SFH.Settings.ControlIcons',
+		hint: 'SFH.Settings.ControlIconsHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: true,
+		onChange: () => onControlIconsChange?.(),
 	});
 }
 

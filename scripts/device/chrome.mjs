@@ -1,4 +1,4 @@
-import { EL, DEVICES, SEQ, S } from '../constants.mjs';
+import { EL, DEVICES, SEQ, S, MOD, KEYS } from '../constants.mjs';
 import { currentDevice, setting } from '../settings.mjs';
 import { deviceArt, buildArt } from './art.mjs';
 
@@ -15,13 +15,26 @@ import { deviceArt, buildArt } from './art.mjs';
  * The power key is kept outside `#hotbar` for that reason: its contents are replaced
  * whenever a macro is dropped or the page turns.
  */
+/** The hide key as the user has bound it, e.g. "Alt+H", or '' when it is unbound. */
+function hideKeyLabel() {
+	const [binding] = game.keybindings?.get(MOD, KEYS.hide) ?? [];
+	if (!binding?.key) return '';
+	return [...(binding.modifiers ?? []), binding.key.replace(/^(Key|Digit)/, '')].join('+');
+}
+
 export class DeviceChrome {
 	static #power = false;
+	static #hidden = false;
+	static #told = false;
 	static #seqTimer = null;
 	static #bound = false;
 
 	static get power() {
 		return this.#power;
+	}
+
+	static get hidden() {
+		return this.#hidden;
 	}
 
 	static get device() {
@@ -43,6 +56,7 @@ export class DeviceChrome {
 		document.body.dataset.sfhDevice = id;
 		document.body.dataset.sfhGrid = setting(S.grid);
 		document.body.dataset.sfhPower = this.#power ? 'on' : 'off';
+		document.body.dataset.sfhHidden = this.#hidden ? 'on' : 'off';
 
 		let layer = document.getElementById(EL.device);
 		if (!layer) {
@@ -77,6 +91,7 @@ export class DeviceChrome {
 
 		// the power key, for devices that have no switch of their own
 		this.#syncPowerKey(deck, device);
+		this.#syncRestoreKey(deck);
 		this.#bind();
 		this.fit();
 		return true;
@@ -112,7 +127,7 @@ export class DeviceChrome {
 			bottom.append(hotbar);
 		}
 		document.getElementById(EL.device)?.remove();
-		for (const k of ['sfhDevice', 'sfhGrid', 'sfhPower']) delete document.body.dataset[k];
+		for (const k of ['sfhDevice', 'sfhGrid', 'sfhPower', 'sfhHidden']) delete document.body.dataset[k];
 	}
 
 	/** Rebuild for a new device or a changed setting, keeping the power state. */
@@ -141,6 +156,54 @@ export class DeviceChrome {
 		deck.prepend(btn);
 	}
 
+	/** The way back from hidden. Always there; styles/device.css shows it only while hidden. */
+	static #syncRestoreKey(deck) {
+		const existing = document.getElementById(EL.restore);
+		if (existing) return deck.prepend(existing);
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.id = EL.restore;
+		btn.className = 'sfh-power';
+		btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+		const label = game.i18n.localize('SFH.Hide.Restore');
+		const key = hideKeyLabel();
+		btn.setAttribute('aria-label', label);
+		btn.setAttribute('data-tooltip', key ? `${label} (${key})` : label);
+		deck.prepend(btn);
+	}
+
+	/* -------------------------------------------- */
+	/*  Hiding                                       */
+	/* -------------------------------------------- */
+
+	/**
+	 * Clear the HUD off the screen without switching it off, for small monitors: the device's
+	 * art, the projection and the beam go, and the projection comes back on the same tab and
+	 * scroll position. Foundry's macro bar stays, docked plainly, with a key on it that
+	 * brings the rest back — a hidden HUD must never be a lost one.
+	 */
+	static setHidden(on) {
+		on = !!on;
+		if (on === this.#hidden) return;
+		this.#hidden = on;
+		document.body.dataset.sfhHidden = on ? 'on' : 'off';
+		if (on && !this.#told) {
+			// once a session is enough to learn where the way back is
+			this.#told = true;
+			const key = hideKeyLabel();
+			ui.notifications.info(key
+				? game.i18n.format('SFH.Hide.Notice', { key })
+				: game.i18n.localize('SFH.Hide.NoticeUnbound'));
+		}
+		// nothing measured right while it was hidden
+		if (!on) requestAnimationFrame(() => this.fit());
+		Hooks.callAll('sfhHidden', on);
+	}
+
+	static toggleHidden() {
+		this.setHidden(!this.#hidden);
+	}
+
 	/* -------------------------------------------- */
 	/*  Power                                        */
 	/* -------------------------------------------- */
@@ -153,6 +216,8 @@ export class DeviceChrome {
 	 */
 	static setPower(on, { silent = false } = {}) {
 		on = !!on;
+		// raising the projection while hidden would raise it out of sight
+		if (on && this.#hidden) this.setHidden(false);
 		if (on === this.#power) return;
 		this.#power = on;
 		document.body.dataset.sfhPower = on ? 'on' : 'off';
@@ -202,6 +267,7 @@ export class DeviceChrome {
 		// One delegated listener on the body: the device layer is rebuilt on every device
 		// change, so binding to its children would go stale.
 		document.addEventListener('click', (event) => {
+			if (event.target.closest(`#${EL.restore}`)) return this.setHidden(false);
 			if (event.target.closest(`#${EL.power}`)) return this.toggle();
 			if (event.target.closest('#sfh-band')) return this.toggle();
 		});

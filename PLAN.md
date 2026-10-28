@@ -53,6 +53,8 @@ scripts/
     ornaments.mjs       each device's housing and the EVA's own readouts
     dossier.mjs         reads the conversion module's Paragon/Renegade and shields
     helpers.mjs         the mock-up's markup helpers
+  interface/
+    controls.mjs        sci-fi icons for the scene controls, through getSceneControlButtons
   adapters/
     index.mjs           picks the adapter for the running system
     pf2e-family.mjs     SF2e and PF2e: what the panels show, what each button does
@@ -120,11 +122,22 @@ adapters. Verified headlessly on all four devices.
 main panel's bottom corners, measured from both, so it bridges the interface and the layer
 over the canvas.
 
-**Sizing.** The projection is centred on the device, not the window — Foundry centres the
-macro bar between the controls and the sidebar — and every device fills the room it has by
-default. The board is drawn at 1280 wide with ~13px text, so much below full size it stops
-being readable; the size setting is there to give the map back, not as a sensible default.
+**Sizing.** The omni-tool's main panel comes out exactly as wide as the arm's plate, so the
+two read as one machine, and the projection stands on the plate. The other devices take a
+share of the free room set by the "Wrist computer and EVA projection size" setting, 55% by
+default, so the projection sits above the device instead of swallowing the map; the setting
+says in its name and hint that the omni-tool is not affected. The projection is centred on
+the device it comes out of, and
+keeps clear only of the panels actually beside it — Foundry's region boxes are mostly
+empty, and #ui-left's scene-navigation column stretches to the middle of the screen.
 
-**Next.** Editing from the projection (conditions, spell slots, currency), the remaining tab
-bodies, translatable strings in the panels and adapters, and the hide-everything key. See
-TODO.md.
+**Asynchronous tab bodies.** An adapter's `tabBody` may return a promise of markup, for data
+the system only gives asynchronously (PF2e's spellcasting sheet data). The projection keeps
+the tab's last content until it resolves, and only the newest render may fill it.
+
+**Done — hiding.** A rebindable key clears the art, the projection and the beam off the
+screen without switching anything off; the macro bar stays with a restore key on it.
+
+**Next.** Translatable strings in the panels and adapters, the chat panel, the rest of
+editing from the projection (spell slots, currency), and the mock-up's remaining details.
+See TODO.md.
