@@ -161,7 +161,7 @@ export class Projection {
 			standsAt: Math.round(standsAt),
 			room: { scale: +room.toFixed(3), height: Math.round(height), byHeight: +(height / board.h).toFixed(3) },
 			fitsArm: fitsArm && +fitsArm.toFixed(3),
-			share: art ? 'not used (omni-tool follows the arm)' : share,
+			share: art ? 'not used (the projection follows the plate)' : share,
 			scale: +scale.toFixed(3),
 			limitedBy: art && scale >= fitsArm - 0.001 ? 'arm'
 				: !art && share < 1 ? 'size setting'

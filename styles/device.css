@@ -85,6 +85,26 @@ body[data-sfh-device="nod"] {
 	--sfh-radius: 0px;
 }
 
+/* TRON: light lines on black, with the rival programs' orange as the accent */
+body[data-sfh-device="tron"] {
+	--sfh-bg-rgb: 1 6 10;
+	--sfh-hot: #6fe9ff;
+	--sfh-glow: rgb(111 233 255 / 75%);
+	--sfh-bright: #f0feff;
+	--sfh-text: #c9f6ff;
+	--sfh-dim: #74c8dc;
+	--sfh-line: rgb(111 233 255 / 70%);
+	--sfh-line-2: rgb(111 233 255 / 22%);
+	--sfh-hover: rgb(111 233 255 / 14%);
+	--sfh-panel: rgb(2 10 16 / 90%);
+	--sfh-cell: rgb(1 6 10 / 85%);
+	--sfh-acc: #ff9d2e;
+	--sfh-face: Oxanium, sans-serif;
+	--sfh-display: Orbitron, Oxanium, sans-serif;
+	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
+	--sfh-radius: 3px;
+}
+
 /*
  * A player's own fonts, from the module settings, in place of the device's. The family is
  * put on <body> by scripts/interface/fonts.mjs, with an attribute saying it is there.
@@ -304,6 +324,17 @@ body[data-sfh-hidden="on"] #sfh-restore {
 	100% { filter: brightness(1); }
 }
 
+/* TRON: the identity disc's inner ring turns while the projection is up. */
+body[data-sfh-power="on"] #sfh-disc-ring {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: sfh-disc-turn 9s linear infinite;
+}
+
+@keyframes sfh-disc-turn {
+	to { transform: rotate(360deg); }
+}
+
 /* Dormant: the band idles at half strength so it still reads as a switch. */
 body[data-sfh-power="off"] #sfh-band {
 	filter: brightness(0.6);
@@ -311,7 +342,8 @@ body[data-sfh-power="off"] #sfh-band {
 
 @media (prefers-reduced-motion: reduce) {
 	#sfh-device.sfh-seq-on #sfh-band,
-	#sfh-device.sfh-seq-off #sfh-band {
+	#sfh-device.sfh-seq-off #sfh-band,
+	body[data-sfh-power="on"] #sfh-disc-ring {
 		animation: none;
 	}
 }

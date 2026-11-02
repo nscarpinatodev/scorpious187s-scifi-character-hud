@@ -64,7 +64,7 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		onChange: (v) => document.body.setAttribute('data-sfh-grid', v),
 	});
 
-	// The omni-tool's projection always matches its arm, so this sizes only the others.
+	// The omni-tool's and TRON's projections always match their plates, so this sizes only the others.
 	game.settings.register(MOD, S.projScale, {
 		name: 'SFH.Settings.ProjScale',
 		hint: 'SFH.Settings.ProjScaleHint',

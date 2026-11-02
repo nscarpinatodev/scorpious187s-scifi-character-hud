@@ -69,7 +69,7 @@ export class DeviceChrome {
 		}
 		layer.dataset.device = id;
 
-		// the art layer: only the omni-tool has one
+		// the art layer: only the devices with a plate of their own have one
 		const art = deviceArt(device.art);
 		const existing = layer.querySelector('svg.sfh-art');
 		if (!art) existing?.remove();

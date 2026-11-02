@@ -7,7 +7,7 @@ export const MOD = 'scorpious187s-scifi-character-hud';
  * anything is drawn at the foot of the screen, and how the projection opens and closes.
  *
  *  - `art`      the id of the art layer drawn at the bottom of the interface, if any.
- *               Only the omni-tool has one: its arm carries the macro bar. The wrist unit
+ *               The omni-tool's arm and the TRON deck carry the macro bar. The wrist unit
  *               and the EVA console draw their housing around the projection instead.
  *  - `sequence` which power sequence plays.
  *  - `switch`   where the power control lives: on the device's own band, or on the macro bar.
@@ -17,6 +17,7 @@ export const DEVICES = {
 	wrist: { id: 'wrist', label: 'SFH.Device.Wrist', hint: 'SFH.Device.WristHint', art: null, sequence: 'fold', switch: 'bar' },
 	gdi: { id: 'gdi', label: 'SFH.Device.Gdi', hint: 'SFH.Device.GdiHint', art: null, sequence: 'crt', switch: 'bar' },
 	nod: { id: 'nod', label: 'SFH.Device.Nod', hint: 'SFH.Device.NodHint', art: null, sequence: 'crt', switch: 'bar' },
+	tron: { id: 'tron', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
 };
 
 export const DEFAULT_DEVICE = 'omni';

@@ -18,7 +18,7 @@
 	"SFH.Settings.DeckSize": "Macro key size",
 	"SFH.Settings.DeckSizeHint": "Size of the macro bar keys, in pixels. Lower this if the bar is wider than the device it sits on.",
 	"SFH.Settings.Grid": "Etched grid",
-	"SFH.Settings.GridHint": "The fine hex etching on the Mass Effect projection.",
+	"SFH.Settings.GridHint": "The fine etching on the Mass Effect and TRON projections: hexes on the omni-tool, a square grid on TRON.",
 	"SFH.Settings.GridPanels": "On the panels",
 	"SFH.Settings.GridFull": "Across the projection",
 	"SFH.Settings.GridOff": "Off",
@@ -33,7 +33,7 @@
 	"SFH.Settings.ControlIcons": "Sci-fi control icons",
 	"SFH.Settings.ControlIconsHint": "Gives the scene controls on the left of the screen sci-fi icons — an astronaut for tokens, a radar for measuring, a datapad for notes. Turn it off to keep Foundry's own.",
 	"SFH.Settings.ProjScale": "Wrist computer and EVA projection size",
-	"SFH.Settings.ProjScaleHint": "How much of the free space the Wrist Computer and EVA projections take, as a percentage. Lower it to keep more of the map in view. The Mass Effect omni-tool is not affected: its projection always matches the width of its arm, which follows Macro key size.",
+	"SFH.Settings.ProjScaleHint": "How much of the free space the Wrist Computer and EVA projections take, as a percentage. Lower it to keep more of the map in view. The Mass Effect omni-tool and TRON are not affected: their projections always match the width of the plate at the foot of the screen, which follows Macro key size.",
 	"SFH.Settings.FontDisplay": "Heading font",
 	"SFH.Settings.FontDisplayHint": "Your own font for headings, names and panel titles, in place of the device's. Type the font's name as your font list shows it, such as Myriad Pro. A font installed on this computer works, as does one the GM has added under Additional Fonts in Foundry's Core settings, or any Google Fonts family. Add a fallback after a comma. Leave empty for the device's own.",
 	"SFH.Settings.FontBody": "Text font",
@@ -44,5 +44,7 @@
 	"SFH.Fonts.Placeholder": "The device's own",
 	"SFH.Settings.GoogleFonts": "Fetch fonts from Google Fonts",
 	"SFH.Settings.GoogleFontsHint": "When a font named above is not on this computer or in Foundry, fetch it from Google Fonts. Turn it off to keep the table offline. The devices' own fonts ship with the module either way, so they never need fetching.",
-	"SFH.Fonts.MissingGoogle": "The font \"{font}\" is not installed on this computer and Google Fonts does not have it, so the Sci-Fi HUD is using a stand-in. Install it, or have the GM add it under Additional Fonts in Foundry's Core settings."
+	"SFH.Fonts.MissingGoogle": "The font \"{font}\" is not installed on this computer and Google Fonts does not have it, so the Sci-Fi HUD is using a stand-in. Install it, or have the GM add it under Additional Fonts in Foundry's Core settings.",
+	"SFH.Device.Tron": "TRON: Identity Disc",
+	"SFH.Device.TronHint": "Light lines on black, rezzed up from the disc you carry"
 }

@@ -12,6 +12,7 @@ export const BOARD = {
 	// its foot is set on the arm plate itself — anything more is empty space holding the
 	// sheet up off the device.
 	omni: { w: 1280, h: 728 },
+	tron: { w: 1280, h: 728 },
 	wrist: { w: 1280, h: 860 },
 	gdi: { w: 1280, h: 860 },
 	nod: { w: 1280, h: 860 },
@@ -43,7 +44,8 @@ export function dossierHeight(device, x) {
  */
 export function layout(device, dossier = 0) {
 	const extras = dossier > 0;
-	if (device === 'omni') {
+	// TRON stands on a plate as the omni-tool does, and lays out the same way
+	if (device === 'omni' || device === 'tron') {
 		// the effects and the dossier share the column under the vitals, 370–726
 		const d = Math.min(dossier, 194);
 		return {

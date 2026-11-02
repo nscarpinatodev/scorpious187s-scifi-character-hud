@@ -1,9 +1,10 @@
 /**
  * Device art drawn at the foot of the interface.
  *
- * Only the omni-tool has any: a single forearm section, centred, with the emitter band
- * on it. The arm is the thing the macro bar is mounted on, and the band is the power
- * switch — clicking it raises and lowers the projection.
+ * The omni-tool has a single forearm section, centred, with the emitter band on it. The
+ * TRON device has a deck of light lines with the identity disc on it. Either way the plate
+ * (#sfh-arm) is what the macro bar is mounted on, and the switch (#sfh-band) raises and
+ * lowers the projection.
  *
  * The wrist unit and the EVA console draw their housing around the projection itself,
  * so at the foot of the screen there is nothing but the macro bar.
@@ -36,7 +37,32 @@ export const ARM = {
 	</g>`,
 };
 
-const ART = { arm: ARM };
+/** The TRON deck and its identity disc, on the same coordinates as the arm. */
+export const DISC = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-deckplate" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#0c1c26"/><stop offset=".35" stop-color="#050d13"/><stop offset="1" stop-color="#010305"/>
+		</linearGradient>
+		<filter id="sfh-discglow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>
+		<filter id="sfh-lineglow" x="-5%" y="-300%" width="110%" height="700%"><feGaussianBlur stdDeviation="2"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M292 762 L 352 750 H 928 L 988 762 L 1004 860 H 276 Z"
+		fill="url(#sfh-deckplate)" stroke="#6fe9ff" stroke-width="1.5"/>
+	<path d="M306 772 H 470 l 12 -12 H 584 M974 772 H 810 l -12 -12 H 696" fill="none" stroke="#6fe9ff" stroke-width="3" filter="url(#sfh-lineglow)"/>
+	<path d="M306 772 H 470 l 12 -12 H 584 M974 772 H 810 l -12 -12 H 696" fill="none" stroke="#dffcff" stroke-width="1.2"/>
+	<circle cx="640" cy="768" r="38" fill="#6fe9ff" fill-opacity=".4" filter="url(#sfh-discglow)"/>
+	<g id="sfh-band" role="button" tabindex="0" aria-label="SFH.Power.Toggle">
+		<circle cx="640" cy="768" r="35" fill="#02090e" stroke="#9ff3ff" stroke-width="3"/>
+		<circle id="sfh-disc-ring" cx="640" cy="768" r="26" fill="none" stroke="#6fe9ff" stroke-width="2.5" stroke-dasharray="30 11"/>
+		<circle cx="640" cy="768" r="15" fill="#6fe9ff" fill-opacity=".22" stroke="#dffcff" stroke-width="1.5"/>
+		<circle cx="640" cy="768" r="4.5" fill="#f0feff"/>
+	</g>`,
+};
+
+const ART = { arm: ARM, disc: DISC };
 
 /** The art layer for a device, or null when it draws nothing at the foot of the screen. */
 export function deviceArt(id) {

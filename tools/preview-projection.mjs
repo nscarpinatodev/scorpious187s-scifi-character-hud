@@ -28,7 +28,7 @@ await wait(1200);
 
 const report = {};
 const shots = [];
-for (const device of ['omni', 'wrist', 'gdi', 'nod']) {
+for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	await wait(300);
 	if (!(await page.evaluate(() => SFH.Projection.isOpen))) await page.evaluate(() => SFH.DeviceChrome.toggle());
@@ -69,7 +69,7 @@ console.log(bad.length ? `FAIL: ${bad.map(([k]) => k).join(', ')}` : 'PASS: ever
 
 const imgs = await Promise.all(shots.map((b) => sharp(b).resize(780).toBuffer()));
 const m = await sharp(imgs[0]).metadata();
-await sharp({ create: { width: 2 * 788, height: 2 * (m.height + 8), channels: 3, background: '#111' } })
+await sharp({ create: { width: 2 * 788, height: 3 * (m.height + 8), channels: 3, background: '#111' } })
 	.composite(imgs.map((b, i) => ({ input: b, left: (i % 2) * 788, top: Math.floor(i / 2) * (m.height + 8) })))
 	.png()
 	.toFile(`${dir}/preview-projection.png`);

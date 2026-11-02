@@ -1,8 +1,11 @@
 # Scorpious187's Sci-Fi Character HUD — Plan
 
 A Foundry VTT v13–v14 module that dresses the **interface** as the device the character is
-wearing: the Mass Effect **omni-tool**, a synthwave **wrist computer**, and the Command &
-Conquer **EVA** console. It supports PF2e, SF2e and D&D 5e.
+wearing: the Mass Effect **omni-tool**, a synthwave **wrist computer**, the Command & Conquer
+**EVA** console, and a **TRON** identity disc. It supports PF2e, SF2e and D&D 5e.
+
+TRON came after the mock-up was signed off, so its demo page does not show it. Its styles
+still live in the mock-up's stylesheet, because `projection.css` is generated from there.
 
 The reference for every design decision is the approved interactive mock-up. When this
 document and the mock-up disagree, the mock-up wins.
@@ -44,7 +47,7 @@ scripts/
   constants.mjs         module id, device table, setting keys, sequence timings, element ids
   settings.mjs          per-user device choice, key size, sequences, etched grid
   device/
-    art.mjs             the arm, in the mock-up's own coordinates
+    art.mjs             the arm and the TRON deck, in the mock-up's own coordinates
     chrome.mjs          mounts the device, moves the macro bar onto it, power + sequences
   projection/
     projection.mjs      the layer: board, fit, render, the delegated listener
@@ -73,7 +76,7 @@ tools/
   port-css.py           regenerates projection.css from the mock-up
   harness-device.html   Foundry's game-view regions and real hotbar markup, no Foundry
   harness-device.mjs    stubs game/Hooks/ui and a character, runs the real module code
-  preview-device.mjs    screenshots all four devices and prints their geometry
+  preview-device.mjs    screenshots every device and prints its geometry
   preview-projection.mjs  raises the projection on each device and asserts what it drew
 ```
 
@@ -103,9 +106,12 @@ numbers (is the bar 74% of the plate? is it clear of the band?), not eyeballed.
 | Omni-tool | forearm plate + emitter band | the band itself | panels rise out of the band, beam widens with them |
 | Wrist computer | none | power key on the bar | the case hinges down from its base |
 | EVA (GDI / Nod) | none | power key on the bar | a pulse draws across the centre, the picture opens out of it |
+| TRON | deck of light lines + identity disc | the disc itself | a ribbon of light sweeps up as the panels rez in, in hard steps; they derez into a line |
 
 The wrist unit and the EVA draw their housing around the **projection**, not at the foot of the
-screen, which is why only the omni-tool has art in `device/art.mjs`.
+screen, which is why only the omni-tool and TRON have art in `device/art.mjs`. A plate is
+whatever carries `#sfh-arm` and a switch is whatever carries `#sfh-band`, so the fit and the beam
+work from those two ids. TRON shares the omni-tool's layout and tab arc.
 
 ## Status
 

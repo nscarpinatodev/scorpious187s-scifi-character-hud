@@ -1,8 +1,8 @@
 # Scorpious187's Sci-Fi Character HUD
 
 Turns the Foundry VTT interface into the device your character is wearing — a **Mass Effect
-omni-tool**, a **synthwave wrist computer**, or a **Command & Conquer EVA console** — on
-Foundry v13–v14.
+omni-tool**, a **synthwave wrist computer**, a **Command & Conquer EVA console**, or a **TRON
+identity disc** — on Foundry v13–v14.
 
 The foot of the screen becomes the device, Foundry's macro bar rides on it, and the device's
 switch raises a projected character sheet over the canvas.
@@ -27,8 +27,8 @@ https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/lat
 - **[Scorpious187's Module Library](https://github.com/nscarpinatodev/scorpious187s-lib)**
 - One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+
 
-The devices' fonts (Michroma, Rajdhani, Share Tech Mono, Chakra Petch, VT323, Oxanium,
-Audiowide) ship with the module under the SIL Open Font License, so the HUD looks the same
+The devices' fonts (Michroma, Orbitron, Rajdhani, Share Tech Mono, Chakra Petch, VT323,
+Oxanium, Audiowide) ship with the module under the SIL Open Font License, so the HUD looks the same
 at a table with no internet connection.
 
 ## Using it
@@ -37,6 +37,7 @@ Enable the module and the device appears at the foot of the screen. Raise the pr
 with the device's switch:
 
 - **Omni-tool** — click the glowing emitter band on the forearm.
+- **TRON** — click the identity disc on the deck.
 - **Wrist computer and EVA** — the power key at the left end of the macro bar.
 
 The projection shows your assigned character (set it in the player list). If you own exactly
@@ -44,7 +45,7 @@ one character and have none assigned, it shows that one.
 
 ## What you get
 
-- **Four devices.** Omni-tool, wrist computer, EVA (GDI) and EVA (Nod). The GM sets the
+- **Five devices.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON. The GM sets the
   world default; each player can pick their own in the module settings.
 - **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
   drop, paging and keybinds all work as they always do.
@@ -75,7 +76,8 @@ one character and have none assigned, it shows that one.
   it is not installed. The omni-tool's own headings are Michroma, wide squared capitals
   in the manner of Mass Effect's.
 - **Power sequences.** The omni-tool's panels rise out of the band, the wrist computer's
-  case swings up from its base, and the EVA's picture opens out of a scan line.
+  case swings up from its base, the EVA's picture opens out of a scan line, and TRON's panels
+  rez in behind a ribbon of light.
 
 ### Tabs
 
@@ -97,9 +99,9 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Default device | world | The device players get before they choose one. |
 | My device | client | The device you wear. |
 | Power sequences | client | Play the rise/fold/scan animations. |
-| Macro key size | client | Size of the macro bar keys. The omni-tool's arm follows it, and its projection follows the arm. |
-| Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's is not affected. |
-| Etched grid | client | The hex etching on the omni-tool projection. |
+| Macro key size | client | Size of the macro bar keys. The omni-tool's arm and TRON's deck follow it, and their projections follow them. |
+| Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
+| Etched grid | client | The etching on the projection: hexes on the omni-tool, a square grid on TRON. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
 | Heading font, Text font, Number font | client | Your own font in place of the device's. Type its name; the settings window suggests the fonts it finds. Empty keeps the device's. |
 | Fetch fonts from Google Fonts | client | Fetch a font named above from Google Fonts when it is not installed or in Foundry. Off keeps the table offline. |

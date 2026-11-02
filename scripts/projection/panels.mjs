@@ -116,7 +116,7 @@ export function renderDefenses(c, device) {
 	const eva = device === 'gdi' || device === 'nod';
 	// the panels only two boxes wide (layout.mjs): an odd one out at the end takes the whole
 	// row rather than leaving a hole beside it
-	const pairs = device === 'omni' || (device === 'wrist' && !!c.extras);
+	const pairs = device === 'omni' || device === 'tron' || (device === 'wrist' && !!c.extras);
 	const n = c.defenses.length;
 	const cells = c.defenses.map((d, i) => {
 		const style = d.lead ? ' style="background:var(--hotbg);border-color:var(--hot)"' : '';
@@ -235,7 +235,7 @@ export function renderNav(c, device, L, current) {
 		data-act="tab" data-k="${tab.id}" aria-label="${esc(tab.label)}" aria-current="${tab.id === current}"
 		data-tooltip="${esc(tab.label)}" style="${style}">${svgIcon(tab.id)}${cls === 'cam' ? `<span>${esc(tab.label)}</span>` : ''}</button>`;
 
-	if (device === 'omni') {
+	if (device === 'omni' || device === 'tron') {
 		const n = tabs.length;
 		const mid = (n - 1) / 2;
 		const P = L.projection;

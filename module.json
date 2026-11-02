@@ -1,7 +1,7 @@
 {
 	"id": "scorpious187s-scifi-character-hud",
 	"title": "Scorpious187's Sci-Fi Character HUD",
-	"description": "Turns the Foundry interface into the device the character is wearing: a Mass Effect omni-tool, a synthwave wrist computer, or a Command & Conquer EVA console. The macro bar rides on the device and its switch raises a projected character sheet over the canvas. Every roll, drag and tab is still the game system's own. Supports PF2e, SF2e and D&D 5e.",
+	"description": "Turns the Foundry interface into the device the character is wearing: a Mass Effect omni-tool, a synthwave wrist computer, a Command & Conquer EVA console, or a TRON identity disc. The macro bar rides on the device and its switch raises a projected character sheet over the canvas. Every roll, drag and tab is still the game system's own. Supports PF2e, SF2e and D&D 5e.",
 	"version": "0.2.0",
 	"compatibility": {
 		"minimum": "13",

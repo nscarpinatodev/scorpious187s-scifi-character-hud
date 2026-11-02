@@ -1,4 +1,4 @@
-/* Screenshot the device chrome harness across all four devices. */
+/* Screenshot the device chrome harness across every device. */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -36,7 +36,7 @@ const measure = () => page.evaluate(() => {
 		powerKey: r(document.getElementById('sfh-power')),
 	};
 });
-for (const device of ['omni', 'wrist', 'gdi', 'nod']) {
+for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	await wait(400);
 	shots.push(await page.screenshot());
@@ -47,7 +47,7 @@ console.log(report);
 
 const imgs = await Promise.all(shots.map((b) => sharp(b).resize(760).toBuffer()));
 const m = await sharp(imgs[0]).metadata();
-await sharp({ create: { width: 2 * 768, height: 2 * (m.height + 8), channels: 3, background: '#111' } })
+await sharp({ create: { width: 2 * 768, height: 3 * (m.height + 8), channels: 3, background: '#111' } })
 	.composite(imgs.map((b, i) => ({ input: b, left: (i % 2) * 768, top: Math.floor(i / 2) * (m.height + 8) })))
 	.png()
 	.toFile(`${dir}/preview-device.png`);

@@ -6,7 +6,8 @@ import { esc, lbl, pct } from './helpers.mjs';
  * rest of the projection.
  *
  * The omni-tool has none: its arm is part of the interface now, and its panels are light
- * in the air. The wrist unit has a case; the EVA has a bezel and its own readout bays.
+ * in the air. TRON's are the same, on a square grid. The wrist unit has a case; the EVA has
+ * a bezel and its own readout bays.
  */
 
 /** Behind the panels, and outside the fold: housing that stays put. */
@@ -17,6 +18,13 @@ export function ornBack(device) {
 				<path d="M14 0l14 8v16l-14 8L0 24V8zM14 32v16.5" fill="none" stroke="#ff8c2a" stroke-opacity=".07"/>
 			</pattern></defs>
 			<rect class="hexbg" width="1280" height="740" fill="url(#sfh-hx)"/></svg>`;
+	}
+	if (device === 'tron') {
+		return `<svg width="1280" height="740" viewBox="0 0 1280 740" style="position:absolute;inset:0" aria-hidden="true">
+			<defs><pattern id="sfh-gridlines" width="40" height="40" patternUnits="userSpaceOnUse">
+				<path d="M40 0H0V40" fill="none" stroke="#6fe9ff" stroke-opacity=".1"/>
+			</pattern></defs>
+			<rect class="hexbg" width="1280" height="740" fill="url(#sfh-gridlines)"/></svg>`;
 	}
 	// The wrist unit's housing folds with the screen, so it is drawn in ornDev, not here.
 	if (device === 'wrist') return '';

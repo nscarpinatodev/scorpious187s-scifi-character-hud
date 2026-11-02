@@ -3,13 +3,14 @@
 
    All of them are under the SIL Open Font License; the licence for each is
    beside it in fonts/. The woff2 files are cut down to Latin, Latin Extended
-   and the punctuation, arrows and shapes the projection uses. Audiowide and
-   Share Tech Mono reserve their names, so they ship as their authors' own
-   files, unmodified.
+   and the punctuation, arrows and shapes the projection uses. Audiowide,
+   Orbitron and Share Tech Mono reserve their names, so they ship as their
+   authors' own files, unmodified.
 
    Michroma is the omni-tool's display face: wide, squared capitals in the
    manner of Mass Effect's headings. A player who owns the game's fonts, or
-   any other, can put their own in its place in the module settings.
+   any other, can put their own in its place in the module settings. Orbitron
+   is TRON's display face.
    ========================================================================= */
 
 @font-face {
@@ -90,6 +91,13 @@
 }
 
 /* variable: one file for every weight */
+@font-face {
+	font-family: Orbitron;
+	src: url("../fonts/Orbitron-Variable.ttf") format("truetype");
+	font-weight: 400 900;
+	font-display: swap;
+}
+
 @font-face {
 	font-family: Oxanium;
 	src: url("../fonts/Oxanium-Variable.woff2") format("woff2");

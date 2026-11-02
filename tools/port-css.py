@@ -38,7 +38,7 @@ HEADER = """/* =================================================================
 # no place in the module. Rules whose selector matches any of these are dropped.
 DROP = re.compile(r'^\s*(html|body|\.bar\b|\.brand\b|\.ctl\b|#wrap\b|#scaler\b|\.foot\b|:root\b)')
 
-DEVICES = {'omni': 'omni', 'wrist': 'wrist', 'gdi': 'gdi', 'nod': 'nod'}
+DEVICES = {'omni': 'omni', 'wrist': 'wrist', 'gdi': 'gdi', 'nod': 'nod', 'tron': 'tron'}
 
 
 def read_style(html: str) -> str:

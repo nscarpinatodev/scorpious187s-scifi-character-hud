@@ -23,6 +23,9 @@ device, and the character sheet is a projection it raises over the canvas.
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- A fifth device, TRON: an identity disc on a deck of light lines at the foot of the screen,
+  cyan light lines on black with orange as the accent, Orbitron headings, and panels that rez
+  in and derez.
 - Hero points, dying and 5e death saves as segmented tracks. Dying above zero puts its box
   on alert, and doomed shows as locked segments where dying's maximum has been lowered.
 - The Mass Effect dossier is only as tall as what it shows; the effects panel gets the rest.

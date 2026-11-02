@@ -33,7 +33,7 @@ const CANDIDATES = ['Myriad Pro', 'Myriad', 'BioMass', 'Tigensu', 'Eurostile', '
 	'Microgramma', 'Mass Effect', 'Mass Effect Game'];
 
 /** The faces the module ships (styles/fonts.css). */
-const BUNDLED = ['Michroma', 'Rajdhani', 'Share Tech Mono', 'Chakra Petch', 'Audiowide', 'VT323', 'Oxanium'];
+const BUNDLED = ['Michroma', 'Orbitron', 'Rajdhani', 'Share Tech Mono', 'Chakra Petch', 'Audiowide', 'VT323', 'Oxanium'];
 
 const GOOGLE = 'https://fonts.googleapis.com/css2';
 
