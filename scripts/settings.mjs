@@ -6,7 +6,7 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
  * The device is a per-user choice: two players at the same table can wear different
  * hardware. The world setting only decides what a user gets before they have chosen.
  */
-export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange) {
+export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange, onHeadingColorChange) {
 	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
 
 	// Both device settings repaint immediately: a player following the world default has to
@@ -84,6 +84,26 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		type: Boolean,
 		default: true,
 		onChange: () => onControlIconsChange?.(),
+	});
+
+	game.settings.register(MOD, S.chatCards, {
+		name: 'SFH.Settings.ChatCards',
+		hint: 'SFH.Settings.ChatCardsHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: true,
+		onChange: (v) => { document.body.dataset.sfhChat = v ? 'on' : 'off'; },
+	});
+
+	// empty keeps the device's main colour, whichever device that is
+	game.settings.register(MOD, S.headingColor, {
+		name: 'SFH.Settings.HeadingColor',
+		hint: 'SFH.Settings.HeadingColorHint',
+		scope: 'client',
+		config: true,
+		type: new foundry.data.fields.ColorField({ nullable: true, initial: null }),
+		onChange: () => onHeadingColorChange?.(),
 	});
 
 	// Typed rather than picked, so a font installed only on this computer can be used.

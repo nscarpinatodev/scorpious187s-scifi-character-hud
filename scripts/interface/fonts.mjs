@@ -1,4 +1,5 @@
 import { MOD, S } from '../constants.mjs';
+import { scheduleFitHeadings } from './headings.mjs';
 
 /**
  * A player's own fonts, in place of the device's.
@@ -144,6 +145,7 @@ export async function reportMissingFonts({ keys = Object.keys(FONT_ROLES), notif
 /** A font setting changed — or the Google Fonts one, with no key: show it, and warn if a font is not there. */
 export async function onFontChange(key) {
 	await applyFonts();
+	scheduleFitHeadings();
 	await reportMissingFonts({ keys: key ? [key] : undefined, notify: true });
 }
 

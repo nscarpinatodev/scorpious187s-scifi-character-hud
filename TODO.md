@@ -10,6 +10,9 @@ changes during play. Anything that changes at level-up or character creation sta
 system's own sheet, which the book button opens.
 
 - [ ] **Spell slots (5e)** — spend and regain from the Spells tab.
+- [ ] **Dropping onto the projection** — the Inventory tab's quick search adds items directly,
+      but one dragged out of the Compendium Browser has to land on the system's sheet: the
+      projection takes no drops.
 - [ ] **Currency** — editable in the Inventory tab.
 - [ ] **Experience and level** — typed, like hit points.
 - [ ] **Item names, quantities and notes** — quantity and equipped are there; the rest is not.
@@ -31,9 +34,8 @@ system's own sheet, which the book button opens.
 
 ## Sidebar panels, one at a time
 
-`styles/interface.css` maps the device palette onto Foundry's own colour properties inside the
-interface regions, which carries the sidebar as a whole. Each panel still needs its own pass —
-the palette gets the colours right, not the shape.
+`styles/interface.css` gives the interface the device's colours, edges and glow. Each panel still
+needs its own pass — that gets the colours right, not the shape.
 
 - [ ] **Chat** — message frames, whispers, rolls and dice results, the roll-mode picker and the
       chat input. Roll results are the panel players look at most; they should read like the

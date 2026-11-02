@@ -4,6 +4,8 @@ import { DeviceChrome } from './device/chrome.mjs';
 import { Projection } from './projection/projection.mjs';
 import { restyleControls, redrawControls } from './interface/controls.mjs';
 import { applyFonts, onFontChange, reportMissingFonts, suggestFonts } from './interface/fonts.mjs';
+import { watchPlacement } from './interface/placement.mjs';
+import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
 /**
  * Scorpious187's Sci-Fi Character HUD.
@@ -49,8 +51,12 @@ Hooks.once('init', () => {
 	registerSettings(() => {
 		DeviceChrome.refresh();
 		Projection.syncDevice();
-	}, redrawControls, onFontChange);
+		// the display face comes with the device
+		scheduleFitHeadings();
+	}, redrawControls, onFontChange, applyHeadingColor);
 	applyFonts();
+	applyHeadingColor();
+	watchPlacement();
 
 	// rebindable in Configure Controls
 	game.keybindings.register(MOD, KEYS.hide, {
@@ -68,6 +74,7 @@ Hooks.once('ready', () => {
 	ensureStyles();
 	// by now Foundry has loaded the fonts added in its own settings, so they can be told apart
 	reportMissingFonts();
+	watchHeadings();
 	if (!DeviceChrome.mount()) {
 		console.warn(`${MOD} | the interface has no #ui-bottom or #hotbar to mount on; the device is not shown`);
 	}
@@ -117,6 +124,9 @@ for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'cr
 /* The scene controls take the devices' icons each time Foundry prepares them. */
 Hooks.on('getSceneControlButtons', restyleControls);
 
+/* Foundry can draw the sidebar afresh, which leaves the watcher on the old element. */
+Hooks.on('renderSidebar', () => watchHeadings());
+
 /* The font settings are typed; the settings window suggests the fonts there are. */
 Hooks.on('renderSettingsConfig', suggestFonts);
 
@@ -152,6 +162,7 @@ function debug() {
 		hotbarParent: hotbar?.parentElement?.id ?? null,
 		power: DeviceChrome.power,
 		hidden: DeviceChrome.hidden,
+		suspended: DeviceChrome.suspended,
 		projectionOpen: Projection.isOpen,
 		character: Projection.actor()?.name ?? null,
 		deckSize: game.settings.get(MOD, S.deckSize),

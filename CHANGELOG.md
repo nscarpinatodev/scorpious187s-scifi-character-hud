@@ -17,12 +17,24 @@ device, and the character sheet is a projection it raises over the canvas.
   casts through the system.
 - A hide key (Alt+H) that clears the HUD off the screen without closing anything, with a
   restore key on the macro bar.
-- The interface — sidebar, chat, scene bar, controls, player list — in the device's colours.
+- The interface — sidebar, chat, scene bar, controls, player list, token HUD, menus and
+  tooltips — in the device's colours, with chat cards on the device's panels instead of parchment
+  and a setting to keep the parchment.
 - The omni-tool's beam between the band and the projection.
 - Sci-fi icons on the scene controls, from the Font Awesome Pro set Foundry ships, with a
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- PF2e and SF2e: the Inventory tab carries and equips as the system's sheet does, so armor can
+  be worn as armor, with the gem for investing.
+- PF2e and SF2e: restore cast spells, slots and innate uses from the Spells tab, open Spell
+  Preparation from a prepared entry, change skill training from the Skills tab, and on the
+  Inventory tab quick search for equipment and add or buy it directly, or open the Compendium
+  Browser.
+- The sidebar's headings scale to fit its width, whatever the font, and take the device's main
+  colour or one chosen in the settings.
+- The HUD clears off the canvas while a spell's area or a weapon's burst is being placed, and
+  comes back when it is done.
 - A fifth device, TRON: an identity disc on a deck of light lines at the foot of the screen,
   cyan light lines on black with orange as the accent, Orbitron headings, and panels that rez
   in and derez.

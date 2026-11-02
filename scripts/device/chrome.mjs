@@ -26,6 +26,8 @@ export class DeviceChrome {
 	static #power = false;
 	static #hidden = false;
 	static #told = false;
+	/** What currently needs the canvas clear. */
+	static #suspended = new Set();
 	static #seqTimer = null;
 	static #bound = false;
 
@@ -55,6 +57,7 @@ export class DeviceChrome {
 		const device = DEVICES[id];
 		document.body.dataset.sfhDevice = id;
 		document.body.dataset.sfhGrid = setting(S.grid);
+		document.body.dataset.sfhChat = setting(S.chatCards) ? 'on' : 'off';
 		document.body.dataset.sfhPower = this.#power ? 'on' : 'off';
 		document.body.dataset.sfhHidden = this.#hidden ? 'on' : 'off';
 
@@ -127,7 +130,7 @@ export class DeviceChrome {
 			bottom.append(hotbar);
 		}
 		document.getElementById(EL.device)?.remove();
-		for (const k of ['sfhDevice', 'sfhGrid', 'sfhPower', 'sfhHidden']) delete document.body.dataset[k];
+		for (const k of ['sfhDevice', 'sfhGrid', 'sfhChat', 'sfhPower', 'sfhHidden', 'sfhSuspended']) delete document.body.dataset[k];
 	}
 
 	/** Rebuild for a new device or a changed setting, keeping the power state. */
@@ -202,6 +205,40 @@ export class DeviceChrome {
 
 	static toggleHidden() {
 		this.setHidden(!this.#hidden);
+	}
+
+	static get suspended() {
+		return this.#suspended.size > 0;
+	}
+
+	/**
+	 * Clear the HUD for as long as something needs the canvas. It looks the same as hiding but
+	 * is kept apart from it: the player did not ask for this, so there is no notice and no
+	 * restore key, and a HUD they hid themselves stays hidden afterwards.
+	 * @param {*} token  Handed back to resume(), so overlapping requests each count.
+	 */
+	static suspend(token) {
+		this.#suspended.add(token);
+		document.body.dataset.sfhSuspended = '';
+	}
+
+	static resume(token) {
+		this.#suspended.delete(token);
+		if (!this.#suspended.size) this.#unsuspend();
+	}
+
+	static resumeAll() {
+		this.#suspended.clear();
+		this.#unsuspend();
+	}
+
+	static #unsuspend() {
+		if (!('sfhSuspended' in document.body.dataset)) return;
+		delete document.body.dataset.sfhSuspended;
+		if (this.#hidden) return;
+		// nothing measured right while it was clear
+		requestAnimationFrame(() => this.fit());
+		Hooks.callAll('sfhHidden', false);
 	}
 
 	/* -------------------------------------------- */

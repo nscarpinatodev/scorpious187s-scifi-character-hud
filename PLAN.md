@@ -58,6 +58,8 @@ scripts/
     helpers.mjs         the mock-up's markup helpers
   interface/
     controls.mjs        sci-fi icons for the scene controls, through getSceneControlButtons
+    headings.mjs        the sidebar's headings: scaled to fit, and their colour
+    placement.mjs       clears the HUD while something is being placed on the canvas
     fonts.mjs           a player's own fonts: applied as custom properties, fetched from
                         Google Fonts when missing, suggested in the settings window
   adapters/
@@ -78,6 +80,9 @@ tools/
   harness-device.mjs    stubs game/Hooks/ui and a character, runs the real module code
   preview-device.mjs    screenshots every device and prints its geometry
   preview-projection.mjs  raises the projection on each device and asserts what it drew
+  test-placement.mjs    runs a placement through the real watcher on each device
+  test-sheet-controls.mjs  presses the spell, skill and inventory controls and checks the calls
+  test-headings.mjs     checks the sidebar's headings fit, in each device and a wide font
 ```
 
 ## Why the projection is ours
@@ -98,6 +103,10 @@ module touches — `#interface > #ui-middle > #ui-bottom`, the hotbar markup fro
 `templates/ui/hotbar.hbs`, and Foundry's own `foundry2.css` — so the real module code can be
 rendered and measured headlessly before it is ever loaded in a world. Geometry is asserted in
 numbers (is the bar 74% of the plate? is it clear of the band?), not eyeballed.
+
+The panels in it use Foundry's own markup from its templates and take their colours only from
+Foundry's stylesheet and the module's. They once painted themselves from the palette, which showed
+a themed interface here while real Foundry drew none of it: never colour anything in the harness.
 
 ## Devices
 
@@ -120,8 +129,12 @@ moved onto the omni-tool's arm and sized to it, or docked with a power key for t
 band and the power key raise and lower the projection; per-user settings.
 
 **Done — the interface palette.** The device's colours are mapped onto Foundry's own colour
-properties inside the interface regions, so the sidebar, chat, scene bar, controls and player
-list follow the device.
+properties inside the interface regions, and each panel takes the device's edge, glow and active
+state, so the sidebar, chat, scene bar, controls, player list, token HUD, menus and tooltips
+follow the device. Foundry's theme sets many of its properties on the elements that use them
+(`.ui-control`, inputs, buttons, sidebar tabs, each chat message) rather than higher up, so
+`interface.css` sets them on those same elements: a value only inherited from the region never
+reaches them. Chat cards leave parchment for the device's panels, with a setting to go back.
 
 **Done — the projection, to the mock-up.** The board is drawn at the size the design was made
 at and scaled into whatever room the interface leaves. Identity, vitals, defenses, effects, the
@@ -147,6 +160,18 @@ the tab's last content until it resolves, and only the newest render may fill it
 
 **Done — hiding.** A rebindable key clears the art, the projection and the beam off the
 screen without switching anything off; the macro bar stays with a restore key on it.
+
+**Spell Preparation.** The system does not expose its Spell Preparation window to modules, only
+to a button on the character sheet, so the adapter presses that button: on the open sheet, or on
+one drawn out of sight for the moment it takes. If the button cannot be found the sheet is left
+showing, so there is still a way to it.
+
+**Done — clearing the canvas.** On Foundry 14 every system places areas through
+`canvas.regions.placeRegion` or `placeRegions`, from the projection, a sheet or a chat card, so
+those two are wrapped: the HUD clears until the promise settles, and arguments, results and errors
+pass through untouched. Foundry 13 places templates on their own layer, so there the layer's
+activate and deactivate hooks do the same. It is kept apart from the hide key: no notice, no
+restore key, and a HUD the player hid stays hidden.
 
 **Done — fonts.** The devices' typefaces ship in `fonts/`, so nothing is fetched to draw
 them. Each device has a body, display and mono face (`--sfh-face`, `--sfh-display`,

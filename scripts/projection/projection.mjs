@@ -21,6 +21,8 @@ export class Projection {
 	static #actor = null;
 	static #tab = null;
 	static #pinned = null;
+	/** The quick search: what was typed and found, which a re-render would otherwise wipe. */
+	static #quick = { text: '', results: '', timer: null, token: 0 };
 	static #preview = null;
 	static #bound = false;
 	static #fitPending = false;
@@ -316,6 +318,8 @@ export class Projection {
 		// keep the scroll position of the tab body across re-renders
 		const previous = stage.querySelector('.proj-b');
 		const scrolled = previous ? { key: previous.dataset.key, top: previous.scrollTop } : null;
+		// the old markup is about to go, and the focus with it
+		const quickHadFocus = document.activeElement?.matches?.('#sfh-projection [data-browse]');
 
 		const panel = (name, rect, inner, cls = 'pad') => {
 			if (!rect) return '';
@@ -367,6 +371,7 @@ export class Projection {
 
 		this.#stagger(stage);
 		const restore = () => {
+			this.#restoreQuick(quickHadFocus);
 			const next = stage.querySelector('.proj-b');
 			if (scrolled && next && next.dataset.key === scrolled.key) next.scrollTop = scrolled.top;
 		};
@@ -384,6 +389,45 @@ export class Projection {
 			const next = stage.querySelector('.proj-b');
 			if (token === this.#renders && next) next.innerHTML = '<p class="dimc">This tab could not be read. See the console for details.</p>';
 		});
+	}
+
+	/**
+	 * Run the quick search a moment after typing stops. Only the newest search may fill the
+	 * results: the first one has to wait for the compendiums to be read, and can finish last.
+	 */
+	static #quickSearch(text) {
+		const quick = this.#quick;
+		quick.text = text;
+		clearTimeout(quick.timer);
+		const token = ++quick.token;
+		const show = (html) => {
+			if (token !== quick.token) return;
+			quick.results = html;
+			const box = this.element?.querySelector('.sfh-results');
+			if (box) box.innerHTML = html;
+		};
+		// the search engine ignores anything shorter
+		if (text.trim().length < 2) return show('');
+		quick.timer = setTimeout(async () => {
+			const box = this.element?.querySelector('.sfh-results');
+			if (box && !box.children.length) box.innerHTML = '<p class="dimc">Searching…</p>';
+			try {
+				show(await getAdapter()?.searchItems?.(text) ?? '');
+			} catch (err) {
+				console.error(`${MOD} | the quick search failed`, err);
+				show('<p class="dimc">The search could not be run. See the console for details.</p>');
+			}
+		}, 200);
+	}
+
+	/** Put the quick search back after a re-render: adding an item is what causes one. */
+	static #restoreQuick(hadFocus) {
+		const input = this.element?.querySelector('[data-browse]');
+		if (!input) return;
+		input.value = this.#quick.text;
+		const box = this.element.querySelector('.sfh-results');
+		if (box) box.innerHTML = this.#quick.results;
+		if (hadFocus) input.focus();
 	}
 
 	/** Panels rise in order, so the projection assembles rather than appearing. */
@@ -485,6 +529,8 @@ export class Projection {
 				if (!value) return box?.focus();
 				if (box) box.value = '';
 			}
+			// Browse takes what to look for from the box beside it.
+			if (action === 'browseEquipment') value = target.closest('.sfh-browse')?.querySelector('[data-browse]')?.value ?? '';
 
 			try {
 				await adapter.act(actor, action, value, event);
@@ -492,6 +538,10 @@ export class Projection {
 				console.error(`${MOD} | "${action}" failed`, err);
 				ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action }));
 			}
+		});
+
+		el.addEventListener('input', (event) => {
+			if (event.target.matches('[data-browse]')) this.#quickSearch(event.target.value);
 		});
 
 		// typed values commit on Enter or when the field is left
@@ -503,10 +553,12 @@ export class Projection {
 			// a picker hands its choice to the adapter; the new chip arrives with the actor's update
 			const pick = event.target.closest('[data-pick]');
 			if (pick) {
-				const action = { condition: 'addCondition' }[pick.dataset.pick];
+				const action = { condition: 'addCondition', rank: 'setRank', carry: 'setCarry' }[pick.dataset.pick];
 				if (!action || !pick.value) return;
+				// a picker on one thing of many says which, as a button does
+				const value = pick.dataset.k ? `${pick.dataset.k}:${pick.value}` : pick.value;
 				try {
-					await adapter.act(actor, action, pick.value, event);
+					await adapter.act(actor, action, value, event);
 				} catch (err) {
 					console.error(`${MOD} | "${action}" failed`, err);
 					ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action }));
@@ -529,7 +581,12 @@ export class Projection {
 		});
 		el.addEventListener('keydown', (event) => {
 			if (event.key === 'Enter' && event.target.matches('[data-commit],[data-amount]')) event.target.blur();
+			if (event.key === 'Enter' && event.target.matches('[data-browse]')) {
+				event.preventDefault();
+				event.target.closest('.sfh-browse')?.querySelector('[data-act="browseEquipment"]')?.click();
+			}
 			if (event.key === 'Escape') {
+				if (event.target.matches('[data-browse]')) this.#quickSearch('');
 				el.querySelector('.sfh-menu')?.remove();
 				this.render();
 			}

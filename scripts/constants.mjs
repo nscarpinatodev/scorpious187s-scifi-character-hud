@@ -29,7 +29,9 @@ export const S = {
 	deckSize: 'deckSize',         // client — macro bar key size on the device, px
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
 	controlIcons: 'controlIcons', // client — sci-fi icons on the scene controls
+	chatCards: 'chatCards',       // client — chat cards in the device's colours, not on parchment
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
+	headingColor: 'headingColor', // client — the player's own colour for the interface's headings
 	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names
 	fontBody: 'fontBody',         // client — the player's own font for text
 	fontMono: 'fontMono',         // client — the player's own font for numbers and readouts

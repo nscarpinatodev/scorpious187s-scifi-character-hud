@@ -105,6 +105,15 @@ body[data-sfh-device="tron"] {
 	--sfh-radius: 3px;
 }
 
+/* Headings: the device's main colour, or the one the player chose in the module settings. */
+body[data-sfh-device] {
+	--sfh-heading: var(--sfh-hot);
+}
+
+body[data-sfh-device][data-sfh-heading-color] {
+	--sfh-heading: var(--sfh-heading-color);
+}
+
 /*
  * A player's own fonts, from the module settings, in place of the device's. The family is
  * put on <body> by scripts/interface/fonts.mjs, with an attribute saying it is there.
@@ -283,16 +292,16 @@ body[data-sfh-device][data-sfh-font-mono] {
  * art, and the restore key on it is the way back.
  */
 
-body[data-sfh-hidden="on"] :is(#sfh-device svg.sfh-art, #sfh-projection, #sfh-beam, #sfh-power) {
+body:is([data-sfh-hidden="on"], [data-sfh-suspended]) :is(#sfh-device svg.sfh-art, #sfh-projection, #sfh-beam, #sfh-power) {
 	display: none !important;
 }
 
 /* fit() sizes the layer to the art in an inline style, which has to give way */
-body[data-sfh-hidden="on"] #sfh-device {
+body:is([data-sfh-hidden="on"], [data-sfh-suspended]) #sfh-device {
 	width: max-content !important;
 }
 
-body[data-sfh-hidden="on"] #sfh-device #sfh-deck {
+body:is([data-sfh-hidden="on"], [data-sfh-suspended]) #sfh-device #sfh-deck {
 	position: static;
 	transform: none;
 	margin-bottom: 16px;

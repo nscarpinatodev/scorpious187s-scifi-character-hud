@@ -128,6 +128,31 @@
 #sfh-projection .kv b{font-weight:600;color:var(--bright)}
 #sfh-projection .rk{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--line2);color:var(--dim);flex:none}
 #sfh-projection .rk.T{border-color:var(--line);color:var(--text);background:var(--pnl2)}
+/* a skill's training, changed where it is shown: the letter stays, the arrow goes */
+#sfh-projection .rk-sel{appearance:none;-webkit-appearance:none;box-sizing:border-box;width:24px;height:22px;min-height:0;padding:0;margin:0;background:transparent;font:inherit;font-size:12px;font-weight:700;line-height:1;text-align:center;text-align-last:center;cursor:pointer;border-radius:calc(var(--r)*.4)}
+#sfh-projection .rk-sel:hover, #sfh-projection .rk-sel:focus{border-color:var(--hot);box-shadow:0 0 8px var(--glow);outline:none}
+#sfh-projection .rk-sel:disabled{cursor:default;box-shadow:none}
+#sfh-projection .rk-sel option{background:#0a0b0e;color:#eee}
+#sfh-projection .sfh-browse{gap:6px}
+#sfh-projection .sfh-browse .sfh-in{height:28px;min-height:0;text-align:left;font-family:var(--font)}
+/* the quick search's results, under its box: they scroll rather than push the inventory away */
+#sfh-projection .sfh-results{display:flex;flex-direction:column;gap:2px;max-height:230px;overflow:auto;flex:none;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+#sfh-projection .sfh-results:empty{display:none}
+#sfh-projection .sfh-results p{margin:4px 2px}
+#sfh-projection .li.qs{gap:8px}
+#sfh-projection .li.qs img{width:24px;height:24px;flex:none;object-fit:contain;border:0}
+#sfh-projection .li>.qs-price{flex:none;min-width:48px;text-align:right}
+#sfh-projection .qs-more{font-size:12px}
+/* how an item is carried, and its gem: fixed widths, so the columns line up down the tab */
+#sfh-projection .li>.carry, #sfh-projection .li>.invest, #sfh-projection .li>.invest-gap{flex:none}
+#sfh-projection .sel.carry{width:112px;height:24px;min-height:0;padding:0 4px;font-size:11.5px}
+#sfh-projection .sel.carry.on{border-color:var(--hot);color:var(--bright);background:var(--hotbg)}
+#sfh-projection .sel.carry option{background:#0a0b0e;color:#eee}
+#sfh-projection .b.invest, #sfh-projection .invest-gap{width:26px;padding:0}
+#sfh-projection .b.invest{color:var(--dim)}
+#sfh-projection .b.invest.on{color:var(--bright);border-color:var(--hot);background:var(--hotbg);box-shadow:0 0 8px var(--glow)}
+/* a spent spell fades, but the button that restores it should not */
+#sfh-projection .li.spent>:not(.b){opacity:.55}
 #sfh-projection .rk.E, #sfh-projection .rk.M, #sfh-projection .rk.L{border-color:var(--hot);color:var(--bright);background:var(--hotbg)}
 #sfh-projection .empty{padding:28px 16px;text-align:center;color:var(--dim);border:1px dashed var(--line);border-radius:calc(var(--r)*.6)}
 #sfh-projection .ta{width:100%;box-sizing:border-box;min-height:64px;resize:vertical;font:inherit;color:var(--text);background:var(--pnl2);border:1px solid var(--line2);border-radius:calc(var(--r)*.6);padding:8px 10px}

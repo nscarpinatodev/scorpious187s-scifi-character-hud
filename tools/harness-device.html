@@ -9,6 +9,7 @@
 	module's real chrome.mjs runs against it, so what this page shows is what Foundry gets.
 -->
 <link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/css/foundry2.css">
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/fonts/fontawesome/css/all.min.css">
 <link rel="stylesheet" href="../styles/fonts.css">
 <link rel="stylesheet" href="../styles/device.css">
 <link rel="stylesheet" href="../styles/interface.css">
@@ -16,6 +17,8 @@
 <link rel="stylesheet" href="../styles/projection-frame.css">
 <style>
 	html, body { height: 100%; margin: 0; }
+	/* what Foundry's configureUI sets, at its defaults: unhovered controls fade to 40% */
+	body { --ui-fade-opacity: 0.4; --ui-fade-duration: 250ms; --ui-fade-delay: 250ms; }
 	body.game {
 		background:
 			radial-gradient(ellipse at 50% 32%, #17212c 0%, #080b10 72%),
@@ -33,31 +36,19 @@
 	#ui-left-column-2 { flex: 1; align-self: stretch; display: flex; flex-direction: column; }
 	#ui-right { position: absolute; inset: 0 0 0 auto; display: flex; align-items: flex-start; gap: 16px;
 		padding: 16px 16px 14px; pointer-events: none; }
-	/* Foundry turns pointer events off on the containers and back on for the panels */
+	/*
+	 * Layout only. The colours are left to Foundry's own stylesheet and the module's, on
+	 * Foundry's own markup: a stand-in that painted itself from the palette once showed colours
+	 * here that real Foundry never drew.
+	 */
 	#scene-controls { display: flex; gap: 6px; pointer-events: none; }
-	#scene-controls .control-layers, #scene-controls .control-tools { pointer-events: all; }
-	#scene-controls .control-layers, #scene-controls .control-tools { display: flex; flex-direction: column; gap: 5px;
-		padding: 5px; background: var(--color-cool-5-90, #0b0a13); }
-	#scene-controls .control { width: 32px; height: 32px; display: grid; place-items: center;
-		border: 1px solid var(--color-cool-4, #302831); color: var(--color-light-2, #efe6d8); cursor: pointer; font-size: 13px; }
+	#scene-controls > menu { display: flex; flex-direction: column; gap: 5px; margin: 0; padding: 0; list-style: none; }
 	#scene-navigation { flex: 1; display: flex; flex-direction: column; gap: 4px; padding-right: 30px; pointer-events: none; }
-	#scene-navigation .scene { pointer-events: all; max-width: 20vw; }
-	.scene-navigation-menu { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
-	#scene-navigation .scene { padding: 4px 10px; background: var(--color-cool-5-90, #0b0a13);
-		border: 1px solid var(--color-cool-4, #302831); color: var(--color-light-2, #efe6d8); font-size: 13px; cursor: pointer; }
-	#sidebar { width: 300px; height: 420px; display: flex; flex-direction: column; pointer-events: all;
-		background: var(--sidebar-background, rgb(11 10 19 / 90%)); color: var(--color-light-2, #efe6d8); }
-	#sidebar-tabs { display: flex; gap: 2px; padding: 6px; border-bottom: var(--sidebar-separator, 1px solid #302831); }
-	#sidebar-tabs .item { width: 30px; height: 30px; display: grid; place-items: center;
-		border: 1px solid transparent; color: var(--color-light-4, #999); cursor: pointer; font-size: 13px; }
-	#chat-log { flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
-	#chat-log .message { padding: 6px 8px; background: var(--color-cool-5-50, rgb(11 10 19 / 50%));
-		border-left: 2px solid var(--color-cool-4, #302831); }
-	#chat-log .message b { color: var(--color-warm-1, #ee9b3a); }
-	#players { width: 180px; padding: 8px 10px; pointer-events: all; font-size: 12px;
-		background: var(--color-cool-5-75, rgb(11 10 19 / 75%)); color: var(--color-light-2, #efe6d8); }
-	#players .player { display: flex; gap: 6px; padding: 2px 0; list-style: none; }
-	.players-list { margin: 0; padding: 0; }
+	#sidebar { height: 100%; display: flex; align-items: flex-start; pointer-events: none; }
+	#sidebar-content { pointer-events: all; }
+	#sidebar-content .sidebar-tab { height: 420px; }
+	#sidebar-tabs > menu { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+	#players { pointer-events: none; }
 	#interface { display: flex; flex: 1; justify-content: center; position: relative; height: 100%; }
 	#ui-middle { flex: none; width: 60%; display: flex; flex-direction: column;
 		justify-content: space-between; align-items: center; pointer-events: none; height: 100%; }
@@ -81,30 +72,32 @@
 	#rig select, #rig input { font: inherit; }
 </style>
 </head>
-<body class="game">
-<div id="interface">
+<body class="vtt game system-pf2e theme-dark">
+<div id="interface" class="themed theme-dark">
 	<div id="ui-left">
 		<div id="ui-left-column-1">
-			<div id="scene-controls">
-				<div class="control-layers">
-					<button type="button" class="control active">⬤</button>
-					<button type="button" class="control">▦</button>
-					<button type="button" class="control">✎</button>
-					<button type="button" class="control">☀</button>
+			<aside id="scene-controls" class="faded-ui flexrow">
+				<menu id="scene-controls-layers" class="flexcol">
+					<li><button type="button" class="control ui-control layer icon fa-solid fa-user-astronaut" aria-pressed="true" aria-label="Tokens"></button></li>
+					<li><button type="button" class="control ui-control layer icon fa-solid fa-radar" aria-pressed="false" aria-label="Measure"></button></li>
+					<li><button type="button" class="control ui-control layer icon fa-solid fa-solar-panel" aria-pressed="false" aria-label="Tiles"></button></li>
+					<li><button type="button" class="control ui-control layer icon fa-solid fa-flashlight" aria-pressed="false" aria-label="Lighting"></button></li>
+				</menu>
+				<menu id="scene-controls-tools" class="flexcol">
+					<li><button type="button" class="control ui-control tool icon fa-solid fa-expand" aria-pressed="true" aria-label="Select"></button></li>
+					<li><button type="button" class="control ui-control tool icon fa-solid fa-crosshairs" aria-pressed="false" aria-label="Target"></button></li>
+					<li><button type="button" class="control ui-control tool icon fa-solid fa-ruler" aria-pressed="false" aria-label="Ruler"></button></li>
+				</menu>
+			</aside>
+			<aside id="players" class="faded-ui flexcol">
+				<div id="players-active" class="flexcol">
+					<ol class="players-list plain flexcol">
+						<li class="player flexrow gm active" style="--player-color:#c33;--player-border:#c33"><span class="player-name ellipsis">Gamemaster</span></li>
+						<li class="player flexrow active self" style="--player-color:#3c6;--player-border:#3c6"><span class="player-name ellipsis">Nick · Vex</span></li>
+						<li class="player flexrow active" style="--player-color:#36c;--player-border:#36c"><span class="player-name ellipsis">Sam</span></li>
+					</ol>
 				</div>
-				<div class="control-tools">
-					<button type="button" class="control active">↖</button>
-					<button type="button" class="control">◻</button>
-					<button type="button" class="control">◯</button>
-				</div>
-			</div>
-			<div id="players">
-				<ol class="players-list">
-					<li class="player"><span class="player-name">Gamemaster</span></li>
-					<li class="player"><span class="player-name">Nick · Vex</span></li>
-					<li class="player"><span class="player-name">Sam</span></li>
-				</ol>
-			</div>
+			</aside>
 		</div>
 		<div id="ui-left-column-2">
 			<nav id="scene-navigation">
@@ -118,19 +111,41 @@
 	</div>
 
 	<div id="ui-right">
-		<aside id="sidebar">
-			<nav id="sidebar-tabs">
-				<button type="button" class="item active">✉</button>
-				<button type="button" class="item">⚔</button>
-				<button type="button" class="item">☗</button>
-				<button type="button" class="item">⚒</button>
-				<button type="button" class="item">⚙</button>
-			</nav>
-			<div id="chat-log">
-				<div class="message"><b>Vex Kaori</b> Laser Pistol — 21 vs AC</div>
-				<div class="message"><b>Vex Kaori</b> Damage — 3d6+4 → 17 radiant</div>
-				<div class="message"><b>GM</b> The drone banks around the cargo stack.</div>
+		<aside id="sidebar" class="sidebar">
+			<div id="sidebar-content" class="expanded flexcol">
+				<section id="chat" class="tab sidebar-tab chat-sidebar flexcol active themed theme-dark" data-tab="chat">
+					<div class="chat-scroll"><ol class="chat-log plain themed theme-light">
+						<li class="chat-message message flexcol"><header class="message-header flexrow"><h4 class="message-sender">Vex Kaori</h4><span class="message-metadata"><time>2m ago</time></span></header>
+							<div class="message-content"><span class="flavor-text">Laser Pistol vs AC</span>
+							<div class="dice-roll"><div class="dice-result"><div class="dice-formula">1d20 + 11</div><h4 class="dice-total">21</h4></div></div></div></li>
+						<li class="chat-message message flexcol whisper"><header class="message-header flexrow"><h4 class="message-sender">GM</h4><span class="whisper-to">To: Vex</span></header>
+							<div class="message-content">The drone banks around the cargo stack.</div></li>
+					</ol></div>
+					<prose-mirror id="chat-message" class="chat-input" aria-label="Chat"></prose-mirror>
+				</section>
+				<section id="settings" class="tab sidebar-tab settings-sidebar flexcol themed theme-dark" data-tab="settings">
+					<section class="info"><h1 class="title">Foundry Virtual Tabletop</h1><p class="subtitle">Version 14 Stable</p></section>
+					<section class="settings flexcol"><h4 class="divider">Settings and Configuration</h4><button type="button"><i class="fa-solid fa-gears"></i> Game Settings</button></section>
+					<section class="documentation flexcol"><h4 class="divider">Help and Documentation</h4><button type="button"><i class="fa-solid fa-book"></i> Documentation</button></section>
+					<section class="system flexcol"><h4 class="divider">Starfinder Second Edition</h4><button type="button"><i class="fa-solid fa-wrench"></i> Troubleshooting</button></section>
+					<section class="access flexcol"><h4 class="divider">Game Access</h4><button type="button"><i class="fa-solid fa-right-from-bracket"></i> Log Out</button></section>
+				</section>
+				<section id="actors" class="tab sidebar-tab actors-sidebar directory flexcol themed theme-dark" data-tab="actors">
+					<header class="directory-header flexcol"><div class="header-actions action-buttons flexrow"><button type="button" class="create-entry"><i class="fa-solid fa-user"></i> Create Actor</button></div>
+						<search><div class="flexrow"><input type="search" placeholder="Search Actors" aria-label="Search"></div></search></header>
+					<div class="directory-list"><ol class="plain">
+						<li class="directory-item folder flexcol expanded"><header class="folder-header flexrow"><i class="fa-solid fa-folder-open"></i><span class="folder-name ellipsis">Crew</span></header>
+							<ol class="subdirectory plain"><li class="directory-item entry document actor"><span class="entry-name ellipsis">Blee</span></li>
+							<li class="directory-item entry document actor"><span class="entry-name ellipsis">Vex Kaori</span></li></ol></li>
+					</ol></div>
+				</section>
 			</div>
+			<nav id="sidebar-tabs" class="tabs faded-ui" role="tablist"><menu class="flexcol">
+				<li><button type="button" class="ui-control plain icon fa-solid fa-comments" data-action="tab" data-tab="chat" aria-pressed="true" aria-label="Chat"></button></li>
+				<li><button type="button" class="ui-control plain icon fa-solid fa-swords" data-action="tab" data-tab="combat" aria-pressed="false" aria-label="Combat"></button></li>
+				<li><button type="button" class="ui-control plain icon fa-solid fa-user" data-action="tab" data-tab="actors" aria-pressed="false" aria-label="Actors"></button></li>
+				<li><button type="button" class="ui-control plain icon fa-solid fa-gears" data-action="tab" data-tab="settings" aria-pressed="false" aria-label="Settings"></button></li>
+			</menu></nav>
 		</aside>
 	</div>
 
@@ -139,8 +154,8 @@
 		<div id="ui-bottom">
 			<aside id="hotbar" class="faded-ui flexrow">
 				<div id="hotbar-controls-left" class="hotbar-controls flexcol">
-					<button type="button" class="ui-control fa-solid fa-volume icon" data-action="mute" aria-label="Mute">🔊</button>
-					<button type="button" class="ui-control fa-solid fa-bars icon" data-action="menu" aria-label="Menu">☰</button>
+					<button type="button" class="ui-control fa-solid fa-volume icon" data-action="mute" aria-label="Mute"></button>
+					<button type="button" class="ui-control fa-solid fa-bars icon" data-action="menu" aria-label="Menu"></button>
 				</div>
 				<menu id="action-bar" class="flexrow"></menu>
 				<div id="hotbar-controls-right" class="hotbar-controls flexrow">
@@ -150,8 +165,8 @@
 						<button type="button" class="plain hotbar-page-control page-prev icon" data-action="page" data-direction="-1">▼</button>
 					</nav>
 					<div class="flexcol">
-						<button type="button" class="ui-control fa-solid fa-lock-open icon" data-action="lock" aria-label="Lock">🔓</button>
-						<button type="button" class="ui-control fa-solid fa-trash icon" data-action="clear" aria-label="Clear">🗑</button>
+						<button type="button" class="ui-control fa-solid fa-lock-open icon" data-action="lock" aria-label="Lock"></button>
+						<button type="button" class="ui-control fa-solid fa-trash icon" data-action="clear" aria-label="Clear"></button>
 					</div>
 				</div>
 			</aside>

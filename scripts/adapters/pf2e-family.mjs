@@ -10,6 +10,7 @@ import { ME_MODULE } from '../constants.mjs';
  */
 
 const RANK = ['U', 'T', 'E', 'M', 'L'];
+const RANK_NAME = ['Untrained', 'Trained', 'Expert', 'Master', 'Legendary'];
 
 /** Systems this adapter serves. */
 export const SYSTEMS = ['pf2e', 'sf2e'];
@@ -191,6 +192,10 @@ function inventory(actor) {
 	const head = bulk
 		? `<div class="row sp">${lbl('Bulk')}<span class="mono">${bulk.value?.toString?.() ?? ''} · encumbered at ${bulk.encumberedAt ?? '—'} · max ${bulk.max ?? '—'}</span></div>`
 		: '';
+	const invested = actor.inventory?.invested;
+	const investedRow = invested
+		? `<div class="row sp">${lbl('Invested')}<span class="mono"${invested.value > invested.max ? ' style="color:var(--bad)"' : ''}>${invested.value} / ${invested.max}</span></div>`
+		: '';
 	const rows = [...groups].map(([name, items]) => `<div class="sec">${esc(name)}</div>` + items.map((item) => `<div class="li flat">
 		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
 		<span class="row" style="gap:3px">
@@ -199,8 +204,70 @@ function inventory(actor) {
 			${actBtn('+', 'qty', `${item.id}:1`, { cls: 'sm' })}
 		</span>
 		<span class="mono dimc" style="width:34px;text-align:right">${item.system?.bulk?.value ?? '—'}</span>
-		${actBtn(item.isEquipped ? 'Equipped' : 'Equip', 'equip', item.id, { cls: `sm ${item.isEquipped ? 'on' : ''}` })}</div>`).join('')).join('');
-	return `${head}<div class="row sp">${lbl('Currency')}<span class="big" style="font-size:20px">${esc(actor.inventory?.coins?.toString?.() ?? '')}</span></div>${rows}`;
+		${investToggle(item)}${carryPicker(actor, item)}</div>`).join('')).join('');
+	// a quick search that adds from its results, and the system's own Compendium Browser for more
+	const search = `<div class="row sfh-browse">
+		<input class="sfh-in grow" type="search" data-browse="1" placeholder="Quick search: type to find equipment" aria-label="Quick search for equipment">
+		${actBtn('Browse', 'browseEquipment', '', { cls: 'sm ghost', title: 'Open the Compendium Browser' })}</div>
+		<div class="sfh-results" aria-live="polite"></div>`;
+	return `${search}${head}${investedRow}<div class="row sp">${lbl('Currency')}<span class="big" style="font-size:20px">${esc(actor.inventory?.coins?.toString?.() ?? '')}</span></div>${rows}`;
+}
+
+/** What each choice in the carry picker asks of the system. */
+const CARRY = {
+	attached: { carryType: 'attached' },
+	'held-1': { carryType: 'held', handsHeld: 1 },
+	'held-2': { carryType: 'held', handsHeld: 2 },
+	implanted: { carryType: 'implanted' },
+	'worn-slot': { carryType: 'worn', inSlot: true },
+	worn: { carryType: 'worn' },
+	stowed: { carryType: 'stowed' },
+	dropped: { carryType: 'dropped' },
+};
+
+/** Which of those an item is at now. */
+function carryState(item) {
+	const { carryType, handsHeld, inSlot } = item.system?.equipped ?? {};
+	if (carryType === 'held') return handsHeld === 2 ? 'held-2' : 'held-1';
+	if (carryType === 'worn') return inSlot && item.system?.usage?.where ? 'worn-slot' : 'worn';
+	return carryType ?? 'worn';
+}
+
+/**
+ * The carry menu on the system's sheet (actors/partials/carry-type.hbs): the same choices in
+ * the same order, under the same conditions, in the system's own words. "Worn (Armor)" is the
+ * one that actually puts armor on: plain Worn only carries it.
+ */
+function carryPicker(actor, item) {
+	const usage = item.system?.usage ?? {};
+	const state = carryState(item);
+	const carry = (key) => game.i18n.localize(`PF2E.CarryType.${key}`);
+	const stowing = actor.itemTypes?.backpack?.some((b) => b.system?.stowing && !b.isInContainer);
+	const options = [
+		item.isAttachable && ['attached', carry('attached')],
+		['held-1', carry('held1')],
+		['held-2', carry('held2')],
+		usage.type === 'implanted' && ['implanted', carry('implanted')],
+		usage.type === 'worn' && usage.where && ['worn-slot', game.i18n.format('PF2E.Item.Physical.Usage.WornParenthetical', {
+			where: game.i18n.localize(`PF2E.Item.Physical.Usage.WornSlot.${usage.where}`),
+		})],
+		['worn', carry('worn')],
+		// the sheet offers this only with a container to stow in; one already stowed still shows it
+		(stowing || state === 'stowed') && ['stowed', carry('stowed')],
+		['dropped', carry('dropped')],
+	].filter(Boolean);
+	const choices = options.map(([value, label]) => `<option value="${value}"${value === state ? ' selected' : ''}>${esc(label)}</option>`).join('');
+	return `<select class="sel carry ${item.isEquipped ? 'on' : ''}" data-pick="carry" data-k="${esc(item.id)}"
+		aria-label="${esc(`How ${item.name} is carried`)}" data-tooltip="${esc(game.i18n.localize('PF2E.Actor.Inventory.CarryType.OpenMenu'))}">${choices}</select>`;
+}
+
+/** The sheet's gem, on anything that can be invested. The rest keep the column lined up. */
+function investToggle(item) {
+	const investable = !item.isStowed && item.isIdentified !== false && item.isInvested != null;
+	if (!investable) return '<span class="invest-gap"></span>';
+	return `<button type="button" class="b sm invest ${item.isInvested ? 'on' : ''}" data-act="invest" data-k="${esc(item.id)}"
+		aria-pressed="${!!item.isInvested}" aria-label="${esc(`Invest ${item.name}`)}"
+		data-tooltip="${esc(game.i18n.localize('PF2E.ui.equipmentInvested'))}"><i class="fa-solid fa-gem"></i></button>`;
 }
 
 /**
@@ -232,13 +299,19 @@ function spellEntry(entry) {
 			${tradition ? `<div class="kv">${lbl('Tradition')}<b>${esc(tradition)}</b></div>` : ''}
 			${stat.check ? `<div class="kv">${lbl('Spell attack')}${rollBtn(sgn(stat.check.mod ?? 0), 'spellAttack', entry.id)}</div>` : ''}
 			${stat.dc ? kv('Save DC', stat.dc.value ?? '—') : ''}
+			${entry.isPrepared ? `<span class="grow"></span>${actBtn('Spell Preparation', 'prepareSpells', entry.id, { cls: 'sm ghost' })}` : ''}
 		</div>`;
 
 	const groups = (entry.groups ?? []).map((group) => {
+		const spent = group.uses?.max && group.uses.value != null && group.uses.value < group.uses.max;
+		// focus points are a pool of the character's, refilled by Refocus, not a rank's slots
+		const restore = spent && !entry.isFocusPool
+			? actBtn('Restore', 'restoreSlots', `${entry.id}:${group.id}`, { cls: 'sm ghost', title: 'Restore every slot of this rank' })
+			: '';
 		const uses = group.uses?.max && group.uses.value != null
-			? `<span class="mono dimc" style="font-size:12px">${group.uses.value} / ${group.uses.max}</span>` : '';
+			? `<span class="row" style="gap:6px"><span class="mono dimc" style="font-size:12px">${group.uses.value} / ${group.uses.max}</span>${restore}</span>` : '';
 		// a prepared entry casts from a particular slot, so the slot's index is kept
-		const rows = (group.active ?? []).map((slot, index) => slot && spellRow(entry, slot, entry.isPrepared ? index : '')).join('');
+		const rows = (group.active ?? []).map((slot, index) => slot && spellRow(entry, slot, entry.isPrepared ? index : '', group.id)).join('');
 		if (!rows) return '';
 		return `<div class="row sp" style="margin-top:6px">${lbl(game.i18n.localize(group.label ?? ''))}${uses}</div>${rows}`;
 	}).join('');
@@ -246,18 +319,26 @@ function spellEntry(entry) {
 	return head + (groups || '<p class="dimc">No spells.</p>');
 }
 
-function spellRow(entry, slot, slotId) {
+function spellRow(entry, slot, slotId, groupId) {
 	const spell = slot.spell;
 	const rank = slot.castRank ?? spell.rank;
 	const cost = SPELL_COST[spell.system?.time?.value];
 	const uses = slot.uses?.max ? `<span class="mono dimc">${slot.uses.value ?? 0}/${slot.uses.max}</span>` : '';
-	const cast = slot.expended
-		? '<span class="mono dimc" style="font-size:12px">Expended</span>'
-		: actBtn('Cast', 'cast', `${entry.id}:${spell.id}:${rank}:${slotId}`, { cls: 'sm ghost' });
-	return `<div class="li"${slot.expended ? ' style="opacity:.55"' : ''}>
+	// an innate spell keeps its own uses
+	const refill = slot.uses?.max && (slot.uses.value ?? 0) < slot.uses.max
+		? actBtn('Restore', 'restoreUses', spell.id, { cls: 'sm ghost', title: 'Restore this spell\'s uses' })
+		: '';
+	// a prepared slot once cast can be restored; other expended rows wait on their rank's slots
+	const preparedSlot = entry.isPrepared && slotId !== '';
+	const cast = !slot.expended
+		? actBtn('Cast', 'cast', `${entry.id}:${spell.id}:${rank}:${slotId}`, { cls: 'sm ghost' })
+		: preparedSlot
+			? actBtn('Restore', 'restoreSlot', `${entry.id}:${groupId}:${slotId}`, { cls: 'sm ghost', title: 'Restore this spell' })
+			: '<span class="mono dimc" style="font-size:12px">Expended</span>';
+	return `<div class="li${slot.expended ? ' spent' : ''}">
 		<span class="cost">${cost ? COST_GLYPH[cost] : ''}</span>
 		<span class="grow">${nameBtn(spell.name, `item:${spell.id}`)}</span>
-		${slot.signature ? '<span class="chip">Signature</span>' : ''}${uses}${cast}</div>`;
+		${slot.signature ? '<span class="chip">Signature</span>' : ''}${uses}${refill}${cast}</div>`;
 }
 
 function feats(actor) {
@@ -275,8 +356,13 @@ function feats(actor) {
 function skills(actor) {
 	const rows = Object.entries(actor.skills ?? {}).map(([key, s]) => {
 		const rank = RANK[s.rank ?? 0] ?? 'U';
+		// as on the system's sheet, a lore can only be changed through its own item
+		const data = actor.system?.skills?.[key];
+		const locked = data?.lore && !data.itemId;
+		const options = RANK.map((letter, value) => `<option value="${value}" title="${RANK_NAME[value]}"${letter === rank ? ' selected' : ''}>${letter}</option>`).join('');
 		return `<div class="li flat">
-			<span class="rk ${rank}">${rank}</span>
+			<select class="rk rk-sel ${rank}" data-pick="rank" data-k="${esc(key)}"${locked ? ' disabled' : ''}
+				aria-label="${esc(`${s.label ?? key} training`)}" data-tooltip="${esc(`${RANK_NAME[RANK.indexOf(rank)]}: change training`)}">${options}</select>
 			<span class="grow">${nameBtn(s.label ?? key, `skill:${key}`)}</span>
 			${rollBtn(sgn(s.mod ?? 0), 'skill', key)}</div>`;
 	}).join('');
@@ -326,8 +412,18 @@ export async function act(actor, action, key, event) {
 		case 'critical': return actor.system?.actions?.[Number(a)]?.critical?.({ event });
 		case 'use': return actor.items.get(key)?.toMessage?.(event);
 		case 'cast': return castSpell(actor, key);
+		case 'restoreSlot': return restoreSlot(actor, key);
+		case 'restoreSlots': return restoreSlots(actor, a, b);
+		case 'restoreUses': return restoreUses(actor, key);
+		case 'prepareSpells': return openSpellPreparation(actor, key);
+		case 'setRank': return setSkillRank(actor, a, Number(b));
+		case 'browseEquipment': return browseEquipment(key);
+		case 'addItem': return addItem(actor, key);
+		case 'buyItem': return buyItem(actor, key);
+		case 'viewItem': return (await fromUuid(key))?.sheet?.render(true);
 		case 'spellAttack': return actor.spellcasting?.get(key)?.statistic?.check?.roll({ event });
-		case 'equip': return toggleEquip(actor, key);
+		case 'setCarry': return setCarry(actor, a, b);
+		case 'invest': return actor.toggleInvested?.(key);
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'delete': return actor.items.get(key)?.delete();
 		case 'cond': return setCondition(actor, a, Number(b));
@@ -372,11 +468,159 @@ async function castSpell(actor, key) {
 	});
 }
 
-async function toggleEquip(actor, id) {
-	const item = actor.items.get(id);
+/** Restore one prepared slot: the sheet's Restore Spell. */
+async function restoreSlot(actor, key) {
+	const [entryId, groupId, slotId] = String(key).split(':');
+	const group = groupId === 'cantrips' ? groupId : Number(groupId);
+	return actor.spellcasting?.collections?.get(entryId)?.setSlotExpendedState(group, Number(slotId), false);
+}
+
+/** Refill a rank of slots on a spontaneous or flexible entry: the sheet's reset arrow. */
+async function restoreSlots(actor, entryId, groupId) {
+	const entry = actor.items.get(entryId);
+	const rank = Number(groupId) || 0;
+	const slot = entry?.system?.slots?.[`slot${rank}`];
+	if (!slot) return;
+	return entry.update({ [`system.slots.slot${rank}.value`]: slot.max });
+}
+
+/** Refill an innate spell's own uses: the same arrow, on the spell. */
+async function restoreUses(actor, spellId) {
+	const spell = actor.items.get(spellId);
+	const max = spell?.system?.location?.uses?.max;
+	if (!max) return;
+	return spell.update({ 'system.location.uses.value': max });
+}
+
+/**
+ * The system's Spell Preparation window. It is not exposed to modules, only to a button on
+ * the character sheet, so that button is what gets pressed: on the open sheet if there is one,
+ * or on a sheet drawn out of sight for the moment it takes. If the button cannot be found,
+ * the sheet is left showing, so the player still has a way to it.
+ */
+async function openSpellPreparation(actor, entryId) {
+	const entry = actor.items.get(entryId);
+	if (!entry) return;
+	const open = foundry.applications.instances?.get(`spell-preparation-${entry.uuid}`);
+	if (open) return open.bringToFront();
+
+	const sheet = actor.sheet;
+	const wasOpen = sheet.rendered;
+	const veil = wasOpen ? null : document.createElement('style');
+	if (veil) {
+		veil.textContent = `#${CSS.escape(sheet.id)} { visibility: hidden !important; }`;
+		document.head.append(veil);
+		sheet.render(true);
+	}
+	const selector = `[data-item-id="${CSS.escape(entryId)}"] [data-action="open-spell-preparation"]`;
+	let button = null;
+	for (let tries = 0; tries < 200 && !button; tries++) {
+		button = document.getElementById(sheet.id)?.querySelector(selector) ?? null;
+		if (!button) await new Promise((resolve) => setTimeout(resolve, 25));
+	}
+	try {
+		if (button) button.click();
+		else if (wasOpen) sheet.bringToFront?.();
+		if (button && !wasOpen) await sheet.close();
+	} finally {
+		veil?.remove();
+	}
+}
+
+/**
+ * Change a skill's training, as the dropdowns on the sheet's Proficiencies tab do: a lore
+ * keeps it on its own item, and every other skill on the actor.
+ */
+async function setSkillRank(actor, key, rank) {
+	if (!Number.isInteger(rank) || rank < 0 || rank > 4) return;
+	const data = actor.system?.skills?.[key];
+	if (!data) return;
+	if (data.itemId) return actor.items.get(data.itemId)?.update({ 'system.proficient.value': rank });
+	return actor.update({ [`system.skills.${key}.rank`]: rank });
+}
+
+/** How many results the quick search shows before it says to narrow it down. */
+const QUICK_LIMIT = 12;
+
+/**
+ * The Inventory tab's quick search: the Compendium Browser's own index and search engine, so it
+ * covers the packs the browser is set to and matches as the browser does.
+ * @returns {Promise<string>} The results, as markup.
+ */
+export async function searchItems(text) {
+	const tab = game.pf2e?.compendiumBrowser?.tabs?.equipment;
+	if (!tab) return '';
+	await tab.init();
+	const query = foundry.applications.ux.SearchFilter.cleanQuery(text);
+	const found = tab.searchEngine.search(query);
+	if (!found.length) return '<p class="dimc">Nothing found.</p>';
+	const rows = found.slice(0, QUICK_LIMIT).map((entry) => `<div class="li flat qs">
+		<img src="${esc(entry.img)}" alt="">
+		<span class="grow"><button type="button" class="nm" data-act="viewItem" data-k="${esc(entry.uuid)}" data-tooltip="Open this item's sheet">${esc(entry.name)}</button></span>
+		<span class="mono dimc">Lv ${esc(entry.level ?? 0)}</span>
+		<span class="mono dimc qs-price">${esc(entry.price?.toString?.() ?? '')}</span>
+		${actBtn('Add', 'addItem', entry.uuid, { cls: 'sm ghost', title: 'Add to inventory, free' })}
+		${actBtn('Buy', 'buyItem', entry.uuid, { cls: 'sm ghost', title: 'Pay its price and add to inventory' })}</div>`).join('');
+	const more = found.length > QUICK_LIMIT
+		? `<p class="dimc qs-more">${found.length - QUICK_LIMIT} more. Keep typing to narrow it down, or Browse for all of them.</p>` : '';
+	return rows + more;
+}
+
+/** An item from a compendium, sized for the actor as the browser's Take does. */
+function sizedFor(item, actor) {
+	if (item.isOfType('treasure', 'kit')) return item.clone();
+	// a small creature uses medium gear
+	const natural = actor.system?.traits?.naturalSize ?? actor.size;
+	const size = natural === 'sm' ? 'med' : natural;
+	if (size === 'med') return item.clone();
+	const large = ['lg', 'huge', 'grg'].includes(size);
+	return item.clone({ system: { size, price: { sizeSensitive: large && !item.isMagical ? false : undefined } } });
+}
+
+/** A compendium result, if it is something an inventory can hold. */
+async function physicalItem(uuid) {
+	const item = await fromUuid(uuid);
+	return item?.isOfType('physical', 'kit') ? item : null;
+}
+
+/** Add an item to the inventory as the browser's Take button does: free, and onto a stack if there is one. */
+async function addItem(actor, uuid) {
+	const item = await physicalItem(uuid);
 	if (!item) return;
-	const carry = item.system?.equipped?.carryType === 'worn' ? 'held' : 'worn';
-	return item.update({ 'system.equipped.carryType': carry, 'system.equipped.handsHeld': carry === 'held' ? 1 : 0 });
+	await actor.inventory.add(sizedFor(item, actor), { stack: true });
+	ui.notifications.info(game.i18n.format('PF2E.CompendiumBrowser.AddedItemToCharacter', { item: item.name, character: actor.name }));
+}
+
+/** Buy an item as the browser's Buy button does: the system takes the coins, or says no. */
+async function buyItem(actor, uuid) {
+	const item = await physicalItem(uuid);
+	if (!item) return;
+	const words = { item: item.name, character: actor.name };
+	if (!(await actor.inventory.removeCoins(item.price.value))) {
+		return ui.notifications.warn(game.i18n.format('PF2E.CompendiumBrowser.FailedToBuyItemWithCharacter', words));
+	}
+	await actor.inventory.add(sizedFor(item, actor), { stack: true });
+	ui.notifications.info(game.i18n.format('PF2E.CompendiumBrowser.BoughtItemWithCharacter', words));
+}
+
+/** The Compendium Browser's equipment tab, searching for what was typed, if anything. */
+async function browseEquipment(text) {
+	const tab = game.pf2e?.compendiumBrowser?.tabs?.equipment;
+	if (!tab) return;
+	const filter = await tab.getFilterData();
+	if (filter.search) filter.search.text = String(text ?? '').trim();
+	return tab.open({ filter });
+}
+
+/**
+ * Carrying, through the system as its sheet's menu does: changeCarryType is what takes other
+ * armor off when armor goes on, stows into a container and lowers a raised shield.
+ */
+async function setCarry(actor, id, choice) {
+	const item = actor.items.get(id);
+	const change = CARRY[choice];
+	if (!item || !change || carryState(item) === choice) return;
+	return actor.changeCarryType(item, { handsHeld: 0, inSlot: false, ...change });
 }
 
 async function changeQuantity(actor, id, delta) {

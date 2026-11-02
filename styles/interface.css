@@ -2,17 +2,18 @@
    The interface, in the device's colours.
 
    Foundry's own furniture is built on a small palette of custom properties.
-   Rather than restyling every panel by hand, the device's palette is mapped
-   onto those properties inside the interface regions — so the sidebar, scene
-   bar, controls, player list and everything they contain follow the device.
+   The device's palette is mapped onto those inside the interface regions, so
+   everything in them follows the device. That alone only swaps one near-black
+   for another, so the rest of this file gives each panel the device's edges,
+   glow and active states, written against Foundry 14's own markup.
 
-   Scoped to `#ui-left`, `#ui-right`, `#ui-middle`, `#ui-top` and the tooltip
-   deliberately: character sheets, dialogs and system windows render elsewhere
-   and keep their own look. Individual sidebar panels get their own treatment
-   later (see TODO.md).
+   Scoped to the interface regions, the HUD and the menus deliberately:
+   character sheets, dialogs and system windows render elsewhere and keep their
+   own look. Foundry's rules are all in cascade layers and these are not, so
+   these win without needing more specificity.
    ========================================================================= */
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #tooltip, #context-menu) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #hud, #menu, #tooltip, .locked-tooltip, #context-menu) {
 	/* panel darks */
 	--color-cool-5: rgb(var(--sfh-bg-rgb));
 	--color-cool-5-25: rgb(var(--sfh-bg-rgb) / 25%);
@@ -25,6 +26,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #tooltip, #c
 	/* accents: warm-1 is Foundry's highlight, warm-2 its secondary */
 	--color-warm-1: var(--sfh-hot);
 	--color-warm-2: var(--sfh-acc);
+	--color-warm-3: var(--sfh-hover);
 
 	/* text */
 	--color-light-1: var(--sfh-bright);
@@ -32,42 +34,173 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #tooltip, #c
 	--color-light-3: var(--sfh-text);
 	--color-light-4: var(--sfh-dim);
 	--color-light-5: var(--sfh-dim);
-	--color-text-emphatic: var(--sfh-bright);
-	--color-text-primary: var(--sfh-text);
-	--color-text-secondary: var(--sfh-dim);
-	--color-text-subtle: var(--sfh-dim);
+	--color-text-emphatic: var(--color-light-1);
+	--color-text-primary: var(--color-light-2);
+	--color-text-secondary: var(--color-light-3);
+	--color-text-subtle: var(--color-light-5);
+	--color-text-selection-bg: var(--sfh-hover);
 
-	/* the sidebar's own tokens */
-	--sidebar-background: var(--sfh-panel);
-	--sidebar-separator: 1px solid var(--sfh-line-2);
-	--sidebar-entry-hover-bg: var(--sfh-hover);
+	--menu-background: var(--sfh-panel);
+	--tooltip-background-color: var(--sfh-panel);
+	--tooltip-text-color: var(--sfh-text);
 
+	scrollbar-color: var(--sfh-line) transparent;
 	font-family: var(--sfh-face);
 }
 
-/* ---------------------------------------------------------------- edges */
 /*
- * The palette alone leaves Foundry's panels looking correct but anonymous. A thin
- * themed edge and the device's glow are what make it read as one machine.
+ * Foundry's theme sets these on the sidebar tabs, inputs and buttons themselves, and a value
+ * set on an element beats one it would inherit. So they are set on the same elements here.
  */
-
-/* not the sidebar: it is unframed */
-body[data-sfh-device] :is(#players, #scene-controls .control-tools, #camera-views) {
-	border: 1px solid var(--sfh-line);
-	box-shadow: 0 0 18px rgb(0 0 0 / 45%), inset 0 0 22px rgb(var(--sfh-bg-rgb) / 60%);
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(.themed, .sidebar-tab) {
+	--sidebar-background: var(--sfh-panel);
+	--sidebar-separator: 1px solid var(--sfh-line-2);
+	--sidebar-entry-hover-bg: var(--sfh-hover);
+	--sidebar-folder-color: var(--sfh-hover);
 }
 
-body[data-sfh-device] #sidebar-tabs .item.active,
-body[data-sfh-device] #scene-navigation .scene.view,
-body[data-sfh-device] #scene-controls .control.active {
-	color: var(--sfh-bright);
-	border-color: var(--sfh-hot);
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(input, select, textarea, code-mirror, formula-input, color-picker, file-picker, document-tags, string-tags) {
+	--input-background-color: var(--sfh-cell);
+	--input-border-color: var(--sfh-line-2);
+	--input-text-color: var(--sfh-text);
+	--input-focus-text-color: var(--sfh-bright);
+	--input-focus-outline-color: var(--sfh-hot);
+	--input-placeholder-color: var(--sfh-dim);
+}
+
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(button, a.button) {
+	--button-background-color: var(--sfh-cell);
+	--button-border-color: var(--sfh-line);
+	--button-text-color: var(--sfh-text);
+	--button-hover-background-color: var(--sfh-hover);
+	--button-hover-border-color: var(--sfh-hot);
+	--button-hover-text-color: var(--sfh-bright);
+	--button-focus-outline-color: var(--sfh-hot);
+}
+
+/* ---------------------------------------------------------------- controls */
+/*
+ * Every square button Foundry draws — scene controls, sidebar tabs, scene names, the token
+ * HUD — is a .ui-control taking its colours from these. Foundry sets them on the element
+ * itself, so they have to be set there rather than inherited.
+ */
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu) :is(.ui-control, .placeable-hud) {
+	--control-bg-color: var(--sfh-panel);
+	--control-border-color: var(--sfh-line);
+	--control-icon-color: var(--sfh-text);
+	--control-hover-bg-color: var(--sfh-hover);
+	--control-hover-border-color: var(--sfh-hot);
+	--control-hover-icon-color: var(--sfh-bright);
+	--control-active-bg-color: var(--sfh-hover);
+	--control-active-border-color: var(--sfh-hot);
+	--control-active-icon-color: var(--sfh-bright);
+	--control-button-border-color: var(--sfh-line);
+	--control-button-hover-bg-color: var(--sfh-hover);
+	--control-button-hover-border-color: var(--sfh-hot);
+	--toggle-bg-color: var(--sfh-panel);
+	--toggle-border-color: var(--sfh-line);
+	--toggle-active-bg-color: var(--sfh-hover);
+	--toggle-active-border-color: var(--sfh-hot);
+	border-radius: var(--sfh-radius);
+}
+
+/* Foundry marks the active control with aria-pressed. The glow is what makes it read as lit. */
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #hud) .ui-control[aria-pressed="true"],
+body[data-sfh-device] #scene-navigation .scene.view {
 	box-shadow: 0 0 14px var(--sfh-glow);
 }
 
-body[data-sfh-device] :is(#sidebar-tabs .item, #scene-navigation .scene, #scene-controls .control):hover {
-	color: var(--sfh-bright);
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #hud) .ui-control:hover {
 	box-shadow: 0 0 12px var(--sfh-glow);
+}
+
+/* the sidebar's tab strip is drawn plain, which drops the fill */
+body[data-sfh-device] #sidebar-tabs .ui-control {
+	background: var(--control-bg-color);
+}
+
+body[data-sfh-device] #sidebar-tabs .ui-control:hover {
+	background: var(--control-hover-bg-color);
+}
+
+body[data-sfh-device] #sidebar-tabs .ui-control[aria-pressed="true"] {
+	background: var(--control-active-bg-color);
+	border-color: var(--control-active-border-color);
+	color: var(--control-active-icon-color);
+}
+
+/* ---------------------------------------------------------------- scene bar */
+
+body[data-sfh-device] #scene-navigation .scene.view {
+	--control-bg-color: var(--sfh-panel);
+	--control-border-color: var(--sfh-hot);
+	--control-icon-color: var(--sfh-bright);
+}
+
+/* ---------------------------------------------------------------- panels */
+/*
+ * The palette alone leaves Foundry's panels looking correct but anonymous. A themed edge
+ * and the device's glow are what make them read as one machine.
+ */
+
+/* the chat tab is left out: without a background it floats over the map, cards only */
+body[data-sfh-device] #sidebar-content .sidebar-tab:not(.chat-sidebar),
+body[data-sfh-device] #sidebar-content .chat-sidebar.with-background {
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-right: 0;
+	border-radius: var(--sfh-radius) 0 0 var(--sfh-radius);
+	box-shadow: 0 0 16px color-mix(in srgb, var(--sfh-glow) 45%, transparent);
+}
+
+body[data-sfh-device] #players {
+	--background-color: var(--sfh-panel);
+	--border-color: var(--sfh-line);
+	--text-color: var(--sfh-dim);
+	--player-name-color: var(--sfh-text);
+	--player-name-self-color: var(--sfh-bright);
+	--player-name-idle-color: var(--sfh-dim);
+}
+
+body[data-sfh-device] #players :is(#players-active, #players-inactive) {
+	border-radius: var(--sfh-radius);
+}
+
+body[data-sfh-device] #players #players-active {
+	box-shadow: 0 0 14px color-mix(in srgb, var(--sfh-glow) 45%, transparent);
+}
+
+body[data-sfh-device] #camera-views {
+	border: 1px solid var(--sfh-line);
+	box-shadow: 0 0 14px color-mix(in srgb, var(--sfh-glow) 45%, transparent);
+}
+
+/* folder rows and entries in the directories */
+body[data-sfh-device] #sidebar-content .folder > .folder-header {
+	color: var(--sfh-bright);
+	border-color: var(--sfh-line-2);
+}
+
+/* menus and tooltips */
+body[data-sfh-device] #context-menu {
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 16px color-mix(in srgb, var(--sfh-glow) 50%, transparent);
+	color: var(--sfh-text);
+}
+
+body[data-sfh-device] #context-menu li.context-item:hover {
+	background: var(--sfh-hover);
+	color: var(--sfh-bright);
+}
+
+body[data-sfh-device] :is(#tooltip, .locked-tooltip) {
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 12px color-mix(in srgb, var(--sfh-glow) 50%, transparent);
+	color: var(--sfh-text);
 }
 
 /* headings and labels take the device's display face */
@@ -76,15 +209,100 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .
 	letter-spacing: 0.04em;
 }
 
-/* the scene bar reads as a row of stations rather than parchment tabs */
-body[data-sfh-device] #scene-navigation .scene {
+/*
+ * ...and its heading colour, outside the chat log: a card's headings belong to the card, and
+ * may be on parchment. scripts/interface/headings.mjs sizes these to fit the sidebar.
+ */
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .window-title, legend):not(.chat-log *) {
+	color: var(--sfh-heading);
+}
+
+/* one line, so it scales to fit like the rest; wrapped, it ran down over the version under it */
+body[data-sfh-device] .settings-sidebar .info .title {
+	white-space: nowrap;
+}
+
+body[data-sfh-device] .settings-sidebar .info .subtitle {
+	margin-top: 0.25rem;
+}
+
+/* a card's headings are not measured, so a long word in that face has to be able to break */
+body[data-sfh-device] .chat-log :is(h1, h2, h3, h4) {
+	overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- chat */
+/*
+ * Foundry prints chat on parchment, in a light theme of its own. Here the cards are the
+ * device's panels instead, which means giving that light theme's text dark-mode colours.
+ * A game system's cards can bring colours of their own, so the setting that switches this
+ * off puts the parchment back.
+ */
+body[data-sfh-device][data-sfh-chat="on"] :is(.chat-log, #chat-notifications, .chat-message) {
+	/* Foundry sets the parchment on each message, so inheriting from the log would not reach it */
+	--chat-message-background: var(--sfh-panel);
+	--chat-message-border-color: var(--sfh-line);
+	--color-whisper-background: var(--sfh-panel);
+	--color-whisper-border: var(--sfh-acc);
+	--color-blind-background: var(--sfh-panel);
+	--color-blind-border: var(--sfh-acc);
+	--color-emote-background: var(--sfh-panel);
+	--color-emote-border: var(--sfh-line);
+	--color-text-emphatic: var(--sfh-bright);
+	--color-text-primary: var(--sfh-text);
+	--color-text-secondary: var(--sfh-text);
+	--color-text-subtle: var(--sfh-dim);
+	--color-dark-1: var(--sfh-text);
+	--color-dark-2: var(--sfh-text);
+	--color-dark-3: var(--sfh-dim);
+	--color-dark-4: var(--sfh-dim);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message {
+	color: var(--sfh-text);
+	border-width: 1px;
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 10px color-mix(in srgb, var(--sfh-glow) 35%, transparent);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .message-header .message-sender {
+	color: var(--sfh-heading);
+	font-family: var(--sfh-display);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message :is(.message-metadata, .flavor-text, .whisper-to) {
+	color: var(--sfh-dim);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll :is(.dice-formula, .dice-total) {
+	background: var(--sfh-cell);
+	border-color: var(--sfh-line);
+	box-shadow: none;
+	color: var(--sfh-bright);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total {
+	font-family: var(--sfh-mono);
+	text-shadow: 0 0 8px var(--sfh-glow);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message a:not(.content-link, .inline-roll) {
+	color: var(--sfh-hot);
+}
+
+/* the box you type in */
+body[data-sfh-device] #chat-message {
+	--text-color: var(--sfh-text);
+	--placeholder-color: var(--sfh-dim);
+	--background-color: var(--sfh-panel);
+	--border-color: var(--sfh-line);
 	background: var(--sfh-panel);
-	border: 1px solid var(--sfh-line-2);
-	border-radius: calc(var(--sfh-radius) * 0.6);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
 	color: var(--sfh-text);
 }
 
-/* the player list keeps its per-user colours; only its shell is themed */
-body[data-sfh-device] #players .player-name {
-	color: var(--sfh-text);
+body[data-sfh-device] #chat-message:focus {
+	border-color: var(--sfh-hot);
+	box-shadow: 0 0 12px var(--sfh-glow);
 }

@@ -94,12 +94,16 @@ actor.system.actions = [
 
 // inventory is a collection with extras hanging off it, as PF2e's is
 actor.inventory = [
-	{ id: 'i1', name: 'M-23 Eviscerator', type: 'weapon', quantity: 1, isEquipped: true, system: { bulk: { value: 2 } } },
-	{ id: 'i2', name: 'M-11 Suppressor', type: 'weapon', quantity: 1, isEquipped: false, system: { bulk: { value: 1 } } },
-	{ id: 'i3', name: 'Colossus Armor', type: 'armor', quantity: 1, isEquipped: true, system: { bulk: { value: 2 } } },
-	{ id: 'i4', name: 'Medi-Gel', type: 'consumable', quantity: 4, isEquipped: false, system: { bulk: { value: 'L' } } },
-	{ id: 'i5', name: 'Omni-Gel', type: 'consumable', quantity: 6, isEquipped: false, system: { bulk: { value: 0 } } },
+	{ id: 'i1', name: 'M-23 Eviscerator', type: 'weapon', quantity: 1, isEquipped: true, isInvested: null, system: { bulk: { value: 2 }, usage: { type: 'held', hands: 2 }, equipped: { carryType: 'held', handsHeld: 2 } } },
+	{ id: 'i2', name: 'M-11 Suppressor', type: 'weapon', quantity: 1, isEquipped: false, isInvested: null, system: { bulk: { value: 1 }, usage: { type: 'held', hands: 1 }, equipped: { carryType: 'worn' } } },
+	{ id: 'i3', name: 'Colossus Armor', type: 'armor', quantity: 1, isEquipped: true, isInvested: null, system: { bulk: { value: 2 }, usage: { type: 'worn', where: 'armor' }, equipped: { carryType: 'worn', inSlot: true } } },
+	{ id: 'i6', name: 'Onyx Armor', type: 'armor', quantity: 1, isEquipped: false, isInvested: null, system: { bulk: { value: 2 }, usage: { type: 'worn', where: 'armor' }, equipped: { carryType: 'worn', inSlot: false } } },
+	{ id: 'i7', name: 'Amp Implant', type: 'equipment', quantity: 1, isEquipped: true, isInvested: true, system: { bulk: { value: 0 }, usage: { type: 'implanted' }, equipped: { carryType: 'implanted' } } },
+	{ id: 'i8', name: 'Kinetic Bracer', type: 'equipment', quantity: 1, isEquipped: false, isInvested: false, system: { bulk: { value: 'L' }, usage: { type: 'worn', where: 'bracers' }, equipped: { carryType: 'dropped' } } },
+	{ id: 'i4', name: 'Medi-Gel', type: 'consumable', quantity: 4, isEquipped: false, isInvested: null, system: { bulk: { value: 'L' }, usage: { type: 'held', hands: 1 }, equipped: { carryType: 'worn' } } },
+	{ id: 'i5', name: 'Omni-Gel', type: 'consumable', quantity: 6, isEquipped: false, isInvested: null, system: { bulk: { value: 0 }, usage: { type: 'carried' }, equipped: { carryType: 'worn' } } },
 ];
+actor.inventory.invested = { value: 1, max: 10 };
 actor.inventory.bulk = { value: '4.6', encumberedAt: 7, max: 12 };
 actor.inventory.coins = { toString: () => '4,820 cr' };
 
@@ -115,6 +119,16 @@ const lift = spell('s2', 'Lift', '2', 2);
 const stasis = spell('s3', 'Stasis', 'reaction', 1);
 const barrier = spell('s4', 'Biotic Barrier', '1', 3);
 const collections = [
+	collection('sc3', [lift, warp], {
+		name: 'Prepared Spells', sort: 3, tradition: 'arcane', isPrepared: true,
+		statistic: { check: { mod: 14 }, dc: { value: 24 } },
+		groups: [{ id: 1, label: '1st Rank', active: [{ spell: warp, expended: true }, { spell: lift }] }],
+	}),
+	collection('sc4', [warp], {
+		name: 'Innate Spells', sort: 4, tradition: 'occult', isInnate: true,
+		statistic: { dc: { value: 24 } },
+		groups: [{ id: 1, label: '1st Rank', active: [{ spell: warp, uses: { value: 0, max: 1 } }] }],
+	}),
 	collection('sc1', [warp, lift, stasis], {
 		name: 'Biotic Spells', sort: 1, tradition: 'occult', isPrepared: false,
 		statistic: { check: { mod: 14 }, dc: { value: 24 } },
@@ -125,7 +139,7 @@ const collections = [
 		],
 	}),
 	collection('sc2', [barrier], {
-		name: 'Vanguard Focus', sort: 2, tradition: 'occult', isPrepared: false,
+		name: 'Vanguard Focus', sort: 2, tradition: 'occult', isPrepared: false, isFocusPool: true,
 		statistic: { check: { mod: 14 }, dc: { value: 24 } },
 		groups: [{ id: 3, label: 'Focus Spells', uses: { value: 1, max: 2 }, active: [{ spell: barrier }] }],
 	}),
@@ -134,6 +148,17 @@ actor.spellcasting = Object.assign([...collections.map((c) => c.entry)], {
 	collections: Object.assign([...collections], { get: (id) => collections.find((c) => c.entry.id === id) ?? null }),
 	get: (id) => collections.find((c) => c.entry.id === id)?.entry ?? null,
 });
+
+// the system's words for the carry menu, from its lang/en.json
+const PF2E_WORDS = {
+	'PF2E.CarryType.attached': 'Attached', 'PF2E.CarryType.held1': 'Held 1H', 'PF2E.CarryType.held2': 'Held 2H',
+	'PF2E.CarryType.implanted': 'Implanted', 'PF2E.CarryType.worn': 'Worn', 'PF2E.CarryType.stowed': 'Stowed',
+	'PF2E.CarryType.dropped': 'Dropped', 'PF2E.Item.Physical.Usage.WornSlot.armor': 'Armor',
+	'PF2E.Item.Physical.Usage.WornSlot.bracers': 'Bracers',
+};
+
+// the one piece of Foundry's data layer the settings ask for
+globalThis.foundry = { data: { fields: { ColorField: class {} } } };
 
 globalThis.game = {
 	ready: true,
@@ -153,8 +178,8 @@ globalThis.game = {
 		sheet: { render: () => {} },
 	},
 	i18n: {
-		localize: (k) => k,
-		format: (k, data) => `${k} ${JSON.stringify(data)}`,
+		localize: (k) => PF2E_WORDS[k] ?? k,
+		format: (k, data) => (k === 'PF2E.Item.Physical.Usage.WornParenthetical' ? `Worn (${data.where})` : `${k} ${JSON.stringify(data)}`),
 	},
 	modules: { get: () => ({ version: 'harness', active: true }) },
 	// the hide key, as Configure Controls would hold it

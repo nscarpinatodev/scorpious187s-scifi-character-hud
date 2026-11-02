@@ -61,7 +61,22 @@ one character and have none assigned, it shows that one.
   - **Spells** are cast from the Spells tab through the system, which spends the slot, focus
     point or use. PF2e's prepared, spontaneous, focus and innate entries all show as the
     system's own sheet lays them out.
+  - **Restoring spells** (PF2e and SF2e): Restore on a prepared spell once it is cast, on a rank
+    of spontaneous slots, or on an innate spell's uses. They are the sheet's own controls. Spell
+    Preparation on a prepared entry opens the system's window for it.
+  - **Skill training** (PF2e and SF2e) changes from the letter beside each skill.
+  - **Carrying and equipping** (PF2e and SF2e) use the same choices as the sheet's carry menu,
+    on each item in the Inventory tab: held in one or two hands, Worn (Armor) to put armor on,
+    worn, implanted, stowed or dropped, with the gem for investing what can be invested.
+  - **Quick search** (PF2e and SF2e) on the Inventory tab finds equipment as you type, using the
+    Compendium Browser's own index. Add puts a result straight into the inventory, free, as the
+    browser's Take button does; Buy pays its price first, as its Buy button does. Browse opens
+    the browser itself on its equipment tab.
   - **The book button** opens the system's own sheet, for anything that changes at level-up.
+- **The canvas when you need it.** While you place a spell's area or a weapon's burst on the
+  map, the device and the projection clear out of the way, and come back on the same tab when
+  you confirm or dismiss it. It works however the placement started: the projection, the
+  system's own sheet or a chat card.
 - **A readout panel** describing whatever you point at, and pinning it when you click.
 - **A Mass Effect dossier**, when the
   [Mass Effect conversion](https://github.com/nscarpinatodev/mass-effect-sf2e-conversion) or
@@ -70,6 +85,8 @@ one character and have none assigned, it shows that one.
 - **The whole interface in the device's colours** — sidebar, chat, scene bar, controls and
   player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
   icons; each control still does exactly what it did.
+- **Headings that fit.** The sidebar's headings scale to fit its width in whatever face is
+  showing, and take the device's main colour or one you choose.
 - **Your own fonts.** Each player can set a heading, text and number font of their own:
   one installed on their computer (Myriad Pro, say), one the GM has added under
   *Additional Fonts* in Foundry's Core settings, or any Google Fonts family, fetched when
@@ -103,7 +120,9 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
 | Etched grid | client | The etching on the projection: hexes on the omni-tool, a square grid on TRON. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
+| Chat cards in the device's colours | client | Draws chat messages and rolls on the device's panels. Off keeps Foundry's parchment, if a system's or module's cards are hard to read this way. |
 | Heading font, Text font, Number font | client | Your own font in place of the device's. Type its name; the settings window suggests the fonts it finds. Empty keeps the device's. |
+| Heading colour | client | The colour of the interface's headings. Empty keeps the main colour of the device you are wearing. |
 | Fetch fonts from Google Fonts | client | Fetch a font named above from Google Fonts when it is not installed or in Foundry. Off keeps the table offline. |
 
 ## For macro writers
