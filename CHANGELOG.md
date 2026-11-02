@@ -25,6 +25,13 @@ device, and the character sheet is a projection it raises over the canvas.
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- PF2e and SF2e: fixed attacks firing the wrong weapon when an unready one was listed above
+  them, speed always reading 25, Use skipping limited uses, and feats with an action cost
+  missing from the Actions tab.
+- PF2e and SF2e: weapon controls (draw, stow, grip, reload, ammunition, auto-fire), the held
+  shield with Raise a Shield, the recovery check, Use on consumables, and focus points.
+- PF2e and SF2e: add and remove money from the Inventory tab, and give or trade items to other
+  players' characters.
 - PF2e and SF2e: the Inventory tab carries and equips as the system's sheet does, so armor can
   be worn as armor, with the gem for investing.
 - PF2e and SF2e: restore cast spells, slots and innate uses from the Spells tab, open Spell

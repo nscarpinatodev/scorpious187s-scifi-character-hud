@@ -47,7 +47,7 @@ export function read(actor) {
 		xp: { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 1000 },
 		hp: { value: hp.value ?? 0, max: hp.max ?? 0, temp: hp.temp ?? 0 },
 		ac: sys.attributes?.ac?.value ?? 10,
-		speed: sys.attributes?.speed?.value ?? 25,
+		speed: landSpeed(actor),
 		defenses: defenses(actor),
 		vitals: {
 			kind: 'pf2e',
@@ -90,6 +90,9 @@ function conditionChoices(actor) {
 		.sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang));
 }
 
+/** The system keeps speed under movement, and deletes the old attribute as it prepares an actor. */
+const landSpeed = (actor) => actor.system?.movement?.speeds?.land?.value ?? actor.system?.attributes?.speed?.value ?? 25;
+
 function defenses(actor) {
 	const sys = actor.system ?? {};
 	const out = [{ label: 'AC', value: sys.attributes?.ac?.value ?? 10, lead: true }];
@@ -101,7 +104,7 @@ function defenses(actor) {
 	}
 	const perception = actor.perception ?? sys.attributes?.perception;
 	if (perception) out.push({ label: 'Perception', value: sgn(perception.mod ?? perception.value ?? 0), act: 'perception', k: '' });
-	out.push({ label: 'Speed', value: `${sys.attributes?.speed?.value ?? 25} ft` });
+	out.push({ label: 'Speed', value: `${landSpeed(actor)} ft` });
 	if (perception) out.push({ label: 'Initiative', value: sgn(perception.mod ?? 0), act: 'initiative', k: '' });
 	return out;
 }
@@ -150,7 +153,8 @@ function character(actor) {
 }
 
 function actions(actor) {
-	const strikes = (actor.system?.actions ?? []).filter((s) => s.ready !== false).map(strikeRow).join('');
+	// every button says which strike by its place in this list, so hidden ones keep their place
+	const strikes = (actor.system?.actions ?? []).map((s, index) => (s.visible === false ? '' : strikeRow(s, index))).join('');
 	const byCost = (item) => {
 		const type = item.system?.actionType?.value;
 		const n = item.system?.actions?.value;
@@ -161,23 +165,91 @@ function actions(actor) {
 		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
 		${(item.system?.traits?.value ?? []).slice(0, 2).map((t) => `<span class="chip">${esc(t)}</span>`).join('')}
 		${actBtn('Use', 'use', item.id, { cls: 'sm ghost' })}</div>`;
-	const acts = (actor.itemTypes?.action ?? []).map(row).join('');
-	return `<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
+	// as on the sheet: action items, and feats that cost an action
+	const usable = [...(actor.itemTypes?.action ?? []), ...(actor.itemTypes?.feat ?? []).filter((f) => f.actionCost)]
+		.filter((item) => !item.suppressed);
+	const acts = usable.map(row).join('');
+	return `${shieldRow(actor)}<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
 		<div class="sec">Actions</div><div class="grid2">${acts || '<p class="dimc">None.</p>'}</div>`;
 }
 
+/** The held shield, with the sheet's hit points and its Raise a Shield. Nothing without one. */
+function shieldRow(actor) {
+	const shield = actor.system?.attributes?.shield;
+	if (!shield?.itemId) return '';
+	const state = shield.destroyed ? 'Destroyed' : shield.broken ? 'Broken' : '';
+	const stats = [shield.ac ? `AC ${sgn(shield.ac)}` : '', shield.hardness ? `Hardness ${shield.hardness}` : ''].filter(Boolean).join(' · ');
+	return `<div class="sec">Shield</div><div class="li sfh-shield">
+		<span class="grow"><b>${esc(shield.name)}</b> <span class="sub">${esc(stats)}</span></span>
+		${state ? `<span class="chip">${state}</span>` : ''}
+		<span class="row" style="gap:4px"><input class="sfh-in mono" type="number" inputmode="numeric" min="0" value="${shield.hp?.value ?? 0}"
+			data-commit="shieldHp" aria-label="Shield hit points"><span class="mono dimc">/ ${shield.hp?.max ?? 0}</span></span>
+		${actBtn(shield.raised ? 'Raised' : 'Raise', 'raiseShield', '', { cls: `sm ghost ${shield.raised ? 'on' : ''}`, title: 'Raise a Shield' })}</div>`;
+}
+
+/** An attack's buttons: on a strike itself, or on one of its other usages when `alt` says which. */
+function attackButtons(usage, index, alt = '') {
+	if (usage.quantity === 0) return '<span class="sub">None left</span>';
+	const key = alt === '' ? String(index) : `${index}:${alt}`;
+	const variants = usage.variants?.map((v, i) => rollBtn(v.label ?? sgn(usage.totalModifier ?? 0), 'strike', `${index}:${i}:${alt}`, i ? '' : 'on')).join('') ?? '';
+	const damage = usage.item?.dealsDamage === false ? '' : `<div class="row" style="gap:4px">
+		${actBtn('Damage', 'strikeDamage', key, { cls: 'sm ghost' })}
+		${actBtn('Critical', 'critical', key, { cls: 'sm ghost' })}</div>`;
+	return `<div class="row" style="gap:4px">${variants}</div>${damage}`;
+}
+
+/** What the sheet marks a strike's other usages with. */
+function altLabel(usage) {
+	if (usage.type === 'auto-fire') return 'Auto-fire';
+	if (usage.item?.isThrown) return 'Thrown';
+	return usage.item?.isRanged ? 'Ranged' : 'Melee';
+}
+
+/** Ammunition, as the sheet shows it: what is loaded and reloading if the weapon loads, or a choice if not. */
+function ammoRow(strike, index) {
+	const ammo = strike.ammunition;
+	if (!ammo) return '';
+	if (!ammo.requiresReload) {
+		const choices = (ammo.compatible ?? []).map((a) => `<option value="${esc(a.id)}"${a.id === ammo.selected?.id ? ' selected' : ''}>${esc(a.label)}</option>`).join('');
+		return `<div class="row sfh-ammo">${lbl('Ammo')}<select class="sel" data-pick="ammo" data-k="${index}" data-allow-empty="1" aria-label="Ammunition">
+			<option value="">No ammunition</option>${choices}</select></div>`;
+	}
+	const loaded = (ammo.loaded ?? []).map((a) => {
+		const selected = a.id === ammo.selected?.id;
+		const choose = selected || ammo.loaded.length < 2
+			? `<span class="${selected ? 'hot' : ''}">${esc(a.name)}</span>`
+			: actBtn(a.name, 'selectAmmo', `${index}:${a.id}`, { cls: 'sm ghost', title: 'Fire this next' });
+		return `<span class="row" style="gap:4px">${choose}<span class="mono dimc">${a.quantity} / ${a.max}</span>
+			${actBtn('Unload', 'unload', `${index}:${a.id}`, { cls: 'sm ghost' })}</span>`;
+	}).join('');
+	const reload = ammo.remaining ? actBtn('Reload', 'reload', String(index), { cls: 'sm ghost', title: ammo.capacity > 1 ? `${ammo.remaining} empty` : 'Empty' }) : '';
+	return `<div class="row sfh-ammo">${lbl('Ammo')}${loaded}${reload}</div>`;
+}
+
+/** The sheet's Draw, Stow, Change Grip and so on. One with options is a choice. */
+function auxRow(strike, index) {
+	const buttons = (strike.auxiliaryActions ?? []).map((aux, n) => {
+		if (!aux.options?.length) return actBtn(aux.label, 'aux', `${index}:${n}`, { cls: 'sm ghost' });
+		const choices = aux.options.map((o) => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
+		return `<select class="sel sfh-aux" data-pick="aux" data-k="${index}:${n}" aria-label="${esc(aux.label)}"><option value="">${esc(aux.label)}…</option>${choices}</select>`;
+	}).join('');
+	return buttons ? `<div class="row" style="gap:4px;flex-wrap:wrap">${buttons}</div>` : '';
+}
+
 function strikeRow(strike, index) {
-	const map = strike.variants?.map((v, i) => rollBtn(v.label ?? sgn(strike.totalModifier ?? 0), 'strike', `${index}:${i}`, i ? '' : 'on')).join('') ?? '';
+	const ready = strike.ready !== false;
+	const attack = ready && strike.canAttack !== false ? attackButtons(strike, index) : '';
+	const alts = ready ? (strike.altUsages ?? []).map((usage, alt) => `<div class="row" style="gap:6px;flex-wrap:wrap;width:100%">
+		${lbl(altLabel(usage))}${attackButtons(usage, index, alt)}</div>`).join('') : '';
+	const hands = strike.handsAvailable !== false;
 	return `<div class="li" style="flex-wrap:wrap;gap:8px 10px;padding:8px 10px">
 		<div class="grow" style="min-width:150px;display:flex;flex-direction:column;gap:2px">
 			${nameBtn(strike.label ?? strike.slug ?? 'Strike', `strike:${index}`)}
-			<span class="sub">${esc((strike.traits ?? []).map((t) => t.label ?? t).slice(0, 3).join(' · '))}</span>
+			<span class="sub">${esc((strike.traits ?? []).map((t) => t.label ?? t).slice(0, 3).join(' · '))}${!ready && !hands ? ' · Hands occupied' : ''}</span>
 		</div>
-		<div class="row" style="gap:4px">${map}</div>
-		<div class="row" style="gap:4px">
-			${actBtn('Damage', 'strikeDamage', String(index), { cls: 'sm ghost' })}
-			${actBtn('Critical', 'critical', String(index), { cls: 'sm ghost' })}
-		</div></div>`;
+		${attack}${alts}
+		${ready ? ammoRow(strike, index) : ''}
+		${hands ? auxRow(strike, index) : ''}</div>`;
 }
 
 function inventory(actor) {
@@ -196,6 +268,7 @@ function inventory(actor) {
 	const investedRow = invested
 		? `<div class="row sp">${lbl('Invested')}<span class="mono"${invested.value > invested.max ? ' style="color:var(--bad)"' : ''}>${invested.value} / ${invested.max}</span></div>`
 		: '';
+	const others = tradePartners(actor);
 	const rows = [...groups].map(([name, items]) => `<div class="sec">${esc(name)}</div>` + items.map((item) => `<div class="li flat">
 		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
 		<span class="row" style="gap:3px">
@@ -204,13 +277,18 @@ function inventory(actor) {
 			${actBtn('+', 'qty', `${item.id}:1`, { cls: 'sm' })}
 		</span>
 		<span class="mono dimc" style="width:34px;text-align:right">${item.system?.bulk?.value ?? '—'}</span>
-		${investToggle(item)}${carryPicker(actor, item)}</div>`).join('')).join('');
+		${useButton(item)}${investToggle(item)}${carryPicker(actor, item)}${givePicker(item, others)}</div>`).join('')).join('');
 	// a quick search that adds from its results, and the system's own Compendium Browser for more
 	const search = `<div class="row sfh-browse">
 		<input class="sfh-in grow" type="search" data-browse="1" placeholder="Quick search: type to find equipment" aria-label="Quick search for equipment">
 		${actBtn('Browse', 'browseEquipment', '', { cls: 'sm ghost', title: 'Open the Compendium Browser' })}</div>
 		<div class="sfh-results" aria-live="polite"></div>`;
-	return `${search}${head}${investedRow}<div class="row sp">${lbl('Currency')}<span class="big" style="font-size:20px">${esc(actor.inventory?.coins?.toString?.() ?? '')}</span></div>${rows}`;
+	// the sheet's + and −: the system's own dialog, in whichever denominations it uses
+	const money = `<div class="row sp">${lbl('Currency')}<span class="row" style="gap:6px">
+		<span class="big" style="font-size:20px">${esc(actor.inventory?.coins?.toString?.() ?? '')}</span>
+		${actBtn('+', 'addCoins', '', { cls: 'sm', title: 'Add money' })}
+		${actBtn('−', 'removeCoins', '', { cls: 'sm', title: 'Remove money' })}</span></div>`;
+	return `${search}${head}${investedRow}${money}${rows}`;
 }
 
 /** What each choice in the carry picker asks of the system. */
@@ -261,6 +339,32 @@ function carryPicker(actor, item) {
 		aria-label="${esc(`How ${item.name} is carried`)}" data-tooltip="${esc(game.i18n.localize('PF2E.Actor.Inventory.CarryType.OpenMenu'))}">${choices}</select>`;
 }
 
+/** Using a consumable, as the button in the sheet's item summary does. Ammunition is fired, not used. */
+function useButton(item) {
+	if (item.type !== 'consumable' || item.isAmmo || item.isIdentified === false) return '';
+	const left = item.system?.uses?.value ?? item.uses?.value;
+	return left > 0 ? actBtn('Use', 'consume', item.id, { cls: 'sm ghost' }) : '<span class="mono dimc" style="font-size:12px">None</span>';
+}
+
+/**
+ * Who an item can go to: the other characters and the party's stash. A GM can reach them all. A
+ * player gets the other players' characters and whatever else they are allowed to see, which
+ * leaves out the GM's own spares.
+ */
+function tradePartners(actor) {
+	const reachable = (a) => game.user.isGM || a.hasPlayerOwner || a.visible;
+	return (game.actors?.filter((a) => ['character', 'party'].includes(a.type) && a.id !== actor.id && reachable(a)) ?? [])
+		.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Dragging an item onto another character, as a list of them. It stays on show with nobody to give to, and says why. */
+function givePicker(item, others) {
+	const choices = others.map((a) => `<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
+	const tip = others.length ? 'Give or trade this to another character' : 'There is no other character in this world to give this to';
+	return `<select class="sel give" data-pick="give" data-k="${esc(item.id)}"${others.length ? '' : ' disabled'} aria-label="${esc(`Give ${item.name} to another character`)}"
+		data-tooltip="${tip}" title="${others.length ? '' : tip}"><option value="">Give…</option>${choices}</select>`;
+}
+
 /** The sheet's gem, on anything that can be invested. The rest keep the column lined up. */
 function investToggle(item) {
 	const investable = !item.isStowed && item.isIdentified !== false && item.isInvested != null;
@@ -285,12 +389,23 @@ async function spellcasting(actor) {
 			: 'This character has no spellcasting.'}<div style="margin-top:12px">${actBtn('Open the system sheet', 'sheet', '', { cls: 'sm ghost' })}</div></div>`;
 	}
 	const entries = await Promise.all(collections.map((c) => c.entry.getSheetData({ spells: c })));
-	return entries.sort((a, b) => a.sort - b.sort).map(spellEntry).join('');
+	return entries.sort((a, b) => a.sort - b.sort).map((entry) => spellEntry(entry, actor)).join('');
 }
 
 const SPELL_COST = { 1: '1', 2: '2', 3: '3', reaction: 'R', free: 'F' };
 
-function spellEntry(entry) {
+/** The focus pool is the character's, shared by every focus entry; the sheet sets it on each. */
+function focusPool(actor) {
+	const pool = actor.system?.resources?.focus;
+	if (!pool?.max) return '';
+	const value = pool.value ?? 0;
+	return `<div class="kv">${lbl('Focus Points')}<span class="row" style="gap:4px">
+		${actBtn('−', 'focus', String(value - 1), { cls: 'sm', title: 'Spend a focus point' })}
+		<b class="mono">${value} / ${pool.max}</b>
+		${actBtn('+', 'focus', String(value + 1), { cls: 'sm', title: 'Regain a focus point' })}</span></div>`;
+}
+
+function spellEntry(entry, actor) {
 	const stat = entry.statistic ?? {};
 	const tradition = entry.tradition ? game.i18n.localize(CONFIG.PF2E?.magicTraditions?.[entry.tradition] ?? entry.tradition) : '';
 	const kv = (k, v) => `<div class="kv">${lbl(k)}<b class="mono">${v}</b></div>`;
@@ -299,6 +414,7 @@ function spellEntry(entry) {
 			${tradition ? `<div class="kv">${lbl('Tradition')}<b>${esc(tradition)}</b></div>` : ''}
 			${stat.check ? `<div class="kv">${lbl('Spell attack')}${rollBtn(sgn(stat.check.mod ?? 0), 'spellAttack', entry.id)}</div>` : ''}
 			${stat.dc ? kv('Save DC', stat.dc.value ?? '—') : ''}
+			${entry.isFocusPool ? focusPool(actor) : ''}
 			${entry.isPrepared ? `<span class="grow"></span>${actBtn('Spell Preparation', 'prepareSpells', entry.id, { cls: 'sm ghost' })}` : ''}
 		</div>`;
 
@@ -400,17 +516,29 @@ const stripHtml = (html) => String(html ?? '').replace(/<[^>]*>/g, ' ').replace(
  * the system. `event` is passed through so shift/ctrl keep their usual meaning.
  */
 export async function act(actor, action, key, event) {
-	const [a, b] = String(key ?? '').split(':');
+	const [a, b, c] = String(key ?? '').split(':');
 	switch (action) {
 		case 'skill': return actor.skills?.[key]?.roll({ event });
 		case 'save': return actor.saves?.[key]?.roll({ event });
 		case 'perception': return (actor.perception ?? actor.system?.attributes?.perception)?.roll({ event });
 		case 'initiative': return actor.initiative?.roll({ event }) ?? actor.rollInitiative?.({ createCombatants: true });
 		case 'ability': return actor.abilities?.[key] ? rollAbility(actor, key) : null;
-		case 'strike': return actor.system?.actions?.[Number(a)]?.variants?.[Number(b)]?.roll({ event });
-		case 'strikeDamage': return actor.system?.actions?.[Number(a)]?.damage?.({ event });
-		case 'critical': return actor.system?.actions?.[Number(a)]?.critical?.({ event });
-		case 'use': return actor.items.get(key)?.toMessage?.(event);
+		case 'strike': return attackFrom(actor, a, c)?.variants?.[Number(b)]?.roll({ event });
+		case 'strikeDamage': return attackFrom(actor, a, b)?.damage?.({ event });
+		case 'critical': return attackFrom(actor, a, b)?.critical?.({ event });
+		case 'aux': return actor.system?.actions?.[Number(a)]?.auxiliaryActions?.at(Number(b))?.execute({ selection: c || null });
+		case 'unload': return strikeItem(actor, a)?.subitems?.get(b)?.detach({ skipConfirm: event?.shiftKey });
+		case 'linkAmmo': return strikeItem(actor, a)?.update({ system: { selectedAmmoId: actor.items.get(b)?.id ?? null } });
+		// these two windows and orderings are the system's own, and only its sheet can reach them
+		case 'reload': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-action="reload"]`);
+		case 'selectAmmo': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-item-id="${CSS.escape(b)}"] [data-action="select-ammo"]`);
+		case 'raiseShield': return game.pf2e?.actions?.raiseAShield?.({ actors: [actor], event });
+		case 'setShieldHp': return actor.update({ 'system.attributes.shield.hp.value': Math.max(0, Number(key)) });
+		case 'recovery': return actor.rollRecovery?.(event);
+		case 'focus': return actor.updateResource?.('focus', Number(key));
+		case 'consume': return consumeItem(actor, key);
+		// the system's own route: it counts down limited uses and offers the action's effect
+		case 'use': return game.pf2e?.rollItemMacro ? game.pf2e.rollItemMacro(actor.items.get(key)?.uuid, event) : actor.items.get(key)?.toMessage?.(event);
 		case 'cast': return castSpell(actor, key);
 		case 'restoreSlot': return restoreSlot(actor, key);
 		case 'restoreSlots': return restoreSlots(actor, a, b);
@@ -423,6 +551,9 @@ export async function act(actor, action, key, event) {
 		case 'viewItem': return (await fromUuid(key))?.sheet?.render(true);
 		case 'spellAttack': return actor.spellcasting?.get(key)?.statistic?.check?.roll({ event });
 		case 'setCarry': return setCarry(actor, a, b);
+		case 'giveItem': return giveItem(actor, a, b, event);
+		case 'addCoins': return pressSheetButton(actor, '[data-action="add-coins"]');
+		case 'removeCoins': return pressSheetButton(actor, '[data-action="remove-coins"]');
 		case 'invest': return actor.toggleInvested?.(key);
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'delete': return actor.items.get(key)?.delete();
@@ -441,6 +572,19 @@ export async function act(actor, action, key, event) {
 		case 'rest': return game.pf2e?.actions?.restForTheNight?.({ actors: [actor] }) ?? ui.notifications.info('Rest is handled by the system.');
 		default: return null;
 	}
+}
+
+/** A strike by its place in the system's list, or one of its other usages. */
+function attackFrom(actor, index, alt) {
+	const strike = actor.system?.actions?.[Number(index)];
+	return alt === undefined || alt === '' ? strike : strike?.altUsages?.[Number(alt)];
+}
+
+const strikeItem = (actor, index) => actor.system?.actions?.[Number(index)]?.item;
+
+async function consumeItem(actor, id) {
+	const item = actor.inventory?.get?.(id) ?? actor.items.get(id);
+	return item?.type === 'consumable' ? item.consume() : null;
 }
 
 async function rollAbility(actor, key) {
@@ -492,18 +636,22 @@ async function restoreUses(actor, spellId) {
 	return spell.update({ 'system.location.uses.value': max });
 }
 
-/**
- * The system's Spell Preparation window. It is not exposed to modules, only to a button on
- * the character sheet, so that button is what gets pressed: on the open sheet if there is one,
- * or on a sheet drawn out of sight for the moment it takes. If the button cannot be found,
- * the sheet is left showing, so the player still has a way to it.
- */
+/** The system's Spell Preparation window, or the one already open for this entry. */
 async function openSpellPreparation(actor, entryId) {
 	const entry = actor.items.get(entryId);
 	if (!entry) return;
 	const open = foundry.applications.instances?.get(`spell-preparation-${entry.uuid}`);
 	if (open) return open.bringToFront();
+	return pressSheetButton(actor, `[data-item-id="${CSS.escape(entryId)}"] [data-action="open-spell-preparation"]`);
+}
 
+/**
+ * Some of the system's windows are not exposed to modules, only to a button on the character
+ * sheet, so that button is what gets pressed: on the open sheet if there is one, or on a sheet
+ * drawn out of sight for the moment it takes. If the button cannot be found, the sheet is left
+ * showing, so the player still has a way to it.
+ */
+async function pressSheetButton(actor, selector) {
 	const sheet = actor.sheet;
 	const wasOpen = sheet.rendered;
 	const veil = wasOpen ? null : document.createElement('style');
@@ -512,7 +660,6 @@ async function openSpellPreparation(actor, entryId) {
 		document.head.append(veil);
 		sheet.render(true);
 	}
-	const selector = `[data-item-id="${CSS.escape(entryId)}"] [data-action="open-spell-preparation"]`;
 	let button = null;
 	for (let tries = 0; tries < 200 && !button; tries++) {
 		button = document.getElementById(sheet.id)?.querySelector(selector) ?? null;
@@ -610,6 +757,19 @@ async function browseEquipment(text) {
 	const filter = await tab.getFilterData();
 	if (filter.search) filter.search.text = String(text ?? '').trim();
 	return tab.open({ filter });
+}
+
+/**
+ * Hand an item to another character, through the same call as dragging it onto their sheet.
+ * That one knows the rules: someone who can write to both characters gets a quantity prompt and
+ * the item moves, and a player gets the system's trade request to the other player, who has to
+ * be online to answer it.
+ */
+async function giveItem(actor, itemId, targetId, event) {
+	const item = actor.items.get(itemId);
+	const target = game.actors.get(targetId);
+	if (!item || !target) return;
+	return actor.sheet.moveItemBetweenActors(event, item, target);
 }
 
 /**

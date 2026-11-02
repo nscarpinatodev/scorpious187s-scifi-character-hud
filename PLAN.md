@@ -161,10 +161,10 @@ the tab's last content until it resolves, and only the newest render may fill it
 **Done — hiding.** A rebindable key clears the art, the projection and the beam off the
 screen without switching anything off; the macro bar stays with a restore key on it.
 
-**Spell Preparation.** The system does not expose its Spell Preparation window to modules, only
-to a button on the character sheet, so the adapter presses that button: on the open sheet, or on
-one drawn out of sight for the moment it takes. If the button cannot be found the sheet is left
-showing, so there is still a way to it.
+**Windows only the sheet can open.** The system does not expose its Spell Preparation window or
+its currency dialog to modules, only to buttons on the character sheet, so the adapter presses
+those buttons: on the open sheet, or on one drawn out of sight for the moment it takes. If a button
+cannot be found the sheet is left showing, so there is still a way to it.
 
 **Done — clearing the canvas.** On Foundry 14 every system places areas through
 `canvas.regions.placeRegion` or `placeRegions`, from the projection, a sheet or a chat card, so

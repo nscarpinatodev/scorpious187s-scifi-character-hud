@@ -13,7 +13,6 @@ system's own sheet, which the book button opens.
 - [ ] **Dropping onto the projection** — the Inventory tab's quick search adds items directly,
       but one dragged out of the Compendium Browser has to land on the system's sheet: the
       projection takes no drops.
-- [ ] **Currency** — editable in the Inventory tab.
 - [ ] **Experience and level** — typed, like hit points.
 - [ ] **Item names, quantities and notes** — quantity and equipped are there; the rest is not.
 - [ ] **Biography** — currently read-only text; make it editable in place.
@@ -23,6 +22,10 @@ system's own sheet, which the book button opens.
 ## Next
 
 - [ ] **Remaining tab bodies** — PF2e crafting, 5e bastion and special traits.
+- [ ] **PF2e and SF2e, from the review against the sheet** — immunities, weaknesses and
+      resistances; toggles for roll options, and counters on effects; special resources, stamina
+      and resolve; real names for size and languages, senses, other speeds and reach; the
+      initiative box following the statistic actually rolled; typing a loaded magazine's count.
 - [ ] **What the mock-up has that the build does not** — the Actions tab's encounter /
       exploration / downtime filter; the damage formula on each strike's Damage button
       ("Damage 3d8+6"); the dossier's shield controls (−5, regen), credits and omni-gel.

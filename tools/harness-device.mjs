@@ -157,6 +157,9 @@ const PF2E_WORDS = {
 	'PF2E.Item.Physical.Usage.WornSlot.bracers': 'Bracers',
 };
 
+// another player's character, for an item to go to
+const crewmate = { id: 'vex', name: 'Vex Kaori', type: 'character', hasPlayerOwner: true };
+
 // the one piece of Foundry's data layer the settings ask for
 globalThis.foundry = { data: { fields: { ColorField: class {} } } };
 
@@ -164,7 +167,10 @@ globalThis.game = {
 	ready: true,
 	system: { id: 'pf2e' },
 	get user() { return { character: actor }; },
-	get actors() { return Object.assign([actor], { get: (id) => (id === actor.id ? actor : null) }); },
+	get actors() {
+		const all = [actor, crewmate];
+		return Object.assign(all, { get: (id) => all.find((a) => a.id === id) ?? null });
+	},
 	settings: {
 		register(mod, key, cfg) {
 			if (cfg.onChange) onChange[key] = cfg.onChange;

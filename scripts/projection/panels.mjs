@@ -68,8 +68,10 @@ export function renderVitals(c) {
 	let cells = '';
 	if (v.kind === 'pf2e') {
 		// the system has already taken doomed off dying's maximum; those points show as locked
+		// the recovery check is only there to roll while dying
+		const recover = v.dying.value > 0 ? actBtn('Roll', 'recovery', '', { cls: 'sm trk-roll', title: 'Recovery check' }) : '';
 		cells = `${track('Hero Points', v.hero, 'hero')}
-			${track('Dying', v.dying, 'dying', { bad: true, locked: v.doomed })}
+			${track('Dying', v.dying, 'dying', { bad: true, locked: v.doomed, extra: recover })}
 			${counter('Wounded', v.wounded, 'wounded', 'warn')}
 			${counter('Doomed', v.doomed, 'doomed', 'bad')}`;
 	} else {
@@ -97,13 +99,13 @@ const counter = (label, value, key, lit = '') => `<div class="cell">${lbl(label)
  * clicking the last lit one takes it back off. `locked` adds dead segments at the end, for
  * points the maximum has lost; a dying track above zero puts its cell on alert.
  */
-const track = (label, { value, max }, act, { bad = false, locked = 0 } = {}) => {
+const track = (label, { value, max }, act, { bad = false, locked = 0, extra = '' } = {}) => {
 	const name = label.toLowerCase();
 	const segs = Array.from({ length: max }, (_, i) => `<button type="button" class="seg ${bad ? 'bad' : ''} ${i < value ? 'on' : ''}"
 		data-act="${act}" data-k="${i + 1 === value ? i : i + 1}" aria-label="${esc(`${label} ${i + 1}`)}"></button>`).join('')
 		+ '<span class="seg lock" aria-hidden="true"></span>'.repeat(Math.max(0, locked));
 	const title = `${label}: ${value} / ${max}`;
-	return `<div class="cell trk ${bad && value > 0 ? 'alert' : ''}" data-tooltip="${esc(title)}" aria-label="${esc(title)}">${lbl(label)}
+	return `<div class="cell trk ${bad && value > 0 ? 'alert' : ''}" data-tooltip="${esc(title)}" aria-label="${esc(title)}"><div class="trk-h">${lbl(label)}${extra}</div>
 		<div class="segs" role="group" aria-label="${esc(name)}">${segs}</div></div>`;
 };
 

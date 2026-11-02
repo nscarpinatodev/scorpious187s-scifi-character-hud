@@ -90,8 +90,205 @@ const results = await page.evaluate(async () => {
 		return true;
 	};
 
+	/* ---- strikes ---- */
+	{
+		const fired = [];
+		const roll = (name) => ({ label: '+5', roll: async (o) => { fired.push(`${name} attack`); return o; } });
+		const usage = (name, extra = {}) => ({ label: name, ready: true, handsAvailable: true, traits: [], variants: [roll(name)],
+			damage: async () => fired.push(`${name} damage`), critical: async () => fired.push(`${name} critical`), ...extra });
+		const auxCalls = [];
+		const subitemCalls = [];
+		const pistol = { id: 'pistol', update: async (d) => record('pistol.update', d), subitems: new Map([['mag1', { detach: async (o) => subitemCalls.push(['detach', 'mag1', o]) }]]) };
+		const rifle = { id: 'rifle', update: async (d) => record('rifle.update', d), subitems: new Map() };
+		actor.system.actions = [
+			usage('Stowed Rifle', { ready: false, item: rifle, auxiliaryActions: [{ label: 'Draw', execute: async (o) => auxCalls.push(['draw', o]) }] }),
+			usage('Secret Knife', { visible: false, item: rifle }),
+			usage('Drawn Pistol', {
+				item: pistol,
+				altUsages: [usage('Burst', { type: 'auto-fire', item: { isRanged: true } })],
+				ammunition: {
+					requiresReload: true, capacity: 2, remaining: 1, selected: { id: 'mag1' },
+					loaded: [{ id: 'mag1', name: 'Magazine', quantity: 8, max: 10 }, { id: 'mag2', name: 'Tracer', quantity: 3, max: 10 }],
+				},
+				auxiliaryActions: [{ label: 'Stow', execute: async (o) => auxCalls.push(['stow', o]) },
+					{ label: 'Change Grip', options: [{ value: 'two', label: 'Two hands' }], execute: async (o) => auxCalls.push(['grip', o]) }],
+			}),
+			usage('Bow', { item: pistol, ammunition: { requiresReload: false, compatible: [{ id: 'arrows', label: 'Arrows (20)' }], selected: null } }),
+			usage('Bound Hands', { ready: false, handsAvailable: false, item: rifle, auxiliaryActions: [{ label: 'Draw', execute: async () => {} }] }),
+			usage('Thrown Rock', { quantity: 0, item: rifle }),
+		];
+		items.arrows = { id: 'arrows' };
+		actor.itemTypes.action = [{ id: 'act1', uuid: 'Actor.asha.Item.act1', name: 'Biotic Charge', system: { actions: { value: 2 }, actionType: { value: 'action' }, traits: { value: [] } } }];
+		actor.itemTypes.feat = [
+			{ id: 'feat1', uuid: 'Actor.asha.Item.feat1', name: 'Nova Feat', actionCost: { type: 'action', value: 1 }, system: { actions: { value: 1 }, actionType: { value: 'action' }, traits: { value: [] } } },
+			{ id: 'feat2', name: 'Passive Feat', actionCost: null, system: { traits: { value: [] } } },
+			{ id: 'feat3', name: 'Suppressed Feat', actionCost: { type: 'free' }, suppressed: true, system: { traits: { value: [] } } },
+		];
+		await tab('actions');
+		const row = (name) => [...stage().querySelectorAll('.li')].find((l) => l.querySelector('.nm')?.textContent === name);
+		const within = (name, selector) => row(name)?.querySelector(selector);
+
+		within('Drawn Pistol', '[data-act="strike"]').click();
+		await wait(30);
+		check('Attack fires the weapon it is on, with one stowed above it', fired.at(-1) === 'Drawn Pistol attack', fired);
+		within('Drawn Pistol', '[data-act="strikeDamage"]').click();
+		await wait(30);
+		check('Damage does too', fired.at(-1) === 'Drawn Pistol damage', fired);
+		within('Drawn Pistol', '[data-act="critical"]').click();
+		await wait(30);
+		check('and Critical', fired.at(-1) === 'Drawn Pistol critical', fired);
+		check('a hidden strike is not shown', !row('Secret Knife'));
+		// rows hold their content and stay clear of each other, on every device and every tab
+		const layoutProblems = () => {
+			const body = stage().querySelector('.proj-b');
+			const rows = [...body.children].filter((el) => el.getBoundingClientRect().height > 0);
+			const out = [];
+			rows.forEach((el, i) => {
+				const r = el.getBoundingClientRect();
+				if (el.scrollHeight > el.clientHeight + 1) out.push(`${el.className} overflows: ${el.scrollHeight} > ${el.clientHeight}`);
+				const next = rows[i + 1]?.getBoundingClientRect();
+				if (next && next.top < r.bottom - 0.5) out.push(`${el.className} runs into the next row`);
+			});
+			return out;
+		};
+		for (const device of ['omni', 'wrist', 'gdi', 'tron']) {
+			game.settings.set(null, 'device', device);
+			await wait(150);
+			await tab('actions');
+			const found = layoutProblems();
+			check(`${device}: strike rows hold their controls`, !found.length, found);
+		}
+		game.settings.set(null, 'device', 'omni');
+		await wait(150);
+		await tab('actions');
+
+		check('a stowed weapon is listed, without attacks', row('Stowed Rifle') && !within('Stowed Rifle', '[data-act="strike"]'));
+		within('Stowed Rifle', '[data-act="aux"]').click();
+		await wait(30);
+		check('Draw runs the system\'s action', auxCalls.at(-1)?.[0] === 'draw' && auxCalls.at(-1)[1].selection === null, auxCalls);
+		check('with no hands free it says so and offers nothing', /Hands occupied/.test(row('Bound Hands').textContent) && !within('Bound Hands', '[data-act="aux"]'));
+		check('none left, no attacks', /None left/.test(row('Thrown Rock').textContent) && !within('Thrown Rock', '[data-act="strike"]'));
+
+		const altAttack = [...row('Drawn Pistol').querySelectorAll('[data-act="strike"]')].find((b) => b.dataset.k.split(':')[2] === '0');
+		check('auto-fire is labelled', /Auto-fire/.test(row('Drawn Pistol').textContent));
+		altAttack.click();
+		await wait(30);
+		check('auto-fire fires its own attack', fired.at(-1) === 'Burst attack', fired);
+		[...row('Drawn Pistol').querySelectorAll('[data-act="strikeDamage"]')].find((b) => b.dataset.k.includes(':')).click();
+		await wait(30);
+		check('and its own damage', fired.at(-1) === 'Burst damage', fired);
+
+		within('Drawn Pistol', 'select[data-pick="aux"]').value = 'two';
+		within('Drawn Pistol', 'select[data-pick="aux"]').dispatchEvent(new Event('change', { bubbles: true }));
+		await wait(60);
+		check('a choice passes its selection', JSON.stringify(auxCalls.at(-1)) === JSON.stringify(['grip', { selection: 'two' }]), auxCalls);
+
+		check('loaded ammunition shows its count', /Magazine/.test(row('Drawn Pistol').textContent) && /8 \/ 10/.test(row('Drawn Pistol').textContent));
+		within('Drawn Pistol', '[data-act="unload"]').click();
+		await wait(30);
+		check('Unload detaches it', subitemCalls.at(-1)?.[0] === 'detach', subitemCalls);
+
+		let reloads = 0;
+		let selected = 0;
+		const armSheet = () => {
+			sheet.rendered = true;
+			const el = document.createElement('div');
+			el.id = sheet.id;
+			el.innerHTML = `<li data-strike data-action-index="2"><a data-action="reload"></a><div class="loaded" data-item-id="mag2"><button data-action="select-ammo"></button></div></li>`;
+			el.querySelector('[data-action="reload"]').addEventListener('click', () => { reloads += 1; });
+			el.querySelector('[data-action="select-ammo"]').addEventListener('click', () => { selected += 1; });
+			document.body.append(el);
+			return el;
+		};
+		const sheetEl = armSheet();
+		within('Drawn Pistol', '[data-act="reload"]').click();
+		await wait(60);
+		check('Reload presses the right strike\'s button on the sheet', reloads === 1, reloads);
+		within('Drawn Pistol', '[data-act="selectAmmo"]').click();
+		await wait(60);
+		check('choosing loaded ammunition does too', selected === 1, selected);
+		sheetEl.remove();
+		sheet.rendered = false;
+
+		const link = within('Bow', 'select[data-pick="ammo"]');
+		link.value = 'arrows';
+		link.dispatchEvent(new Event('change', { bubbles: true }));
+		await wait(60);
+		check('a bow links ammunition', last()?.[1]?.system?.selectedAmmoId === 'arrows', last());
+		const unlink = within('Bow', 'select[data-pick="ammo"]');
+		unlink.value = '';
+		unlink.dispatchEvent(new Event('change', { bubbles: true }));
+		await wait(60);
+		check('and can clear it', last()?.[1]?.system?.selectedAmmoId === null, last());
+
+		/* ---- abilities ---- */
+		check('feats with an action cost are listed', row('Nova Feat'));
+		check('passive and suppressed feats are not', !row('Passive Feat') && !row('Suppressed Feat'));
+		const macro = [];
+		game.pf2e.rollItemMacro = async (uuid, event) => macro.push([uuid, event?.type]);
+		items.feat1 = actor.itemTypes.feat[0];
+		within('Nova Feat', '[data-act="use"]').click();
+		await wait(30);
+		check('Use goes through the system\'s own route', JSON.stringify(macro.at(-1)) === JSON.stringify(['Actor.asha.Item.feat1', 'click']), macro);
+
+		/* ---- shield ---- */
+		check('no shield, no row', !stage().querySelector('.sfh-shield'));
+		actor.system.attributes.shield = { itemId: 'sh', name: 'Riot Shield', ac: 2, hardness: 5, hp: { value: 15, max: 20 }, raised: false, broken: false, destroyed: false };
+		const raised = [];
+		game.pf2e.actions = { raiseAShield: async (o) => raised.push(o.actors[0].id) };
+		Projection.render();
+		await wait(100);
+		const shieldRowEl = () => stage().querySelector('.sfh-shield');
+		check('a held shield shows its numbers', /Riot Shield/.test(shieldRowEl().textContent) && /AC \+2/.test(shieldRowEl().textContent) && /Hardness 5/.test(shieldRowEl().textContent));
+		await press('[data-act="raiseShield"]');
+		check('Raise goes through the system\'s action', raised[0] === actor.id, raised);
+		const hpBox = shieldRowEl().querySelector('[data-commit="shieldHp"]');
+		hpBox.value = '9';
+		hpBox.dispatchEvent(new Event('change', { bubbles: true }));
+		await wait(40);
+		check('shield hit points are typed', last()?.[1]?.['system.attributes.shield.hp.value'] === 9, last());
+		actor.system.attributes.shield.raised = true;
+		Projection.render();
+		await wait(100);
+		check('a raised shield says so', shieldRowEl().querySelector('[data-act="raiseShield"]').textContent === 'Raised');
+		delete actor.system.attributes.shield;
+
+		/* ---- speed ---- */
+		actor.system.movement = { speeds: { land: { value: 35 } } };
+		delete actor.system.attributes.speed;
+		Projection.render();
+		await wait(100);
+		check('speed comes from where the system keeps it', /35 ft/.test(stage().querySelector('[data-slot="defenses"]').textContent), stage().querySelector('[data-slot="defenses"]').textContent);
+
+		/* ---- recovery ---- */
+		const recoveries = [];
+		actor.rollRecovery = async (e) => recoveries.push(e?.type);
+		check('no recovery check when not dying', !stage().querySelector('[data-act="recovery"]'));
+		actor.system.attributes.dying = { value: 1, max: 4 };
+		Projection.render();
+		await wait(100);
+		await press('[data-act="recovery"]');
+		check('dying offers the recovery check', recoveries[0] === 'click', recoveries);
+		const dyingCell = stage().querySelector('[data-act="recovery"]').closest('.cell');
+		check('the button fits its box', dyingCell.scrollWidth <= dyingCell.clientWidth + 1, [dyingCell.scrollWidth, dyingCell.clientWidth]);
+		actor.system.attributes.dying = { value: 0, max: 4 };
+	}
+
+	/* ---- focus points ---- */
+	actor.system.resources = { ...(actor.system.resources ?? {}), focus: { value: 1, max: 2 } };
+	const focusCalls = [];
+	actor.updateResource = async (slug, value) => focusCalls.push([slug, value]);
+
 	/* ---- spells ---- */
 	await tab('spellcasting');
+	const focusButtons = [...stage().querySelectorAll('[data-act="focus"]')];
+	check('a focus entry shows the pool', focusButtons.length === 2 && /1 \/ 2/.test(focusButtons[0].closest('.kv').textContent));
+	focusButtons[0].click();
+	await wait(30);
+	check('spending a focus point goes through the system', JSON.stringify(focusCalls.at(-1)) === JSON.stringify(['focus', 0]), focusCalls);
+	focusButtons[1].click();
+	await wait(30);
+	check('and regaining one', JSON.stringify(focusCalls.at(-1)) === JSON.stringify(['focus', 2]), focusCalls);
 	check('a cast prepared spell offers Restore', await press('[data-act="restoreSlot"][data-k="sc3:1:0"]'));
 	check('...and restores that slot', JSON.stringify(last()) === JSON.stringify(['setSlotExpendedState', [1, 0, false]]), last());
 	check('an uncast prepared spell still offers Cast', stage().querySelector('[data-act="cast"][data-k^="sc3:s2"]'));
@@ -285,6 +482,27 @@ const results = await page.evaluate(async () => {
 
 	/* ---- inventory ---- */
 	for (const item of actor.inventory) items[item.id] = item;
+	{
+		const gel = actor.inventory.find((i) => i.id === 'i4');
+		const used = [];
+		gel.system.uses = { value: 2, max: 2 };
+		gel.consume = async () => used.push('i4');
+		const omni = actor.inventory.find((i) => i.id === 'i5');
+		omni.system.uses = { value: 0, max: 1 };
+		const ammo = actor.inventory.find((i) => i.id === 'i2');
+		const box = { id: 'box', name: 'Ammo Box', type: 'consumable', isAmmo: true, quantity: 1, isEquipped: false, isInvested: null, system: { bulk: { value: 0 }, uses: { value: 5, max: 5 }, usage: { type: 'carried' }, equipped: { carryType: 'worn' } } };
+		actor.inventory.push(box);
+		items.box = box;
+		await tab('inventory');
+		const useOn = (id) => stage().querySelector(`[data-act="consume"][data-k="${id}"]`);
+		check('a consumable can be used', useOn('i4'));
+		useOn('i4').click();
+		await wait(40);
+		check('Use calls the system\'s consume', used[0] === 'i4', used);
+		check('with no uses left it says so', !useOn('i5') && /None/.test([...stage().querySelectorAll('.li')].find((l) => l.textContent.includes('Omni-Gel')).textContent));
+		check('ammunition has no Use, weapons neither', !useOn('box') && !useOn(ammo.id));
+		actor.inventory.pop();
+	}
 	actor.changeCarryType = async (item, change) => record('changeCarryType', [item.id, change]);
 	actor.toggleInvested = async (id) => record('toggleInvested', id);
 	await tab('inventory');
@@ -329,6 +547,78 @@ const results = await page.evaluate(async () => {
 	await press('[data-act="invest"][data-k="i8"]');
 	check('the gem asks the system', JSON.stringify(last()) === JSON.stringify(['toggleInvested', 'i8']), last());
 	check('the old toggle is gone', !stage().querySelector('[data-act="equip"]'));
+
+	/* ---- giving ---- */
+	const give = (id) => stage().querySelector(`select[data-pick="give"][data-k="${id}"]`);
+	const npc = { id: 'npc', name: 'Harbour Guard', type: 'npc', hasPlayerOwner: false };
+	const ghost = { id: 'ghost', name: 'GM Spare', type: 'character', hasPlayerOwner: false };
+	const vex = game.actors.get('vex');
+	const stash = { id: 'party', name: 'The Party', type: 'party', hasPlayerOwner: false, visible: true };
+	const hiddenStash = { id: 'party2', name: 'Secret Party', type: 'party', hasPlayerOwner: false };
+	const roster = [actor, vex, npc, ghost, stash, hiddenStash, { id: 'zed', name: 'Aria', type: 'character', hasPlayerOwner: true }];
+	const names = (id) => [...give(id).options].map((o) => o.textContent).join();
+	Object.defineProperty(game, 'actors', { configurable: true, value: Object.assign(roster, { get: (id) => roster.find((a) => a.id === id) ?? null }) });
+	Projection.render();
+	await wait(100);
+	check('every item can be given', actor.inventory.every((i) => give(i.id)));
+	check('a player sees other players and what they can see, sorted', names('i2') === 'Give…,Aria,The Party,Vex Kaori', names('i2'));
+	const realUser = Object.getOwnPropertyDescriptor(game, 'user');
+	Object.defineProperty(game, 'user', { configurable: true, get: () => ({ character: actor, isGM: true }) });
+	Projection.render();
+	await wait(100);
+	check('a GM sees every other character and stash', names('i2') === 'Give…,Aria,GM Spare,Secret Party,The Party,Vex Kaori', names('i2'));
+	const unowned = roster.map((a) => (a === actor ? a : { ...a, hasPlayerOwner: false }));
+	Object.defineProperty(game, 'actors', { configurable: true, value: Object.assign(unowned, { get: (id) => unowned.find((a) => a.id === id) ?? null }) });
+	Projection.render();
+	await wait(100);
+	check('a GM alone in a world still has the list', names('i2').includes('Vex Kaori') && !give('i2').disabled, names('i2'));
+	Object.defineProperty(game, 'actors', { configurable: true, value: Object.assign(roster, { get: (id) => roster.find((a) => a.id === id) ?? null }) });
+	Object.defineProperty(game, 'user', realUser);
+	Projection.render();
+	await wait(100);
+	sheet.moveItemBetweenActors = async (event, item, target) => record('moveItemBetweenActors', [event.type, item.id, target.id]);
+	const giveTo = async (id, value) => {
+		const el = give(id);
+		el.value = value;
+		el.dispatchEvent(new Event('change', { bubbles: true }));
+		await wait(80);
+	};
+	const beforeGive = calls.length;
+	await giveTo('i2', '');
+	check('Give… itself does nothing', calls.length === beforeGive);
+	await giveTo('i2', 'vex');
+	check('giving is the same call as dragging onto their sheet', JSON.stringify(last()) === JSON.stringify(['moveItemBetweenActors', ['change', 'i2', 'vex']]), last());
+	check('the picker resets after', give('i2').value === '', give('i2').value);
+	Object.defineProperty(game, 'actors', { configurable: true, value: Object.assign([actor], { get: (id) => (id === actor.id ? actor : null) }) });
+	Projection.render();
+	await wait(100);
+	check('with nobody to give to the picker stays, greyed out', give('i2')?.disabled && give('i2').options.length === 1);
+	check('...and says why', /no other character/.test(give('i2').title), give('i2')?.title);
+
+	/* ---- money ---- */
+	const coinButtons = (el) => {
+		el.innerHTML = '<div class="coinage"><button data-action="add-coins"></button><button data-action="remove-coins"></button></div>';
+		for (const b of el.querySelectorAll('button')) b.addEventListener('click', () => record('sheet button', b.dataset.action));
+	};
+	const originalRender = sheet.render;
+	sheet.render = function render() {
+		setTimeout(() => {
+			const el = document.createElement('div');
+			el.id = this.id;
+			coinButtons(el);
+			document.body.append(el);
+			this.rendered = true;
+		}, 40);
+		return this;
+	};
+	await press('[data-act="addCoins"]');
+	await wait(200);
+	check('+ presses the sheet\'s add-coins', JSON.stringify(calls[calls.length - 1]) === JSON.stringify(['sheet button', 'add-coins']), last());
+	check('...and leaves no sheet behind', !sheet.rendered && !document.getElementById(sheet.id));
+	await press('[data-act="removeCoins"]');
+	await wait(200);
+	check('− presses the sheet\'s remove-coins', JSON.stringify(calls[calls.length - 1]) === JSON.stringify(['sheet button', 'remove-coins']), last());
+	sheet.render = originalRender;
 	const sameRight = [...stage().querySelectorAll('select[data-pick="carry"]')].map((s) => Math.round(s.getBoundingClientRect().right));
 	check('the pickers line up', new Set(sameRight).size === 1, sameRight);
 

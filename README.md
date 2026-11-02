@@ -56,6 +56,13 @@ one character and have none assigned, it shows that one.
     damage application where it has one.
   - **Rolls** — skills, saves, perception, initiative, strikes and damage — are the
     system's own.
+  - **Weapons** (PF2e and SF2e) keep the sheet's controls on the Actions tab: drawing, stowing and
+    changing grip, reloading, unloading and choosing ammunition, and other usages such as
+    auto-fire. A held shield shows its hit points, with Raise a Shield.
+  - **Abilities** (PF2e and SF2e): the Actions tab lists feats that cost an action as well as
+    action items, and Use counts down limited uses as the sheet does.
+  - **Dying** (PF2e and SF2e) offers the recovery check, consumables have a Use button, and focus
+    points are set from the Spells tab.
   - **Conditions** are added from the effects panel's picker — the system's own list — and
     removed from their chips. PF2e's valued conditions are raised and lowered on the chip.
   - **Spells** are cast from the Spells tab through the system, which spends the slot, focus
@@ -68,6 +75,12 @@ one character and have none assigned, it shows that one.
   - **Carrying and equipping** (PF2e and SF2e) use the same choices as the sheet's carry menu,
     on each item in the Inventory tab: held in one or two hands, Worn (Armor) to put armor on,
     worn, implanted, stowed or dropped, with the gem for investing what can be invested.
+  - **Money** (PF2e and SF2e) has + and − beside the Currency line, which open the system's own
+    dialog.
+  - **Giving and trading** (PF2e and SF2e): each item's Give list hands it to another character
+    or the party's stash, by the same route as dragging it onto their sheet. A GM moves it
+    directly; a player sends the system's trade request, which the other player has to be online
+    to answer.
   - **Quick search** (PF2e and SF2e) on the Inventory tab finds equipment as you type, using the
     Compendium Browser's own index. Add puts a result straight into the inventory, free, as the
     browser's Take button does; Buy pays its price first, as its Buy button does. Browse opens

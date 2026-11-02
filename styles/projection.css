@@ -78,6 +78,8 @@
 #sfh-projection .sfh-stage[data-device="wrist"] .pip, #sfh-projection .sfh-stage[data-device="wrist"] .dot{transform:none;border-radius:50%;width:17px;height:17px}
 /* segmented tracks — hero points, dying: one segment per point, slanted on the omni-tool, pills on the wrist, blocks on the EVA */
 #sfh-projection .trk{gap:6px}
+#sfh-projection .trk-h{display:flex;align-items:center;justify-content:center;gap:4px;max-width:100%}
+#sfh-projection .b.trk-roll{min-height:0;height:15px;padding:0 4px;font-size:9.5px;line-height:1;border-color:var(--bad);color:var(--bright)}
 #sfh-projection .segs{display:flex;justify-content:center;gap:4px;width:100%;padding:0 5px;box-sizing:border-box}
 #sfh-projection .seg{flex:0 1 18px;min-width:8px;height:13px;min-height:0;padding:0;border:1px solid var(--line);background:rgba(255,255,255,.04);cursor:pointer;transform:skewX(-20deg)}
 #sfh-projection .seg:hover{background:var(--hover);border-color:var(--hot)}
@@ -111,6 +113,8 @@
 #sfh-projection .proj-t{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--bright);margin-right:10px}
 #sfh-projection .src{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--dim);opacity:.8}
 #sfh-projection .proj-b{padding:12px 16px 18px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto}
+/* the body scrolls: a row keeps its height rather than shrinking and spilling onto the next */
+#sfh-projection .proj-b>*, #sfh-projection .sfh-results>*{flex:none}
 #sfh-projection .sec{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:8px;margin-top:4px}
 #sfh-projection .sec::after{content:'';flex:1;border-top:1px solid var(--line2)}
 #sfh-projection .li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-height:38px;padding:4px 10px;border:1px solid var(--line2);background:var(--pnl2);border-radius:calc(var(--r)*.6)}
@@ -143,8 +147,16 @@
 #sfh-projection .li.qs img{width:24px;height:24px;flex:none;object-fit:contain;border:0}
 #sfh-projection .li>.qs-price{flex:none;min-width:48px;text-align:right}
 #sfh-projection .qs-more{font-size:12px}
+/* a strike's ammunition and the sheet's other weapon buttons */
+#sfh-projection .sfh-ammo{gap:6px;flex-wrap:wrap;width:100%}
+#sfh-projection .sfh-ammo .sel, #sfh-projection .sel.sfh-aux{height:24px;min-height:0;padding:0 4px;font-size:11.5px;max-width:190px}
+#sfh-projection .sfh-ammo .sel option, #sfh-projection .sel.sfh-aux option{background:#0a0b0e;color:#eee}
+#sfh-projection .sfh-shield .sfh-in{width:3.2em;height:24px;min-height:0;flex:none}
 /* how an item is carried, and its gem: fixed widths, so the columns line up down the tab */
-#sfh-projection .li>.carry, #sfh-projection .li>.invest, #sfh-projection .li>.invest-gap{flex:none}
+#sfh-projection .li>.carry, #sfh-projection .li>.give, #sfh-projection .li>.invest, #sfh-projection .li>.invest-gap{flex:none}
+#sfh-projection .sel.give{width:72px;height:24px;min-height:0;padding:0 4px;font-size:11.5px;color:var(--dim)}
+#sfh-projection .sel.give option{background:#0a0b0e;color:#eee}
+#sfh-projection .sel.give:disabled{opacity:.45;cursor:default}
 #sfh-projection .sel.carry{width:112px;height:24px;min-height:0;padding:0 4px;font-size:11.5px}
 #sfh-projection .sel.carry.on{border-color:var(--hot);color:var(--bright);background:var(--hotbg)}
 #sfh-projection .sel.carry option{background:#0a0b0e;color:#eee}

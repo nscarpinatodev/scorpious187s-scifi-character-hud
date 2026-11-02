@@ -553,8 +553,9 @@ export class Projection {
 			// a picker hands its choice to the adapter; the new chip arrives with the actor's update
 			const pick = event.target.closest('[data-pick]');
 			if (pick) {
-				const action = { condition: 'addCondition', rank: 'setRank', carry: 'setCarry' }[pick.dataset.pick];
-				if (!action || !pick.value) return;
+				const action = { condition: 'addCondition', rank: 'setRank', carry: 'setCarry', give: 'giveItem', aux: 'aux', ammo: 'linkAmmo' }[pick.dataset.pick];
+				// choosing "none" is a choice only where the picker says so
+				if (!action || (!pick.value && !pick.dataset.allowEmpty)) return;
 				// a picker on one thing of many says which, as a button does
 				const value = pick.dataset.k ? `${pick.dataset.k}:${pick.value}` : pick.value;
 				try {
@@ -570,7 +571,7 @@ export class Projection {
 			if (!field) return;
 			const value = Number(field.value);
 			if (!Number.isFinite(value)) return this.render();
-			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax' }[field.dataset.commit];
+			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax', shieldHp: 'setShieldHp' }[field.dataset.commit];
 			if (!action) return;
 			try {
 				await adapter.act(actor, action, value, event);
