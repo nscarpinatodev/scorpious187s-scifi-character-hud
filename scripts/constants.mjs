@@ -3,7 +3,7 @@
 export const MOD = 'scorpious187s-scifi-character-hud';
 
 /**
- * The devices. A device decides three things: the colours the interface takes, whether
+ * The devices. A device decides three things: the colors the interface takes, whether
  * anything is drawn at the foot of the screen, and how the projection opens and closes.
  *
  *  - `art`      the id of the art layer drawn at the bottom of the interface, if any.
@@ -29,9 +29,12 @@ export const S = {
 	deckSize: 'deckSize',         // client — macro bar key size on the device, px
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
 	controlIcons: 'controlIcons', // client — sci-fi icons on the scene controls
-	chatCards: 'chatCards',       // client — chat cards in the device's colours, not on parchment
+	chatCards: 'chatCards',       // client — chat cards in the device's colors, not on parchment
+	carousel: 'carousel',         // client — the turn order as a row of portraits across the top
+	carouselScale: 'carouselScale', // client — how large the carousel is, %
+	carouselLayout: 'carouselLayout', // client — the current turn on the left, or centered
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
-	headingColor: 'headingColor', // client — the player's own colour for the interface's headings
+	headingColor: 'headingColor', // client — the player's own color for the interface's headings
 	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names
 	fontBody: 'fontBody',         // client — the player's own font for text
 	fontMono: 'fontMono',         // client — the player's own font for numbers and readouts
@@ -55,6 +58,7 @@ export const EL = {
 	restore: 'sfh-restore',    // the key that brings a hidden HUD back
 	projection: 'sfh-projection',
 	beam: 'sfh-beam',           // the cone of light from the emitter to the projection
+	carousel: 'sfh-carousel',   // the turn order across the top of the screen
 };
 
 /** The Mass Effect conversion, whose data the Dossier panel reads. */

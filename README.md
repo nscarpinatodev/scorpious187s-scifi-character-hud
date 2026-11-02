@@ -93,22 +93,32 @@ one character and have none assigned, it shows that one.
 - **The latest roll** (PF2e and SF2e), in a strip over the main panel: what you rolled, the total,
   the outcome if the world shows it, and Damage and Critical for an attack. It stays out of the
   way until you roll, and never shows a roll you could not see in chat.
-- **A readout panel** describing whatever you point at, and pinning it when you click. It keeps
-  showing the last thing you pointed at, so you can move onto it and scroll a long description.
+- **A readout panel** describing whatever you point at or click. It keeps showing the last thing
+  you chose, even when you change page, so you can move onto it and scroll a long description.
 - **A Mass Effect dossier**, when the
   [Mass Effect conversion](https://github.com/nscarpinatodev/mass-effect-sf2e-conversion) or
   the shield automation module is active: shields and the Paragon/Renegade tracks. It reads
   those modules' data and never edits it.
-- **The whole interface in the device's colours** — sidebar, chat, scene bar, controls and
+- **The whole interface in the device's colors** — sidebar, chat, scene bar, controls and
   player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
   icons; each control still does exactly what it did.
 - **Headings that fit.** The sidebar's headings scale to fit its width in whatever face is
-  showing, and take the device's main colour or one you choose.
+  showing, and take the device's main color or one you choose.
 - **Your own fonts.** Each player can set a heading, text and number font of their own:
   one installed on their computer (Myriad Pro, say), one the GM has added under
   *Additional Fonts* in Foundry's Core settings, or any Google Fonts family, fetched when
   it is not installed. The omni-tool's own headings are Michroma, wide squared capitals
   in the manner of Mass Effect's.
+- **The same HUD in D&D 5e**, through 5e's own calls: attacks and features to use, spell slots to
+  spend and restore, preparing spells, equipping and attuning, typed coins, quick search with Add
+  and Buy, an editable Biography and the latest-roll strip. Giving an item to a character you do not
+  own goes through the GM's client, so a GM has to be online.
+- **A carousel combat tracker**, if you turn it on: the turn order as a row of portraits across
+  the top of the screen, in your device's style, with the current turn on the left or centered, as
+  you choose. Hover to light a token, click to pan to it, double-click for its sheet, right-click
+  for the same menu as the sidebar tracker, and the wheel scrolls a long row. Everyone can target
+  from a card, and the GM can also mark a combatant hidden or defeated, and has the sidebar
+  tracker's encounter menu on the round bar. It shows only what the sidebar tracker would show you.
 - **Power sequences.** The omni-tool's panels rise out of the band, the wrist computer's
   case swings up from its base, the EVA's picture opens out of a scan line, and TRON's panels
   rez in behind a ribbon of light.
@@ -137,9 +147,12 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
 | Etched grid | client | The etching on the projection: hexes on the omni-tool, a square grid on TRON. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
-| Chat cards in the device's colours | client | Draws chat messages and rolls on the device's panels. Off keeps Foundry's parchment, if a system's or module's cards are hard to read this way. |
+| Chat cards in the device's colors | client | Draws chat messages and rolls on the device's panels. Off keeps Foundry's parchment, if a system's or module's cards are hard to read this way. |
 | Heading font, Text font, Number font | client | Your own font in place of the device's. Type its name; the settings window suggests the fonts it finds. Empty keeps the device's. |
-| Heading colour | client | The colour of the interface's headings. Empty keeps the main colour of the device you are wearing. |
+| Carousel combat tracker | client | Also shows the turn order as portraits across the top of the screen. Off by default. |
+| Carousel layout | client | The current turn on the left, or centered with who just went on its left. |
+| Carousel size | client | How large the carousel is, from 50% to 200%. |
+| Heading color | client | The color of the interface's headings. Empty keeps the main color of the device you are wearing. |
 | Fetch fonts from Google Fonts | client | Fetch a font named above from Google Fonts when it is not installed or in Foundry. Off keeps the table offline. |
 
 ## For macro writers
@@ -152,7 +165,7 @@ hud.hide();            // hide the HUD; hud.hide(false) brings it back
 hud.debug();           // log what is mounted and where
 ```
 
-## Licence
+## License
 
-MIT. The fonts in `fonts/` are under the SIL Open Font License; each one's licence is
+MIT. The fonts in `fonts/` are under the SIL Open Font License; each one's license is
 beside it.

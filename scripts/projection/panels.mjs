@@ -14,8 +14,8 @@ export function renderIdentity(c, device) {
 		<span class="mono" style="font-size:13px">${c.xp.value.toLocaleString()} / ${c.xp.max.toLocaleString()}</span>
 		${bar(c.xp.value, c.xp.max)}</div>`;
 	const rest = c.system === 'dnd5e'
-		? `${actBtn('Short rest', 'rest', 'short', { cls: 'sm ghost' })}${actBtn('Long rest', 'rest', 'long', { cls: 'sm ghost' })}`
-		: actBtn('Rest', 'rest', 'night', { cls: 'sm ghost' });
+		? `${actBtn('Short rest', 'rest', 'short', { cls: 'sm ghost', extra: 'sfh-rest' })}${actBtn('Long rest', 'rest', 'long', { cls: 'sm ghost', extra: 'sfh-rest' })}`
+		: actBtn('Rest', 'rest', 'night', { cls: 'sm ghost', extra: 'sfh-rest' });
 	const gear = `<button type="button" class="b ic" data-act="settings" data-k="" data-tooltip="Device settings" aria-label="Device settings">
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></button>`;
 	const sheet = `<button type="button" class="b ic" data-act="sheet" data-k="" data-tooltip="Open the system sheet" aria-label="Open the system sheet">
@@ -77,13 +77,13 @@ export function renderVitals(c) {
 	} else {
 		// one track: three successes, a divider, three failures
 		const death = (key, count, cls) => Array.from({ length: 3 }, (_, i) =>
-			`<button type="button" class="seg ${cls} ${i < count ? 'on' : ''}" data-act="death" data-k="${key}" aria-label="Death save ${key} ${i + 1}"></button>`).join('');
+			`<button type="button" class="seg ${cls} ${i < count ? 'on' : ''}" data-act="deathMark" data-k="${key}:${i + 1}" aria-label="Death save ${key} ${i + 1}"></button>`).join('');
 		const saves = `Death saves: ${v.death.success} succeeded, ${v.death.failure} failed`;
 		cells = `<button type="button" class="cell" data-act="hd" data-k="">${lbl('Hit Dice')}<span class="v">${v.hd.value}/${v.hd.max}</span></button>
 			<button type="button" class="cell" data-act="insp" data-k="" aria-pressed="${v.inspiration}">${lbl('Inspiration')}<span class="v ${v.inspiration ? 'hot' : 'dimc'}">${v.inspiration ? '●' : '○'}</span></button>
-			<div class="cell trk ${v.death.failure > 0 ? 'alert' : ''}" data-tooltip="${saves}" aria-label="${saves}">${lbl('Death Saves')}
+			<div class="cell trk ${v.death.failure > 0 ? 'alert' : ''}" data-tooltip="${saves}" aria-label="${saves}"><div class="trk-h">${lbl('Death Saves')}${actBtn('Roll', 'deathRoll', '', { cls: 'sm trk-roll', title: 'Roll a death save' })}</div>
 				<div class="segs">${death('success', v.death.success, '')}<span class="segsep"></span>${death('failure', v.death.failure, 'bad')}</div></div>
-			${counter('Exhaustion', v.exhaustion, 'exhaustion', 'warn')}`;
+			${track('Exhaustion', v.exhaustion, 'exhaustion', { bad: true })}`;
 	}
 	return `<div class="cells scroll">${hp}${cells}</div>`;
 }
@@ -176,11 +176,11 @@ export function renderEffectsSlot(c) {
 
 export function renderExtras(c) {
 	const x = c.extras;
-	const track = (key, value, colour) => {
+	const track = (key, value, color) => {
 		const ticks = [20, 40, 60, 80].map((p) => `<span style="position:absolute;left:${p}%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.35)"></span>`).join('');
-		return `<button type="button" class="b" data-act="pin" data-k="pr:${key}" ${ro(`pr:${key}`)} style="display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:5px 8px;min-height:0;border-color:${colour}55">
-			<span class="row sp" style="font-size:11px;font-weight:700;letter-spacing:.12em;color:${colour}">${key.toUpperCase()}<span class="mono" style="font-size:14px">${value}</span></span>
-			<span style="position:relative;height:6px;background:rgba(255,255,255,.08)"><span style="position:absolute;left:0;top:0;bottom:0;width:${Math.max(0, Math.min(100, value))}%;background:${colour};box-shadow:0 0 8px ${colour}"></span>${ticks}</span></button>`;
+		return `<button type="button" class="b" data-act="read" data-k="pr:${key}" ${ro(`pr:${key}`)} style="display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:5px 8px;min-height:0;border-color:${color}55">
+			<span class="row sp" style="font-size:11px;font-weight:700;letter-spacing:.12em;color:${color}">${key.toUpperCase()}<span class="mono" style="font-size:14px">${value}</span></span>
+			<span style="position:relative;height:6px;background:rgba(255,255,255,.08)"><span style="position:absolute;left:0;top:0;bottom:0;width:${Math.max(0, Math.min(100, value))}%;background:${color};box-shadow:0 0 8px ${color}"></span>${ticks}</span></button>`;
 	};
 	const shields = x.shields
 		? `<div ${ro('shield')} style="display:flex;flex-direction:column;gap:4px">
@@ -228,9 +228,10 @@ export function renderReadout(entry) {
 	const meta = (entry.meta ?? []).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
 	return `<div class="row sp"><span class="lbl">${esc(entry.kind ?? '')}</span>${entry.cost ? `<span class="cost">${esc(entry.cost)}</span>` : ''}</div>
 		<h3>${esc(entry.name)}</h3>
+		${entry.actions ?? ''}
 		${traits ? `<div style="display:flex;flex-wrap:wrap;gap:4px">${traits}</div>` : ''}
 		${meta ? `<dl class="meta">${meta}</dl>` : ''}
-		${entry.text ? `<p>${esc(entry.text)}</p>` : ''}`;
+		${entry.html != null ? `<div class="ro-text">${entry.html}</div>` : ''}`;
 }
 
 /* -------------------------------------------- */

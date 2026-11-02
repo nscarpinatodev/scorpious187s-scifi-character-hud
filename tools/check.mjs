@@ -49,7 +49,7 @@ for (const file of manifest.styles) {
 	if (open !== close) fail(`${file}: unbalanced braces (${open} open, ${close} close)`);
 }
 
-/* ---- every font a stylesheet points at is there, and every font has its licence beside it ---- */
+/* ---- every font a stylesheet points at is there, and every font has its license beside it ---- */
 for (const file of manifest.styles) {
 	const css = readFileSync(join(root, file), 'utf8');
 	for (const [, url] of css.matchAll(/url\("?(\.\.\/fonts\/[^")]+)"?\)/g)) {
@@ -59,8 +59,8 @@ for (const file of manifest.styles) {
 const fontDir = join(root, 'fonts');
 for (const font of existsSync(fontDir) ? readdirSync(fontDir) : []) {
 	if (!/\.(woff2|ttf)$/.test(font)) continue;
-	const licence = `OFL-${font.split(/[-.]/)[0].toLowerCase()}.txt`;
-	if (!existsSync(join(fontDir, licence))) fail(`fonts/${font} has no ${licence} beside it`);
+	const license = `OFL-${font.split(/[-.]/)[0].toLowerCase()}.txt`;
+	if (!existsSync(join(fontDir, license))) fail(`fonts/${font} has no ${license} beside it`);
 }
 
 /* ---- the palette every device must define (the omni-tool's is the unqualified default) ---- */

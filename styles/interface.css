@@ -1,5 +1,5 @@
 /* =========================================================================
-   The interface, in the device's colours.
+   The interface, in the device's colors.
 
    Foundry's own furniture is built on a small palette of custom properties.
    The device's palette is mapped onto those inside the interface regions, so
@@ -81,7 +81,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(b
 /* ---------------------------------------------------------------- controls */
 /*
  * Every square button Foundry draws — scene controls, sidebar tabs, scene names, the token
- * HUD — is a .ui-control taking its colours from these. Foundry sets them on the element
+ * HUD — is a .ui-control taking its colors from these. Foundry sets them on the element
  * itself, so they have to be set there rather than inherited.
  */
 body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu) :is(.ui-control, .placeable-hud) {
@@ -210,7 +210,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .
 }
 
 /*
- * ...and its heading colour, outside the chat log: a card's headings belong to the card, and
+ * ...and its heading color, outside the chat log: a card's headings belong to the card, and
  * may be on parchment. scripts/interface/headings.mjs sizes these to fit the sidebar.
  */
 body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .window-title, legend):not(.chat-log *) {
@@ -234,11 +234,11 @@ body[data-sfh-device] .chat-log :is(h1, h2, h3, h4) {
 /* ---------------------------------------------------------------- combat tracker */
 /*
  * Foundry's own tracker, which every system here builds on. The current turn is what a player
- * looks for, so it gets the device's main colour, a bar down its edge and the glow; everyone else
+ * looks for, so it gets the device's main color, a bar down its edge and the glow; everyone else
  * stays quiet. Initiative reads like the device's other numbers.
  */
 body[data-sfh-device] :is(#combat, #combat-popout) {
-	/* the current turn's edge. A system can still recolour it by disposition, from this default */
+	/* the current turn's edge. A system can still recolor it by disposition, from this default */
 	--color-warm-2: var(--sfh-hot);
 	--entry-hover-bg: var(--sfh-hover);
 	--entry-active-bg: var(--sfh-hover);
@@ -293,7 +293,7 @@ body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.ac
 	box-shadow: inset 3px 0 0 var(--sfh-hot), 0 0 12px var(--sfh-glow);
 }
 
-/* Foundry's own marker for the current turn: the edge above does this, unless a system recolours it */
+/* Foundry's own marker for the current turn: the edge above does this, unless a system recolors it */
 body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active::before {
 	border-radius: var(--sfh-radius);
 }
@@ -307,7 +307,7 @@ body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.ac
 	color: var(--sfh-heading);
 }
 
-/* Foundry paints a defeated name in a colour the palette turns nearly transparent */
+/* Foundry paints a defeated name in a color the palette turns nearly transparent */
 body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.defeated {
 	background: none;
 	border-color: var(--sfh-line-2);
@@ -390,7 +390,7 @@ body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.ac
 	text-shadow: 0 0 8px var(--sfh-glow);
 }
 
-/* the roll button is an image: used as a mask, it takes the device's colour */
+/* the roll button is an image: used as a mask, it takes the device's color */
 body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-initiative button {
 	flex: none;
 	width: 26px;
@@ -448,8 +448,8 @@ body[data-sfh-device]:is([data-sfh-device="gdi"], [data-sfh-device="nod"]) :is(#
 /* ---------------------------------------------------------------- chat */
 /*
  * Foundry prints chat on parchment, in a light theme of its own. Here the cards are the
- * device's panels instead, which means giving that light theme's text dark-mode colours.
- * A game system's cards can bring colours of their own, so the setting that switches this
+ * device's panels instead, which means giving that light theme's text dark-mode colors.
+ * A game system's cards can bring colors of their own, so the setting that switches this
  * off puts the parchment back.
  */
 body[data-sfh-device][data-sfh-chat="on"] :is(.chat-log, #chat-notifications, .chat-message) {
@@ -470,6 +470,80 @@ body[data-sfh-device][data-sfh-chat="on"] :is(.chat-log, #chat-notifications, .c
 	--color-dark-2: var(--sfh-text);
 	--color-dark-3: var(--sfh-dim);
 	--color-dark-4: var(--sfh-dim);
+}
+
+/*
+ * D&D 5e draws its cards from colors of its own, set on each message as Foundry's are. Other
+ * systems do not use these, so they cost nothing there.
+ */
+body[data-sfh-device][data-sfh-chat="on"] .chat-message {
+	--dnd5e-chat-background: var(--sfh-panel);
+	--dnd5e-background-card: var(--sfh-cell);
+	--dnd5e-background-parchment: var(--sfh-cell);
+	--dnd5e-background-alt-1: var(--sfh-cell);
+	--dnd5e-background-alt-2: var(--sfh-hover);
+	--dnd5e-color-card: var(--sfh-cell);
+	--dnd5e-color-parchment: var(--sfh-panel);
+	--dnd5e-chat-button-background: var(--sfh-cell);
+	--dnd5e-chat-button-border: var(--sfh-line);
+	--dnd5e-chat-breakdown-border: var(--sfh-line-2);
+	--dnd5e-border-gold: 1px solid var(--sfh-line);
+	--dnd5e-border-dotted: 1px dotted var(--sfh-line-2);
+	--dnd5e-border-separator-heavy: 2px solid var(--sfh-line);
+	--dnd5e-color-gold: var(--sfh-line);
+	--dnd5e-color-black: var(--sfh-line);
+	--dnd5e-color-blue-gray-1: var(--sfh-cell);
+	--dnd5e-color-blue-gray-2: var(--sfh-cell);
+	--dnd5e-color-blue-gray-3: var(--sfh-dim);
+	--dnd5e-color-blue-gray-4: var(--sfh-line);
+	--dnd5e-color-success: #4bd67a;
+	--dnd5e-color-success-critical: #8dffb0;
+	--dnd5e-color-success-background: color-mix(in srgb, #2fbf5f 20%, var(--sfh-panel));
+	--dnd5e-color-failure: var(--sfh-bad);
+	--dnd5e-color-failure-critical: var(--sfh-bad);
+	--dnd5e-color-failure-background: color-mix(in srgb, var(--sfh-bad) 20%, var(--sfh-panel));
+	--dnd5e-font-roboto: var(--sfh-face);
+	--dnd5e-font-roboto-condensed: var(--sfh-face);
+	--dnd5e-font-roboto-slab: var(--sfh-display);
+	--color-text-tertiary: var(--sfh-dim);
+	--color-border-light-2: var(--sfh-line-2);
+	--button-background-color: var(--sfh-cell);
+	--button-border-color: var(--sfh-line);
+	--button-text-color: var(--sfh-text);
+	--button-hover-background-color: var(--sfh-hover);
+	--button-hover-border-color: var(--sfh-hot);
+	--button-hover-text-color: var(--sfh-bright);
+	--pill-background-color: var(--sfh-cell);
+	--pill-transparent-color: var(--sfh-text);
+	--pill-colored-text-color: var(--sfh-bright);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .chat-card :is(.title, .name-stacked .title) {
+	color: var(--sfh-heading);
+	font-family: var(--sfh-display);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .chat-card .subtitle {
+	color: var(--sfh-dim);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .chat-card .pill {
+	background: var(--sfh-cell);
+	border-color: var(--sfh-line-2);
+	color: var(--sfh-text);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .chat-card button {
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line);
+	color: var(--sfh-text);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .chat-card button:hover {
+	background: var(--sfh-hover);
+	border-color: var(--sfh-hot);
+	color: var(--sfh-bright);
+	box-shadow: 0 0 8px var(--sfh-glow);
 }
 
 body[data-sfh-device][data-sfh-chat="on"] .chat-message {
@@ -498,6 +572,19 @@ body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll :is(.dice-for
 body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total {
 	font-family: var(--sfh-mono);
 	text-shadow: 0 0 8px var(--sfh-glow);
+}
+
+/* a critical or a fumble still has to stand out from an ordinary total, in any system */
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:is(.critical, .success):not(.fumble) {
+	background: color-mix(in srgb, #2fbf5f 20%, var(--sfh-panel));
+	border-color: #4bd67a;
+	color: #8dffb0;
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:is(.fumble, .failure):not(.critical) {
+	background: color-mix(in srgb, var(--sfh-bad) 20%, var(--sfh-panel));
+	border-color: var(--sfh-bad);
+	color: var(--sfh-bad);
 }
 
 body[data-sfh-device][data-sfh-chat="on"] .chat-message a:not(.content-link, .inline-roll) {

@@ -1,4 +1,4 @@
-# Normalise text files to LF in the repository.
+# Normalize text files to LF in the repository.
 * text=auto eol=lf
 
 # Treat binary assets as binary.

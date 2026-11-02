@@ -7,7 +7,7 @@
 
 #sfh-projection {
 	position: fixed;
-	/* the device's centre line, measured by fit() */
+	/* the device's center line, measured by fit() */
 	left: var(--sfh-proj-left, 50%);
 	bottom: var(--sfh-proj-bottom, 90px);
 	width: var(--sfh-proj-width, 60vw);
@@ -63,7 +63,7 @@
 /* ---------------------------------------------------------------- the beam */
 /*
  * Light between the emitter and the picture. Its shape is set from the two rectangles it
- * joins; all this does is colour it and fade it in with the power.
+ * joins; all this does is color it and fade it in with the power.
  */
 #sfh-beam {
 	position: fixed;

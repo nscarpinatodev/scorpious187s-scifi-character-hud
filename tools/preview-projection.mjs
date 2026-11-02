@@ -39,7 +39,7 @@ for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
 		const proj = r(document.getElementById('sfh-projection'));
 		const sidebar = r(document.getElementById('sidebar'));
 		const leftCol = r(document.getElementById('ui-left-column-1'));
-		// a device with art is stood on, not cleared: measure the plate, not the layer, whose
+		// a device with art stands on the panels, which do not clear it: measure the plate, not the layer, whose
 		// box reaches above it to hold the emitter glow
 		const device = r(document.getElementById('sfh-arm') ?? document.getElementById('sfh-device'));
 		const slots = [...document.querySelectorAll('#sfh-projection [data-slot]')].map((n) => n.dataset.slot);

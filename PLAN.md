@@ -19,7 +19,7 @@ Not a character sheet. A **UI theme**:
 - Foundry's **own macro bar** rides on the device;
 - the device's switch — the omni-tool's band, a power key on the bar for the others — raises
   a **projected character sheet** over the canvas;
-- the rest of the interface (scene bar, controls, sidebar, player list) is recoloured to match,
+- the rest of the interface (scene bar, controls, sidebar, player list) is recolored to match,
   and never covered by the projection.
 
 ## Ground rule: skin, don't fork
@@ -58,7 +58,8 @@ scripts/
     helpers.mjs         the mock-up's markup helpers
   interface/
     controls.mjs        sci-fi icons for the scene controls, through getSceneControlButtons
-    headings.mjs        the sidebar's headings: scaled to fit, and their colour
+    headings.mjs        the sidebar's headings: scaled to fit, and their color
+    carousel.mjs        the optional turn order as portraits across the top of the screen
     placement.mjs       clears the HUD while something is being placed on the canvas
     fonts.mjs           a player's own fonts: applied as custom properties, fetched from
                         Google Fonts when missing, suggested in the settings window
@@ -66,11 +67,12 @@ scripts/
     index.mjs           picks the adapter for the running system
     pf2e-family.mjs     SF2e and PF2e: what the panels show, what each button does
     dnd5e.mjs           D&D 5e: the same, through its own API
-fonts/                  the devices' typefaces (OFL), each with its licence
+fonts/                  the devices' typefaces (OFL), each with its license
 styles/
   fonts.css             @font-face for everything in fonts/
   device.css            device palettes, the arm, the macro bar skin, device sequences
-  interface.css         the device palette mapped onto Foundry's own interface colours
+  interface.css         the device palette mapped onto Foundry's own interface colors
+  carousel.css          the carousel, in each device's shape
   projection.css        GENERATED from design/1-head.html by tools/port-css.py
   projection-frame.css  where the board sits on screen
 tools/
@@ -82,7 +84,8 @@ tools/
   preview-projection.mjs  raises the projection on each device and asserts what it drew
   test-placement.mjs    runs a placement through the real watcher on each device
   test-sheet-controls.mjs  presses the spell, skill and inventory controls and checks the calls
-  test-tracker.mjs      checks the combat tracker's colours and layout on every device
+  test-tracker.mjs      checks the combat tracker's colors and layout on every device
+  test-carousel.mjs     checks what the carousel shows each user, its controls and its layout
   test-headings.mjs     checks the sidebar's headings fit, in each device and a wide font
 ```
 
@@ -105,9 +108,9 @@ module touches — `#interface > #ui-middle > #ui-bottom`, the hotbar markup fro
 rendered and measured headlessly before it is ever loaded in a world. Geometry is asserted in
 numbers (is the bar 74% of the plate? is it clear of the band?), not eyeballed.
 
-The panels in it use Foundry's own markup from its templates and take their colours only from
+The panels in it use Foundry's own markup from its templates and take their colors only from
 Foundry's stylesheet and the module's. They once painted themselves from the palette, which showed
-a themed interface here while real Foundry drew none of it: never colour anything in the harness.
+a themed interface here while real Foundry drew none of it: never color anything in the harness.
 
 ## Devices
 
@@ -115,7 +118,7 @@ a themed interface here while real Foundry drew none of it: never colour anythin
 |---|---|---|---|
 | Omni-tool | forearm plate + emitter band | the band itself | panels rise out of the band, beam widens with them |
 | Wrist computer | none | power key on the bar | the case hinges down from its base |
-| EVA (GDI / Nod) | none | power key on the bar | a pulse draws across the centre, the picture opens out of it |
+| EVA (GDI / Nod) | none | power key on the bar | a pulse draws across the center, the picture opens out of it |
 | TRON | deck of light lines + identity disc | the disc itself | a ribbon of light sweeps up as the panels rez in, in hard steps; they derez into a line |
 
 The wrist unit and the EVA draw their housing around the **projection**, not at the foot of the
@@ -129,7 +132,7 @@ work from those two ids. TRON shares the omni-tool's layout and tab arc.
 moved onto the omni-tool's arm and sized to it, or docked with a power key for the others; the
 band and the power key raise and lower the projection; per-user settings.
 
-**Done — the interface palette.** The device's colours are mapped onto Foundry's own colour
+**Done — the interface palette.** The device's colors are mapped onto Foundry's own color
 properties inside the interface regions, and each panel takes the device's edge, glow and active
 state, so the sidebar, chat, scene bar, controls, player list, token HUD, menus and tooltips
 follow the device. Foundry's theme sets many of its properties on the elements that use them
@@ -150,7 +153,7 @@ over the canvas.
 two read as one machine, and the projection stands on the plate. The other devices take a
 share of the free room set by the "Wrist computer and EVA projection size" setting, 55% by
 default, so the projection sits above the device instead of swallowing the map; the setting
-says in its name and hint that the omni-tool is not affected. The projection is centred on
+says in its name and hint that the omni-tool is not affected. The projection is centered on
 the device it comes out of, and
 keeps clear only of the panels actually beside it — Foundry's region boxes are mostly
 empty, and #ui-left's scene-navigation column stretches to the middle of the screen.
@@ -161,6 +164,10 @@ the tab's last content until it resolves, and only the newest render may fill it
 
 **Done — hiding.** A rebindable key clears the art, the projection and the beam off the
 screen without switching anything off; the macro bar stays with a restore key on it.
+
+**The carousel.** A second view of the encounter, off by default. It reads the same public
+fields as Foundry's tracker and applies the same limits, then hands hovering and clicking to the
+tracker's own handlers, so there is only one place that decides how those behave.
 
 **The latest roll.** Chat itself stays in the sidebar: mocked up inside the projection it was
 cramped in the readout panel and covered the sheet as a tab. A strip shows only the last roll, from
@@ -183,7 +190,7 @@ them. Each device has a body, display and mono face (`--sfh-face`, `--sfh-displa
 `--sfh-mono`); the omni-tool's display face is Michroma, in the mock-up too. A player can
 type their own font for each role: one installed on their computer, one from Foundry's
 Additional Fonts, or a Google Fonts family fetched when it is missing. The game's own
-fonts (BioMass, Tigensu) and Myriad Pro cannot ship under the module's licence, which is
+fonts (BioMass, Tigensu) and Myriad Pro cannot ship under the module's license, which is
 why the player brings them.
 
 **Next.** Translatable strings in the panels and adapters, the chat panel, the rest of

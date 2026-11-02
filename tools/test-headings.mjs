@@ -1,7 +1,7 @@
 /*
  * Show Foundry's settings tab, with its stylesheet and the module's, and check in numbers that
  * every heading fits the sidebar on every device, in a wide font and a narrow one, and that the
- * heading colour follows the device until the player chooses one.
+ * heading color follows the device until the player chooses one.
  */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
@@ -31,7 +31,7 @@ const results = await page.evaluate(async () => {
 	const fonts = await import('../scripts/interface/fonts.mjs');
 	headings.watchHeadings();
 
-	// the settings tab comes on show the way Foundry shows one: by a change of class
+	// the settings tab comes into view the way Foundry shows one: by a change of class
 	document.getElementById('chat').classList.remove('active');
 	document.getElementById('settings').classList.add('active');
 	await document.fonts.ready;
@@ -54,7 +54,7 @@ const results = await page.evaluate(async () => {
 		probe.remove();
 		return value;
 	};
-	const mainColour = () => rgb(getComputedStyle(document.body).getPropertyValue('--sfh-hot').trim());
+	const mainColor = () => rgb(getComputedStyle(document.body).getPropertyValue('--sfh-hot').trim());
 
 	const setFont = async (name) => {
 		SFH.store.fontDisplay = name;
@@ -80,8 +80,8 @@ const results = await page.evaluate(async () => {
 				`${title.getBoundingClientRect().bottom} vs ${under.top}`);
 		}
 		await setFont('');
-		const colour = getComputedStyle(dividers()[0]).color;
-		check(`${device}: main colour by default`, colour === mainColour(), `${colour} vs ${mainColour()}`);
+		const color = getComputedStyle(dividers()[0]).color;
+		check(`${device}: main color by default`, color === mainColor(), `${color} vs ${mainColor()}`);
 	}
 
 	// wide enough to matter: the longest heading fills the width rather than shrinking too far
@@ -112,10 +112,10 @@ const results = await page.evaluate(async () => {
 	for (const id of ['sidebar', 'settings', 'sidebar-content']) document.getElementById(id).style.removeProperty('width');
 	await wait(120);
 
-	// the player's own colour, in either shape the setting hands back
+	// the player's own color, in either shape the setting hands back
 	SFH.store.headingColor = '#00ff88';
 	headings.applyHeadingColor();
-	check('a chosen colour applies', getComputedStyle(longest).color === rgb('#00ff88'));
+	check('a chosen color applies', getComputedStyle(longest).color === rgb('#00ff88'));
 	game.settings.set(null, 'device', 'gdi');
 	check('and stays across devices', getComputedStyle(longest).color === rgb('#00ff88'));
 	SFH.store.headingColor = { css: '#ff0088' };
@@ -123,7 +123,7 @@ const results = await page.evaluate(async () => {
 	check('a Color object applies', getComputedStyle(longest).color === rgb('#ff0088'));
 	SFH.store.headingColor = null;
 	headings.applyHeadingColor();
-	check('clearing it returns to the main colour', getComputedStyle(longest).color === mainColour());
+	check('clearing it returns to the main color', getComputedStyle(longest).color === mainColor());
 	return out;
 });
 await browser.close();

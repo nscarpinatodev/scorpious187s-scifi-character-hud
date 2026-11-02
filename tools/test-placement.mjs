@@ -1,6 +1,6 @@
 /*
  * Run a placement through the real watcher and check, in numbers, that the HUD gets out of the
- * way of the canvas and comes back as it was. Foundry's layer is stood in for by a class with
+ * way of the canvas and comes back as it was. Foundry's layer is replaced by a class with
  * the same shape: a placement is a promise that settles when the player finishes, and a system's
  * layer reaches the base class through super.
  */

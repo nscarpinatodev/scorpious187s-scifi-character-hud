@@ -5,7 +5,7 @@ import { MOD, S } from '../constants.mjs';
  *
  * Foundry gathers those controls through the `getSceneControlButtons` hook each time it
  * prepares them, and every canvas layer contributes its own entry. Only the icons change:
- * each control keeps its name, order, tools and behaviour, and anything not listed here —
+ * each control keeps its name, order, tools and behavior, and anything not listed here —
  * other modules' controls among them — is left as it came. All of these are Font Awesome
  * Pro 7 icons, which Foundry ships.
  */

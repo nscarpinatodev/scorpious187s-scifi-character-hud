@@ -151,17 +151,32 @@ actor.spellcasting = Object.assign([...collections.map((c) => c.entry)], {
 
 // the system's words for the carry menu, from its lang/en.json
 const PF2E_WORDS = {
+	'PF2E.BiographyAppearance': 'Appearance', 'PF2E.BiographyBackStory': 'Backstory', 'PF2E.BiographyBirthPlace': 'Birth Place',
+	'PF2E.BiographyPersonalityHeader': 'Personality', 'PF2E.BiographyAttitude': 'Attitude', 'PF2E.BiographyBeliefs': 'Beliefs',
+	'PF2E.BiographyEdicts': 'Edicts', 'PF2E.BiographyAnathema': 'Anathema', 'PF2E.BiographyLikes': 'Likes', 'PF2E.BiographyDislikes': 'Dislikes',
+	'PF2E.BiographyCatchphrases': 'Catchphrases', 'PF2E.BiographyCampaignNotesHeader': 'Campaign', 'PF2E.BiographyCampaignNotes': 'Notes',
+	'PF2E.BiographyAllies': 'Allies', 'PF2E.BiographyEnemies': 'Enemies', 'PF2E.BiographyOrganizations': 'Organizations',
+	'PF2E.Height': 'Height', 'PF2E.Weight': 'Weight', 'PF2E.EmptySlot': 'Empty Slot',
+	'PF2E.Actor.Character.FeatSlot.AncestryHeader': 'Ancestry Feats', 'PF2E.Actor.Character.FeatSlot.ClassHeader': 'Class Feats', 'PF2E.Actor.Character.FeatSlot.SkillHeader': 'Skill Feats',
+	'PF2E.Actor.Character.FeatSlot.GeneralHeader': 'General Feats', 'PF2E.Actor.Character.FeatSlot.ClassFeaturesHeader': 'Class Features', 'PF2E.Actor.Character.FeatSlot.AncestryFeaturesHeader': 'Ancestry Features',
+	'PF2E.Actor.Character.FeatSlot.BonusHeader': 'Bonus Feats',
 	'PF2E.CarryType.attached': 'Attached', 'PF2E.CarryType.held1': 'Held 1H', 'PF2E.CarryType.held2': 'Held 2H',
 	'PF2E.CarryType.implanted': 'Implanted', 'PF2E.CarryType.worn': 'Worn', 'PF2E.CarryType.stowed': 'Stowed',
 	'PF2E.CarryType.dropped': 'Dropped', 'PF2E.Item.Physical.Usage.WornSlot.armor': 'Armor',
 	'PF2E.Item.Physical.Usage.WornSlot.bracers': 'Bracers',
+	'COMBAT.Begin': 'Start Combat', 'COMBAT.NotStarted': 'Not Started', 'COMBAT.TurnEnd': 'End Turn',
+	'COMBAT.TurnNext': 'Next Turn', 'COMBAT.TurnPrev': 'Previous Turn', 'COMBAT.InitiativeRoll': 'Roll Initiative',
 };
 
 // another player's character, for an item to go to
 const crewmate = { id: 'vex', name: 'Vex Kaori', type: 'character', hasPlayerOwner: true };
 
 // the one piece of Foundry's data layer the settings ask for
-globalThis.foundry = { data: { fields: { ColorField: class {} } } };
+globalThis.foundry = {
+	data: { fields: { ColorField: class {} } },
+	// the enricher only draws links and rolls, which nothing here needs
+	applications: { ux: { TextEditor: { implementation: { enrichHTML: async (html) => html ?? '' } } } },
+};
 
 globalThis.game = {
 	ready: true,
@@ -185,7 +200,8 @@ globalThis.game = {
 	},
 	i18n: {
 		localize: (k) => PF2E_WORDS[k] ?? k,
-		format: (k, data) => (k === 'PF2E.Item.Physical.Usage.WornParenthetical' ? `Worn (${data.where})` : `${k} ${JSON.stringify(data)}`),
+		format: (k, data) => (k === 'PF2E.Item.Physical.Usage.WornParenthetical' ? `Worn (${data.where})`
+			: k === 'COMBAT.Round' ? `Round ${data.round}` : `${k} ${JSON.stringify(data)}`),
 	},
 	modules: { get: () => ({ version: 'harness', active: true }) },
 	// the hide key, as Configure Controls would hold it

@@ -18,20 +18,43 @@ device, and the character sheet is a projection it raises over the canvas.
 - A hide key (Alt+H) that clears the HUD off the screen without closing anything, with a
   restore key on the macro bar.
 - The interface — sidebar, chat, scene bar, controls, player list, token HUD, menus and
-  tooltips — in the device's colours, with chat cards on the device's panels instead of parchment
+  tooltips — in the device's colors, with chat cards on the device's panels instead of parchment
   and a setting to keep the parchment.
 - The omni-tool's beam between the band and the projection.
 - Sci-fi icons on the scene controls, from the Font Awesome Pro set Foundry ships, with a
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- An optional carousel combat tracker: the turn order as portraits across the top of the screen,
+  in each device's style, at a size you set, with the current turn on the left or centered.
 - PF2e and SF2e: a strip over the main panel shows the character's latest roll, with Damage and
   Critical for an attack.
 - The combat tracker in each device's own style, popped out or in the sidebar: the current turn
   stands out, initiative reads like the device's numbers, and defeated names can be read.
-- The readout keeps what it shows when the pointer moves away, so a long description can be
-  scrolled, and no longer cuts descriptions short. PF2e and SF2e: strikes show their weapon's
+- The readout keeps what it shows when the pointer moves away or the page changes, so a long
+  description can be scrolled, and no longer cuts descriptions short. Clicking a name now just shows
+  it: pinning is gone, since nothing showed a pin was set. PF2e and SF2e: strikes show their weapon's
   description, and the reload window opens beside the HUD's Reload button.
+- The readout draws descriptions as the sheet does: links and checks work, paragraphs stay apart,
+  and GM secrets stay hidden from players, who used to see them there. Long text wraps instead of
+  widening the panel.
+- PF2e and SF2e: the whole Biography tab, editable by the character's owner: appearance, backstory,
+  personality with edicts and anathema, and campaign notes, with Foundry's own rich text editor and
+  the sheet's control over who may read each section.
+- D&D 5e: Favorites at the head of the Actions tab, marked from the readout; a picker for spell
+  level and level headers that stand out; chat cards in the device's colors.
+- D&D 5e, rebuilt on system 6: Details with proficiency pickers, tools and traits; an Actions tab
+  of attacks and even rows of features; Inventory with equip, attune, containers, editable coins,
+  quick search with Add and Buy, and giving items to another character; Spells by what they cast
+  from, with slot pips, Restore, preparing and a prepared-only filter; Features by class, species
+  and background; every effect, including what items grant; the whole Biography tab, editable; the
+  latest-roll strip with Damage and Critical; and the readout's details and chips. Giving an item
+  to someone else's character goes through the GM's client, so a GM has to be online.
+- PF2e and SF2e: the Feats tab follows the sheet: the system's own groups and slots, with class
+  features, open slots, and granted feats under what granted them.
+- PF2e and SF2e: actions are all one size in their grid, with just their cost, name and Use button.
+  Their traits and how many uses are left are in the readout, from anywhere on the row. At zero uses
+  the Use button is crossed out, dimmed and disabled.
 - PF2e and SF2e: fixed attacks firing the wrong weapon when an unready one was listed above
   them, speed always reading 25, Use skipping limited uses, and feats with an action cost
   missing from the Actions tab.
@@ -46,7 +69,7 @@ device, and the character sheet is a projection it raises over the canvas.
   Inventory tab quick search for equipment and add or buy it directly, or open the Compendium
   Browser.
 - The sidebar's headings scale to fit its width, whatever the font, and take the device's main
-  colour or one chosen in the settings.
+  color or one chosen in the settings.
 - The HUD clears off the canvas while a spell's area or a weapon's burst is being placed, and
   comes back when it is done.
 - A fifth device, TRON: an identity disc on a deck of light lines at the foot of the screen,
@@ -73,7 +96,7 @@ Superseded by 0.2.0 before release. First build: PF2e and SF2e character sheets.
   default and a per-character override.
 - Power sequences: rise (omni-tool), CRT (EVA) and base-hinge fold (wrist computer).
 - Readout panel: hover to preview an item, click to pin it.
-- Mass Effect Dossier: shields, biotic barrier, armour frame, Paragon/Renegade, omni-gel;
+- Mass Effect Dossier: shields, biotic barrier, armor frame, Paragon/Renegade, omni-gel;
   reads the conversion module's data and opens its tracker.
 - Small screens: hide keybinding (Alt+H), three device-art levels, and a compact layout with a
   tab rail and a side-panel drawer.

@@ -1,7 +1,7 @@
 import { MOD, S } from '../constants.mjs';
 
 /**
- * The sidebar's headings: their colour, and a size that fits.
+ * The sidebar's headings: their color, and a size that fits.
  *
  * Foundry's section headings don't wrap, and are sized for its own narrow body font. In a
  * device's display face they run off both sides of the sidebar. CSS cannot size text to its
@@ -43,7 +43,7 @@ function measure(el) {
 	return { size, ratio: text > room ? room / text : 1 };
 }
 
-/** Fit the headings of the tab on show. Anything hidden measures as nothing, so it waits its turn. */
+/** Fit the headings of the visible tab. Anything hidden measures as nothing, so it waits its turn. */
 export function fitHeadings() {
 	const tab = document.querySelector('#sidebar-content .sidebar-tab.active');
 	if (!tab) return;
@@ -107,18 +107,18 @@ export function watchHeadings() {
 	scheduleFitHeadings();
 }
 
-/** The colour the player chose for headings, if any: the field hands back a Color or a string. */
+/** The color the player chose for headings, if any: the field hands back a Color or a string. */
 export function headingColor() {
 	const value = game.settings.get(MOD, S.headingColor);
 	return value ? String(value.css ?? value) : '';
 }
 
-/** Put the chosen colour on <body>; without one, device.css uses the device's main colour. */
+/** Put the chosen color on <body>; without one, device.css uses the device's main color. */
 export function applyHeadingColor() {
 	const { style, dataset } = document.body;
-	const colour = headingColor();
-	if (colour) {
-		style.setProperty('--sfh-heading-color', colour);
+	const color = headingColor();
+	if (color) {
+		style.setProperty('--sfh-heading-color', color);
 		dataset.sfhHeadingColor = '';
 	} else {
 		style.removeProperty('--sfh-heading-color');

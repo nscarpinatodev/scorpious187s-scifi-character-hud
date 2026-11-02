@@ -1,7 +1,7 @@
 /**
  * Device art drawn at the foot of the interface.
  *
- * The omni-tool has a single forearm section, centred, with the emitter band on it. The
+ * The omni-tool has a single forearm section, centered, with the emitter band on it. The
  * TRON device has a deck of light lines with the identity disc on it. Either way the plate
  * (#sfh-arm) is what the macro bar is mounted on, and the switch (#sfh-band) raises and
  * lowers the projection.

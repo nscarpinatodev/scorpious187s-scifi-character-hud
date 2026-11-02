@@ -160,17 +160,22 @@ function actions(actor) {
 		const n = item.system?.actions?.value;
 		return type === 'reaction' ? 'R' : type === 'free' ? 'F' : String(n ?? 1);
 	};
-	const row = (item) => `<div class="li">
+	// every row the same size: what else there is to know about it is in the readout, from anywhere on the row
+	const row = (item) => {
+		// the system fills in a missing value with the maximum
+		const uses = item.system?.frequency;
+		const spent = uses?.max && (uses.value ?? uses.max) <= 0;
+		return `<div class="li sfh-action" ${ro(`item:${item.id}`)}>
 		<span class="cost">${COST_GLYPH[byCost(item)] ?? ''}</span>
 		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
-		${(item.system?.traits?.value ?? []).slice(0, 2).map((t) => `<span class="chip">${esc(t)}</span>`).join('')}
-		${actBtn('Use', 'use', item.id, { cls: 'sm ghost' })}</div>`;
+		${actBtn('Use', 'use', item.id, spent ? { cls: 'sm ghost spent', title: 'No uses left', disabled: true } : { cls: 'sm ghost' })}</div>`;
+	};
 	// as on the sheet: action items, and feats that cost an action
 	const usable = [...(actor.itemTypes?.action ?? []), ...(actor.itemTypes?.feat ?? []).filter((f) => f.actionCost)]
 		.filter((item) => !item.suppressed);
 	const acts = usable.map(row).join('');
 	return `${shieldRow(actor)}<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
-		<div class="sec">Actions</div><div class="grid2">${acts || '<p class="dimc">None.</p>'}</div>`;
+		<div class="sec">Actions</div><div class="grid2 sfh-actions">${acts || '<p class="dimc">None.</p>'}</div>`;
 }
 
 /** The held shield, with the sheet's hit points and its Raise a Shield. Nothing without one. */
@@ -357,7 +362,7 @@ function tradePartners(actor) {
 		.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Dragging an item onto another character, as a list of them. It stays on show with nobody to give to, and says why. */
+/** Dragging an item onto another character, as a list of them. It stays visible with nobody to give to, and says why. */
 function givePicker(item, others) {
 	const choices = others.map((a) => `<option value="${esc(a.id)}">${esc(a.name)}</option>`).join('');
 	const tip = others.length ? 'Give or trade this to another character' : 'There is no other character in this world to give this to';
@@ -457,16 +462,28 @@ function spellRow(entry, slot, slotId, groupId) {
 		${slot.signature ? '<span class="chip">Signature</span>' : ''}${uses}${refill}${cast}</div>`;
 }
 
+/**
+ * The sheet's Feats tab, from the same place: the system's own groups and slots, which know where
+ * a feat was taken, what it grants, and which slots are still open. A feat's category does not say:
+ * a skill feat can sit in a general slot, and a granted feat belongs under what granted it.
+ */
 function feats(actor) {
-	const groups = [['Class', 'class'], ['Ancestry', 'ancestry'], ['General', 'general'], ['Skill', 'skill'], ['Bonus', 'bonus']];
-	return groups.map(([label, category]) => {
-		const items = (actor.itemTypes?.feat ?? []).filter((f) => (f.system?.category ?? f.system?.featType?.value) === category);
-		if (!items.length) return '';
-		return `<div class="sec">${label}</div>` + items.map((f) => `<div class="li">
-			<span class="mono dimc" style="width:22px">${f.system?.level?.value ?? ''}</span>
-			<span class="grow">${nameBtn(f.name, `item:${f.id}`)}</span>
-			${(f.system?.traits?.value ?? []).slice(0, 2).map((t) => `<span class="chip">${esc(t)}</span>`).join('')}</div>`).join('');
-	}).join('') || '<p class="dimc">No feats.</p>';
+	const row = (slot, depth = 0) => {
+		const label = `<span class="mono dimc sfh-slot">${esc(slot.label ?? '')}</span>`;
+		if (!slot.feat) {
+			return `<div class="li sfh-feat empty" style="--depth:${depth}">${label}<span class="grow">${esc(game.i18n.localize(slot.placeholder ?? 'PF2E.EmptySlot'))}</span></div>`;
+		}
+		const key = `item:${slot.feat.id}`;
+		return `<div class="li sfh-feat" ${ro(key)} style="--depth:${depth}">${label}<span class="grow">${nameBtn(slot.feat.name, key)}</span></div>
+			${(slot.children ?? []).map((child) => row(child, depth + 1)).join('')}`;
+	};
+	// a character always has these; anything else lists what it has
+	const groups = actor.feats
+		? [...actor.feats, actor.feats.bonus]
+		: [{ label: 'PF2E.Item.Feat.Plural', feats: [...(actor.itemTypes?.feat ?? [])].sort((a, b) => (a.system?.level?.value ?? 0) - (b.system?.level?.value ?? 0)).map((feat) => ({ feat, label: feat.system?.level?.value })) }];
+	return groups.filter((group) => group?.feats?.length)
+		.map((group) => `<div class="sec">${esc(game.i18n.localize(group.label))}</div>${group.feats.map((slot) => row(slot)).join('')}`)
+		.join('') || '<p class="dimc">No feats.</p>';
 }
 
 function skills(actor) {
@@ -498,14 +515,98 @@ function effects(actor) {
 	return `<div class="sec">Effects</div>${eff}<div class="sec">Conditions</div>${cond}`;
 }
 
-function biography(actor) {
-	const bio = actor.system?.details?.biography ?? {};
-	const field = (key, label) => `<label class="lbl">${esc(label)}</label>
-		<div class="ta" style="min-height:64px;white-space:pre-wrap">${esc(stripHtml(bio[key] ?? ''))}</div>`;
-	return field('appearance', 'Appearance') + field('backstory', 'Backstory');
+/** Where each of the Biography tab's fields is kept. */
+const BIO_FIELDS = {
+	height: 'system.details.height.value',
+	weight: 'system.details.weight.value',
+	...Object.fromEntries(['appearance', 'backstory', 'birthPlace', 'attitude', 'beliefs', 'likes', 'dislikes', 'catchphrases', 'campaignNotes', 'allies', 'enemies', 'organizations']
+		.map((field) => [field, `system.details.biography.${field}`])),
+};
+const BIO_LISTS = ['edicts', 'anathema'];
+const BIO_SECTIONS = ['appearance', 'backstory', 'personality', 'campaign'];
+
+/**
+ * The sheet's Biography tab: the same fields, in the same order, under the same rules. Its owner
+ * edits it, and decides which sections anyone else who can see the character may read. The long
+ * fields use Foundry's own rich text editor, as the sheet does, so this tab body is a promise.
+ */
+async function biography(actor) {
+	const details = actor.system?.details ?? {};
+	const bio = details.biography;
+	if (!bio) return '<p class="dimc">No biography.</p>';
+	const owner = !!actor.isOwner;
+	const loc = (key) => game.i18n.localize(key);
+	const icon = (act, k, glyph, tip, extra = '') => `<button type="button" class="b sm ghost ic ${extra}" data-act="${act}" data-k="${esc(k)}" aria-label="${esc(tip)}" data-tooltip="${esc(tip)}"><i class="fa-solid ${glyph}" inert></i></button>`;
+	const rollData = actor.getRollData?.();
+
+	const head = (section, label) => `<div class="sec">${esc(loc(label))}${
+		owner ? icon('bioVisibility', section, bio.visibility?.[section] ? 'fa-eye' : 'fa-eye-slash', loc('PF2E.Actor.Character.Biography.ToggleVisibility'), 'sfh-eye') : ''}</div>`;
+	const text = (field, label, value, wide = false) => `<label class="sfh-bio ${wide ? 'sfh-bio-wide' : ''}">${lbl(loc(label))}
+		<input class="sfh-in" type="text" value="${esc(value ?? '')}" data-field="${field}"${owner ? '' : ' disabled'}></label>`;
+	const rich = async (field, label = null) => {
+		const shown = await foundry.applications.ux.TextEditor.implementation.enrichHTML(bio[field] ?? '', { rollData, secrets: owner });
+		const body = owner
+			? `<prose-mirror class="sfh-rich ro-text content-sized" name="${BIO_FIELDS[field]}" data-field="${field}" data-document-uuid="${esc(actor.uuid ?? '')}" value="${esc(bio[field] ?? '')}" toggled>${shown}</prose-mirror>`
+			: `<div class="sfh-rich ro-text">${shown}</div>`;
+		return `<div class="sfh-bio">${label ? lbl(loc(label)) : ''}${body}</div>`;
+	};
+	const list = (field, label, tips) => `<div class="sfh-bio" data-list="${field}">
+		<div class="sfh-bio-head">${lbl(loc(label))}${owner ? icon('bioAdd', field, 'fa-plus', loc(`${tips}.Add`)) : ''}</div>
+		${(bio[field] ?? []).map((line, index) => `<div class="sfh-bio-line"><input class="sfh-in" type="text" value="${esc(line)}" data-field="${field}.${index}"${owner ? '' : ' disabled'} aria-label="${esc(loc(label))}">
+			${owner ? icon('bioDelete', `${field}:${index}`, 'fa-trash', loc(`${tips}.Delete`)) : ''}</div>`).join('')}</div>`;
+	const shows = (section) => owner || bio.visibility?.[section];
+
+	const parts = [];
+	if (shows('appearance')) {
+		parts.push(`${head('appearance', 'PF2E.BiographyAppearance')}${await rich('appearance')}
+			<div class="sfh-bio-grid">${text('height', 'PF2E.Height', details.height?.value)}${text('weight', 'PF2E.Weight', details.weight?.value)}</div>`);
+	}
+	if (shows('backstory')) {
+		parts.push(`${head('backstory', 'PF2E.BiographyBackStory')}${await rich('backstory')}
+			<div class="sfh-bio-grid">${text('birthPlace', 'PF2E.BiographyBirthPlace', bio.birthPlace, true)}</div>`);
+	}
+	if (shows('personality')) {
+		parts.push(`${head('personality', 'PF2E.BiographyPersonalityHeader')}<div class="sfh-bio-grid">
+			${text('attitude', 'PF2E.BiographyAttitude', bio.attitude)}${text('beliefs', 'PF2E.BiographyBeliefs', bio.beliefs)}
+			${list('edicts', 'PF2E.BiographyEdicts', 'PF2E.Actor.Character.Biography.Edicts')}${list('anathema', 'PF2E.BiographyAnathema', 'PF2E.Actor.Character.Biography.Anathema')}
+			${text('likes', 'PF2E.BiographyLikes', bio.likes)}${text('dislikes', 'PF2E.BiographyDislikes', bio.dislikes)}
+			${text('catchphrases', 'PF2E.BiographyCatchphrases', bio.catchphrases, true)}</div>`);
+	}
+	if (shows('campaign')) {
+		parts.push(`${head('campaign', 'PF2E.BiographyCampaignNotesHeader')}${await rich('campaignNotes', 'PF2E.BiographyCampaignNotes')}
+			${await rich('allies', 'PF2E.BiographyAllies')}${await rich('enemies', 'PF2E.BiographyEnemies')}${await rich('organizations', 'PF2E.BiographyOrganizations')}`);
+	}
+	return parts.join('') || '<p class="dimc">Nothing here has been shared.</p>';
 }
 
-const stripHtml = (html) => String(html ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+/** A field of the Biography tab, typed or saved from its editor. A line of a list is `edicts.2`. */
+export function setField(actor, field, value) {
+	const [name, index] = field.split('.');
+	if (BIO_LISTS.includes(name)) {
+		const lines = [...actor._source.system.details.biography[name]];
+		lines[Number(index)] = String(value).trim();
+		return actor.update({ [`system.details.biography.${name}`]: lines });
+	}
+	return BIO_FIELDS[name] ? actor.update({ [BIO_FIELDS[name]]: value }) : null;
+}
+
+/** The sheet's buttons on that tab: who may read a section, and adding and removing list lines. */
+function bioVisibility(actor, section) {
+	if (!BIO_SECTIONS.includes(section)) return null;
+	return actor.update({ [`system.details.biography.visibility.${section}`]: !actor.system.details.biography.visibility?.[section] });
+}
+
+function bioAdd(actor, name) {
+	if (!BIO_LISTS.includes(name)) return null;
+	return actor.update({ [`system.details.biography.${name}`]: [...actor._source.system.details.biography[name], ''] });
+}
+
+function bioDelete(actor, name, index) {
+	if (!BIO_LISTS.includes(name) || !/^\d+$/.test(index)) return null;
+	const lines = [...actor._source.system.details.biography[name]];
+	lines.splice(Number(index), 1);
+	return actor.update({ [`system.details.biography.${name}`]: lines });
+}
 
 /* -------------------------------------------- */
 /*  Acting                                       */
@@ -537,6 +638,9 @@ export async function act(actor, action, key, event) {
 		case 'recovery': return actor.rollRecovery?.(event);
 		case 'focus': return actor.updateResource?.('focus', Number(key));
 		case 'consume': return consumeItem(actor, key);
+		case 'bioVisibility': return bioVisibility(actor, key);
+		case 'bioAdd': return bioAdd(actor, key);
+		case 'bioDelete': return bioDelete(actor, a, b);
 		// the system's own route: it counts down limited uses and offers the action's effect
 		case 'use': return game.pf2e?.rollItemMacro ? game.pf2e.rollItemMacro(actor.items.get(key)?.uuid, event) : actor.items.get(key)?.toMessage?.(event);
 		case 'cast': return castSpell(actor, key);
@@ -728,7 +832,7 @@ export function readRoll(message) {
 	};
 }
 
-/** What a roll was for: its card's heading, or the first words of its flavour. */
+/** What a roll was for: its card's heading, or the first words of its flavor. */
 function rollName(message) {
 	const holder = document.createElement('div');
 	holder.innerHTML = message.flavor ?? '';
@@ -890,7 +994,7 @@ async function heal(actor, amount) {
 
 /**
  * Damage goes through the system where it can, so temporary hit points, resistances and
- * anything else the system applies are honoured. Only if that is unavailable does it fall
+ * anything else the system applies are honored. Only if that is unavailable does it fall
  * back to writing the number itself.
  */
 async function damage(actor, amount) {
@@ -903,4 +1007,19 @@ async function damage(actor, amount) {
 		}
 	}
 	return setHp(actor, (actor.system.attributes.hp.value ?? 0) - value);
+}
+
+/** What the readout lists about an item: its limited uses, which the sheet shows as "1 / 2 per day". */
+export function readoutMeta(item) {
+	const uses = item.system?.frequency;
+	if (!uses?.max) return [];
+	const period = CONFIG.PF2E?.frequencies?.[uses.per];
+	const per = period ? ` ${game.i18n.localize('PF2E.Frequency.per')} ${game.i18n.localize(period)}` : '';
+	return [['Uses', `${uses.value ?? uses.max} / ${uses.max}${per}`]];
+}
+
+/** The system's own description of an item, with its alterations and addenda, as its sheet shows it. */
+export async function describe(item) {
+	if (!item.getDescription) return null;
+	return (await item.getDescription({ secrets: item.isOwner })).value;
 }

@@ -20,17 +20,22 @@ export class Projection {
 	static #open = false;
 	static #actor = null;
 	static #tab = null;
-	static #pinned = null;
 	/** The last roll each character made, for the strip over the main panel. */
 	static #latest = new Map();
 	/** The quick search: what was typed and found, which a re-render would otherwise wipe. */
 	static #quick = { text: '', results: '', timer: null, token: 0 };
-	static #preview = null;
+	/** What the readout describes: the last thing pointed at or clicked. */
+	static #showing = null;
+	/** The description showing there, which only comes asynchronously: a re-render reuses it. */
+	static #described = { key: null, html: '' };
+	static #descriptions = 0;
 	/** The wait before a hovered item takes over the readout. */
 	static #hover = null;
 	static #bound = false;
 	static #fitPending = false;
 	static #renders = 0;
+	/** A redraw held back while someone is typing in the main panel. */
+	static #redrawLater = false;
 	/** What the last fit() measured and decided. */
 	static lastFit = null;
 
@@ -112,12 +117,12 @@ export class Projection {
 		const bottomEdge = shown(foot) ? innerHeight - foot.top + (art ? 0 : gap) : gap;
 
 		/*
-		 * Centred on the device, so the projection stays in line with what raised it. Foundry
-		 * centres the macro bar between the controls and the sidebar, not on the window, so
-		 * centring on the window would set the two off from each other and waste the room on
+		 * Centered on the device, so the projection stays in line with what raised it. Foundry
+		 * centers the macro bar between the controls and the sidebar, not on the window, so
+		 * centering on the window would set the two off from each other and waste the room on
 		 * the wider side.
 		 */
-		const centre = shown(foot) ? foot.left + foot.width / 2 : innerWidth / 2;
+		const center = shown(foot) ? foot.left + foot.width / 2 : innerWidth / 2;
 		const height = Math.max(320, innerHeight - topEdge - bottomEdge);
 		const deviceId = currentDevice();
 		const board = BOARD[deviceId] ?? BOARD.omni;
@@ -135,7 +140,7 @@ export class Projection {
 			const rightBy = rightPanels.filter(beside).sort((a, b) => a.r.left - b.r.left)[0];
 			const leftEdge = leftBy ? leftBy.r.right + gap : gap;
 			const rightEdge = rightBy ? rightBy.r.left - gap : innerWidth - gap;
-			return { width: Math.max(0, Math.min(centre - leftEdge, rightEdge - centre) * 2), leftEdge, rightEdge, leftBy, rightBy };
+			return { width: Math.max(0, Math.min(center - leftEdge, rightEdge - center) * 2), leftEdge, rightEdge, leftBy, rightBy };
 		};
 		const fits = (s) => clearance(s * board.h).width >= s * board.w;
 		let lo = 0.2;
@@ -177,7 +182,7 @@ export class Projection {
 			panels: { left: leftPanels.map((p) => `${p.id} ${Math.round(p.r.left)}–${Math.round(p.r.right)} × ${Math.round(p.r.top)}–${Math.round(p.r.bottom)}`) },
 		};
 
-		el.style.setProperty('--sfh-proj-left', `${Math.round(centre)}px`);
+		el.style.setProperty('--sfh-proj-left', `${Math.round(center)}px`);
 		el.style.setProperty('--sfh-proj-width', `${Math.round(width)}px`);
 		el.style.setProperty('--sfh-proj-height', `${Math.round(height)}px`);
 		el.style.setProperty('--sfh-proj-bottom', `${Math.round(bottomEdge)}px`);
@@ -249,6 +254,7 @@ export class Projection {
 	}
 
 	static async open(actor = null) {
+		this.#finishEditing();
 		const target = actor ?? this.actor();
 		if (!target) {
 			ui.notifications.warn(game.i18n.localize('SFH.NoCharacter'));
@@ -270,6 +276,7 @@ export class Projection {
 	}
 
 	static async close() {
+		this.#finishEditing();
 		this.#open = false;
 		this.element?.classList.remove('sfh-visible');
 		document.getElementById(EL.beam)?.remove();
@@ -295,11 +302,50 @@ export class Projection {
 	/*  Rendering                                    */
 	/* -------------------------------------------- */
 
+	/**
+	 * Is someone typing in the main panel? A redraw replaces the panel, so it would take the text
+	 * from under them, and an open editor's text would be saved to nowhere. It waits instead.
+	 */
+	static get #editing() {
+		const body = this.element?.querySelector('.proj-b');
+		return !!body && (!!body.querySelector('prose-mirror[open]') || !!document.activeElement?.closest?.('.proj-b :is(input, textarea)[data-field]'));
+	}
+
+	/** Do the redraw that was waiting, once nobody is typing. */
+	static #settle() {
+		if (this.#redrawLater && !this.#editing) this.render();
+	}
+
+	/** An editor that just opened is taller than it was, and may have grown past the panel's edge. */
+	static #revealEditor(editor) {
+		const body = editor.closest('.proj-b');
+		if (!body) return;
+		const panel = body.getBoundingClientRect();
+		const box = editor.getBoundingClientRect();
+		// the projection is scaled, which rectangles see and scrolling does not
+		const scale = panel.height / (body.offsetHeight || panel.height) || 1;
+		if (box.top < panel.top) body.scrollTop -= (panel.top - box.top) / scale;
+		else if (box.bottom > panel.bottom) body.scrollTop += Math.min(box.bottom - panel.bottom, box.top - panel.top) / scale;
+	}
+
+	/** Save what is being typed, as leaving the field or pressing the editor's save would. */
+	static #finishEditing() {
+		const el = this.element;
+		if (!el) return;
+		for (const editor of el.querySelectorAll('.proj-b prose-mirror[open]')) editor.save();
+		if (document.activeElement?.closest?.('#sfh-projection .proj-b :is(input, textarea)[data-field]')) document.activeElement.blur();
+	}
+
 	static render() {
 		const el = this.element;
 		const actor = this.actor();
 		const adapter = getAdapter();
 		if (!el || !actor || !adapter) return;
+		if (this.#editing) {
+			this.#redrawLater = true;
+			return;
+		}
+		this.#redrawLater = false;
 
 		const c = adapter.read(actor);
 		// the dossier is other modules' data: if reading it fails, lose the panel, not the projection
@@ -327,6 +373,7 @@ export class Projection {
 		// keep the scroll position of the tab body across re-renders
 		const previous = stage.querySelector('.proj-b');
 		const scrolled = previous ? { key: previous.dataset.key, top: previous.scrollTop } : null;
+		const readTo = document.getElementById('sfh-readout')?.scrollTop ?? 0;
 		// the old markup is about to go, and the focus with it
 		const quickHadFocus = document.activeElement?.matches?.('#sfh-projection [data-browse]');
 
@@ -380,6 +427,8 @@ export class Projection {
 		</div>`;
 
 		this.#stagger(stage);
+		document.getElementById('sfh-readout')?.scrollTo({ top: readTo });
+		this.#fillReadout();
 		const restore = () => {
 			this.#restoreQuick(quickHadFocus);
 			const next = stage.querySelector('.proj-b');
@@ -392,6 +441,11 @@ export class Projection {
 		body.then((html) => {
 			const next = stage.querySelector('.proj-b');
 			if (token !== this.#renders || next?.dataset.key !== key) return;
+			// someone started typing in what was held on the screen: this comes after they finish
+			if (this.#editing) {
+				this.#redrawLater = true;
+				return;
+			}
 			next.innerHTML = html;
 			restore();
 		}, (err) => {
@@ -484,22 +538,20 @@ export class Projection {
 	/*  The readout                                  */
 	/* -------------------------------------------- */
 
-	/** What the readout describes: whatever is hovered, else whatever is pinned. */
 	static #entry(actor) {
-		const key = this.#preview ?? this.#pinned;
+		const key = this.#showing;
 		if (!key) return null;
 		const [kind, id] = key.split(':');
 		if (kind === 'item' || kind === 'effect' || kind === 'strike') {
-			// a strike describes the weapon it comes from
-			const doc = kind === 'strike' ? actor.system?.actions?.[Number(id)]?.item : actor.items.get(id) ?? actor.effects.get(id);
+			const doc = this.#documentFor(actor, key);
 			if (!doc) return null;
-			const text = String(doc.system?.description?.value ?? doc.description ?? '')
-				.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 			return {
 				name: doc.name,
 				kind: doc.type ?? 'Effect',
-				traits: doc.system?.traits?.value ?? [],
-				text,
+				traits: getAdapter()?.readoutTraits?.(doc) ?? doc.system?.traits?.value ?? [],
+				meta: getAdapter()?.readoutMeta?.(doc) ?? [],
+				actions: getAdapter()?.readoutActions?.(doc, actor) ?? '',
+				html: this.#described.key === key ? this.#described.html : '',
 			};
 		}
 		if (kind === 'skill') return { name: id, kind: 'Skill' };
@@ -509,6 +561,51 @@ export class Projection {
 		return null;
 	}
 
+	/** The document a readout key describes, if it has one. A strike describes the weapon it comes from. */
+	static #documentFor(actor, key) {
+		const [kind, id] = key.split(':');
+		if (kind === 'strike') return actor.system?.actions?.[Number(id)]?.item ?? null;
+		if (kind === 'item' || kind === 'effect') {
+			// an effect may be on an item rather than the character
+			return actor.items.get(id) ?? actor.effects.get(id)
+				?? [...(actor.allApplicableEffects?.() ?? [])].find((e) => e.id === id) ?? null;
+		}
+		return null;
+	}
+
+	/** A description as the sheet shows it, through the same enricher: live links, and secrets only for an owner. */
+	static async #describe(doc) {
+		const own = await getAdapter()?.describe?.(doc);
+		if (own != null) return own;
+		return foundry.applications.ux.TextEditor.implementation.enrichHTML(doc.system?.description?.value ?? doc.description ?? '', {
+			rollData: doc.getRollData?.(),
+			relativeTo: doc,
+			secrets: doc.isOwner,
+		});
+	}
+
+	/** Put the description in. Only the newest may: an older one can finish after it. */
+	static async #fillReadout() {
+		const key = this.#showing;
+		const actor = this.actor();
+		const doc = key && actor ? this.#documentFor(actor, key) : null;
+		if (!doc) return;
+		const token = ++this.#descriptions;
+		let html;
+		try {
+			html = await this.#describe(doc);
+		} catch (err) {
+			console.error(`${MOD} | the description of "${doc.name}" could not be read`, err);
+			html = '<p class="dimc">This description could not be read. See the console for details.</p>';
+		}
+		if (token !== this.#descriptions) return;
+		const same = this.#described.key === key && this.#described.html === html;
+		this.#described = { key, html };
+		// the same text again must not lose the reader's place
+		const box = document.querySelector('#sfh-readout .ro-text');
+		if (box && !same) box.innerHTML = html;
+	}
+
 	static #refreshReadout() {
 		const el = document.getElementById('sfh-readout');
 		const actor = this.actor();
@@ -516,16 +613,16 @@ export class Projection {
 		el.innerHTML = renderReadout(this.#entry(actor));
 		// something new starts from its top
 		el.scrollTop = 0;
+		this.#fillReadout();
 	}
 
 	/**
-	 * What the pointer is now over, if anything. With nothing under it the readout keeps what it
-	 * shows, so it can be read and scrolled, and goes back to a pinned item if there is one.
+	 * Describe something else. Nothing takes it away again: with the pointer on nothing the readout
+	 * keeps what it shows, so it can be read and scrolled, and it stays through a change of page.
 	 */
-	static #previewReadout(key) {
-		const next = key ?? (this.#pinned ? null : this.#preview);
-		if (next === this.#preview) return;
-		this.#preview = next;
+	static #show(key) {
+		if (!key || key === this.#showing) return;
+		this.#showing = key;
 		this.#refreshReadout();
 	}
 
@@ -547,15 +644,12 @@ export class Projection {
 
 			// the projection's own controls
 			if (action === 'tab') {
+				this.#finishEditing();
 				this.#tab = key;
 				return this.render();
 			}
-			if (action === 'pin') {
-				// unpinned, it stays on show until something else is pointed at
-				this.#preview = this.#pinned === key ? key : null;
-				this.#pinned = this.#pinned === key ? null : key;
-				return this.#refreshReadout();
-			}
+			// for whoever has no pointer to hover with
+			if (action === 'read') return this.#show(key);
 			if (action === 'sheet') return this.actor()?.sheet?.render(true);
 			if (action === 'menu-close') return target.closest('.sfh-menu')?.remove();
 			if (action === 'settings') return game.settings.sheet.render(true);
@@ -585,7 +679,8 @@ export class Projection {
 			if (action === 'browseEquipment') value = target.closest('.sfh-browse')?.querySelector('[data-browse]')?.value ?? '';
 
 			try {
-				await adapter.act(actor, action, value, event);
+				// nothing on the character changed, so no update will redraw it
+				if (await adapter.act(actor, action, value, event) === 'redraw') this.render();
 			} catch (err) {
 				console.error(`${MOD} | "${action}" failed`, err);
 				ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action }));
@@ -619,6 +714,17 @@ export class Projection {
 				return this.render();
 			}
 
+			// a field of a tab, typed or saved from its editor; the system's update redraws it
+			if (event.target.matches('[data-field]')) {
+				try {
+					await adapter.setField?.(actor, event.target.dataset.field, event.target.value);
+				} catch (err) {
+					console.error(`${MOD} | "${event.target.dataset.field}" could not be saved`, err);
+					ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action: event.target.dataset.field }));
+				}
+				return;
+			}
+
 			const field = event.target.closest('[data-commit]');
 			if (!field) return;
 			const value = Number(field.value);
@@ -633,7 +739,7 @@ export class Projection {
 			}
 		});
 		el.addEventListener('keydown', (event) => {
-			if (event.key === 'Enter' && event.target.matches('[data-commit],[data-amount]')) event.target.blur();
+			if (event.key === 'Enter' && event.target.matches('[data-commit],[data-amount],input[data-field]')) event.target.blur();
 			if (event.key === 'Enter' && event.target.matches('[data-browse]')) {
 				event.preventDefault();
 				event.target.closest('.sfh-browse')?.querySelector('[data-act="browseEquipment"]')?.click();
@@ -678,18 +784,20 @@ export class Projection {
 		el.addEventListener('mouseover', (event) => {
 			clearTimeout(this.#hover);
 			if (event.target.closest('[data-slot="readout"]')) return;
-			const key = event.target.closest('[data-ro]')?.dataset.ro ?? null;
-			this.#hover = setTimeout(() => this.#previewReadout(key), 120);
+			const key = event.target.closest('[data-ro]')?.dataset.ro;
+			if (key) this.#hover = setTimeout(() => this.#show(key), 120);
 		});
-		el.addEventListener('mouseleave', () => {
-			clearTimeout(this.#hover);
-			this.#previewReadout(null);
-		});
+		el.addEventListener('mouseleave', () => clearTimeout(this.#hover));
+		// after the focus has landed: moving to the next field is still typing
+		el.addEventListener('focusout', () => setTimeout(() => this.#settle()));
+		el.addEventListener('close', () => this.#settle());
+		// the editor's open event does not bubble, but it can be caught on the way down
+		el.addEventListener('open', (event) => {
+			if (event.target.matches('prose-mirror')) this.#revealEditor(event.target);
+		}, true);
+		// the keyboard's pointing: a row clicked earlier keeps the focus, and must not come back with it
 		el.addEventListener('focusin', (event) => {
-			const target = event.target.closest('[data-ro]');
-			if (!target) return;
-			this.#preview = target.dataset.ro;
-			this.#refreshReadout();
+			if (event.target.matches(':focus-visible')) this.#show(event.target.closest('[data-ro]')?.dataset.ro);
 		});
 	}
 }

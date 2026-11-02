@@ -2,9 +2,11 @@ import { MOD, S, EL, SEQ, KEYS } from './constants.mjs';
 import { registerSettings, currentDevice } from './settings.mjs';
 import { DeviceChrome } from './device/chrome.mjs';
 import { Projection } from './projection/projection.mjs';
+import { getAdapter } from './adapters/index.mjs';
 import { restyleControls, redrawControls } from './interface/controls.mjs';
 import { applyFonts, onFontChange, reportMissingFonts, suggestFonts } from './interface/fonts.mjs';
 import { watchPlacement } from './interface/placement.mjs';
+import { Carousel } from './interface/carousel.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
 /**
@@ -21,13 +23,14 @@ import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interfa
 
 /**
  * Foundry reads module.json when the world launches, so a stylesheet added to the
- * manifest afterwards is never linked until the world is restarted. Link ours ourselves
+ * manifest afterward is never linked until the world is restarted. Link ours ourselves
  * if they are missing — it costs nothing when they are already there.
  */
 const STYLES = [
 	'styles/fonts.css',
 	'styles/device.css',
 	'styles/interface.css',
+	'styles/carousel.css',
 	'styles/projection.css',
 	'styles/projection-frame.css',
 ];
@@ -39,6 +42,8 @@ function ensureStyles() {
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = `${href}?v=${game.modules.get(MOD)?.version ?? '0'}`;
+		// what was measured before it arrived is out: the carousel may already be on the screen
+		link.addEventListener('load', () => Carousel.schedule());
 		document.head.append(link);
 	}
 }
@@ -53,7 +58,7 @@ Hooks.once('init', () => {
 		Projection.syncDevice();
 		// the display face comes with the device
 		scheduleFitHeadings();
-	}, redrawControls, onFontChange, applyHeadingColor);
+	}, redrawControls, onFontChange, applyHeadingColor, () => Carousel.schedule());
 	applyFonts();
 	applyHeadingColor();
 	watchPlacement();
@@ -72,9 +77,13 @@ Hooks.once('init', () => {
 
 Hooks.once('ready', () => {
 	ensureStyles();
+	game.socket?.on(`module.${MOD}`, (data) => {
+		if (data?.type === 'give') getAdapter()?.onGiveRequest?.(data);
+	});
 	// by now Foundry has loaded the fonts added in its own settings, so they can be told apart
 	reportMissingFonts();
 	watchHeadings();
+	Carousel.schedule();
 	if (!DeviceChrome.mount()) {
 		console.warn(`${MOD} | the interface has no #ui-bottom or #hotbar to mount on; the device is not shown`);
 	}
@@ -87,7 +96,7 @@ Hooks.once('ready', () => {
 		hide: (on = true) => DeviceChrome.setHidden(on),
 		toggleHidden: () => DeviceChrome.toggleHidden(),
 		refresh: () => DeviceChrome.refresh(),
-		unmount: () => { Projection.close(); DeviceChrome.unmount(); },
+		unmount: () => { Projection.close(); DeviceChrome.unmount(); Carousel.remove(); },
 		debug,
 	};
 });
@@ -120,6 +129,26 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'createActiveEffect', 'updateActiveEffect', 'deleteActiveEffect']) {
 	Hooks.on(hook, (doc) => Projection.refreshFor(doc));
 }
+
+/*
+ * The carousel follows the encounter, the tracker, and whatever changes a combatant's card: the
+ * effects on it are items in some systems and effects in others.
+ */
+for (const hook of ['createCombat', 'updateCombat', 'deleteCombat', 'createCombatant', 'updateCombatant', 'deleteCombatant',
+	'renderCombatTracker', 'canvasReady', 'updateActor', 'updateToken', 'createActiveEffect', 'updateActiveEffect', 'deleteActiveEffect',
+	'createItem', 'updateItem', 'deleteItem', 'collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'targetToken']) {
+	Hooks.on(hook, () => Carousel.schedule());
+}
+addEventListener('resize', () => Carousel.schedule());
+
+/* A token hovered on the map lights its card, as it does its row in the tracker. */
+Hooks.on('hoverToken', (token, hovered) => {
+	const id = token.combatant?.id;
+	if (id) Carousel.element?.querySelector(`[data-combatant-id="${CSS.escape(id)}"]`)?.classList.toggle('hover', hovered);
+});
+
+/* It takes room at the top of the screen, which the projection fits around. */
+Hooks.on('sfhCarousel', () => Projection.scheduleFit());
 
 /* The strip over the main panel follows the chat log. */
 Hooks.on('createChatMessage', (message) => Projection.noteRoll(message));

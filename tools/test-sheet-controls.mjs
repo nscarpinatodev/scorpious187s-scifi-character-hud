@@ -1,7 +1,7 @@
 /*
  * Press the Spells, Skills and Inventory controls on the real projection and check each hands
  * the system what its own sheet would: the same method, with the same arguments. The system's
- * side is stood in for by recorders in the shapes read from its source.
+ * side is replaced by recorders in the shapes read from its source.
  */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
@@ -215,6 +215,13 @@ const results = await page.evaluate(async () => {
 		items.long = { id: 'long', name: 'Long Item', type: 'feat', system: { description: { value: long }, traits: { value: [] } } };
 		items.other = { id: 'other', name: 'Other Item', type: 'feat', system: { description: { value: '<p>Short.</p>' }, traits: { value: [] } } };
 		actor.effects = { get: () => null };
+		// what Foundry's enricher makes of a document link
+		const enriched = [];
+		foundry.applications ??= {};
+		foundry.applications.ux = { TextEditor: { implementation: { enrichHTML: async (text, options) => {
+			enriched.push(options);
+			return text.replace(/@UUID\[([^\]]+)\]\{([^}]+)\}/g, '<a class="content-link" data-link data-uuid="$1">$2</a>');
+		} } } };
 		const readout = () => stage().querySelector('#sfh-readout');
 		const slot = () => stage().querySelector('[data-slot="readout"]');
 		const over = (el) => el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
@@ -261,25 +268,386 @@ const results = await page.evaluate(async () => {
 		await wait(50);
 		check('leaving the projection keeps it too', /Long Item/.test(readout().textContent));
 
-		// a pinned item is what it comes back to
-		const pinBtn = document.createElement('button');
-		pinBtn.dataset.act = 'pin';
-		pinBtn.dataset.k = 'item:other';
-		pinBtn.dataset.ro = 'item:other';
-		stage().querySelector('.proj-b').append(pinBtn);
-		over(pinBtn);
-		await wait(200);
-		pinBtn.click();
+		// it never goes back to something it showed earlier
+		const named = document.createElement('button');
+		named.dataset.act = 'read';
+		named.dataset.k = 'item:other';
+		named.dataset.ro = 'item:other';
+		stage().querySelector('.proj-b').append(named);
+		named.click();
 		await wait(30);
+		check('clicking a name shows it', /Other Item/.test(readout().textContent));
 		over(a);
 		await wait(200);
-		check('hovering past a pin previews', /Long Item/.test(readout().textContent));
+		check('hovering something else shows that', /Long Item/.test(readout().textContent));
 		over(plain);
 		await wait(200);
-		check('moving off goes back to the pin', /Other Item/.test(readout().textContent));
-		pinBtn.click();
+		check('moving off does not go back to what was clicked', /Long Item/.test(readout().textContent));
+		const pageTab = stage().querySelector('[data-act="tab"]:not([data-k="feats"])');
+		over(pageTab);
+		await wait(200);
+		check('nor does reaching for a page tab', /Long Item/.test(readout().textContent));
+		await tab(pageTab.dataset.k);
+		check('and it stays through the change of page', /Long Item/.test(readout().textContent));
+		await tab('feats');
+		const keyed = probe('item:other');
+		keyed.focus();
 		await wait(30);
-		check('and unpinning leaves it showing', /Other Item/.test(readout().textContent));
+		check('the keyboard can point at things too', /Other Item/.test(readout().textContent));
+		keyed.blur();
+
+		// descriptions, as the system renders them
+		const link = '<a class="content-link" data-link data-uuid="Compendium.sf2e.feat-effects.Item.8eqdNadBEcXMdnhQ"><i class="fa-solid fa-suitcase"></i>Effect: Watch Out</a>';
+		const asked = [];
+		items.watch = {
+			id: 'watch', name: 'Watch Out', type: 'feat', isOwner: false,
+			system: { description: { value: '<p>raw @UUID[Compendium.sf2e.feat-effects.Item.8eqdNadBEcXMdnhQ]{Effect: Watch Out}</p>' }, traits: { value: ['concentrate', 'envoy'] } },
+			getDescription: async (options) => { asked.push(options); return { value: `<p><strong>Trigger</strong> A creature targets an ally.</p><p>${link}</p>` }; },
+		};
+		const watch = probe('item:watch');
+		over(watch);
+		await wait(200);
+		const text = () => readout().querySelector('.ro-text');
+		check('a description comes through the system', asked.length >= 1);
+		check('asking for secrets only for an owner', asked.at(-1)?.secrets === false, asked.at(-1));
+		check('no raw enricher tags', !/@UUID|Compendium\./.test(readout().textContent), readout().textContent);
+		check('its link is a real one', text().querySelector('a.content-link[data-uuid]')?.textContent === 'Effect: Watch Out');
+		check('and its paragraphs and bold survive', text().querySelectorAll('p').length === 2 && !!text().querySelector('strong'));
+		const flat = () => readout().scrollWidth <= readout().clientWidth;
+		check('nothing widens the panel', flat(), [readout().scrollWidth, readout().clientWidth]);
+
+		items.wide = { id: 'wide', name: 'x'.repeat(120), type: 'feat', system: { description: { value: `<p>@UUID[${'y'.repeat(300)}]{${'z'.repeat(300)}} ${'q'.repeat(300)}</p>` }, traits: { value: [] } } };
+		over(probe('item:wide'));
+		await wait(200);
+		check('not even an unbroken run of text', flat() && getComputedStyle(readout()).overflowX === 'hidden', [readout().scrollWidth, readout().clientWidth]);
+		check('without a system\'s own, the enricher gets the document', enriched.at(-1)?.relativeTo === items.wide);
+
+		// a slow one must not replace a newer one
+		let release;
+		items.slow = { id: 'slow', name: 'Slow Item', type: 'feat', system: { traits: { value: [] } }, getDescription: () => new Promise((r) => { release = () => r({ value: '<p>Slow text.</p>' }); }) };
+		over(probe('item:slow'));
+		await wait(200);
+		over(watch);
+		await wait(200);
+		release();
+		await wait(30);
+		check('an older description cannot replace a newer one', /Watch Out/.test(readout().textContent) && !/Slow text/.test(readout().textContent));
+
+		// a re-render keeps it, without a blink and in the same place
+		items.watch.getDescription = async () => ({ value: `<p>${'A long line of description. '.repeat(120)}</p><p>${link}</p>` });
+		over(probe('item:other'));
+		await wait(200);
+		over(watch);
+		await wait(200);
+		readout().scrollTop = 120;
+		Projection.render();
+		check('a re-render keeps the text at once', /A long line/.test(readout().textContent));
+		await wait(60);
+		check('and the place being read', readout().scrollTop === 120, readout().scrollTop);
+
+		// one that fails says so
+		const realError = console.error;
+		console.error = () => {};
+		items.bad = { id: 'bad', name: 'Bad Item', type: 'feat', system: { traits: { value: [] } }, getDescription: async () => { throw new Error('no'); } };
+		over(probe('item:bad'));
+		await wait(200);
+		console.error = realError;
+		check('one that cannot be read says so', /could not be read/.test(readout().textContent) && /Bad Item/.test(readout().textContent));
+		over(probe('item:other'));
+		await wait(200);
+	}
+
+	/* ---- the biography tab ---- */
+	{
+		// Foundry's editor, as far as the tab touches it: saving sends a change, then says it closed
+		const wrecked = [];
+		customElements.get('prose-mirror') ?? customElements.define('prose-mirror', class extends HTMLElement {
+			connectedCallback() {
+				if (this.ready) return;
+				this.ready = true;
+				this.saved = this.getAttribute('value') ?? '';
+				this.typed = this.saved;
+				this.removeAttribute('value');
+			}
+			disconnectedCallback() { if (this.hasAttribute('open')) wrecked.push(this.dataset.field); }
+			get value() { return this.typed; }
+			save() {
+				if (this.typed !== this.saved) {
+					this.saved = this.typed;
+					this.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+				}
+				this.removeAttribute('open');
+				this.dispatchEvent(new Event('close', { bubbles: true, cancelable: true }));
+			}
+		});
+
+		const bio = {
+			appearance: '<p>Tall @UUID[Actor.x]{Link}</p>', backstory: '<p>Born on Mindoir.</p>', birthPlace: 'Mindoir', attitude: 'Wry', beliefs: 'Second chances', likes: 'Coffee', dislikes: 'Batarians', catchphrases: 'Not today.',
+			campaignNotes: '<p>Owes Omega.</p>', allies: '<p>Vex</p>', enemies: '<p>Aria</p>', organizations: '<p>Alliance</p>',
+			edicts: ['Protect the crew', 'Keep promises'], anathema: ['Abandon a squadmate'],
+			visibility: { appearance: true, backstory: false, personality: true, campaign: false },
+		};
+		const realDetails = actor.system.details;
+		const realOwner = actor.isOwner;
+		const realUpdate = actor.update;
+		const realSource = actor._source;
+		const realEnrich = foundry.applications.ux.TextEditor.implementation.enrichHTML;
+		actor.system.details = { ...realDetails, biography: bio, height: { value: '6 ft' }, weight: { value: '180 lb' } };
+		actor._source = { system: { details: { biography: bio } } };
+		actor.uuid = 'Actor.asha';
+		actor.isOwner = true;
+		const updates = [];
+		actor.update = async (data) => { updates.push(data); };
+		const enrichOptions = [];
+		foundry.applications.ux.TextEditor.implementation.enrichHTML = async (html, options) => {
+			enrichOptions.push(options);
+			return (html ?? '').replace(/@UUID\[([^\]]+)\]\{([^}]+)\}/g, '<a class="content-link" data-link data-uuid="$1">$2</a>');
+		};
+		const body = () => stage().querySelector('.proj-b');
+		const input = (field) => body().querySelector(`input[data-field="${field}"]`);
+		const editor = (field) => body().querySelector(`prose-mirror[data-field="${field}"]`);
+		const type = (el, value) => { el.value = value; el.dispatchEvent(new Event('change', { bubbles: true })); };
+		const settle = () => wait(60);
+
+		await tab('biography');
+		await settle();
+		check('every section is there', ['Appearance', 'Backstory', 'Personality', 'Campaign'].every((s) => [...body().querySelectorAll('.sec')].some((h) => h.textContent.includes(s))), body().querySelectorAll('.sec').length);
+		const fields = { height: '6 ft', weight: '180 lb', birthPlace: 'Mindoir', attitude: 'Wry', beliefs: 'Second chances', likes: 'Coffee', dislikes: 'Batarians', catchphrases: 'Not today.', 'edicts.0': 'Protect the crew', 'edicts.1': 'Keep promises', 'anathema.0': 'Abandon a squadmate' };
+		for (const [field, value] of Object.entries(fields)) check(`${field} shows its value`, input(field)?.value === value, input(field)?.value);
+		for (const field of ['appearance', 'backstory', 'campaignNotes', 'allies', 'enemies', 'organizations']) check(`${field} has an editor`, !!editor(field));
+		check('it shows links, not their tags', editor('appearance').querySelector('a.content-link')?.textContent === 'Link' && !/@UUID/.test(editor('appearance').textContent));
+		check('and edits the raw text', editor('appearance').value === bio.appearance, editor('appearance').value);
+		check('an owner sees secrets', enrichOptions.at(-1)?.secrets === true);
+
+		updates.length = 0;
+		type(input('likes'), 'Tea');
+		await settle();
+		check('typing saves through the actor', updates.at(-1)?.['system.details.biography.likes'] === 'Tea', updates.at(-1));
+		type(input('height'), '2 m');
+		await settle();
+		check('height goes where the sheet puts it', updates.at(-1)?.['system.details.height.value'] === '2 m', updates.at(-1));
+		type(input('edicts.1'), '  Never lie  ');
+		await settle();
+		check('a line of a list saves the whole list, trimmed', JSON.stringify(updates.at(-1)?.['system.details.biography.edicts']) === JSON.stringify(['Protect the crew', 'Never lie']), updates.at(-1));
+		body().querySelector('[data-act="bioAdd"][data-k="anathema"]').click();
+		await settle();
+		check('add puts on an empty line', JSON.stringify(updates.at(-1)?.['system.details.biography.anathema']) === JSON.stringify(['Abandon a squadmate', '']), updates.at(-1));
+		body().querySelector('[data-act="bioDelete"][data-k="edicts:0"]').click();
+		await settle();
+		check('delete takes the right one out', JSON.stringify(updates.at(-1)?.['system.details.biography.edicts']) === JSON.stringify(['Keep promises']), updates.at(-1));
+		body().querySelector('[data-act="bioVisibility"][data-k="backstory"]').click();
+		await settle();
+		check('the eye flips who may read it', updates.at(-1)?.['system.details.biography.visibility.backstory'] === true, updates.at(-1));
+
+		/* nothing is lost to a redraw */
+		await settle();
+		const typing = input('dislikes');
+		typing.focus();
+		typing.value = 'half typed';
+		Projection.render();
+		await settle();
+		check('a redraw waits while a field is being typed in', input('dislikes') === typing && typing.value === 'half typed');
+		input('beliefs').focus();
+		await settle();
+		check('and while moving to the next field', input('dislikes') === typing);
+		input('beliefs').blur();
+		await settle();
+		check('then happens once they stop', input('dislikes') !== typing);
+
+		const writing = editor('backstory');
+		writing.setAttribute('open', '');
+		writing.typed = '<p>New story.</p>';
+		updates.length = 0;
+		Projection.render();
+		await settle();
+		check('a redraw waits for an open editor', editor('backstory') === writing && wrecked.length === 0, wrecked);
+		writing.save();
+		await settle();
+		check('saving it saves through the actor', updates.at(-1)?.['system.details.biography.backstory'] === '<p>New story.</p>', updates.at(-1));
+		check('and the redraw comes after', editor('backstory') !== writing);
+
+		const leaving = editor('allies');
+		leaving.setAttribute('open', '');
+		leaving.typed = '<p>Vex and Tali</p>';
+		await tab('skills');
+		check('changing page saves an open editor first', updates.at(-1)?.['system.details.biography.allies'] === '<p>Vex and Tali</p>' && wrecked.length === 0, [updates.at(-1), wrecked]);
+		check('and does change page', !editor('allies'));
+		await tab('biography');
+		await settle();
+		const closing = editor('enemies');
+		closing.setAttribute('open', '');
+		closing.typed = '<p>Aria and the Collectors</p>';
+		await Projection.close();
+		check('closing the projection saves one too', updates.at(-1)?.['system.details.biography.enemies'] === '<p>Aria and the Collectors</p>' && wrecked.length === 0, updates.at(-1));
+		await Projection.open(actor);
+		await tab('biography');
+		await settle();
+
+		/* an edit that fails says so */
+		const failed = [];
+		const realNotify = ui.notifications.error;
+		const realConsole = console.error;
+		ui.notifications.error = (m) => failed.push(m);
+		console.error = () => {};
+		actor.update = async () => { throw new Error('no'); };
+		type(input('likes'), 'Nope');
+		await settle();
+		check('a save that fails says so', failed.length === 1, failed);
+		ui.notifications.error = realNotify;
+		console.error = realConsole;
+		actor.update = async (data) => { updates.push(data); };
+
+		/* it fits on every device */
+		const deviceWas = document.body.dataset.sfhDevice;
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+			game.settings.set(null, 'device', device);
+			await wait(250);
+			Projection.render();
+			await settle();
+			const box = body().getBoundingClientRect();
+			const spilled = [...body().querySelectorAll('.sec, .sfh-bio, .sfh-in, .sfh-rich, .b')].filter((e) => { const r = e.getBoundingClientRect(); return r.left < box.left - 0.5 || r.right > box.right + 0.5; });
+			check(`${device}: nothing runs off the side`, !spilled.length && body().scrollWidth <= body().clientWidth, spilled.map((e) => e.className));
+			const short = [...body().querySelectorAll('input.sfh-in')].filter((e) => e.getBoundingClientRect().width < 60);
+			check(`${device}: every field has room to type in`, !short.length, short.map((e) => e.dataset.field));
+			const stacked = [...body().querySelectorAll('.sfh-bio-grid > .sfh-bio')];
+			const clash = stacked.some((a, i) => stacked.slice(i + 1).some((b) => { const x = a.getBoundingClientRect(); const y = b.getBoundingClientRect(); return x.left < y.right - 0.5 && y.left < x.right - 0.5 && x.top < y.bottom - 0.5 && y.top < x.bottom - 0.5; }));
+			check(`${device}: no field sits on another`, !clash);
+
+			// an open editor as Foundry really builds it, with its real stylesheet: the last field,
+			// so opening it has to bring it into view
+			const opening = editor('organizations');
+			const menuButtons = Array.from({ length: 14 }, () => '<li><button type="button"><i class="fa-solid fa-font"></i></button></li>').join('');
+			opening.classList.add('editor', 'prosemirror', 'active');
+			opening.classList.remove('inactive');
+			opening.setAttribute('open', '');
+			opening.innerHTML = `<div class="menu-container"><menu id="m">${menuButtons}</menu></div>
+				<div class="editor-container"><div class="editor-content ProseMirror" contenteditable="true"><p>${'A line of the story. '.repeat(200)}</p></div></div>`;
+			body().scrollTop = 0;
+			opening.dispatchEvent(new Event('open'));
+			await wait(20);
+			const typingArea = opening.querySelector('.editor-content');
+			const areaBox = typingArea.getBoundingClientRect();
+			const scale = areaBox.height / (typingArea.offsetHeight || 1);
+			check(`${device}: an open editor has room to type in`, typingArea.offsetHeight >= 180, typingArea.offsetHeight);
+			check(`${device}: below its toolbar`, areaBox.top >= opening.querySelector('.menu-container').getBoundingClientRect().bottom - 1);
+			check(`${device}: its text scrolls inside it`, typingArea.scrollHeight > typingArea.clientHeight && getComputedStyle(typingArea).overflowY === 'auto', [typingArea.scrollHeight, typingArea.clientHeight]);
+			const seen = body().getBoundingClientRect();
+			const editorBox = opening.getBoundingClientRect();
+			check(`${device}: opening it brings it into view`, editorBox.top >= seen.top - 1 && editorBox.bottom <= seen.bottom + 1, [editorBox.top, editorBox.bottom, seen.top, seen.bottom, scale]);
+			check(`${device}: its toolbar fits`, opening.querySelector('menu').scrollWidth <= opening.querySelector('menu').clientWidth + 1, [opening.querySelector('menu').scrollWidth, opening.querySelector('menu').clientWidth]);
+			opening.removeAttribute('open');
+		}
+		game.settings.set(null, 'device', deviceWas);
+		await wait(250);
+
+		/* to someone else */
+		actor.isOwner = false;
+		Projection.render();
+		await settle();
+		check('without ownership there are no editors', !body().querySelector('prose-mirror'));
+		check('no buttons', !body().querySelector('[data-act^="bio"]'));
+		check('and no field can be typed in', [...body().querySelectorAll('input.sfh-in')].every((e) => e.disabled));
+		check('sections shared with them show', [...body().querySelectorAll('.sec')].some((h) => h.textContent.includes('Appearance')) && [...body().querySelectorAll('.sec')].some((h) => h.textContent.includes('Personality')));
+		check('those kept back do not', !/Mindoir|Owes Omega|Aria/.test(body().textContent), body().textContent.slice(0, 200));
+		// the readout enriches too, and says which document for
+		check('and they see no secrets', enrichOptions.filter((o) => !o.relativeTo).at(-1)?.secrets === false);
+		bio.visibility = { appearance: false, backstory: false, personality: false, campaign: false };
+		Projection.render();
+		await settle();
+		check('with nothing shared it says so', /shared/.test(body().textContent));
+
+		actor.system.details = realDetails;
+		actor.isOwner = realOwner;
+		actor.update = realUpdate;
+		actor._source = realSource;
+		foundry.applications.ux.TextEditor.implementation.enrichHTML = realEnrich;
+		await tab('actions');
+	}
+
+	/* ---- the feats tab: Navasi, a level 7 envoy, in the shape the system gives ---- */
+	{
+		const feat = (name, children = []) => ({ feat: { id: name.toLowerCase().replace(/\W+/g, '-'), name }, children });
+		const slot = (label, name, children) => (name ? { label, ...feat(name, children) } : { label, placeholder: 'PF2E.EmptySlot', children: [] });
+		const groups = [
+			{ id: 'ancestryfeature', label: 'PF2E.Actor.Character.FeatSlot.AncestryFeaturesHeader', feats: [] },
+			{ id: 'classfeature', label: 'PF2E.Actor.Character.FeatSlot.ClassFeaturesHeader', feats: [
+				slot('1', 'Envoy Directives'),
+				slot('1', 'Leadership Style', [{ label: null, ...feat('Guns Blazing', [{ label: null, ...feat('Incredible Initiative') }]) }]),
+				slot('3', 'Wise to the Game'), slot('3', 'Adaptive Talent'),
+				slot('5', 'Weapon Expertise'), slot('5', 'Perception Expertise'), slot('5', 'Improvised Mastery'),
+				slot('7', 'Fortitude Expertise'), slot('7', 'Weapon Specialization'), slot('7', 'Leader\'s Confidence'),
+			] },
+			{ id: 'ancestry', label: 'PF2E.Actor.Character.FeatSlot.AncestryHeader', feats: [slot('1', 'Natural Ambition', [{ label: null, ...feat('Watch Out') }]), slot('5', 'Confident Actualization')] },
+			{ id: 'class', label: 'PF2E.Actor.Character.FeatSlot.ClassHeader', feats: [slot('1', 'Size Up'), slot('2', 'Get in There!'), slot('4', 'Diverse Schemes'), slot('6', 'Hang in There')] },
+			{ id: 'skill', label: 'PF2E.Actor.Character.FeatSlot.SkillHeader', feats: [slot('BG', 'Intimidating Shot'), slot('2', 'Battle Medicine'), slot('4', 'Kiss it Better'), slot('6', 'Take the Wheel')] },
+			{ id: 'general', label: 'PF2E.Actor.Character.FeatSlot.GeneralHeader', feats: [slot('3', 'Fleet'), slot('7', 'Power Slide')] },
+		];
+		groups.bonus = { id: 'bonus', label: 'PF2E.Actor.Character.FeatSlot.BonusHeader', feats: [{ label: null, ...feat('Lie to Me') }] };
+		const realFeats = actor.feats;
+		actor.feats = groups;
+		const body = () => stage().querySelector('.proj-b');
+		await tab('feats');
+		await wait(40);
+
+		// what comes under each heading, in order, with how deep it is
+		const listing = () => {
+			const out2 = {};
+			let current = null;
+			for (const el of body().children) {
+				if (el.classList.contains('sec')) out2[current = el.textContent.trim()] = [];
+				else if (el.classList.contains('sfh-feat')) out2[current].push(`${el.querySelector('.sfh-slot').textContent}|${el.querySelector('.nm')?.textContent ?? el.querySelector('.grow').textContent}|${el.style.getPropertyValue('--depth')}`);
+			}
+			return out2;
+		};
+		const shown = listing();
+		const expected = {
+			'Class Features': ['1|Envoy Directives|0', '1|Leadership Style|0', '|Guns Blazing|1', '|Incredible Initiative|2', '3|Wise to the Game|0', '3|Adaptive Talent|0', '5|Weapon Expertise|0', '5|Perception Expertise|0', '5|Improvised Mastery|0', '7|Fortitude Expertise|0', '7|Weapon Specialization|0', '7|Leader\'s Confidence|0'],
+			'Ancestry Feats': ['1|Natural Ambition|0', '|Watch Out|1', '5|Confident Actualization|0'],
+			'Class Feats': ['1|Size Up|0', '2|Get in There!|0', '4|Diverse Schemes|0', '6|Hang in There|0'],
+			'Skill Feats': ['BG|Intimidating Shot|0', '2|Battle Medicine|0', '4|Kiss it Better|0', '6|Take the Wheel|0'],
+			'General Feats': ['3|Fleet|0', '7|Power Slide|0'],
+			'Bonus Feats': ['|Lie to Me|0'],
+		};
+		for (const [heading, rows] of Object.entries(expected)) check(`${heading} lists what the system put there`, JSON.stringify(shown[heading]) === JSON.stringify(rows), shown[heading]);
+		check('in the sheet\'s order', Object.keys(shown).join() === Object.keys(expected).join(), Object.keys(shown));
+		check('a group with nothing in it is left out', !('Ancestry Features' in shown));
+		check('every one of her 26 feats shows once', [...body().querySelectorAll('.nm')].length === 26, body().querySelectorAll('.nm').length);
+		const name = (text) => [...body().querySelectorAll('.nm')].find((n) => n.textContent === text);
+		const nestedLeft = (text) => name(text).closest('.sfh-feat').getBoundingClientRect().left;
+		check('granted feats sit under what granted them', nestedLeft('Guns Blazing') > nestedLeft('Leadership Style') && nestedLeft('Incredible Initiative') > nestedLeft('Guns Blazing'));
+		check('its row shows it in the readout', name('Watch Out').closest('.sfh-feat').dataset.ro === 'item:watch-out');
+
+		groups[3].feats.push(slot('8', null));
+		Projection.render();
+		await wait(40);
+		const empty = [...body().querySelectorAll('.sfh-feat.empty')];
+		check('an open slot shows', empty.length === 1 && /Empty Slot|PF2E\.EmptySlot/.test(empty[0].textContent) && empty[0].querySelector('.sfh-slot').textContent === '8', empty.map((e) => e.textContent));
+		groups[3].feats.pop();
+
+		const deviceWas = document.body.dataset.sfhDevice;
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+			game.settings.set(null, 'device', device);
+			await wait(250);
+			Projection.render();
+			await wait(40);
+			const box = body().getBoundingClientRect();
+			const rows = [...body().querySelectorAll('.sfh-feat')];
+			check(`${device}: every row stays inside the panel`, rows.every((r) => { const b = r.getBoundingClientRect(); return b.left >= box.left - 0.5 && b.right <= box.right + 0.5; }) && body().scrollWidth <= body().clientWidth);
+			check(`${device}: its rows do not overlap`, rows.every((r, i) => !i || r.getBoundingClientRect().top >= rows[i - 1].getBoundingClientRect().bottom - 0.5));
+		}
+		game.settings.set(null, 'device', deviceWas);
+		await wait(250);
+
+		actor.feats = undefined;
+		items.solo = { id: 'solo', name: 'Solo Feat', type: 'feat', system: { level: { value: 2 } } };
+		const realTypes = actor.itemTypes.feat;
+		actor.itemTypes.feat = [items.solo];
+		Projection.render();
+		await wait(40);
+		check('anything without the system\'s groups still lists its feats', !!name('Solo Feat'));
+		actor.itemTypes.feat = realTypes;
+		actor.feats = realFeats;
+		await tab('actions');
 	}
 
 	/* ---- strikes ---- */
@@ -362,7 +730,7 @@ const results = await page.evaluate(async () => {
 		check('none left, no attacks', /None left/.test(row('Thrown Rock').textContent) && !within('Thrown Rock', '[data-act="strike"]'));
 
 		const altAttack = [...row('Drawn Pistol').querySelectorAll('[data-act="strike"]')].find((b) => b.dataset.k.split(':')[2] === '0');
-		check('auto-fire is labelled', /Auto-fire/.test(row('Drawn Pistol').textContent));
+		check('auto-fire is labeled', /Auto-fire/.test(row('Drawn Pistol').textContent));
 		altAttack.click();
 		await wait(30);
 		check('auto-fire fires its own attack', fired.at(-1) === 'Burst attack', fired);
@@ -426,6 +794,73 @@ const results = await page.evaluate(async () => {
 		within('Nova Feat', '[data-act="use"]').click();
 		await wait(30);
 		check('Use goes through the system\'s own route', JSON.stringify(macro.at(-1)) === JSON.stringify(['Actor.asha.Item.feat1', 'click']), macro);
+		const nova = actor.itemTypes.feat[0];
+		const useNova = () => within('Nova Feat', '[data-act="use"]');
+		const novaRow = () => useNova().closest('.li');
+		const readoutNow = () => stage().querySelector('#sfh-readout').textContent.replace(/\s+/g, ' ');
+		const overRow = async () => { novaRow().dispatchEvent(new MouseEvent('mouseover', { bubbles: true })); await wait(200); };
+		nova.system.traits.value = ['concentrate', 'envoy', 'mental', 'visual'];
+		Projection.render();
+		await wait(40);
+		check('a row shows no traits', !novaRow().querySelector('.chip') && !/concentrate/i.test(novaRow().textContent));
+		check('and no count', !/\d\s*\/\s*\d/.test(novaRow().textContent));
+		novaRow().querySelector('.cost').dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		await wait(200);
+		check('anywhere on the row shows it in the readout', /Nova Feat/.test(readoutNow()), readoutNow().slice(0, 80));
+		check('with all its traits', [...stage().querySelectorAll('#sfh-readout .chip')].map((c) => c.textContent).join() === 'concentrate,envoy,mental,visual');
+		check('and without limited uses, no count there either', !/Uses/.test(readoutNow()));
+		nova.system.frequency = { value: 1, max: 2, per: 'day' };
+		Projection.render();
+		await wait(40);
+		await overRow();
+		CONFIG.PF2E = { ...(CONFIG.PF2E ?? {}), frequencies: { day: 'Day' } };
+		Projection.render();
+		await wait(40);
+		check('the readout shows how many uses are left', /Uses.*1 \/ 2/.test(readoutNow()), readoutNow().slice(0, 100));
+		check('and how often they come back', /per Day|PF2E\.Frequency\.per Day/.test(readoutNow()), readoutNow().slice(0, 100));
+		check('and its Use still works', !useNova().disabled && !useNova().classList.contains('spent'));
+		nova.system.frequency = { value: 0, max: 2, per: 'day' };
+		Projection.render();
+		await wait(40);
+		check('out of uses, the readout says so', /Uses.*0 \/ 2/.test(readoutNow()), readoutNow().slice(0, 100));
+		check('its Use is disabled', useNova().disabled);
+		check('crossed out', getComputedStyle(useNova()).textDecorationLine.includes('line-through'), getComputedStyle(useNova()).textDecorationLine);
+		check('and dimmed', parseFloat(getComputedStyle(useNova()).opacity) < 0.6, getComputedStyle(useNova()).opacity);
+		const usedBefore = macro.length;
+		useNova().click();
+		await wait(30);
+		check('and does nothing', macro.length === usedBefore);
+		delete nova.system.frequency;
+		nova.system.traits.value = [];
+
+		// every action the same size, however long its name, on every device
+		const realActions = actor.itemTypes.action;
+		const named = (id, name, type) => ({ id, uuid: id, name, type: 'action', system: { actionType: { value: type }, actions: { value: 1 }, traits: { value: ['manipulate', 'concentrate', 'envoy'] } } });
+		actor.itemTypes.action = [named('u1', 'Stride', 'action'), named('u2', 'A Very Long Action Name That Would Certainly Not Fit On One Or Even Two Lines Of Its Column', 'action'), named('u3', 'Administer First Aid', 'reaction'), named('u4', 'Aid', 'free')];
+		const deviceWas = document.body.dataset.sfhDevice;
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+			game.settings.set(null, 'device', device);
+			await wait(250);
+			Projection.render();
+			await wait(60);
+			const rows = [...stage().querySelectorAll('.sfh-actions > .li')];
+			const heights = rows.map((r) => r.getBoundingClientRect().height);
+			check(`${device}: every action is the same height`, rows.length >= 4 && Math.max(...heights) - Math.min(...heights) < 0.5, heights);
+			const widths = rows.map((r) => r.getBoundingClientRect().width);
+			check(`${device}: and the same width`, Math.max(...widths) - Math.min(...widths) < 0.5, widths);
+			const inside = rows.every((r) => {
+				const box = r.getBoundingClientRect();
+				const use = r.querySelector('[data-act="use"]').getBoundingClientRect();
+				const nameBox = r.querySelector('.nm').getBoundingClientRect();
+				return use.right <= box.right + 0.5 && use.bottom <= box.bottom + 0.5 && nameBox.bottom <= box.bottom + 0.5 && nameBox.right <= use.left + 0.5 && Math.abs((use.top + use.bottom) - (box.top + box.bottom)) < 2;
+			});
+			check(`${device}: the name and Use stay on one line inside it`, inside);
+		}
+		game.settings.set(null, 'device', deviceWas);
+		await wait(250);
+		actor.itemTypes.action = realActions;
+		Projection.render();
+		await wait(40);
 
 		/* ---- shield ---- */
 		check('no shield, no row', !stage().querySelector('.sfh-shield'));
@@ -746,7 +1181,7 @@ const results = await page.evaluate(async () => {
 
 	/* ---- giving ---- */
 	const give = (id) => stage().querySelector(`select[data-pick="give"][data-k="${id}"]`);
-	const npc = { id: 'npc', name: 'Harbour Guard', type: 'npc', hasPlayerOwner: false };
+	const npc = { id: 'npc', name: 'Harbor Guard', type: 'npc', hasPlayerOwner: false };
 	const ghost = { id: 'ghost', name: 'GM Spare', type: 'character', hasPlayerOwner: false };
 	const vex = game.actors.get('vex');
 	const stash = { id: 'party', name: 'The Party', type: 'party', hasPlayerOwner: false, visible: true };
@@ -788,7 +1223,7 @@ const results = await page.evaluate(async () => {
 	Object.defineProperty(game, 'actors', { configurable: true, value: Object.assign([actor], { get: (id) => (id === actor.id ? actor : null) }) });
 	Projection.render();
 	await wait(100);
-	check('with nobody to give to the picker stays, greyed out', give('i2')?.disabled && give('i2').options.length === 1);
+	check('with nobody to give to the picker stays, grayed out', give('i2')?.disabled && give('i2').options.length === 1);
 	check('...and says why', /no other character/.test(give('i2').title), give('i2')?.title);
 
 	/* ---- money ---- */

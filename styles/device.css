@@ -2,7 +2,7 @@
    The device at the foot of the interface, and the macro bar mounted on it.
 
    Everything here is a skin. `#hotbar` is Foundry's own element, moved and
-   recoloured — its slots, page controls and drop targets are untouched.
+   recolored — its slots, page controls and drop targets are untouched.
    ========================================================================= */
 
 /* ---------------------------------------------------------------- tokens */
@@ -110,7 +110,7 @@ body[data-sfh-device="tron"] {
 	--sfh-radius: 3px;
 }
 
-/* Headings: the device's main colour, or the one the player chose in the module settings. */
+/* Headings: the device's main color, or the one the player chose in the module settings. */
 body[data-sfh-device] {
 	--sfh-heading: var(--sfh-hot);
 }

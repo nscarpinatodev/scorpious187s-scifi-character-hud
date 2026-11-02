@@ -111,7 +111,7 @@ function freshChars() {
       ['Background', [[null,'Biotic Prodigy']]]
     ],
     effects:[{ n:'Biotic Barrier', d:'1 min' }], conds:[{ n:'Quickened', v:null }],
-    bio:{ Appearance:'Close-cropped dark hair, N7-grey armour scuffed at the knees, a faint blue shimmer when she is angry.', Backstory:'Survived the batarian raid on Mindoir at eleven; her biotics manifested the same night. Recruited by the Alliance at seventeen.', Allies:'Lt. Cmdr. Okafor (Alliance Intelligence)', Enemies:'Batarian Hegemony slaver cells' },
+    bio:{ Appearance:'Close-cropped dark hair, N7-gray armor scuffed at the knees, a faint blue shimmer when she is angry.', Backstory:'Survived the batarian raid on Mindoir at eleven; her biotics manifested the same night. Recruited by the Alliance at seventeen.', Allies:'Lt. Cmdr. Okafor (Alliance Intelligence)', Enemies:'Batarian Hegemony slaver cells' },
     shields:{ v:30, max:30, regen:10 }, pr:{ paragon:62, renegade:18 }, prUses:{ paragon:{40:1,60:1,80:1}, renegade:{40:1,60:1,80:1} }
   },
   dana: {

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="../styles/fonts.css">
 <link rel="stylesheet" href="../styles/device.css">
 <link rel="stylesheet" href="../styles/interface.css">
+<link rel="stylesheet" href="../styles/carousel.css">
 <link rel="stylesheet" href="../styles/projection.css">
 <link rel="stylesheet" href="../styles/projection-frame.css">
 <style>
@@ -37,8 +38,8 @@
 	#ui-right { position: absolute; inset: 0 0 0 auto; display: flex; align-items: flex-start; gap: 16px;
 		padding: 16px 16px 14px; pointer-events: none; }
 	/*
-	 * Layout only. The colours are left to Foundry's own stylesheet and the module's, on
-	 * Foundry's own markup: a stand-in that painted itself from the palette once showed colours
+	 * Layout only. The colors are left to Foundry's own stylesheet and the module's, on
+	 * Foundry's own markup: a stand-in that painted itself from the palette once showed colors
 	 * here that real Foundry never drew.
 	 */
 	#scene-controls { display: flex; gap: 6px; pointer-events: none; }
@@ -52,7 +53,7 @@
 	#interface { display: flex; flex: 1; justify-content: center; position: relative; height: 100%; }
 	#ui-middle { flex: none; width: 60%; display: flex; flex-direction: column;
 		justify-content: space-between; align-items: center; pointer-events: none; height: 100%; }
-	#ui-top { width: 100%; height: 50%; }
+	#ui-top { width: 100%; height: 50%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
 	#ui-bottom { width: 100%; height: 50%; display: flex; flex-direction: column;
 		justify-content: flex-end; align-items: center; }
 	#hotbar { --hotbar-size: 60px; display: flex; flex: none; width: max-content;

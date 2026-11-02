@@ -6,7 +6,7 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
  * The device is a per-user choice: two players at the same table can wear different
  * hardware. The world setting only decides what a user gets before they have chosen.
  */
-export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange, onHeadingColorChange) {
+export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange, onHeadingColorChange, onCarouselChange) {
 	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
 
 	// Both device settings repaint immediately: a player following the world default has to
@@ -96,7 +96,39 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		onChange: (v) => { document.body.dataset.sfhChat = v ? 'on' : 'off'; },
 	});
 
-	// empty keeps the device's main colour, whichever device that is
+	game.settings.register(MOD, S.carousel, {
+		name: 'SFH.Settings.Carousel',
+		hint: 'SFH.Settings.CarouselHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: false,
+		onChange: () => onCarouselChange?.(),
+	});
+
+	game.settings.register(MOD, S.carouselLayout, {
+		name: 'SFH.Settings.CarouselLayout',
+		hint: 'SFH.Settings.CarouselLayoutHint',
+		scope: 'client',
+		config: true,
+		type: String,
+		choices: { left: 'SFH.Settings.CarouselLayoutLeft', center: 'SFH.Settings.CarouselLayoutCenter' },
+		default: 'left',
+		onChange: () => onCarouselChange?.(),
+	});
+
+	game.settings.register(MOD, S.carouselScale, {
+		name: 'SFH.Settings.CarouselScale',
+		hint: 'SFH.Settings.CarouselScaleHint',
+		scope: 'client',
+		config: true,
+		type: Number,
+		range: { min: 50, max: 200, step: 10 },
+		default: 100,
+		onChange: () => onCarouselChange?.(),
+	});
+
+	// empty keeps the device's main color, whichever device that is
 	game.settings.register(MOD, S.headingColor, {
 		name: 'SFH.Settings.HeadingColor',
 		hint: 'SFH.Settings.HeadingColorHint',

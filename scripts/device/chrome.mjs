@@ -214,7 +214,7 @@ export class DeviceChrome {
 	/**
 	 * Clear the HUD for as long as something needs the canvas. It looks the same as hiding but
 	 * is kept apart from it: the player did not ask for this, so there is no notice and no
-	 * restore key, and a HUD they hid themselves stays hidden afterwards.
+	 * restore key, and a HUD they hid themselves stays hidden afterward.
 	 * @param {*} token  Handed back to resume(), so overlapping requests each count.
 	 */
 	static suspend(token) {
