@@ -2,7 +2,7 @@ import { EL, MOD, SEQ, S } from '../constants.mjs';
 import { currentDevice, setting } from '../settings.mjs';
 import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
-import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav } from './panels.mjs';
+import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav, renderLatest } from './panels.mjs';
 import { getAdapter } from '../adapters/index.mjs';
 import { readDossier } from './dossier.mjs';
 import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
@@ -21,9 +21,13 @@ export class Projection {
 	static #actor = null;
 	static #tab = null;
 	static #pinned = null;
+	/** The last roll each character made, for the strip over the main panel. */
+	static #latest = new Map();
 	/** The quick search: what was typed and found, which a re-render would otherwise wipe. */
 	static #quick = { text: '', results: '', timer: null, token: 0 };
 	static #preview = null;
+	/** The wait before a hovered item takes over the readout. */
+	static #hover = null;
 	static #bound = false;
 	static #fitPending = false;
 	static #renders = 0;
@@ -308,6 +312,11 @@ export class Projection {
 		const device = currentDevice();
 		const extras = !!c.extras;
 		const L = layout(device, dossierHeight(device, c.extras));
+		// the strip takes the top of the main panel's space, only once there is a roll to show
+		const latest = this.#latest.get(actor.id) ?? null;
+		const P = L.projection;
+		const latestRect = latest ? [P[0], P[1], P[2], 38] : null;
+		if (latest) L.projection = [P[0], P[1] + 44, P[2], P[3] - 44];
 		const eva = device === 'gdi' || device === 'nod';
 		this.#tab = c.tabs.some((t) => t.id === this.#tab) ? this.#tab : c.tabs[0].id;
 
@@ -364,6 +373,7 @@ export class Projection {
 			${extras ? panel('extras', L.extras, renderExtras(c)) : ''}
 			${eva || device === 'wrist' ? '<div class="scanfx"></div>' : ''}
 			${panel('readout', L.readout, `<div class="ro scroll" id="sfh-readout" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;flex:1">${renderReadout(this.#entry(actor))}</div>`)}
+			${latest ? panel('latest', latestRect, renderLatest(latest), 'sfh-latest') : ''}
 			${projection}
 			${renderNav(c, device, L, this.#tab)}
 			${inset ? '</div>' : ''}
@@ -430,6 +440,23 @@ export class Projection {
 		if (hadFocus) input.focus();
 	}
 
+	/** A new chat message. If it is a roll this user may see, it takes the strip. */
+	static noteRoll(message) {
+		const roll = getAdapter()?.readRoll?.(message);
+		if (!roll) return;
+		this.#latest.set(roll.actorId, roll);
+		if (this.#open && this.actor()?.id === roll.actorId) this.render();
+	}
+
+	/** A deleted message cannot be followed up, so the strip lets go of it. */
+	static forgetRoll(message) {
+		for (const [actorId, roll] of this.#latest) {
+			if (roll.messageId !== message.id) continue;
+			this.#latest.delete(actorId);
+			if (this.#open && this.actor()?.id === actorId) this.render();
+		}
+	}
+
 	/** Panels rise in order, so the projection assembles rather than appearing. */
 	static #stagger(stage) {
 		for (const el of stage.querySelectorAll('[data-slot]')) {
@@ -462,8 +489,9 @@ export class Projection {
 		const key = this.#preview ?? this.#pinned;
 		if (!key) return null;
 		const [kind, id] = key.split(':');
-		if (kind === 'item' || kind === 'effect') {
-			const doc = actor.items.get(id) ?? actor.effects.get(id);
+		if (kind === 'item' || kind === 'effect' || kind === 'strike') {
+			// a strike describes the weapon it comes from
+			const doc = kind === 'strike' ? actor.system?.actions?.[Number(id)]?.item : actor.items.get(id) ?? actor.effects.get(id);
 			if (!doc) return null;
 			const text = String(doc.system?.description?.value ?? doc.description ?? '')
 				.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -471,7 +499,7 @@ export class Projection {
 				name: doc.name,
 				kind: doc.type ?? 'Effect',
 				traits: doc.system?.traits?.value ?? [],
-				text: text.slice(0, 700),
+				text,
 			};
 		}
 		if (kind === 'skill') return { name: id, kind: 'Skill' };
@@ -484,7 +512,21 @@ export class Projection {
 	static #refreshReadout() {
 		const el = document.getElementById('sfh-readout');
 		const actor = this.actor();
-		if (el && actor) el.innerHTML = renderReadout(this.#entry(actor));
+		if (!el || !actor) return;
+		el.innerHTML = renderReadout(this.#entry(actor));
+		// something new starts from its top
+		el.scrollTop = 0;
+	}
+
+	/**
+	 * What the pointer is now over, if anything. With nothing under it the readout keeps what it
+	 * shows, so it can be read and scrolled, and goes back to a pinned item if there is one.
+	 */
+	static #previewReadout(key) {
+		const next = key ?? (this.#pinned ? null : this.#preview);
+		if (next === this.#preview) return;
+		this.#preview = next;
+		this.#refreshReadout();
 	}
 
 	/* -------------------------------------------- */
@@ -509,12 +551,22 @@ export class Projection {
 				return this.render();
 			}
 			if (action === 'pin') {
+				// unpinned, it stays on show until something else is pointed at
+				this.#preview = this.#pinned === key ? key : null;
 				this.#pinned = this.#pinned === key ? null : key;
 				return this.#refreshReadout();
 			}
 			if (action === 'sheet') return this.actor()?.sheet?.render(true);
 			if (action === 'menu-close') return target.closest('.sfh-menu')?.remove();
 			if (action === 'settings') return game.settings.sheet.render(true);
+			if (action === 'chatLog') {
+				ui.chat?.activate?.();
+				return ui.sidebar?.expand?.();
+			}
+			if (action === 'latestClear') {
+				this.#latest.delete(this.actor()?.id);
+				return this.render();
+			}
 
 			// everything else belongs to the game system
 			const adapter = getAdapter();
@@ -619,16 +671,19 @@ export class Projection {
 		});
 
 		// the readout follows the pointer, as it does in the mock-up
+		/*
+		 * The readout changes a moment after the pointer settles, so crossing other rows on the
+		 * way to it does not swap what it shows, and it holds still while the pointer is on it.
+		 */
 		el.addEventListener('mouseover', (event) => {
-			const target = event.target.closest('[data-ro]');
-			const key = target ? target.dataset.ro : null;
-			if (key === this.#preview) return;
-			this.#preview = key;
-			this.#refreshReadout();
+			clearTimeout(this.#hover);
+			if (event.target.closest('[data-slot="readout"]')) return;
+			const key = event.target.closest('[data-ro]')?.dataset.ro ?? null;
+			this.#hover = setTimeout(() => this.#previewReadout(key), 120);
 		});
 		el.addEventListener('mouseleave', () => {
-			this.#preview = null;
-			this.#refreshReadout();
+			clearTimeout(this.#hover);
+			this.#previewReadout(null);
 		});
 		el.addEventListener('focusin', (event) => {
 			const target = event.target.closest('[data-ro]');

@@ -90,7 +90,11 @@ one character and have none assigned, it shows that one.
   map, the device and the projection clear out of the way, and come back on the same tab when
   you confirm or dismiss it. It works however the placement started: the projection, the
   system's own sheet or a chat card.
-- **A readout panel** describing whatever you point at, and pinning it when you click.
+- **The latest roll** (PF2e and SF2e), in a strip over the main panel: what you rolled, the total,
+  the outcome if the world shows it, and Damage and Critical for an attack. It stays out of the
+  way until you roll, and never shows a roll you could not see in chat.
+- **A readout panel** describing whatever you point at, and pinning it when you click. It keeps
+  showing the last thing you pointed at, so you can move onto it and scroll a long description.
 - **A Mass Effect dossier**, when the
   [Mass Effect conversion](https://github.com/nscarpinatodev/mass-effect-sf2e-conversion) or
   the shield automation module is active: shields and the Paragon/Renegade tracks. It reads

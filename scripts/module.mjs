@@ -121,6 +121,10 @@ for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'cr
 	Hooks.on(hook, (doc) => Projection.refreshFor(doc));
 }
 
+/* The strip over the main panel follows the chat log. */
+Hooks.on('createChatMessage', (message) => Projection.noteRoll(message));
+Hooks.on('deleteChatMessage', (message) => Projection.forgetRoll(message));
+
 /* The scene controls take the devices' icons each time Foundry prepares them. */
 Hooks.on('getSceneControlButtons', restyleControls);
 

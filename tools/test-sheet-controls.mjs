@@ -90,6 +90,198 @@ const results = await page.evaluate(async () => {
 		return true;
 	};
 
+	/* ---- the latest roll ---- */
+	{
+		const damage = [];
+		const strikeForRoll = {
+			label: 'M-23 Eviscerator',
+			damage: async (o) => damage.push(['damage', o]),
+			critical: async (o) => damage.push(['critical', o]),
+		};
+		const flagKey = game.system.id;
+		const tokenObject = { id: 'tok' };
+		const messages = new Map();
+		const msg = (id, extra = {}) => {
+			const m = {
+				id, isContentVisible: true, visible: true, isCheckRoll: true, actor,
+				rolls: [{ formula: '1d20 + 11', total: 21 }],
+				flavor: '<h4 class="action"><strong>Strike</strong></h4>',
+				flags: { [flagKey]: { context: { outcome: 'success', dc: { value: 18, scope: 'Attack' }, mapIncreases: 1, altUsage: null } } },
+				target: { token: { object: tokenObject } },
+				_strike: strikeForRoll,
+				...extra,
+			};
+			messages.set(id, m);
+			return m;
+		};
+		game.messages = { get: (id) => messages.get(id) };
+		game.pf2e.settings = { metagame: { results: true, dcs: true } };
+		const realI18n = game.i18n.localize;
+		game.i18n.localize = (k) => ({ 'PF2E.Check.Result.Degree.Attack.success': 'Hit', 'PF2E.Check.Result.Degree.Attack.failure': 'Miss' }[k] ?? realI18n(k));
+		const strip = () => stage().querySelector('[data-slot="latest"]');
+		const main = () => stage().querySelector('[data-slot="projection"]');
+
+		check('no roll, no strip', !strip());
+		const heightWithout = parseFloat(main().style.height);
+		const bottomWithout = parseFloat(main().style.top) + heightWithout;
+		Projection.noteRoll(msg('m1'));
+		await wait(100);
+		check('a roll brings the strip', strip() && /M-23 Eviscerator/.test(strip().textContent));
+		check('with its formula and total', /1d20 \+ 11/.test(strip().textContent) && strip().querySelector('.l-v').textContent === '21', strip().textContent);
+		check('and its outcome and DC', /Hit vs 18/.test(strip().textContent), strip().textContent);
+		check('the main panel makes room, keeping its foot', parseFloat(main().style.height) === heightWithout - 44 && parseFloat(main().style.top) + parseFloat(main().style.height) === bottomWithout);
+
+		strip().querySelector('[data-act="latestDamage"][data-k="m1:damage"]').click();
+		await wait(40);
+		check('Damage rolls with what the card passes', damage.at(-1)?.[0] === 'damage' && damage.at(-1)[1].mapIncreases === 1 && damage.at(-1)[1].target === tokenObject && damage.at(-1)[1].checkContext?.dc?.value === 18, damage.at(-1)?.[1]?.mapIncreases);
+		strip().querySelector('[data-act="latestDamage"][data-k="m1:critical"]').click();
+		await wait(40);
+		check('Critical too', damage.at(-1)?.[0] === 'critical');
+
+		// what the system hides stays hidden
+		game.pf2e.settings.metagame.results = false;
+		game.pf2e.settings.metagame.dcs = false;
+		Projection.noteRoll(msg('m2'));
+		await wait(100);
+		check('a hidden outcome and DC are not shown', !/Hit|18/.test(strip().textContent.replace('M-23', '').replace('1d20 + 11', '').replace('21', '')), strip().textContent);
+		game.pf2e.settings.metagame.results = true;
+		game.pf2e.settings.metagame.dcs = true;
+		const before = strip().textContent;
+		Projection.noteRoll(msg('m3', { isContentVisible: false, rolls: [{ formula: '1d20', total: 99 }] }));
+		await wait(60);
+		check('a blind roll does not appear', strip().textContent === before && !/99/.test(strip().textContent));
+		Projection.noteRoll(msg('m4', { visible: false, rolls: [{ formula: '1d20', total: 98 }] }));
+		await wait(60);
+		check('nor a whisper to someone else', !/98/.test(strip().textContent));
+		Projection.noteRoll(msg('m5', { actor: { id: 'someone-else' }, rolls: [{ formula: '1d20', total: 97 }] }));
+		await wait(60);
+		check('nor someone else\'s roll', !/97/.test(strip().textContent));
+		Projection.noteRoll(msg('m6', { rolls: [] }));
+		await wait(60);
+		check('nor a message with no roll', strip().textContent.includes('21'));
+
+		// not every roll is an attack
+		Projection.noteRoll(msg('m7', {
+			_strike: null, isCheckRoll: false, rolls: [{ formula: '3d8 + 6', total: 19 }], flavor: '<h4 class="action"><strong>Damage Roll: Piercing</strong></h4>', flags: { [flagKey]: { context: { type: 'damage-roll' } } },
+		}));
+		await wait(100);
+		check('a damage roll shows, named by its card', /Damage Roll: Piercing/.test(strip().textContent) && strip().querySelector('.l-v').textContent === '19', strip().textContent);
+		check('with nothing to follow up', !strip().querySelector('[data-act="latestDamage"]'));
+		Projection.noteRoll(msg('m8', { flags: {}, flavor: '', _strike: null, isCheckRoll: false, rolls: [{ formula: '1d6', total: 4 }] }));
+		await wait(100);
+		check('a bare roll still has a name', /Roll/.test(strip().querySelector('.l-n').textContent), strip().textContent);
+
+		// the whole thing fits, on every device and with a long name
+		Projection.noteRoll(msg('m9', { _strike: { ...strikeForRoll, label: 'A Very Long Named Weapon Of Considerable Length And Grandeur' }, rolls: [{ formula: '1d20 + 11 + 2 + 1 + 3 - 2', total: 21 }] }));
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+			game.settings.set(null, 'device', device);
+			// the device change redraws and refits; measure once that has settled
+			await wait(450);
+			const box = strip().getBoundingClientRect();
+			const inside = [...strip().children].every((el) => { const r = el.getBoundingClientRect(); return !r.width || r.left >= box.left - 0.5 && r.right <= box.right + 0.5 && r.top >= box.top - 0.5 && r.bottom <= box.bottom + 0.5; });
+			const outside = [...strip().children].filter((el) => { const r = el.getBoundingClientRect(); return r.width && (r.left < box.left - 0.5 || r.right > box.right + 0.5 || r.top < box.top - 0.5 || r.bottom > box.bottom + 0.5); }).map((el) => [el.className, Math.round(el.getBoundingClientRect().left), Math.round(el.getBoundingClientRect().right), Math.round(box.left), Math.round(box.right)]);
+			const gone = main().getBoundingClientRect();
+			check(`${device}: the strip holds everything`, inside && strip().scrollWidth <= strip().clientWidth + 1, outside);
+			check(`${device}: it clears the main panel`, gone.top >= box.bottom, [gone.top, box.bottom]);
+		}
+		game.settings.set(null, 'device', 'omni');
+		await wait(150);
+
+		const logs = [];
+		ui.chat = { activate: () => logs.push('activate') };
+		ui.sidebar = { expand: () => logs.push('expand') };
+		strip().querySelector('[data-act="chatLog"]').click();
+		await wait(30);
+		check('Log opens the chat', logs.join() === 'activate,expand', logs);
+
+		Projection.forgetRoll({ id: 'm1' });
+		await wait(60);
+		check('deleting an older message changes nothing', !!strip());
+		Projection.forgetRoll({ id: 'm9' });
+		await wait(100);
+		check('deleting the shown one clears it', !strip());
+		check('and the main panel takes its room back', parseFloat(main().style.height) === heightWithout);
+		Projection.noteRoll(msg('m10'));
+		await wait(100);
+		strip().querySelector('[data-act="latestClear"]').click();
+		await wait(100);
+		check('× dismisses it', !strip() && parseFloat(main().style.height) === heightWithout);
+		game.i18n.localize = realI18n;
+	}
+
+	/* ---- the readout ---- */
+	{
+		const long = `<p>${'A long description of how this works. '.repeat(120)}</p>`;
+		items.long = { id: 'long', name: 'Long Item', type: 'feat', system: { description: { value: long }, traits: { value: [] } } };
+		items.other = { id: 'other', name: 'Other Item', type: 'feat', system: { description: { value: '<p>Short.</p>' }, traits: { value: [] } } };
+		actor.effects = { get: () => null };
+		const readout = () => stage().querySelector('#sfh-readout');
+		const slot = () => stage().querySelector('[data-slot="readout"]');
+		const over = (el) => el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+		const probe = (key) => {
+			const el = document.createElement('button');
+			el.dataset.ro = key;
+			stage().querySelector('.proj-b').append(el);
+			return el;
+		};
+		await tab('feats');
+		const a = probe('item:long');
+		const b = probe('item:other');
+		const plain = stage().querySelector('.proj-h');
+
+		over(a);
+		await wait(200);
+		check('hovering shows an item in the readout', /Long Item/.test(readout().textContent));
+		check('the whole description is there', readout().textContent.length > 4000, readout().textContent.length);
+		check('and a long one can scroll', readout().scrollHeight > readout().clientHeight && getComputedStyle(readout()).overflowY === 'auto', [readout().scrollHeight, readout().clientHeight]);
+
+		over(plain);
+		await wait(200);
+		check('moving off it keeps it showing', /Long Item/.test(readout().textContent));
+		over(slot());
+		await wait(200);
+		readout().scrollTop = 300;
+		check('it scrolls under the pointer', readout().scrollTop === 300, readout().scrollTop);
+		over(readout().querySelector('p'));
+		await wait(200);
+		check('and holds still while being read', /Long Item/.test(readout().textContent) && readout().scrollTop === 300);
+
+		over(b);
+		over(slot());
+		await wait(200);
+		check('crossing another row on the way does not swap it', /Long Item/.test(readout().textContent));
+		over(b);
+		await wait(200);
+		check('settling on another row does', /Other Item/.test(readout().textContent));
+		check('and it starts from the top', readout().scrollTop === 0);
+		over(a);
+		await wait(200);
+		stage().dispatchEvent(new MouseEvent('mouseleave'));
+		Projection.element.dispatchEvent(new MouseEvent('mouseleave'));
+		await wait(50);
+		check('leaving the projection keeps it too', /Long Item/.test(readout().textContent));
+
+		// a pinned item is what it comes back to
+		const pinBtn = document.createElement('button');
+		pinBtn.dataset.act = 'pin';
+		pinBtn.dataset.k = 'item:other';
+		pinBtn.dataset.ro = 'item:other';
+		stage().querySelector('.proj-b').append(pinBtn);
+		over(pinBtn);
+		await wait(200);
+		pinBtn.click();
+		await wait(30);
+		over(a);
+		await wait(200);
+		check('hovering past a pin previews', /Long Item/.test(readout().textContent));
+		over(plain);
+		await wait(200);
+		check('moving off goes back to the pin', /Other Item/.test(readout().textContent));
+		pinBtn.click();
+		await wait(30);
+		check('and unpinning leaves it showing', /Other Item/.test(readout().textContent));
+	}
+
 	/* ---- strikes ---- */
 	{
 		const fired = [];
@@ -188,13 +380,15 @@ const results = await page.evaluate(async () => {
 		await wait(30);
 		check('Unload detaches it', subitemCalls.at(-1)?.[0] === 'detach', subitemCalls);
 
+		// the reload window looks its button up by this id, the first in the document
+		const anchorId = 'sheet-Item.pistol-reload';
 		let reloads = 0;
 		let selected = 0;
 		const armSheet = () => {
 			sheet.rendered = true;
 			const el = document.createElement('div');
 			el.id = sheet.id;
-			el.innerHTML = `<li data-strike data-action-index="2"><a data-action="reload"></a><div class="loaded" data-item-id="mag2"><button data-action="select-ammo"></button></div></li>`;
+			el.innerHTML = `<li data-strike data-action-index="2"><a data-action="reload" data-anchor-id="${anchorId}"></a><div class="loaded" data-item-id="mag2"><button data-action="select-ammo"></button></div></li>`;
 			el.querySelector('[data-action="reload"]').addEventListener('click', () => { reloads += 1; });
 			el.querySelector('[data-action="select-ammo"]').addEventListener('click', () => { selected += 1; });
 			document.body.append(el);
@@ -204,6 +398,8 @@ const results = await page.evaluate(async () => {
 		within('Drawn Pistol', '[data-act="reload"]').click();
 		await wait(60);
 		check('Reload presses the right strike\'s button on the sheet', reloads === 1, reloads);
+		const pressedReload = within('Drawn Pistol', '[data-act="reload"]');
+		check('...and its window will find the button on the HUD first', document.querySelector(`[data-anchor-id="${anchorId}"]`) === pressedReload, document.querySelector(`[data-anchor-id="${anchorId}"]`)?.outerHTML);
 		within('Drawn Pistol', '[data-act="selectAmmo"]').click();
 		await wait(60);
 		check('choosing loaded ammunition does too', selected === 1, selected);

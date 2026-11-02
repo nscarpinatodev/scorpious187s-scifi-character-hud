@@ -25,6 +25,13 @@ device, and the character sheet is a projection it raises over the canvas.
   setting to keep Foundry's own.
 - The Mass Effect dossier: shields and Paragon/Renegade, read from the conversion and shield
   modules.
+- PF2e and SF2e: a strip over the main panel shows the character's latest roll, with Damage and
+  Critical for an attack.
+- The combat tracker in each device's own style, popped out or in the sidebar: the current turn
+  stands out, initiative reads like the device's numbers, and defeated names can be read.
+- The readout keeps what it shows when the pointer moves away, so a long description can be
+  scrolled, and no longer cuts descriptions short. PF2e and SF2e: strikes show their weapon's
+  description, and the reload window opens beside the HUD's Reload button.
 - PF2e and SF2e: fixed attacks firing the wrong weapon when an unready one was listed above
   them, speed always reading 25, Use skipping limited uses, and feats with an action cost
   missing from the Actions tab.

@@ -8,7 +8,8 @@ import * as dnd5e from './dnd5e.mjs';
  *   tabBody(actor, tab)    what the projection's main panel shows
  *   act(actor, action, k)  what the system should do when a button is pressed
  *
- * and may offer searchItems(text), the results of a quick search box in one of its tab bodies.
+ * and may offer searchItems(text), the results of a quick search box in one of its tab bodies,
+ * and readRoll(message), a chat message as the latest-roll strip shows it.
  *
  * Adding a system means adding a file here. Nothing else in the module knows or cares
  * which system is running.

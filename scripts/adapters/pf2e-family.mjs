@@ -530,7 +530,7 @@ export async function act(actor, action, key, event) {
 		case 'unload': return strikeItem(actor, a)?.subitems?.get(b)?.detach({ skipConfirm: event?.shiftKey });
 		case 'linkAmmo': return strikeItem(actor, a)?.update({ system: { selectedAmmoId: actor.items.get(b)?.id ?? null } });
 		// these two windows and orderings are the system's own, and only its sheet can reach them
-		case 'reload': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-action="reload"]`);
+		case 'reload': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-action="reload"]`, event?.target?.closest?.('[data-act]'));
 		case 'selectAmmo': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-item-id="${CSS.escape(b)}"] [data-action="select-ammo"]`);
 		case 'raiseShield': return game.pf2e?.actions?.raiseAShield?.({ actors: [actor], event });
 		case 'setShieldHp': return actor.update({ 'system.attributes.shield.hp.value': Math.max(0, Number(key)) });
@@ -546,6 +546,7 @@ export async function act(actor, action, key, event) {
 		case 'prepareSpells': return openSpellPreparation(actor, key);
 		case 'setRank': return setSkillRank(actor, a, Number(b));
 		case 'browseEquipment': return browseEquipment(key);
+		case 'latestDamage': return latestDamage(a, b, event);
 		case 'addItem': return addItem(actor, key);
 		case 'buyItem': return buyItem(actor, key);
 		case 'viewItem': return (await fromUuid(key))?.sheet?.render(true);
@@ -650,8 +651,12 @@ async function openSpellPreparation(actor, entryId) {
  * sheet, so that button is what gets pressed: on the open sheet if there is one, or on a sheet
  * drawn out of sight for the moment it takes. If the button cannot be found, the sheet is left
  * showing, so the player still has a way to it.
+ *
+ * A window placed beside its button finds that button by its data-anchor-id. Give it to `anchor`,
+ * the control the player actually pressed, and the window opens there: the sheet's button is out
+ * of sight or gone, and the projection comes first in the document, so it is found first.
  */
-async function pressSheetButton(actor, selector) {
+async function pressSheetButton(actor, selector, anchor = null) {
 	const sheet = actor.sheet;
 	const wasOpen = sheet.rendered;
 	const veil = wasOpen ? null : document.createElement('style');
@@ -666,6 +671,7 @@ async function pressSheetButton(actor, selector) {
 		if (!button) await new Promise((resolve) => setTimeout(resolve, 25));
 	}
 	try {
+		if (anchor && button?.dataset.anchorId) anchor.dataset.anchorId = button.dataset.anchorId;
 		if (button) button.click();
 		else if (wasOpen) sheet.bringToFront?.();
 		if (button && !wasOpen) await sheet.close();
@@ -684,6 +690,69 @@ async function setSkillRank(actor, key, rank) {
 	if (!data) return;
 	if (data.itemId) return actor.items.get(data.itemId)?.update({ 'system.proficient.value': rank });
 	return actor.update({ [`system.skills.${key}.rank`]: rank });
+}
+
+/**
+ * A chat message, as the latest-roll strip shows it, or null if it is not a roll this user may
+ * see. The DC and the outcome are shown only as the world lets players see them on the card.
+ * @returns {{actorId: string, messageId: string, name: string, formula: string, total: number,
+ *   outcome: ?{label: string, tone: string}, dc: ?number, damage: boolean}|null}
+ */
+export function readRoll(message) {
+	const roll = message.rolls?.[0];
+	if (!roll || !message.isContentVisible || !message.visible) return null;
+	const actor = message.actor;
+	if (!actor) return null;
+	const context = message.flags?.[game.system.id]?.context ?? null;
+	const strike = message._strike ?? null;
+	const check = !!message.isCheckRoll;
+	const metagame = game.pf2e?.settings?.metagame ?? {};
+
+	let outcome = null;
+	if (check && context?.outcome && (game.user.isGM || metagame.results)) {
+		const scope = context.dc?.scope ?? 'Check';
+		const label = game.i18n.localize(`PF2E.Check.Result.Degree.${scope}.${context.outcome}`);
+		outcome = { label, tone: /success/i.test(context.outcome) ? 'good' : 'bad' };
+	}
+	const dc = check && (game.user.isGM || metagame.dcs) ? context?.dc?.value ?? null : null;
+	return {
+		actorId: actor.id,
+		messageId: message.id,
+		name: strike?.label ?? rollName(message),
+		formula: roll.formula ?? '',
+		total: roll.total,
+		outcome,
+		dc,
+		// only an attack's own check can be followed up from here
+		damage: check && !!strike,
+	};
+}
+
+/** What a roll was for: its card's heading, or the first words of its flavour. */
+function rollName(message) {
+	const holder = document.createElement('div');
+	holder.innerHTML = message.flavor ?? '';
+	const heading = holder.querySelector('h4, h3, .action, strong') ?? holder;
+	return heading.textContent.replace(/\s+/g, ' ').trim() || 'Roll';
+}
+
+/**
+ * Roll damage from a message, with what its card's own Damage and Critical buttons pass: the
+ * check's context, multiple attack penalty and target are what make it the same attack.
+ */
+async function latestDamage(messageId, kind, event) {
+	const message = game.messages.get(messageId);
+	const strike = message?._strike;
+	if (!strike) return;
+	const context = message.isCheckRoll ? message.flags?.[game.system.id]?.context ?? null : null;
+	const mapIncreases = [0, 1, 2].includes(context?.mapIncreases) ? context.mapIncreases : null;
+	return strike[kind === 'critical' ? 'critical' : 'damage']?.({
+		event,
+		altUsage: context?.altUsage ?? null,
+		mapIncreases,
+		checkContext: context,
+		target: message.target?.token?.object ?? null,
+	});
 }
 
 /** How many results the quick search shows before it says to narrow it down. */

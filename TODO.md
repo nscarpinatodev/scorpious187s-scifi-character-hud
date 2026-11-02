@@ -43,8 +43,6 @@ needs its own pass — that gets the colours right, not the shape.
 - [ ] **Chat** — message frames, whispers, rolls and dice results, the roll-mode picker and the
       chat input. Roll results are the panel players look at most; they should read like the
       device's own readout.
-- [ ] **Combat tracker** — initiative rows, the active combatant, token images, HP bars and the
-      round controls.
 - [ ] **Actors, Items, Journal, Tables, Cards, Playlists directories** — folder rows, entry rows,
       the search box and the create buttons.
 - [ ] **Compendium** — pack rows and the pack browser.

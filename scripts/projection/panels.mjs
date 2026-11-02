@@ -194,6 +194,28 @@ export function renderExtras(c) {
 }
 
 /* -------------------------------------------- */
+/*  The latest roll                              */
+/* -------------------------------------------- */
+
+/** The strip over the main panel: the last thing this character rolled, and what follows from it. */
+export function renderLatest(roll) {
+	const verdict = roll.outcome
+		? `<span class="l-o ${esc(roll.outcome.tone)}">${esc(roll.outcome.label)}${roll.dc != null ? ` vs ${esc(roll.dc)}` : ''}</span>`
+		: roll.dc != null ? `<span class="l-o">vs ${esc(roll.dc)}</span>` : '';
+	const follow = roll.damage
+		? `${actBtn('Damage', 'latestDamage', `${roll.messageId}:damage`, { cls: 'sm ghost' })}${actBtn('Critical', 'latestDamage', `${roll.messageId}:critical`, { cls: 'sm ghost' })}`
+		: '';
+	return `<b class="l-t">Latest</b>
+		<span class="l-n" title="${esc(roll.name)}">${esc(roll.name)}</span>
+		<span class="l-f mono" title="${esc(roll.formula)}">${esc(roll.formula)}</span>
+		<span class="l-v mono">${esc(roll.total)}</span>
+		${verdict}
+		<span class="l-g">${follow}
+			${actBtn('Log', 'chatLog', '', { cls: 'sm ghost', title: 'Open the chat log' })}
+			<button type="button" class="b sm" data-act="latestClear" data-k="" aria-label="Dismiss" data-tooltip="Dismiss">×</button></span>`;
+}
+
+/* -------------------------------------------- */
 /*  Readout                                      */
 /* -------------------------------------------- */
 

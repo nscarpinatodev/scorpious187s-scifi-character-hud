@@ -13,7 +13,7 @@
    these win without needing more specificity.
    ========================================================================= */
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #hud, #menu, #tooltip, .locked-tooltip, #context-menu) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #hud, #menu, #tooltip, .locked-tooltip, #context-menu, #combat-popout) {
 	/* panel darks */
 	--color-cool-5: rgb(var(--sfh-bg-rgb));
 	--color-cool-5-25: rgb(var(--sfh-bg-rgb) / 25%);
@@ -59,7 +59,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(.themed, .sidebar
 	--sidebar-folder-color: var(--sfh-hover);
 }
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(input, select, textarea, code-mirror, formula-input, color-picker, file-picker, document-tags, string-tags) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(input, select, textarea, code-mirror, formula-input, color-picker, file-picker, document-tags, string-tags) {
 	--input-background-color: var(--sfh-cell);
 	--input-border-color: var(--sfh-line-2);
 	--input-text-color: var(--sfh-text);
@@ -68,7 +68,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(input, select, te
 	--input-placeholder-color: var(--sfh-dim);
 }
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(button, a.button) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(button, a.button) {
 	--button-background-color: var(--sfh-cell);
 	--button-border-color: var(--sfh-line);
 	--button-text-color: var(--sfh-text);
@@ -229,6 +229,220 @@ body[data-sfh-device] .settings-sidebar .info .subtitle {
 /* a card's headings are not measured, so a long word in that face has to be able to break */
 body[data-sfh-device] .chat-log :is(h1, h2, h3, h4) {
 	overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- combat tracker */
+/*
+ * Foundry's own tracker, which every system here builds on. The current turn is what a player
+ * looks for, so it gets the device's main colour, a bar down its edge and the glow; everyone else
+ * stays quiet. Initiative reads like the device's other numbers.
+ */
+body[data-sfh-device] :is(#combat, #combat-popout) {
+	/* the current turn's edge. A system can still recolour it by disposition, from this default */
+	--color-warm-2: var(--sfh-hot);
+	--entry-hover-bg: var(--sfh-hover);
+	--entry-active-bg: var(--sfh-hover);
+	--active-input-bg-color: transparent;
+}
+
+/* the header: the round is the headline */
+body[data-sfh-device] :is(#combat, #combat-popout) .encounter-controls {
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--sfh-line-2);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .encounter-title {
+	color: var(--sfh-heading);
+	font-family: var(--sfh-display);
+	font-size: var(--font-size-14);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .encounter-count {
+	color: var(--sfh-text);
+	font-family: var(--sfh-mono);
+}
+
+/* the list */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 0 8px;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant {
+	flex: none;
+	padding: 5px 6px;
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line-2);
+	border-radius: var(--sfh-radius);
+	color: var(--sfh-text);
+	transition: background-color 120ms, border-color 120ms;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant:is(:hover, .hover) {
+	background: var(--sfh-hover);
+	border-color: var(--sfh-line);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active {
+	background: linear-gradient(90deg, color-mix(in srgb, var(--sfh-hot) 26%, transparent), var(--sfh-cell) 70%);
+	border-color: var(--sfh-hot);
+	box-shadow: inset 3px 0 0 var(--sfh-hot), 0 0 12px var(--sfh-glow);
+}
+
+/* Foundry's own marker for the current turn: the edge above does this, unless a system recolours it */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active::before {
+	border-radius: var(--sfh-radius);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant .name {
+	color: var(--sfh-bright);
+	font-weight: 600;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active .name {
+	color: var(--sfh-heading);
+}
+
+/* Foundry paints a defeated name in a colour the palette turns nearly transparent */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.defeated {
+	background: none;
+	border-color: var(--sfh-line-2);
+	box-shadow: none;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.defeated .name {
+	color: var(--sfh-bad);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant:is(.defeated, .hide) .token-image {
+	filter: grayscale(1);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.hide {
+	border-style: dashed;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.hide .name {
+	color: var(--sfh-dim);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-image {
+	flex-basis: 40px;
+	width: 40px;
+	height: 40px;
+	background: rgb(var(--sfh-bg-rgb));
+	border: 1px solid var(--sfh-line);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active .token-image {
+	border-color: var(--sfh-hot);
+	box-shadow: 0 0 8px var(--sfh-glow);
+}
+
+/* a combatant's small controls stay quiet until they are on */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .inline-control {
+	--button-text-color: var(--sfh-dim);
+	--button-hover-text-color: var(--sfh-bright);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .inline-control.active {
+	--button-text-color: var(--sfh-hot);
+}
+
+/* the tracked resource and initiative: the device's numbers */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-resource {
+	flex: none;
+	min-width: 26px;
+	padding: 1px 3px;
+	border: 1px solid var(--sfh-line-2);
+	border-radius: calc(var(--sfh-radius) * 0.5);
+	color: var(--sfh-text);
+	font-family: var(--sfh-mono);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-initiative {
+	flex-basis: 34px;
+	color: var(--sfh-bright);
+	font-family: var(--sfh-mono);
+	font-size: var(--font-size-18);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-initiative input {
+	--input-background-color: transparent;
+	--input-border-color: transparent;
+	height: 28px;
+	color: var(--sfh-bright);
+	font-family: var(--sfh-mono);
+	font-size: var(--font-size-18);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-initiative input:is(:hover, :focus):not([readonly]) {
+	--input-background-color: var(--sfh-cell);
+	--input-border-color: var(--sfh-hot);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active .token-initiative :is(input, span) {
+	text-shadow: 0 0 8px var(--sfh-glow);
+}
+
+/* the roll button is an image: used as a mask, it takes the device's colour */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-initiative button {
+	flex: none;
+	width: 26px;
+	height: 26px;
+	background: var(--sfh-hot);
+	mask: var(--initiative-icon) no-repeat center / contain;
+	filter: drop-shadow(0 0 3px var(--sfh-glow));
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-initiative button:hover {
+	background: var(--sfh-bright);
+	mask-image: var(--initiative-icon-hover);
+	filter: drop-shadow(0 0 5px var(--sfh-glow));
+}
+
+/* the footer's main button: begin, end, or end my turn */
+body[data-sfh-device] :is(#combat, #combat-popout) .combat-controls {
+	padding-top: 6px;
+	border-top: 1px solid var(--sfh-line-2);
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) button.combat-control-lg {
+	--button-background-color: var(--sfh-hover);
+	--button-border-color: var(--sfh-hot);
+	--button-text-color: var(--sfh-bright);
+	border-radius: var(--sfh-radius);
+	/* the text face: the display faces are too wide for a label sharing this row */
+	font-family: var(--sfh-face);
+	font-size: var(--font-size-13);
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+body[data-sfh-device] :is(#combat, #combat-popout) button.combat-control-lg:hover {
+	box-shadow: 0 0 12px var(--sfh-glow);
+}
+
+/* the omni-tool's panels have cut corners; a clipped row cannot glow outside itself */
+body[data-sfh-device="omni"] :is(#combat, #combat-popout) :is(.combatant, button.combat-control-lg) {
+	clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+}
+
+body[data-sfh-device="omni"] :is(#combat, #combat-popout) .combat-tracker .combatant.active {
+	box-shadow: inset 3px 0 0 var(--sfh-hot), inset 0 0 14px color-mix(in srgb, var(--sfh-hot) 30%, transparent);
+}
+
+/* the EVA's turn marker is a solid block, as its console's other indicators are */
+body[data-sfh-device]:is([data-sfh-device="gdi"], [data-sfh-device="nod"]) :is(#combat, #combat-popout) .combat-tracker .combatant.active {
+	background: color-mix(in srgb, var(--sfh-hot) 18%, var(--sfh-cell));
+	box-shadow: inset 6px 0 0 var(--sfh-hot);
 }
 
 /* ---------------------------------------------------------------- chat */

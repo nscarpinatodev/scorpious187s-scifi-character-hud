@@ -123,6 +123,88 @@
 					</ol></div>
 					<prose-mirror id="chat-message" class="chat-input" aria-label="Chat"></prose-mirror>
 				</section>
+				<section id="combat" class="tab sidebar-tab combat-sidebar flexcol themed theme-dark" data-tab="combat">
+					<header class="combat-tracker-header">
+						<nav class="encounters cycle" aria-label="Encounters">
+							<button type="button" class="inline-control icon fa-solid fa-plus" aria-label="Create"></button>
+							<div class="cycle-combats"><button type="button" class="inline-control icon fa-solid fa-caret-left" disabled aria-label="Previous"></button>
+								<div class="encounter-count"><span class="value">1</span><span class="separator">&sol;</span><span class="max">2</span></div>
+								<button type="button" class="inline-control icon fa-solid fa-caret-right" aria-label="Next"></button></div>
+							<button type="button" class="inline-control icon fa-solid fa-gear" aria-label="Settings"></button>
+						</nav>
+						<div class="encounter-controls combat">
+							<div class="control-buttons left flexrow"><button type="button" class="inline-control combat-control icon fa-solid fa-users" aria-label="Roll All"></button>
+								<button type="button" class="inline-control combat-control icon fa-solid fa-users-cog" aria-label="Roll NPCs"></button></div>
+							<strong class="encounter-title">Round 2</strong>
+							<div class="control-buttons right flexrow"><div class="spacer"></div>
+								<button type="button" class="encounter-context-menu inline-control combat-control icon fa-solid fa-ellipsis-vertical" aria-label="More"></button></div>
+						</div>
+					</header>
+					<ol class="combat-tracker plain">
+						<li class="combatant active" data-combatant-id="Blee" data-action="activateCombatant">
+							<img class="token-image" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/mystery-man.svg" alt="Blee">
+							<div class="token-name"><strong class="name">Blee</strong>
+								<div class="combatant-controls">
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash" aria-label="Hide"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-skull" aria-label="Defeated"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-bullseye-arrow" aria-label="Ping"></button>
+									<div class="token-effects"><img class="token-effect" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/aura.svg" alt=""><img class="token-effect" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/aura.svg" alt=""></div>
+								</div></div><div class="token-resource"><span class="resource">8</span></div>
+							<div class="token-initiative"><input type="text" class="initiative-input" inputmode="numeric" value="24" aria-label="Initiative"></div>
+						</li>
+						<li class="combatant " data-combatant-id="Vex Kaori with a Rather Long Name" data-action="activateCombatant">
+							<img class="token-image" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/cowled.svg" alt="Vex Kaori with a Rather Long Name">
+							<div class="token-name"><strong class="name">Vex Kaori with a Rather Long Name</strong>
+								<div class="combatant-controls">
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash" aria-label="Hide"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-skull" aria-label="Defeated"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-bullseye-arrow" aria-label="Ping"></button>
+									<div class="token-effects"></div>
+								</div></div>
+							<div class="token-initiative"><input type="text" class="initiative-input" inputmode="numeric" value="19" aria-label="Initiative"></div>
+						</li>
+						<li class="combatant hide" data-combatant-id="Hidden Ambusher" data-action="activateCombatant">
+							<img class="token-image" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/mystery-man.svg" alt="Hidden Ambusher">
+							<div class="token-name"><strong class="name">Hidden Ambusher</strong>
+								<div class="combatant-controls">
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash active" aria-label="Hide"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-skull" aria-label="Defeated"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-bullseye-arrow" aria-label="Ping"></button>
+									<div class="token-effects"></div>
+								</div></div>
+							<div class="token-initiative"><input type="text" class="initiative-input" inputmode="numeric" value="15" aria-label="Initiative"></div>
+						</li>
+						<li class="combatant defeated" data-combatant-id="Geth Trooper" data-action="activateCombatant">
+							<img class="token-image" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/skull.svg" alt="Geth Trooper">
+							<div class="token-name"><strong class="name">Geth Trooper</strong>
+								<div class="combatant-controls">
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash" aria-label="Hide"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-skull active" aria-label="Defeated"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-bullseye-arrow" aria-label="Ping"></button>
+									<div class="token-effects"></div>
+								</div></div>
+							<div class="token-initiative"><input type="text" class="initiative-input" inputmode="numeric" value="11" aria-label="Initiative"></div>
+						</li>
+						<li class="combatant " data-combatant-id="Krogan Mercenary" data-action="activateCombatant">
+							<img class="token-image" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/mystery-man.svg" alt="Krogan Mercenary">
+							<div class="token-name"><strong class="name">Krogan Mercenary</strong>
+								<div class="combatant-controls">
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash" aria-label="Hide"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-skull" aria-label="Defeated"></button>
+									<button type="button" class="inline-control combatant-control icon fa-solid fa-bullseye-arrow" aria-label="Ping"></button>
+									<div class="token-effects"></div>
+								</div></div>
+							<div class="token-initiative"><button type="button" class="combatant-control roll" data-action="rollInitiative" aria-label="Roll Initiative" style="--initiative-icon: url('file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/d20.svg'); --initiative-icon-hover: url('file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg/d20-highlight.svg')"></button></div>
+						</li>
+					</ol>
+					<nav class="combat-controls">
+						<button type="button" class="inline-control combat-control icon fa-solid fa-backward-step" aria-label="Previous Round"></button>
+						<button type="button" class="inline-control combat-control icon fa-solid fa-arrow-left" aria-label="Previous Turn"></button>
+						<button type="button" class="combat-control combat-control-lg"><i class="fa-solid fa-xmark" inert></i><span>End Encounter</span></button>
+						<button type="button" class="inline-control combat-control icon fa-solid fa-arrow-right" aria-label="Next Turn"></button>
+						<button type="button" class="inline-control combat-control icon fa-solid fa-forward-step" aria-label="Next Round"></button>
+					</nav>
+				</section>
 				<section id="settings" class="tab sidebar-tab settings-sidebar flexcol themed theme-dark" data-tab="settings">
 					<section class="info"><h1 class="title">Foundry Virtual Tabletop</h1><p class="subtitle">Version 14 Stable</p></section>
 					<section class="settings flexcol"><h4 class="divider">Settings and Configuration</h4><button type="button"><i class="fa-solid fa-gears"></i> Game Settings</button></section>

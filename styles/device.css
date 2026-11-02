@@ -21,6 +21,7 @@ body[data-sfh-device] {
 	--sfh-panel: rgb(8 11 17 / 88%);
 	--sfh-cell: rgb(4 7 11 / 78%);
 	--sfh-acc: #5ec8ff;
+	--sfh-bad: #ff5a4a;
 	--sfh-face: Rajdhani, "Arial Narrow", sans-serif;
 	/* wide, squared capitals, in the manner of Mass Effect's headings */
 	--sfh-display: Michroma, Rajdhani, sans-serif;
@@ -41,6 +42,7 @@ body[data-sfh-device="wrist"] {
 	--sfh-panel: rgb(22 9 48 / 88%);
 	--sfh-cell: rgb(16 6 36 / 80%);
 	--sfh-acc: #35ecf2;
+	--sfh-bad: #ff6b6b;
 	--sfh-face: "Chakra Petch", sans-serif;
 	--sfh-display: Audiowide, "Chakra Petch", sans-serif;
 	--sfh-mono: VT323, ui-monospace, monospace;
@@ -60,6 +62,7 @@ body[data-sfh-device="gdi"] {
 	--sfh-panel: rgb(10 16 9 / 90%);
 	--sfh-cell: rgb(6 10 5 / 85%);
 	--sfh-acc: #f2c230;
+	--sfh-bad: #ff4a3a;
 	--sfh-face: Oxanium, sans-serif;
 	--sfh-display: Oxanium, sans-serif;
 	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
@@ -79,6 +82,7 @@ body[data-sfh-device="nod"] {
 	--sfh-panel: rgb(20 7 7 / 90%);
 	--sfh-cell: rgb(12 4 4 / 85%);
 	--sfh-acc: #efe6d2;
+	--sfh-bad: #ffd060;
 	--sfh-face: Oxanium, sans-serif;
 	--sfh-display: Oxanium, sans-serif;
 	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;
@@ -99,6 +103,7 @@ body[data-sfh-device="tron"] {
 	--sfh-panel: rgb(2 10 16 / 90%);
 	--sfh-cell: rgb(1 6 10 / 85%);
 	--sfh-acc: #ff9d2e;
+	--sfh-bad: #ff6a2a;
 	--sfh-face: Oxanium, sans-serif;
 	--sfh-display: Orbitron, Oxanium, sans-serif;
 	--sfh-mono: "Share Tech Mono", ui-monospace, monospace;

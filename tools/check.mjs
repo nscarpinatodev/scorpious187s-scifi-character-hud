@@ -66,7 +66,7 @@ for (const font of existsSync(fontDir) ? readdirSync(fontDir) : []) {
 /* ---- the palette every device must define (the omni-tool's is the unqualified default) ---- */
 const deviceCss = readFileSync(join(root, 'styles/device.css'), 'utf8');
 const required = ['--sfh-bg-rgb', '--sfh-hot', '--sfh-glow', '--sfh-bright', '--sfh-text', '--sfh-dim', '--sfh-line',
-	'--sfh-line-2', '--sfh-hover', '--sfh-panel', '--sfh-cell', '--sfh-acc', '--sfh-face', '--sfh-display', '--sfh-mono'];
+	'--sfh-line-2', '--sfh-hover', '--sfh-panel', '--sfh-cell', '--sfh-acc', '--sfh-bad', '--sfh-face', '--sfh-display', '--sfh-mono'];
 const { DEVICES } = await import(new URL('../scripts/constants.mjs', import.meta.url));
 for (const device of Object.keys(DEVICES)) {
 	const selector = device === 'omni' ? 'body[data-sfh-device] {' : `body[data-sfh-device="${device}"] {`;

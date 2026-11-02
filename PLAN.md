@@ -82,6 +82,7 @@ tools/
   preview-projection.mjs  raises the projection on each device and asserts what it drew
   test-placement.mjs    runs a placement through the real watcher on each device
   test-sheet-controls.mjs  presses the spell, skill and inventory controls and checks the calls
+  test-tracker.mjs      checks the combat tracker's colours and layout on every device
   test-headings.mjs     checks the sidebar's headings fit, in each device and a wide font
 ```
 
@@ -160,6 +161,10 @@ the tab's last content until it resolves, and only the newest render may fill it
 
 **Done — hiding.** A rebindable key clears the art, the projection and the beam off the
 screen without switching anything off; the macro bar stays with a restore key on it.
+
+**The latest roll.** Chat itself stays in the sidebar: mocked up inside the projection it was
+cramped in the readout panel and covered the sheet as a tab. A strip shows only the last roll, from
+`createChatMessage`, through the adapter's `readRoll`, which applies what the chat card would hide.
 
 **Windows only the sheet can open.** The system does not expose its Spell Preparation window or
 its currency dialog to modules, only to buttons on the character sheet, so the adapter presses
