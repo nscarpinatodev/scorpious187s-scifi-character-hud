@@ -173,7 +173,7 @@ const results = await page.evaluate(async () => {
 
 		// the whole thing fits, on every device and with a long name
 		Projection.noteRoll(msg('m9', { _strike: { ...strikeForRoll, label: 'A Very Long Named Weapon Of Considerable Length And Grandeur' }, rolls: [{ formula: '1d20 + 11 + 2 + 1 + 3 - 2', total: 21 }] }));
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 			game.settings.set(null, 'device', device);
 			// the device change redraws and refits; measure once that has settled
 			await wait(450);
@@ -499,7 +499,7 @@ const results = await page.evaluate(async () => {
 
 		/* it fits on every device */
 		const deviceWas = document.body.dataset.sfhDevice;
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			Projection.render();
@@ -516,7 +516,10 @@ const results = await page.evaluate(async () => {
 			// an open editor as Foundry really builds it, with its real stylesheet: the last field,
 			// so opening it has to bring it into view
 			const opening = editor('organizations');
-			const menuButtons = Array.from({ length: 14 }, () => '<li><button type="button"><i class="fa-solid fa-font"></i></button></li>').join('');
+			// as long as Foundry's own: a format list, three more lists, and a dozen buttons
+			const dropdown = (label) => `<li class="pm-dropdown"><button type="button"><span>${label}</span><i class="fa-solid fa-chevron-down"></i></button></li>`;
+			const menuButtons = dropdown('Format') + ['', '', ''].map(() => dropdown('<i class="fa-solid fa-table"></i>')).join('')
+				+ Array.from({ length: 12 }, () => '<li><button type="button"><i class="fa-solid fa-font"></i></button></li>').join('');
 			opening.classList.add('editor', 'prosemirror', 'active');
 			opening.classList.remove('inactive');
 			opening.setAttribute('open', '');
@@ -534,7 +537,11 @@ const results = await page.evaluate(async () => {
 			const seen = body().getBoundingClientRect();
 			const editorBox = opening.getBoundingClientRect();
 			check(`${device}: opening it brings it into view`, editorBox.top >= seen.top - 1 && editorBox.bottom <= seen.bottom + 1, [editorBox.top, editorBox.bottom, seen.top, seen.bottom, scale]);
-			check(`${device}: its toolbar fits`, opening.querySelector('menu').scrollWidth <= opening.querySelector('menu').clientWidth + 1, [opening.querySelector('menu').scrollWidth, opening.querySelector('menu').clientWidth]);
+			const bar = opening.querySelector('menu');
+			check(`${device}: its toolbar fits on one row`, bar.scrollWidth <= bar.clientWidth + 1 && bar.lastElementChild.getBoundingClientRect().top < bar.firstElementChild.getBoundingClientRect().bottom, [bar.scrollWidth, bar.clientWidth]);
+			check(`${device}: without scrolling`, getComputedStyle(bar).overflowX === 'hidden');
+			const zoom = Number(getComputedStyle(bar.firstElementChild).zoom) || 1;
+			check(`${device}: its buttons are no smaller than they need to be`, zoom >= 0.6, zoom);
 			// Foundry's theme colors its buttons on the buttons themselves; on the Journal's paper its light ones vanish
 			const ink = Object.assign(document.createElement('span'), { style: 'color:var(--text)' });
 			opening.append(ink);
@@ -631,7 +638,7 @@ const results = await page.evaluate(async () => {
 		groups[3].feats.pop();
 
 		const deviceWas = document.body.dataset.sfhDevice;
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			Projection.render();
@@ -717,7 +724,7 @@ const results = await page.evaluate(async () => {
 			});
 			return out;
 		};
-		for (const device of ['omni', 'wrist', 'gdi', 'tron', 'journal']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'tron', 'journal', 'vambrace']) {
 			game.settings.set(null, 'device', device);
 			await wait(150);
 			await tab('actions');
@@ -844,7 +851,7 @@ const results = await page.evaluate(async () => {
 		const named = (id, name, type) => ({ id, uuid: id, name, type: 'action', system: { actionType: { value: type }, actions: { value: 1 }, traits: { value: ['manipulate', 'concentrate', 'envoy'] } } });
 		actor.itemTypes.action = [named('u1', 'Stride', 'action'), named('u2', 'A Very Long Action Name That Would Certainly Not Fit On One Or Even Two Lines Of Its Column', 'action'), named('u3', 'Administer First Aid', 'reaction'), named('u4', 'Aid', 'free')];
 		const deviceWas = document.body.dataset.sfhDevice;
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			Projection.render();

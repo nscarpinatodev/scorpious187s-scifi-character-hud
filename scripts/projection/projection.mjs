@@ -324,6 +324,9 @@ export class Projection {
 
 	/** An editor that just opened is taller than it was, and may have grown past the panel's edge. */
 	static #revealEditor(editor) {
+		this.#fitToolbar(editor);
+		// Foundry may still be laying the toolbar out when it says the editor is open
+		requestAnimationFrame(() => this.#fitToolbar(editor));
 		const body = editor.closest('.proj-b');
 		if (!body) return;
 		const panel = body.getBoundingClientRect();
@@ -332,6 +335,23 @@ export class Projection {
 		const scale = panel.height / (body.offsetHeight || panel.height) || 1;
 		if (box.top < panel.top) body.scrollTop -= (panel.top - box.top) / scale;
 		else if (box.bottom > panel.bottom) body.scrollTop += Math.min(box.bottom - panel.bottom, box.top - panel.top) / scale;
+	}
+
+	/**
+	 * An editor's toolbar is one row, over the text rather than wrapped into it. Where the page is
+	 * too narrow for it, the Journal's, its buttons are made smaller until it fits, no smaller than
+	 * three fifths of their size.
+	 */
+	static #fitToolbar(editor) {
+		const menu = editor.querySelector('menu');
+		if (!menu) return;
+		menu.style.removeProperty('--sfh-tool-zoom');
+		// the gaps between the buttons do not shrink with them, so it is measured again until it fits
+		let zoom = 1;
+		for (let i = 0; i < 4 && menu.scrollWidth > menu.clientWidth + 1 && zoom > 0.6; i++) {
+			zoom = Math.max(0.6, zoom * (menu.clientWidth / menu.scrollWidth) - 0.01);
+			menu.style.setProperty('--sfh-tool-zoom', zoom.toFixed(3));
+		}
 	}
 
 	/** Save what is being typed, as leaving the field or pressing the editor's save would. */

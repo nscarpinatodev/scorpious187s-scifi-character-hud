@@ -47,6 +47,8 @@
 	"SFH.Fonts.MissingGoogle": "The font \"{font}\" is not installed on this computer and Google Fonts does not have it, so the Sci-Fi HUD is using a stand-in. Install it, or have the GM add it under Additional Fonts in Foundry's Core settings.",
 	"SFH.Device.Tron": "TRON: Identity Disc",
 	"SFH.Device.TronHint": "Light lines on black, rezzed up from the disc you carry",
+	"SFH.Device.Vambrace": "Runic Vambrace",
+	"SFH.Device.VambraceHint": "An engraved bracer whose runes kindle and weave the sheet in spell-light",
 	"SFH.Device.Journal": "Adventurer's Journal",
 	"SFH.Device.JournalHint": "A leather journal, opened across the table and written in as you watch",
 	"SFH.Projection.Journal.Of": "The journal of",

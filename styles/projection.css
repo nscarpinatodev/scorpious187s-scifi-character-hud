@@ -16,6 +16,7 @@
 #sfh-projection .sfh-stage[data-device="wrist"]{--scan:rgba(255,255,255,.05);--bg:#0b0418;--pnl:rgba(22,9,48,.86);--pnl2:rgba(255,255,255,.04);--line:rgba(53,236,242,.55);--line2:rgba(199,155,255,.18);--text:#eadcff;--bright:#ffffff;--dim:#c79bff;--hot:#ff4fb4;--hotbg:rgba(255,79,180,.26);--hover:rgba(53,236,242,.14);--glow:rgba(255,79,180,.7);--acc:#35ecf2;--accbg:rgba(53,236,242,.14);--bad:#ff6b6b;--good:#7dffc8;--font:'Chakra Petch',sans-serif;--display:Audiowide,'Chakra Petch',sans-serif;--mono:VT323,ui-monospace,monospace;--fs:14px;--r:10px;--clip:none;--pshadow:0 0 18px rgba(53,236,242,.18),inset 0 0 16px rgba(255,79,180,.1)}
 #sfh-projection .sfh-stage[data-device="gdi"]{--scan:rgba(255,255,255,.055);--bg:#060805;--pnl:#0c1209;--pnl2:rgba(0,0,0,.35);--line:rgba(118,214,96,.45);--line2:rgba(118,214,96,.16);--text:#d6f2c9;--bright:#effde8;--dim:#8fbf7c;--hot:#6dff5a;--hotbg:rgba(109,255,90,.2);--hover:rgba(109,255,90,.12);--glow:rgba(109,255,90,.6);--acc:#f2c230;--accbg:rgba(242,194,48,.16);--bad:#ff4a3a;--good:#6dff5a;--font:Oxanium,sans-serif;--display:Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:0px;--clip:none;--pshadow:inset 0 0 0 1px #000,inset 0 0 24px rgba(0,0,0,.6)}
 #sfh-projection .sfh-stage[data-device="tron"]{--scan:rgba(111,233,255,.045);--bg:#01060a;--pnl:rgba(2,10,16,.88);--pnl2:rgba(111,233,255,.045);--line:rgba(111,233,255,.75);--line2:rgba(111,233,255,.22);--text:#c9f6ff;--bright:#f0feff;--dim:#74c8dc;--hot:#6fe9ff;--hotbg:rgba(111,233,255,.2);--hover:rgba(111,233,255,.14);--glow:rgba(111,233,255,.75);--acc:#ff9d2e;--accbg:rgba(255,157,46,.16);--bad:#ff6a2a;--good:#9dffe0;--font:Oxanium,sans-serif;--display:Orbitron,Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:3px;--clip:none;--pshadow:0 0 12px rgba(111,233,255,.28),inset 0 0 18px rgba(111,233,255,.07)}
+#sfh-projection .sfh-stage[data-device="vambrace"]{--scan:transparent;--bg:transparent;--pnl:rgba(13,16,26,.88);--pnl2:rgba(122,184,255,.05);--line:rgba(122,184,255,.5);--line2:rgba(122,184,255,.16);--text:#dfe6f2;--bright:#f4f8ff;--dim:#8e9bb8;--hot:#7ab8ff;--hotbg:rgba(122,184,255,.18);--hover:rgba(122,184,255,.12);--glow:rgba(122,184,255,.55);--acc:#b48cff;--accbg:rgba(180,140,255,.16);--bad:#ff7a7a;--good:#7fe0a8;--font:Alegreya,Georgia,serif;--display:Cinzel,Georgia,serif;--mono:Alegreya,Georgia,serif;--fs:15px;--r:4px;--clip:none;--pshadow:0 0 22px rgba(122,184,255,.16),0 12px 28px rgba(0,0,0,.5)}
 #sfh-projection .sfh-stage[data-device="journal"]{--scan:transparent;--bg:transparent;--pnl:transparent;--pnl2:rgba(107,88,66,.05);--line:rgba(80,58,36,.45);--line2:rgba(80,58,36,.16);--text:#2b2118;--bright:#1d150d;--dim:#6b5842;--hot:#a3271c;--hotbg:rgba(163,39,28,.1);--hover:rgba(163,39,28,.08);--glow:transparent;--acc:#8a6a14;--accbg:rgba(184,144,31,.14);--bad:#b0281c;--good:#3f6b2a;--font:'EB Garamond',Georgia,serif;--display:'IM Fell English SC','EB Garamond',Georgia,serif;--title:'IM Fell English','EB Garamond',Georgia,serif;--hand:Caveat,cursive;--mono:'EB Garamond',Georgia,serif;--fs:15px;--r:2px;--clip:none;--pshadow:none}
 #sfh-projection .sfh-stage[data-device="nod"]{--scan:rgba(255,255,255,.055);--bg:#080404;--pnl:#140707;--pnl2:rgba(0,0,0,.35);--line:rgba(255,60,50,.45);--line2:rgba(255,60,50,.16);--text:#f5d9d4;--bright:#fff3f0;--dim:#c9847c;--hot:#ff3b30;--hotbg:rgba(255,59,48,.22);--hover:rgba(255,59,48,.13);--glow:rgba(255,59,48,.65);--acc:#efe6d2;--accbg:rgba(239,230,210,.14);--bad:#ffd060;--good:#efe6d2;--font:Oxanium,sans-serif;--display:Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:0px;--clip:none;--pshadow:inset 0 0 0 1px #000,inset 0 0 24px rgba(0,0,0,.6)}
 /* ---------- slots ---------- */
@@ -60,7 +61,7 @@
 #sfh-projection .barx>i{display:block;height:100%;background:var(--hot);box-shadow:0 0 10px var(--glow)}
 #sfh-projection .barx.a>i{background:var(--acc);box-shadow:0 0 10px var(--acc)}
 #sfh-projection .cells{--cw:86px;min-height:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));grid-auto-rows:minmax(min-content,auto);gap:6px}
-#sfh-projection .sfh-stage[data-device="omni"] .cells, #sfh-projection .sfh-stage[data-device="tron"] .cells{--cw:74px}
+#sfh-projection .sfh-stage[data-device="omni"] .cells, #sfh-projection .sfh-stage[data-device="tron"] .cells, #sfh-projection .sfh-stage[data-device="vambrace"] .cells{--cw:74px}
 #sfh-projection .sfh-stage[data-device="wrist"] .cells{gap:4px}
 #sfh-projection .sfh-stage[data-device="wrist"] .cell{min-height:38px}
 #sfh-projection .sfh-stage[data-device="wrist"] .cell .v{font-size:17px}
@@ -233,8 +234,13 @@
 #sfh-projection prose-mirror.sfh-rich button.toggle:hover{background:var(--hover);border-color:var(--hot);color:var(--bright)}
 #sfh-projection prose-mirror.sfh-rich.active{display:flex;flex:none;flex-direction:column;height:300px;padding:0 0 6px 6px;border-color:var(--hot)}
 #sfh-projection prose-mirror.sfh-rich.active .editor-content{position:absolute;inset:0;padding:4px 10px 4px 4px}
-/* a narrow page, the Journal's, takes the toolbar onto a second row rather than past its edge */
-#sfh-projection prose-mirror.sfh-rich menu{flex-wrap:wrap}
+/* the toolbar stays one row, over the text rather than into it: on a narrow page, the Journal's,
+   its buttons are a little smaller, and projection.mjs shrinks them further if they still do not fit */
+#sfh-projection prose-mirror.sfh-rich menu{flex-wrap:nowrap;overflow:hidden}
+#sfh-projection prose-mirror.sfh-rich menu>*{zoom:var(--sfh-tool-zoom,1)}
+#sfh-projection .sfh-stage[data-device="journal"] prose-mirror.sfh-rich{--menu-button-height:22px;--menu-padding:5px}
+#sfh-projection .sfh-stage[data-device="journal"] prose-mirror.sfh-rich menu{gap:1px;font-size:12px}
+#sfh-projection .sfh-stage[data-device="journal"] prose-mirror.sfh-rich menu button{min-width:0;padding:0 3px;font-size:12px}
 /* Foundry's theme colors each toolbar button itself, so the device's colors are set there too: on
    the Journal's paper its own light ones would vanish */
 #sfh-projection prose-mirror.sfh-rich menu :is(button,.pm-dropdown){--button-text-color:var(--text);color:var(--text)}
@@ -525,6 +531,60 @@ body[data-sfh-grid="panels"] #sfh-projection .sfh-stage[data-device="omni"] :is(
 @keyframes sfh-jbShut {0%,15%{visibility:visible;transform:rotateY(-180deg)}70%,to{visibility:visible;transform:none}}
 #sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb{animation:sfh-jbSink 1.35s cubic-bezier(.45,.05,.25,1) both}
 @keyframes sfh-jbSink {0%,15%{opacity:1;transform:none}70%{opacity:1;transform:translateX(-300px)}to{opacity:0;transform:translateX(-300px) translateY(320px) scale(.45)}}
+/* ---------- the Runic Vambrace ---------- */
+/* Spell-light: dark glass edged in blue and violet, a rune in each top corner, and motes drifting
+   up through it where the sci-fi devices have scanlines. */
+#sfh-projection .sfh-stage[data-device="vambrace"] .pnl{border:1px solid transparent;background:linear-gradient(var(--pnl),var(--pnl)) padding-box,linear-gradient(140deg,rgba(122,184,255,.6),rgba(180,140,255,.32) 40%,rgba(122,184,255,.12) 70%,rgba(122,184,255,.5)) border-box;backdrop-filter:blur(5px)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .pnl::before{content:'ᚱ ᛟ';position:absolute;top:1px;left:5px;right:5px;text-align:justify;text-align-last:justify;font-size:9px;line-height:1;color:var(--hot);opacity:.7;text-shadow:0 0 6px var(--glow);pointer-events:none;z-index:3}
+#sfh-projection .sfh-stage[data-device="vambrace"] .pnl::after{background:radial-gradient(1.5px 1.5px at 20% 80%,#bfe0ff,transparent),radial-gradient(1px 1px at 60% 70%,#d8c8ff,transparent),radial-gradient(1.5px 1.5px at 85% 90%,#bfe0ff,transparent),radial-gradient(1px 1px at 40% 95%,#bfe0ff,transparent);background-size:100% 200px;opacity:.45;animation:sfh-vbMotes 9s linear infinite}
+@keyframes sfh-vbMotes {from{background-position:0 0}to{background-position:0 -200px}}
+#sfh-projection .sfh-stage[data-device="vambrace"] .lbl{font-family:var(--display);font-weight:600;font-size:10.5px;letter-spacing:.16em;color:var(--hot);text-shadow:0 0 8px var(--glow)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .cell .lbl{color:var(--dim);text-shadow:none;letter-spacing:.08em}
+#sfh-projection .sfh-stage[data-device="vambrace"] .mono{font-variant-numeric:lining-nums tabular-nums}
+#sfh-projection .sfh-stage[data-device="vambrace"] .cell .v{font-weight:700}
+#sfh-projection .sfh-stage[data-device="vambrace"] .proj-t{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.16em;color:var(--hot);text-shadow:0 0 10px var(--glow)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .ident .nm{font-family:var(--display);font-weight:600;letter-spacing:.12em;text-shadow:0 0 14px var(--glow)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .b{font-variant:small-caps;letter-spacing:.04em}
+#sfh-projection .sfh-stage[data-device="vambrace"] .b:hover{box-shadow:0 0 10px var(--glow)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .b.on{box-shadow:0 0 12px var(--glow)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .ghost{font-family:var(--display);font-size:10.5px;letter-spacing:.12em}
+#sfh-projection .sfh-stage[data-device="vambrace"] .chip{font-family:var(--font);font-size:12.5px;font-weight:500;letter-spacing:.02em;text-transform:none}
+#sfh-projection .sfh-stage[data-device="vambrace"] .sec{font-family:var(--display);font-weight:600;font-size:11px;letter-spacing:.18em;color:var(--hot)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .ro h3{font-family:var(--display);font-weight:600;letter-spacing:.06em}
+#sfh-projection .sfh-stage[data-device="vambrace"] .sfh-latest .l-t{font-family:var(--display);font-size:11px;letter-spacing:.14em}
+/* tracks and pips are rune crystals, lit or dark */
+#sfh-projection .sfh-stage[data-device="vambrace"] .seg{transform:rotate(45deg) scale(.8);flex:0 0 12px;width:12px;height:12px;border-radius:2px}
+#sfh-projection .sfh-stage[data-device="vambrace"] .seg.on{border-color:#cfe5ff}
+#sfh-projection .sfh-stage[data-device="vambrace"] .pip{border-radius:2px}
+#sfh-projection .sfh-stage[data-device="vambrace"] .barx>i{background:linear-gradient(90deg,var(--acc),var(--hot))}
+/* the tabs are rune stones in an arc under the main panel */
+#sfh-projection .sfh-stage[data-device="vambrace"] .navb{width:56px;height:56px;border-radius:50%;border:1px solid rgba(122,184,255,.4);background:radial-gradient(circle at 40% 35%,#2a3350,#0d1119 70%);color:var(--dim);box-shadow:0 6px 14px rgba(0,0,0,.5)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .navb:hover{color:var(--hot)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .navb.on{color:#eaf4ff;border-color:var(--hot);box-shadow:0 0 18px var(--glow),inset 0 0 12px rgba(122,184,255,.35)}
+#sfh-projection .sfh-stage[data-device="vambrace"] .navlbl{font-family:var(--display);color:var(--hot)}
+/* the sigil: faint behind the board at rest, turning slowly */
+#sfh-projection .vb-sigil{opacity:.07;transform-origin:640px 380px}
+#sfh-projection .vb-sigil :is(circle,path){fill:none;stroke:#7ab8ff}
+#sfh-projection .vb-sigil text{fill:#7ab8ff;font:22px serif}
+#sfh-projection .vb-turn{animation:sfh-vbTurn 180s linear infinite}
+@keyframes sfh-vbTurn {to{transform:rotate(360deg)}}
+/* Vambrace: the runes kindle along the bracer, the sigil turns open behind the board, and each
+   panel is drawn outward from its own center in a flash of light. Keep in step with SEQ_LONG. */
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="vambrace"] .vb-sigil{animation:sfh-vbSigil 1.4s ease-out both}
+@keyframes sfh-vbSigil {0%{opacity:0;transform:scale(.1) rotate(-90deg)}35%{opacity:.9}to{opacity:.07;transform:none}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="vambrace"] .slot{animation:sfh-vbDraw .7s ease-out backwards;animation-delay:calc(350ms + var(--d,0ms))}
+@keyframes sfh-vbDraw {from{clip-path:circle(0% at 50% 50%);filter:brightness(2.2)}to{clip-path:circle(150% at 50% 50%);filter:none}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="vambrace"] .navb{animation:sfh-vbStone .4s ease-out backwards;animation-delay:calc(500ms + var(--d,0ms))}
+@keyframes sfh-vbStone {from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="vambrace"] .slot{animation:sfh-vbUndraw .45s ease-in forwards;animation-delay:var(--dr,0ms)}
+@keyframes sfh-vbUndraw {from{clip-path:circle(150% at 50% 50%)}to{clip-path:circle(0% at 50% 50%);filter:brightness(2.2)}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="vambrace"] .navb{animation:sfh-vbFade .3s ease-in forwards}
+@keyframes sfh-vbFade {to{opacity:0}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="vambrace"] .vb-sigil{animation:sfh-vbSigilOut .9s ease-in both}
+@keyframes sfh-vbSigilOut {0%{opacity:.07}30%{opacity:.6}to{opacity:0;transform:scale(1.2) rotate(30deg)}}
+@media (prefers-reduced-motion:reduce){
+#sfh-projection .vb-sigil, #sfh-projection .vb-turn, #sfh-projection .sfh-stage[data-device="vambrace"] .pnl::after{animation:sfh-none!important}
+}
 @media (prefers-reduced-motion:reduce){
 #sfh-projection .sfh-seq-on .jb, #sfh-projection .sfh-seq-off .jb, #sfh-projection .sfh-seq-on .jb-leaf, #sfh-projection .sfh-seq-off .jb-leaf, #sfh-projection .sfh-seq-on .jb-page, #sfh-projection .sfh-seq-off .jb-page, #sfh-projection .sfh-seq-on .jb-board, #sfh-projection .sfh-seq-off .jb-board{animation:sfh-none!important}
 #sfh-projection .sfh-seq-on .slot, #sfh-projection .sfh-seq-off .slot, #sfh-projection .sfh-seq-on .navb, #sfh-projection .sfh-seq-off .navb, #sfh-projection .sfh-seq-on .ornlayer, #sfh-projection .sfh-seq-off .ornlayer, #sfh-projection .sfh-seq-on .foldwrap, #sfh-projection .sfh-seq-off .foldwrap{animation:sfh-none!important}

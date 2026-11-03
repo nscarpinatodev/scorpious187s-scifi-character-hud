@@ -34,7 +34,7 @@ await page.evaluate(() => {
 
 const results = [];
 const shots = [];
-for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	// long enough for Foundry's color transitions to finish
 	await new Promise((r) => setTimeout(r, 700));

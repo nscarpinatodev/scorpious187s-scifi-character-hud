@@ -29,9 +29,27 @@ function journalBook(c) {
 	</div>`;
 }
 
+/**
+ * The Vambrace's sigil: rings, two crossed triangles and the elder futhark around them. It turns
+ * open behind the board when the bracer wakes, then rests there faintly.
+ */
+function vambraceSigil() {
+	const futhark = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ'.split('');
+	const letters = futhark.map((g, i) => {
+		const a = (i / futhark.length) * Math.PI * 2;
+		return `<text x="${(Math.cos(a) * 316).toFixed(1)}" y="${(Math.sin(a) * 316 + 8).toFixed(1)}" text-anchor="middle">${g}</text>`;
+	}).join('');
+	return `<svg class="vb-sigil" width="1280" height="740" viewBox="0 0 1280 740" style="position:absolute;inset:0" aria-hidden="true">
+		<g transform="translate(640 380)"><g class="vb-turn">
+			<circle r="350" stroke-width="2"/><circle r="292" stroke-width="1" stroke-dasharray="4 10"/><circle r="200" stroke-width="2"/>
+			<path d="M0 -350 L303 175 L-303 175 Z" stroke-width="1.5"/><path d="M0 350 L303 -175 L-303 -175 Z" stroke-width="1.5"/>
+			${letters}</g></g></svg>`;
+}
+
 /** Behind the panels, and outside the fold: housing that stays put. */
 export function ornBack(device, c) {
 	if (device === 'journal') return journalBook(c);
+	if (device === 'vambrace') return vambraceSigil();
 	if (device === 'omni') {
 		return `<svg width="1280" height="740" viewBox="0 0 1280 740" style="position:absolute;inset:0" aria-hidden="true">
 			<defs><pattern id="sfh-hx" width="28" height="48.5" patternUnits="userSpaceOnUse">

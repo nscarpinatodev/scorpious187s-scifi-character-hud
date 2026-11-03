@@ -21,6 +21,7 @@ export const DEVICES = {
 	gdi: { id: 'gdi', label: 'SFH.Device.Gdi', hint: 'SFH.Device.GdiHint', art: null, sequence: 'crt', switch: 'bar' },
 	nod: { id: 'nod', label: 'SFH.Device.Nod', hint: 'SFH.Device.NodHint', art: null, sequence: 'crt', switch: 'bar' },
 	tron: { id: 'tron', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
+	vambrace: { id: 'vambrace', label: 'SFH.Device.Vambrace', hint: 'SFH.Device.VambraceHint', art: 'bracer', sequence: 'sigil', switch: 'band' },
 	journal: { id: 'journal', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'strap', sequence: 'book', switch: 'band', projects: false },
 };
 
@@ -62,10 +63,11 @@ export const KEYS = {
 export const SEQ = { on: 940, off: 780 };
 
 /**
- * The sequences that run longer: the Journal rises, swings open and is written in, which
- * takes longer than light coming on. Keep in step with design/1-head.html.
+ * The sequences that run longer: the Journal rises, swings open and is written in, and the
+ * Vambrace's sigil turns open before its panels are drawn, which takes longer than light
+ * coming on. Keep in step with design/1-head.html.
  */
-const SEQ_LONG = { book: { on: 3900, off: 1350 } };
+const SEQ_LONG = { book: { on: 3900, off: 1350 }, sigil: { on: 1500, off: 950 } };
 
 /** How long a device's sequence runs, in ms. */
 export function seqMs(kind, deviceId) {

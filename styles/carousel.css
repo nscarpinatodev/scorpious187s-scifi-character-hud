@@ -372,6 +372,15 @@ body[data-sfh-device="tron"] #sfh-carousel .sfh-card.active .sfh-portrait {
 	box-shadow: 0 0 0 3px var(--sfh-hot), 0 0 14px var(--sfh-glow);
 }
 
+/* the Vambrace: every portrait is a hex ward */
+body[data-sfh-device="vambrace"] #sfh-carousel .sfh-portrait {
+	clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+body[data-sfh-device="vambrace"] #sfh-carousel .sfh-card.active {
+	box-shadow: 0 0 16px var(--sfh-glow), inset 0 0 0 1px var(--sfh-hot);
+}
+
 @media (prefers-reduced-motion: reduce) {
 	#sfh-carousel .sfh-card {
 		transition: none;

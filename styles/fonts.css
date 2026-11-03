@@ -155,3 +155,28 @@
 	font-weight: 400 700;
 	font-display: swap;
 }
+
+/* The Runic Vambrace: Cinzel's carved capitals for its headings, Alegreya for its text. Neither
+   reserves its name; they ship as their authors' own files. */
+@font-face {
+	font-family: Cinzel;
+	src: url("../fonts/Cinzel-Variable.ttf") format("truetype");
+	font-weight: 400 900;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Alegreya;
+	src: url("../fonts/Alegreya-Variable.ttf") format("truetype");
+	font-weight: 400 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Alegreya;
+	src: url("../fonts/Alegreya-Italic-Variable.ttf") format("truetype");
+	font-weight: 400 900;
+	font-style: italic;
+	font-display: swap;
+}

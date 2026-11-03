@@ -2,7 +2,8 @@
 
 Turns the Foundry VTT interface into the device your character is wearing — a **Mass Effect
 omni-tool**, a **synthwave wrist computer**, a **Command & Conquer EVA console**, or a **TRON
-identity disc** — on Foundry v13–v14.
+identity disc** — or, for fantasy games, an **Adventurer's Journal** opened across the table or a
+**Runic Vambrace** whose runes weave the sheet in spell-light, on Foundry v13–v14.
 
 The foot of the screen becomes the device, Foundry's macro bar rides on it, and the device's
 switch raises a projected character sheet over the canvas.
@@ -28,7 +29,8 @@ https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/lat
 - One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+
 
 The devices' fonts (Michroma, Orbitron, Rajdhani, Share Tech Mono, Chakra Petch, VT323,
-Oxanium, Audiowide) ship with the module under the SIL Open Font License, so the HUD looks the same
+Oxanium, Audiowide; IM Fell English, EB Garamond and Caveat for the Journal; Cinzel and Alegreya
+for the Vambrace) ship with the module under the SIL Open Font License, so the HUD looks the same
 at a table with no internet connection.
 
 ## Using it
@@ -45,8 +47,15 @@ one character and have none assigned, it shows that one.
 
 ## What you get
 
-- **Five devices.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON. The GM sets the
-  world default; each player can pick their own in the module settings.
+- **Seven devices.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON, and for fantasy
+  games the Adventurer's Journal and the Runic Vambrace. Every device works with every system.
+  The GM sets the world default; each player can pick their own in the module settings.
+- **The Adventurer's Journal.** The sheet is a leather journal: it rises closed from a strap at the
+  foot of the screen, swings open on its spine and is written in as you watch. The main body is
+  on the left page, everything else kept as notes on the right, with index tabs cut into the
+  pages and the interface around it in ink on paper.
+- **The Runic Vambrace.** An engraved bracer whose runes kindle one after another; a sigil turns
+  open behind the board and the panels are drawn out of the light in dark glass edged in blue.
 - **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
   drop, paging and keybinds all work as they always do.
 - **The projection.** Identity, vitals, defenses, effects and a tabbed main panel, laid out

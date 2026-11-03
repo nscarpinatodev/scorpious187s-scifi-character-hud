@@ -13,6 +13,8 @@ export const BOARD = {
 	// sheet up off the device.
 	omni: { w: 1280, h: 728 },
 	tron: { w: 1280, h: 728 },
+	// the Vambrace stands on its bracer as the omni-tool stands on its arm
+	vambrace: { w: 1280, h: 728 },
 	wrist: { w: 1280, h: 860 },
 	gdi: { w: 1280, h: 860 },
 	nod: { w: 1280, h: 860 },
@@ -46,8 +48,8 @@ export function dossierHeight(device, x) {
  */
 export function layout(device, dossier = 0) {
 	const extras = dossier > 0;
-	// TRON stands on a plate as the omni-tool does, and lays out the same way
-	if (device === 'omni' || device === 'tron') {
+	// TRON and the Vambrace stand on a plate as the omni-tool does, and lay out the same way
+	if (device === 'omni' || device === 'tron' || device === 'vambrace') {
 		// the effects and the dossier share the column under the vitals, 370–726
 		const d = Math.min(dossier, 194);
 		return {

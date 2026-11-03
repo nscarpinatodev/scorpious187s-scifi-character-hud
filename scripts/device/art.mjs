@@ -92,7 +92,52 @@ export const STRAP = {
 	</g>`,
 };
 
-const ART = { arm: ARM, disc: DISC, strap: STRAP };
+/**
+ * The Runic Vambrace: an engraved steel bracer on the arm's own lines. The runes in its groove
+ * kindle one after another when it wakes (styles/device.css), and the gem at its crown is the
+ * switch, as the omni-tool's band is.
+ */
+const RUNE_GLYPHS = ['M0 0 L0 14 M0 4 L6 0', 'M0 0 L0 14 M0 0 L6 5 L0 9', 'M0 14 L4 0 L8 14', 'M0 0 L7 14 M7 0 L0 14',
+	'M0 0 L0 14 M6 0 L6 14 M0 7 L6 7', 'M3 0 L3 14 M0 4 L3 0 L6 4', 'M0 7 L4 0 L8 7 L4 14 Z', 'M0 0 L8 14 M0 14 L4 7'];
+const RUNE_X = [336, 366, 396, 426, 456, 486, 516, 546, 726, 756, 786, 816, 846, 876, 906, 936];
+const runes = RUNE_X.map((x, i) => {
+	// they kindle outward from the gem, one beat apart
+	const order = i < 8 ? 7 - i : i - 8;
+	return `<path class="sfh-rune" style="--r:${order}" transform="translate(${x} ${i < 8 ? 772 - i * 0.9 : 765 + (i - 8) * 0.9})" d="${RUNE_GLYPHS[i % RUNE_GLYPHS.length]}"/>`;
+}).join('');
+
+export const BRACER = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-steel" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#5b6578"/><stop offset=".4" stop-color="#2b3140"/><stop offset="1" stop-color="#11141c"/>
+		</linearGradient>
+		<linearGradient id="sfh-steeledge" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#8a96ad"/><stop offset=".5" stop-color="#c7d0e0"/><stop offset="1" stop-color="#8a96ad"/>
+		</linearGradient>
+		<radialGradient id="sfh-gem-dark" cx=".35" cy=".3" r=".8">
+			<stop offset="0" stop-color="#4a5b80"/><stop offset="1" stop-color="#141b2c"/>
+		</radialGradient>
+		<radialGradient id="sfh-gem-lit" cx=".35" cy=".3" r=".8">
+			<stop offset="0" stop-color="#e6f2ff"/><stop offset=".35" stop-color="#7ab8ff"/><stop offset=".8" stop-color="#2b4f9a"/>
+		</radialGradient>
+		<filter id="sfh-gemglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M300 758 C 470 746 810 746 980 758 L 1000 860 L 280 860 Z"
+		fill="url(#sfh-steel)" stroke="url(#sfh-steeledge)" stroke-width="2"/>
+	<path d="M312 768 C 470 757 810 757 968 768" fill="none" stroke="#6b768c" stroke-width="1"/>
+	<path d="M306 792 C 470 781 810 781 974 792" fill="none" stroke="#0a0c12" stroke-width="2"/>
+	<g class="sfh-runes" fill="none" stroke-width="2.2" stroke-linecap="round">${runes}</g>
+	<circle class="sfh-gem-glow" cx="640" cy="754" r="30" fill="#7ab8ff" filter="url(#sfh-gemglow)"/>
+	<g id="sfh-band" role="button" tabindex="0" aria-label="SFH.Power.Toggle">
+		<rect x="614" y="728" width="52" height="52" rx="6" transform="rotate(45 640 754)" fill="#2a3142" stroke="#59647a" stroke-width="3"/>
+		<rect class="sfh-gem" x="621" y="735" width="38" height="38" rx="5" transform="rotate(45 640 754)" fill="url(#sfh-gem-dark)" stroke="#8fa3c4" stroke-width="2"/>
+	</g>`,
+};
+
+const ART = { arm: ARM, disc: DISC, strap: STRAP, bracer: BRACER };
 
 /** The art layer for a device, or null when it draws nothing at the foot of the screen. */
 export function deviceArt(id) {

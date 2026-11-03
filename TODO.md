@@ -2,6 +2,29 @@
 
 Work that is known, wanted and not done yet. Ordered roughly by when it should happen.
 
+## Start here: getting 0.2.0 ready
+
+Everything below "Start here" is built, deployed and passing its tests in the harness. What is
+left before the module is ready is mostly looking at it in Foundry, in that order:
+
+1. **Try both fantasy devices in Foundry, in a 5e world and a PF2e world.** Neither has been
+   seen outside the test harness. For each, with sequences on: open and close it; switch tabs;
+   type in the Biography (the editor's toolbar should stay on one row); roll something, so the
+   chat card and the latest-roll strip show; and look at Calendaria's HUD and the carousel. The
+   Journal needs a full relaunch after deploying, for its fonts.
+2. **Decide the module's name.** It is still "Sci-Fi Character HUD" in `module.json` and the
+   README, which now describe two fantasy devices as well. Renaming the id would break the
+   install for anyone who has it; the title can change freely.
+3. **Fonts as woff2.** The Journal's and the Vambrace's fonts ship as TTFs, 3.9 MB in `fonts/`
+   in all. Cutting them to Latin woff2 like the rest needs `pip install fonttools brotli`, then
+   `pyftsubset` per file; the size of the module download is the only thing it changes.
+4. **Stylesheets loaded twice** (Loose ends, below): the one known cost at load time.
+5. **Release.** Bump nothing until 1–4 are done: `module.json` is at 0.2.0 with its manifest
+   and download URLs pointing at the GitHub release, and CHANGELOG.md's 0.2.0 section is the
+   release notes. The repo has no remote yet.
+
+Everything after this section is wanted, not needed for the release.
+
 ## Editing from the projection
 
 Hit points are typed now — an amount with Heal and Damage, the value itself editable, and
@@ -41,12 +64,15 @@ system's own sheet, which the book button opens.
 The approved look is `design/fantasy-mockup.html`. Both work in 5e, PF2e and SF2e.
 
 - [x] **Adventurer's Journal** — the open book, its strap, its sequence and its paper palette.
-- [ ] **Runic Vambrace** — the omni-tool's fantasy counterpart: an engraved bracer whose runes
-      kindle, dark glass edged in light, a sigil behind the board, rune-stone tabs.
-- [ ] **The Journal's fonts as woff2** — they ship as their authors' TTFs (about 2.6 MB); cutting
-      them to Latin woff2 like the others needs fontTools installed.
-- [ ] **Each device's own words** — the Journal's "Field notes", "Conditions" and "Last roll"
-      are written into `panels.mjs`; they belong in `lang/en.json` with the rest.
+- [x] **Runic Vambrace** — the bracer, its runes and gem, the sigil sequence, dark glass panels
+      and rune-stone tabs.
+- [ ] **The fantasy fonts as woff2** — see Start here, 3.
+- [ ] **Each device's own words** — the fantasy devices' "Field notes", "Lore", "Conditions",
+      "Wards & Hexes", "Last roll" and "Last casting" are in `WORDS` in `panels.mjs`; they belong
+      in `lang/en.json` with the rest (and see Translatable strings, above).
+- [ ] **More fantasy looks** — the variations proposed with the first two: a Reliquary
+      (stained glass, for clerics), a Grove (living wood), a Runeforge (stone and brass) and
+      Witchfire (bone and green flame). Each is a palette and art on one of the two built so far.
 
 ## Sidebar panels, one at a time
 

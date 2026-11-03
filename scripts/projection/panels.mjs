@@ -5,6 +5,16 @@ import { esc, sgn, lbl, bar, actBtn, rollBtn, nameBtn, ro } from './helpers.mjs'
  * (design/4-slots.js), with real numbers from the adapters instead of sample data.
  */
 
+/**
+ * What the fantasy devices call the panels the others call Effects, Readout and Latest. The
+ * Journal's readout is a card of field notes; the Vambrace's is lore.
+ */
+const WORDS = {
+	journal: { effects: 'Conditions', readout: 'Field notes', latest: 'Last roll' },
+	vambrace: { effects: 'Wards & Hexes', readout: 'Lore', latest: 'Last casting' },
+};
+const word = (device, key, fallback) => WORDS[device]?.[key] ?? fallback;
+
 /* -------------------------------------------- */
 /*  Identity                                     */
 /* -------------------------------------------- */
@@ -124,7 +134,7 @@ export function renderDefenses(c, device) {
 	const eva = device === 'gdi' || device === 'nod';
 	// the panels only two boxes wide (layout.mjs): an odd one out at the end takes the whole
 	// row rather than leaving a hole beside it
-	const pairs = device === 'omni' || device === 'tron' || (device === 'wrist' && !!c.extras);
+	const pairs = device === 'omni' || device === 'tron' || device === 'vambrace' || (device === 'wrist' && !!c.extras);
 	const n = c.defenses.length;
 	const cells = c.defenses.map((d, i) => {
 		const style = d.lead ? ' style="background:var(--hotbg);border-color:var(--hot)"' : '';
@@ -171,7 +181,7 @@ export function renderEffectsSlot(c, device) {
 		? `<select class="sel" data-pick="condition" aria-label="Add a condition"><option value="">+ Add condition…</option>${
 			choices.map((o) => `<option value="${esc(o.id)}">${esc(o.label)}</option>`).join('')}</select>`
 		: '';
-	return `<div class="row sp hd">${lbl(device === 'journal' ? 'Conditions' : 'Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
+	return `<div class="row sp hd">${lbl(word(device, 'effects', 'Effects'))}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
 		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>
 		${picker}`;
 }
@@ -211,7 +221,7 @@ export function renderLatest(roll, device) {
 	const follow = roll.damage
 		? `${actBtn('Damage', 'latestDamage', `${roll.messageId}:damage`, { cls: 'sm ghost' })}${actBtn('Critical', 'latestDamage', `${roll.messageId}:critical`, { cls: 'sm ghost' })}`
 		: '';
-	return `<b class="l-t">${device === 'journal' ? 'Last roll' : 'Latest'}</b>
+	return `<b class="l-t">${esc(word(device, 'latest', 'Latest'))}</b>
 		<span class="l-n" title="${esc(roll.name)}">${esc(roll.name)}</span>
 		<span class="l-f mono" title="${esc(roll.formula)}">${esc(roll.formula)}</span>
 		<span class="l-v mono">${esc(roll.total)}</span>
@@ -228,11 +238,11 @@ export function renderLatest(roll, device) {
 export function renderReadout(entry, device) {
 	// the Journal's readout is a card of field notes, and says so whatever is on it
 	const journal = device === 'journal';
-	const head = journal ? '<div class="jn-card">Field notes</div>' : '';
+	const head = journal ? `<div class="jn-card">${esc(word(device, 'readout'))}</div>` : '';
 	if (!entry) {
 		return journal
 			? `${head}<p class="jn-hand">Point at anything on these pages to read about it here.</p>`
-			: `<div class="lbl">Readout</div>
+			: `<div class="lbl">${esc(word(device, 'readout', 'Readout'))}</div>
 			<p class="dimc" style="font-size:13px;line-height:1.4">Point at a weapon, action, feat, skill or item to read it here.</p>`;
 	}
 	const traits = (entry.traits ?? []).map((t) => `<span class="chip">${esc(t)}</span>`).join('');
@@ -271,7 +281,7 @@ export function renderNav(c, device, L, current) {
 		data-act="tab" data-k="${tab.id}" aria-label="${esc(tab.label)}" aria-current="${tab.id === current}"
 		data-tooltip="${esc(tab.label)}" style="${style}">${svgIcon(tab.id)}${cls === 'cam' || cls === 'idx' ? `<span>${esc(tab.label)}</span>` : ''}</button>`;
 
-	if (device === 'omni' || device === 'tron') {
+	if (device === 'omni' || device === 'tron' || device === 'vambrace') {
 		const n = tabs.length;
 		const mid = (n - 1) / 2;
 		const P = L.projection;

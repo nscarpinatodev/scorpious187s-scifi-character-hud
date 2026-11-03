@@ -28,7 +28,7 @@ await wait(1200);
 
 const report = {};
 const shots = [];
-for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	await wait(300);
 	if (!(await page.evaluate(() => SFH.Projection.isOpen))) await page.evaluate(() => SFH.DeviceChrome.toggle());

@@ -550,7 +550,7 @@ const results = await page.evaluate(async () => {
 	check('then happens once they stop', field('flaw') !== typing);
 
 	/* ---- every tab fits on every device ---- */
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 		game.settings.set(null, 'device', device);
 		await wait(250);
 		for (const t of ['details', 'actions', 'inventory', 'spells', 'features', 'effects', 'biography']) {
@@ -607,7 +607,7 @@ const results = await page.evaluate(async () => {
 			if (css.startsWith('color(')) for (let i = 0; i < 3; i++) m[i] *= 255;
 			return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
 		};
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			for (const message of log.children) {
@@ -671,15 +671,15 @@ if (shotsTo) {
 	const h = Math.max(...metas.map((m) => m.height));
 	const comps = shots.map((b, i) => ({ input: b, left: (i % 2) * (w + 8), top: Math.floor(i / 2) * (h + 8) }));
 	await sharp({ create: { width: 2 * w + 8, height: Math.ceil(shots.length / 2) * (h + 8), channels: 3, background: '#222' } }).composite(comps).png().toFile(`${shotsTo}/dnd5e-tabs.png`);
-	// the Adventurer's Journal, whole, on three of its pages
-	for (const t of ['actions', 'spells', 'inventory']) {
-		await page.evaluate(async (id) => {
-			game.settings.set(null, 'device', 'journal');
+	// the fantasy devices, whole: the Journal on three of its pages, the Vambrace on two
+	for (const [dev, t] of [['journal', 'actions'], ['journal', 'spells'], ['journal', 'inventory'], ['vambrace', 'actions'], ['vambrace', 'spells']]) {
+		await page.evaluate(async (d, id) => {
+			game.settings.set(null, 'device', d);
 			await new Promise((r) => setTimeout(r, 350));
 			document.querySelector(`#sfh-projection [data-act="tab"][data-k="${id}"]`).click();
 			await new Promise((r) => setTimeout(r, 200));
-		}, t);
-		await page.screenshot({ path: `${shotsTo}/dnd5e-journal-${t}.png` });
+		}, dev, t);
+		await page.screenshot({ path: `${shotsTo}/dnd5e-${dev}-${t}.png` });
 	}
 }
 await browser.close();

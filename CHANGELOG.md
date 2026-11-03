@@ -41,6 +41,13 @@ device, and the character sheet is a projection it raises over the canvas.
 - PF2e and SF2e: the whole Biography tab, editable by the character's owner: appearance, backstory,
   personality with edicts and anathema, and campaign notes, with Foundry's own rich text editor and
   the sheet's control over who may read each section.
+- The Runic Vambrace, the second fantasy device and the omni-tool's counterpart, for every
+  system: an engraved steel bracer whose runes kindle outward from its gem, a sigil that turns
+  open behind the board, panels drawn out of the light in dark glass edged in blue and violet,
+  rune crystals for pips and tracks, rune-stone tabs, and hex-ward portraits in the carousel.
+  Cinzel and Alegreya ship with the module for it.
+- The rich-text editor's toolbar stays on one row: on a narrow page its buttons are smaller,
+  and shrink further until they fit.
 - The Adventurer's Journal, the first fantasy device, for 5e, PF2e and SF2e alike. The sheet
   is a leather journal opened across the table: the main body on the left page, everything
   else kept as notes on the right, the readout on a card taped into the page, and index tabs

@@ -110,6 +110,27 @@ body[data-sfh-device="tron"] {
 	--sfh-radius: 3px;
 }
 
+/* The Runic Vambrace: spell-light, arcane blue and violet on dark glass. */
+body[data-sfh-device="vambrace"] {
+	--sfh-bg-rgb: 13 16 26;
+	--sfh-hot: #7ab8ff;
+	--sfh-glow: rgb(122 184 255 / 55%);
+	--sfh-bright: #f4f8ff;
+	--sfh-text: #dfe6f2;
+	--sfh-dim: #8e9bb8;
+	--sfh-line: rgb(122 184 255 / 50%);
+	--sfh-line-2: rgb(122 184 255 / 16%);
+	--sfh-hover: rgb(122 184 255 / 12%);
+	--sfh-panel: rgb(13 16 26 / 90%);
+	--sfh-cell: rgb(8 10 18 / 85%);
+	--sfh-acc: #b48cff;
+	--sfh-bad: #ff7a7a;
+	--sfh-face: Alegreya, Georgia, serif;
+	--sfh-display: Cinzel, Georgia, serif;
+	--sfh-mono: Alegreya, Georgia, serif;
+	--sfh-radius: 4px;
+}
+
 /*
  * The Adventurer's Journal: ink on paper, and the only light device. Its "glow" is the soft
  * shadow of a page lifted off the table, so anything that glows elsewhere sits here instead.
@@ -438,4 +459,61 @@ body[data-sfh-power="on"] #sfh-prong {
 
 @media (prefers-reduced-motion: reduce) {
 	#sfh-prong { transition: none; }
+}
+
+/* ---------------------------------------------------------------- the Vambrace's bracer */
+/*
+ * The macro bar's keys are sockets set into the steel. The runes in the bracer's groove are dark
+ * until it wakes; then they kindle outward from the gem, one beat apart, and stay lit, and the gem
+ * fills with light.
+ */
+body[data-sfh-device="vambrace"] #sfh-deck #action-bar .slot {
+	border: 1px solid #4a5670;
+	border-radius: 6px;
+	background: radial-gradient(circle at 50% 30%, #1d2436, #0b0f18);
+	box-shadow: inset 0 2px 6px rgb(0 0 0 / 80%);
+}
+
+body[data-sfh-power="on"][data-sfh-device="vambrace"] #sfh-deck #action-bar .slot {
+	border-color: #6f9be0;
+	box-shadow: inset 0 2px 6px rgb(0 0 0 / 80%), 0 0 8px rgb(122 184 255 / 35%);
+}
+
+.sfh-rune {
+	stroke: #3b4d70;
+	transition: stroke 300ms, filter 300ms;
+}
+
+body[data-sfh-power="on"] .sfh-rune {
+	stroke: #9cc9ff;
+	filter: drop-shadow(0 0 4px #7ab8ff);
+}
+
+#sfh-device.sfh-seq-on .sfh-rune {
+	animation: sfh-kindle 500ms both;
+	animation-delay: calc(var(--r, 0) * 45ms);
+}
+
+@keyframes sfh-kindle {
+	from { stroke: #3b4d70; filter: none; }
+	60% { stroke: #ffffff; }
+	to { stroke: #9cc9ff; filter: drop-shadow(0 0 4px #7ab8ff); }
+}
+
+.sfh-gem-glow {
+	opacity: 0;
+	transition: opacity 400ms;
+}
+
+body[data-sfh-power="on"] .sfh-gem-glow {
+	opacity: .55;
+}
+
+body[data-sfh-power="on"] .sfh-gem {
+	fill: url(#sfh-gem-lit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-device.sfh-seq-on .sfh-rune { animation: none; }
+	.sfh-rune, .sfh-gem-glow { transition: none; }
 }

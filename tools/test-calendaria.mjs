@@ -98,7 +98,7 @@ const results = await page.evaluate(async (href) => {
 
 	/* ---- on, on every device ---- */
 	SFH.store.calendaria = true;
-	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 		game.settings.set(null, 'device', id);
 		// the date eases from one device's color to the next
 		await wait(400);
@@ -142,7 +142,7 @@ const results = await page.evaluate(async (href) => {
 }, calendaria);
 
 if (shots) {
-	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
+	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal', 'vambrace']) {
 		await page.evaluate((d) => game.settings.set(null, 'device', d), id);
 		await new Promise((r) => setTimeout(r, 200));
 		await page.screenshot({ path: `${shots}/calendaria-${id}.png`, clip: { x: 250, y: 90, width: 900, height: 140 } });
