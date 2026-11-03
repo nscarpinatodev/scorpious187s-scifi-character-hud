@@ -16,6 +16,7 @@
 #sfh-projection .sfh-stage[data-device="wrist"]{--scan:rgba(255,255,255,.05);--bg:#0b0418;--pnl:rgba(22,9,48,.86);--pnl2:rgba(255,255,255,.04);--line:rgba(53,236,242,.55);--line2:rgba(199,155,255,.18);--text:#eadcff;--bright:#ffffff;--dim:#c79bff;--hot:#ff4fb4;--hotbg:rgba(255,79,180,.26);--hover:rgba(53,236,242,.14);--glow:rgba(255,79,180,.7);--acc:#35ecf2;--accbg:rgba(53,236,242,.14);--bad:#ff6b6b;--good:#7dffc8;--font:'Chakra Petch',sans-serif;--display:Audiowide,'Chakra Petch',sans-serif;--mono:VT323,ui-monospace,monospace;--fs:14px;--r:10px;--clip:none;--pshadow:0 0 18px rgba(53,236,242,.18),inset 0 0 16px rgba(255,79,180,.1)}
 #sfh-projection .sfh-stage[data-device="gdi"]{--scan:rgba(255,255,255,.055);--bg:#060805;--pnl:#0c1209;--pnl2:rgba(0,0,0,.35);--line:rgba(118,214,96,.45);--line2:rgba(118,214,96,.16);--text:#d6f2c9;--bright:#effde8;--dim:#8fbf7c;--hot:#6dff5a;--hotbg:rgba(109,255,90,.2);--hover:rgba(109,255,90,.12);--glow:rgba(109,255,90,.6);--acc:#f2c230;--accbg:rgba(242,194,48,.16);--bad:#ff4a3a;--good:#6dff5a;--font:Oxanium,sans-serif;--display:Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:0px;--clip:none;--pshadow:inset 0 0 0 1px #000,inset 0 0 24px rgba(0,0,0,.6)}
 #sfh-projection .sfh-stage[data-device="tron"]{--scan:rgba(111,233,255,.045);--bg:#01060a;--pnl:rgba(2,10,16,.88);--pnl2:rgba(111,233,255,.045);--line:rgba(111,233,255,.75);--line2:rgba(111,233,255,.22);--text:#c9f6ff;--bright:#f0feff;--dim:#74c8dc;--hot:#6fe9ff;--hotbg:rgba(111,233,255,.2);--hover:rgba(111,233,255,.14);--glow:rgba(111,233,255,.75);--acc:#ff9d2e;--accbg:rgba(255,157,46,.16);--bad:#ff6a2a;--good:#9dffe0;--font:Oxanium,sans-serif;--display:Orbitron,Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:3px;--clip:none;--pshadow:0 0 12px rgba(111,233,255,.28),inset 0 0 18px rgba(111,233,255,.07)}
+#sfh-projection .sfh-stage[data-device="journal"]{--scan:transparent;--bg:transparent;--pnl:transparent;--pnl2:rgba(107,88,66,.05);--line:rgba(80,58,36,.45);--line2:rgba(80,58,36,.16);--text:#2b2118;--bright:#1d150d;--dim:#6b5842;--hot:#a3271c;--hotbg:rgba(163,39,28,.1);--hover:rgba(163,39,28,.08);--glow:transparent;--acc:#8a6a14;--accbg:rgba(184,144,31,.14);--bad:#b0281c;--good:#3f6b2a;--font:'EB Garamond',Georgia,serif;--display:'IM Fell English SC','EB Garamond',Georgia,serif;--title:'IM Fell English','EB Garamond',Georgia,serif;--hand:Caveat,cursive;--mono:'EB Garamond',Georgia,serif;--fs:15px;--r:2px;--clip:none;--pshadow:none}
 #sfh-projection .sfh-stage[data-device="nod"]{--scan:rgba(255,255,255,.055);--bg:#080404;--pnl:#140707;--pnl2:rgba(0,0,0,.35);--line:rgba(255,60,50,.45);--line2:rgba(255,60,50,.16);--text:#f5d9d4;--bright:#fff3f0;--dim:#c9847c;--hot:#ff3b30;--hotbg:rgba(255,59,48,.22);--hover:rgba(255,59,48,.13);--glow:rgba(255,59,48,.65);--acc:#efe6d2;--accbg:rgba(239,230,210,.14);--bad:#ffd060;--good:#efe6d2;--font:Oxanium,sans-serif;--display:Oxanium,sans-serif;--mono:'Share Tech Mono',ui-monospace,monospace;--fs:14px;--r:0px;--clip:none;--pshadow:inset 0 0 0 1px #000,inset 0 0 24px rgba(0,0,0,.6)}
 /* ---------- slots ---------- */
 #sfh-projection .slot{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -232,6 +233,12 @@
 #sfh-projection prose-mirror.sfh-rich button.toggle:hover{background:var(--hover);border-color:var(--hot);color:var(--bright)}
 #sfh-projection prose-mirror.sfh-rich.active{display:flex;flex:none;flex-direction:column;height:300px;padding:0 0 6px 6px;border-color:var(--hot)}
 #sfh-projection prose-mirror.sfh-rich.active .editor-content{position:absolute;inset:0;padding:4px 10px 4px 4px}
+/* a narrow page, the Journal's, takes the toolbar onto a second row rather than past its edge */
+#sfh-projection prose-mirror.sfh-rich menu{flex-wrap:wrap}
+/* Foundry's theme colors each toolbar button itself, so the device's colors are set there too: on
+   the Journal's paper its own light ones would vanish */
+#sfh-projection prose-mirror.sfh-rich menu :is(button,.pm-dropdown){--button-text-color:var(--text);color:var(--text)}
+#sfh-projection prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);background:var(--hover)}
 #sfh-projection .sfh-in{font:inherit;font-family:var(--mono);color:var(--bright);background:var(--pnl2);border:1px solid var(--line2);border-radius:calc(var(--r)*.4);min-width:0;width:100%;box-sizing:border-box;padding:2px 6px;text-align:center}
 #sfh-projection .sfh-in:focus{outline:1px solid var(--hot);border-color:var(--hot);background:rgba(0,0,0,.55)}
 #sfh-projection .sfh-in::-webkit-outer-spin-button, #sfh-projection .sfh-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -400,7 +407,126 @@ body[data-sfh-grid="panels"] #sfh-projection .sfh-stage[data-device="omni"] :is(
 @keyframes sfh-screenWake {from{opacity:0}to{opacity:1}}
 #sfh-projection .sfh-seq-off.sfh-stage[data-device="wrist"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="wrist"] .navb{animation:sfh-screenSleep .16s ease-in forwards}
 @keyframes sfh-screenSleep {from{opacity:1}to{opacity:0}}
+/* ---------- the Adventurer's Journal ---------- */
+/* An open book. Nothing is framed: the panels are writing on the page, and the pages are
+   plain paper, shaded toward the gutter and the edges. The grain is on the leather, never
+   under the writing. */
+#sfh-projection .sfh-stage[data-device="journal"] .pnl{background:none;border:0;box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .pnl::after{content:none}
+#sfh-projection .sfh-stage[data-device="journal"] .lbl{font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.03em;text-transform:none;color:var(--dim)}
+#sfh-projection .sfh-stage[data-device="journal"] .hd{border-bottom:1px solid var(--line2);padding-bottom:3px}
+#sfh-projection .sfh-stage[data-device="journal"] :is(.hd,.hp-h,.trk-h)>.lbl{font-size:16px;color:var(--hot)}
+#sfh-projection .sfh-stage[data-device="journal"] .cell .lbl{font-size:13px;letter-spacing:.02em}
+#sfh-projection .sfh-stage[data-device="journal"] .mono{font-variant-numeric:lining-nums tabular-nums}
+#sfh-projection .sfh-stage[data-device="journal"] .big{text-shadow:none;font-weight:600}
+#sfh-projection .sfh-stage[data-device="journal"] .b{font-variant:small-caps;letter-spacing:.03em}
+#sfh-projection .sfh-stage[data-device="journal"] .b.on{background:var(--hot);border-color:var(--hot);color:#fbf3df}
+#sfh-projection .sfh-stage[data-device="journal"] .ghost{font-size:13.5px;font-weight:500;letter-spacing:.03em;text-transform:none;color:var(--text)}
+#sfh-projection .sfh-stage[data-device="journal"] .roll{background:none;color:var(--hot);font-weight:600}
+#sfh-projection .sfh-stage[data-device="journal"] .chip{font-family:var(--font);font-size:13px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text);background:#f5ead0;box-shadow:1px 1px 0 rgba(80,58,36,.25);transform:rotate(-.6deg)}
+#sfh-projection .sfh-stage[data-device="journal"] .chip:nth-child(2n){transform:rotate(.8deg)}
+#sfh-projection .sfh-stage[data-device="journal"] .barx{background:none;border:1px solid var(--line);height:9px}
+#sfh-projection .sfh-stage[data-device="journal"] .barx>i{background:repeating-linear-gradient(115deg,var(--hot) 0 3px,#c2483b 3px 5px);box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .barx.a>i{background:var(--acc);box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .cell{background:none;border-color:var(--line2)}
+#sfh-projection .sfh-stage[data-device="journal"] .cell .v{font-weight:600}
+#sfh-projection .sfh-stage[data-device="journal"] .cell .v:is(.warn,.bad){text-shadow:none}
+/* tracks and pips are inked rings, filled in */
+#sfh-projection .sfh-stage[data-device="journal"] .seg{transform:none;flex:0 0 13px;width:13px;height:13px;border-radius:50%;background:none;border-color:var(--dim)}
+#sfh-projection .sfh-stage[data-device="journal"] .segs{gap:3px;padding:0 2px}
+#sfh-projection .sfh-stage[data-device="journal"] .segsep{margin:0 1px}
+#sfh-projection .sfh-stage[data-device="journal"] .seg.on{background:var(--hot);border-color:var(--hot);box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .seg.bad{border-color:color-mix(in srgb,var(--bad) 60%,transparent)}
+#sfh-projection .sfh-stage[data-device="journal"] .seg.bad.on{background:var(--bad);box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .pip{transform:none;border-radius:50%}
+#sfh-projection .sfh-stage[data-device="journal"] .pip.on, #sfh-projection .sfh-stage[data-device="journal"] .pip.bad.on{box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .trk.alert{animation:sfh-none;box-shadow:none}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-in{background:rgba(255,250,235,.55);color:var(--bright)}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-in:focus{background:#fffaf0}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-in-hp{background:transparent;text-shadow:none;font-size:40px;font-weight:600}
+#sfh-projection .sfh-stage[data-device="journal"] .sel{background:rgba(255,250,235,.55);color:var(--text)}
+#sfh-projection .sfh-stage[data-device="journal"] :is(.sel,.rk-sel) option, #sfh-projection .sfh-stage[data-device="journal"] .sel:is(.give,.carry) option, #sfh-projection .sfh-stage[data-device="journal"] .sfh-ammo .sel option{background:#f6eedb;color:#2b2118}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-menu{background:#f6eedb;box-shadow:2px 6px 14px rgba(40,26,10,.3)}
+#sfh-projection .sfh-stage[data-device="journal"] .li{background:none}
+#sfh-projection .sfh-stage[data-device="journal"] .li .nm{font-weight:600}
+#sfh-projection .sfh-stage[data-device="journal"] .sec{font-family:var(--display);font-weight:400;font-size:15px;letter-spacing:.03em;text-transform:none;color:var(--hot)}
+#sfh-projection .sfh-stage[data-device="journal"] .sec.sfh-slots{background:none;border-left:0;padding-left:0;color:var(--hot)}
+#sfh-projection .sfh-stage[data-device="journal"] .proj-h{border:0;min-height:50px;padding:0 4px}
+#sfh-projection .sfh-stage[data-device="journal"] .proj-t{font-family:var(--display);font-size:30px;font-weight:400;letter-spacing:.02em;text-transform:none;color:var(--hot)}
+#sfh-projection .sfh-stage[data-device="journal"] .proj-t::first-letter{font-size:1.3em}
+#sfh-projection .sfh-stage[data-device="journal"] .src{font-family:var(--font);font-style:italic;font-size:12.5px}
+#sfh-projection .sfh-stage[data-device="journal"] .proj-b{padding:6px 4px 18px}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-latest{border:1px dashed var(--line);box-shadow:none;background:none}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-latest .l-t{font-family:var(--display);font-size:15px;font-weight:400}
+#sfh-projection .sfh-stage[data-device="journal"] .sfh-latest .l-v{text-shadow:none;font-weight:600}
+#sfh-projection .sfh-stage[data-device="journal"] .ro h3{font-family:var(--title);font-size:22px;font-weight:400}
+#sfh-projection .sfh-stage[data-device="journal"] .ro .meta dt{font-family:var(--display);text-transform:none;letter-spacing:.03em;font-weight:400;font-size:12.5px}
+#sfh-projection .sfh-stage[data-device="journal"] .ro-text :is(a.content-link,a.inline-roll,[data-pf2-check],[data-pf2-action]){background:rgba(163,39,28,.08)}
+#sfh-projection .sfh-stage[data-device="journal"] .empty{border-style:dotted}
+/* the right page's heading: whose journal it is */
+#sfh-projection .sfh-stage[data-device="journal"] .ident{flex-direction:row;align-items:flex-start;gap:14px;padding:0 0 10px;border-bottom:1px solid var(--line2)}
+#sfh-projection .sfh-stage[data-device="journal"] .jn-who{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+#sfh-projection .sfh-stage[data-device="journal"] .jn-of{font-family:var(--hand);font-size:21px;line-height:1;color:var(--dim)}
+#sfh-projection .sfh-stage[data-device="journal"] .ident .nm{font-family:var(--title);font-size:42px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--bright);text-shadow:none;line-height:1.05}
+#sfh-projection .sfh-stage[data-device="journal"] .ident .st{font-size:14.5px;white-space:normal}
+#sfh-projection .sfh-stage[data-device="journal"] .jn-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
+#sfh-projection .sfh-stage[data-device="journal"] .lvl{background:none;border-color:var(--line)}
+/* the readout is a card of field notes tucked into the page, held at the top by tape */
+#sfh-projection .sfh-stage[data-device="journal"] [data-slot="readout"]{overflow:visible;padding:16px 16px 12px;background:#f6eedb;border:1px solid rgba(80,58,36,.3);box-shadow:2px 6px 14px rgba(40,26,10,.3);transform:rotate(1.2deg)}
+#sfh-projection .sfh-stage[data-device="journal"] [data-slot="readout"]::before{content:'';position:absolute;top:-11px;left:50%;width:92px;height:24px;transform:translateX(-50%) rotate(-3deg);background:rgba(232,222,190,.82);border:1px solid rgba(160,140,100,.25);box-shadow:0 1px 2px rgba(0,0,0,.12);z-index:4}
+#sfh-projection .sfh-stage[data-device="journal"] .jn-card{font-family:var(--display);font-size:15px;color:var(--hot);border-bottom:1px solid rgba(163,39,28,.3);padding-bottom:3px}
+#sfh-projection .sfh-stage[data-device="journal"] .jn-hand{margin:0;font-family:var(--hand);font-size:21px;line-height:1.15;color:var(--hot)}
+/* index tabs, cut into the left page's fore-edge: they stand out over the cover's overhang,
+   as tabs on a book's pages do, and never past the cover itself */
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx{flex-direction:column;gap:6px;border:1px solid rgba(80,58,36,.4);border-right:0;border-radius:6px 0 0 6px;box-shadow:-2px 2px 4px rgba(20,12,4,.35);color:#4a3826;font-family:var(--display);font-size:14px;letter-spacing:.04em;background:#e9c9a0;transition:transform .15s}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx svg{display:none}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx:nth-of-type(6n+2){background:#c9d6b0}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx:nth-of-type(6n+3){background:#e3d39c}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx:nth-of-type(6n+4){background:#d7c2a8}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx:nth-of-type(6n+5){background:#c8cfc8}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx:nth-of-type(6n){background:#e6c0b4}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx:hover{transform:translateX(-3px)}
+#sfh-projection .sfh-stage[data-device="journal"] .navb.idx.on{transform:translateX(-5px);color:var(--hot);font-weight:600;box-shadow:-3px 3px 6px rgba(20,12,4,.45)}
+/* the book */
+#sfh-projection .jb{position:absolute;left:40px;top:34px;width:1200px;height:800px;transform-style:preserve-3d;perspective:2800px}
+#sfh-projection .jb-board{position:absolute;top:-16px;bottom:-16px;width:calc(50% + 38px);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(160deg,#6a2a22,#4a1914 55%,#34100d);box-shadow:0 24px 50px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,220,180,.1)}
+#sfh-projection .jb-board.l{right:50%;border-radius:10px 0 0 10px}
+#sfh-projection .jb-board.r{left:50%;border-radius:0 10px 10px 0}
+#sfh-projection .jb-page{position:absolute;top:0;bottom:0;width:50%}
+#sfh-projection .jb-page.l{left:0;border-radius:3px 0 0 3px;background:linear-gradient(90deg,rgba(120,90,50,.18),transparent 6%,transparent 86%,rgba(90,64,34,.22) 97%,rgba(60,40,20,.38)),#ecdfc0;box-shadow:-2px 0 0 #e6d8b8,-4px 0 0 #d3bf96,-6px 0 0 #e6d8b8,-8px 0 0 #cdb88d}
+#sfh-projection .jb-page.r{right:0;border-radius:0 3px 3px 0;background:linear-gradient(270deg,rgba(120,90,50,.18),transparent 6%,transparent 86%,rgba(90,64,34,.22) 97%,rgba(60,40,20,.38)),#ecdfc0;box-shadow:2px 0 0 #e6d8b8,4px 0 0 #d3bf96,6px 0 0 #e6d8b8,8px 0 0 #cdb88d}
+#sfh-projection .jb-page.l::before{content:'';position:absolute;top:28px;bottom:28px;left:40px;border-left:1px solid rgba(163,39,28,.35)}
+#sfh-projection .jb-gutter{position:absolute;left:calc(50% - 3px);top:-4px;bottom:-4px;width:6px;background:linear-gradient(90deg,#3a2a18,#6b5638,#3a2a18);border-radius:3px;opacity:.55}
+#sfh-projection .jb-leaf{position:absolute;left:50%;top:-16px;bottom:-16px;width:calc(50% + 38px);transform-origin:0 50%;transform-style:preserve-3d;transform:rotateY(-180deg);visibility:hidden}
+#sfh-projection .jb-leaf>div{position:absolute;inset:0;backface-visibility:hidden;border-radius:0 10px 10px 0}
+#sfh-projection .jb-front{display:grid;place-items:center;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(160deg,#6a2a22,#4a1914 55%,#34100d);box-shadow:0 24px 50px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,220,180,.12),inset 12px 0 18px -8px rgba(0,0,0,.55)}
+#sfh-projection .jb-front::before{content:'';position:absolute;inset:26px 26px 26px 34px;border:2px solid rgba(201,162,39,.65);outline:1px solid rgba(201,162,39,.4);outline-offset:6px;border-radius:4px}
+#sfh-projection .jb-title{text-align:center;color:#d9b44a;font:52px/1.1 'IM Fell English SC',Georgia,serif;text-shadow:0 1px 0 rgba(0,0,0,.6),0 -1px 0 rgba(255,230,150,.25)}
+#sfh-projection .jb-title small{display:block;margin-top:10px;font:italic 24px 'IM Fell English',Georgia,serif;color:#c9a227}
+#sfh-projection .jb-title svg{display:block;width:180px;height:180px;margin:0 auto 28px}
+#sfh-projection .jb-back{transform:rotateY(180deg);border-radius:10px 0 0 10px!important;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(160deg,#6a2a22,#4a1914 55%,#34100d)}
+#sfh-projection .jb-back::after{content:'';position:absolute;top:16px;bottom:16px;left:38px;right:0;border-radius:3px 0 0 3px;background:linear-gradient(90deg,rgba(120,90,50,.18),transparent 6%,transparent 86%,rgba(90,64,34,.22) 97%,rgba(60,40,20,.38)),#ecdfc0}
+/* Journal: the book rises closed in the middle of the board; its cover swings open on the
+   spine while the book slides over, so the spine ends in the center; then the pages are
+   written in, the left one first. Closing runs it backward. Keep in step with SEQ_LONG. */
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb{animation:sfh-jbRise 1.9s cubic-bezier(.45,.05,.25,1) both}
+@keyframes sfh-jbRise {0%{opacity:0;transform:translateX(-300px) translateY(320px) scale(.45)}24%,34%{opacity:1;transform:translateX(-300px)}to{opacity:1;transform:none}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb-leaf{animation:sfh-jbOpen 1.9s cubic-bezier(.45,.05,.25,1) both}
+@keyframes sfh-jbOpen {0%,34%{visibility:visible;transform:none}99%{visibility:visible;transform:rotateY(-180deg)}to{visibility:hidden;transform:rotateY(-180deg)}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] :is(.jb-page.l,.jb-board.l){animation:sfh-jbAfter 1.9s step-end both}
+@keyframes sfh-jbAfter {from{visibility:hidden}to{visibility:visible}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .navb{animation:sfh-jbInk .8s steps(16,end) backwards;animation-delay:calc(1.9s + var(--d,0ms) * 2.4)}
+@keyframes sfh-jbInk {from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .navb{animation:sfh-jbFade .2s ease-in forwards}
+@keyframes sfh-jbFade {to{opacity:0}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] :is(.jb-page.l,.jb-board.l){visibility:hidden}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb-leaf{animation:sfh-jbShut 1.35s cubic-bezier(.45,.05,.25,1) both}
+@keyframes sfh-jbShut {0%,15%{visibility:visible;transform:rotateY(-180deg)}70%,to{visibility:visible;transform:none}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb{animation:sfh-jbSink 1.35s cubic-bezier(.45,.05,.25,1) both}
+@keyframes sfh-jbSink {0%,15%{opacity:1;transform:none}70%{opacity:1;transform:translateX(-300px)}to{opacity:0;transform:translateX(-300px) translateY(320px) scale(.45)}}
 @media (prefers-reduced-motion:reduce){
+#sfh-projection .sfh-seq-on .jb, #sfh-projection .sfh-seq-off .jb, #sfh-projection .sfh-seq-on .jb-leaf, #sfh-projection .sfh-seq-off .jb-leaf, #sfh-projection .sfh-seq-on .jb-page, #sfh-projection .sfh-seq-off .jb-page, #sfh-projection .sfh-seq-on .jb-board, #sfh-projection .sfh-seq-off .jb-board{animation:sfh-none!important}
 #sfh-projection .sfh-seq-on .slot, #sfh-projection .sfh-seq-off .slot, #sfh-projection .sfh-seq-on .navb, #sfh-projection .sfh-seq-off .navb, #sfh-projection .sfh-seq-on .ornlayer, #sfh-projection .sfh-seq-off .ornlayer, #sfh-projection .sfh-seq-on .foldwrap, #sfh-projection .sfh-seq-off .foldwrap{animation:sfh-none!important}
 #sfh-projection .sweep, #sfh-projection .flare, #sfh-projection .powerbtn .dot2{animation:sfh-none!important;display:none}
 #sfh-projection .beam{animation:sfh-none!important}

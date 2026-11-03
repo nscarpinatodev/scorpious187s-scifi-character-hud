@@ -36,7 +36,7 @@ const measure = () => page.evaluate(() => {
 		powerKey: r(document.getElementById('sfh-power')),
 	};
 });
-for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	await wait(400);
 	shots.push(await page.screenshot());

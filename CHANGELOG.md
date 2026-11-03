@@ -41,6 +41,13 @@ device, and the character sheet is a projection it raises over the canvas.
 - PF2e and SF2e: the whole Biography tab, editable by the character's owner: appearance, backstory,
   personality with edicts and anathema, and campaign notes, with Foundry's own rich text editor and
   the sheet's control over who may read each section.
+- The Adventurer's Journal, the first fantasy device, for 5e, PF2e and SF2e alike. The sheet
+  is a leather journal opened across the table: the main body on the left page, everything
+  else kept as notes on the right, the readout on a card taped into the page, and index tabs
+  standing out of the left page's edge. It rises closed out of the strap at the foot of the
+  screen, swings open on its spine, and is written in line by line. The macro bar is a row of
+  paper tags on that strap, and the interface around it is ink on paper. IM Fell English,
+  EB Garamond and Caveat ship with the module for it.
 - Drops onto the projection: an item, spell, effect, condition or folder dragged from the
   sidebar, a compendium or another sheet lands on the character as on its own sheet, and a
   container under the drop takes it inside.

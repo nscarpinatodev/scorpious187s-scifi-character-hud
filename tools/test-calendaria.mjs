@@ -98,9 +98,10 @@ const results = await page.evaluate(async (href) => {
 
 	/* ---- on, on every device ---- */
 	SFH.store.calendaria = true;
-	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		game.settings.set(null, 'device', id);
-		await wait(150);
+		// the date eases from one device's color to the next
+		await wait(400);
 		const bg = probe(`rgb(${device('--sfh-bg-rgb')})`);
 		check(`${id}: the setting reaches the page`, document.body.dataset.sfhCalendaria === 'on');
 		check(`${id}: the bar is the device's background`, bar().backgroundColor === bg, [bar().backgroundColor, bg]);
@@ -141,7 +142,7 @@ const results = await page.evaluate(async (href) => {
 }, calendaria);
 
 if (shots) {
-	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const id of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		await page.evaluate((d) => game.settings.set(null, 'device', d), id);
 		await new Promise((r) => setTimeout(r, 200));
 		await page.screenshot({ path: `${shots}/calendaria-${id}.png`, clip: { x: 250, y: 90, width: 900, height: 140 } });

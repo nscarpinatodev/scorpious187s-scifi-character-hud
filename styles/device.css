@@ -110,6 +110,31 @@ body[data-sfh-device="tron"] {
 	--sfh-radius: 3px;
 }
 
+/*
+ * The Adventurer's Journal: ink on paper, and the only light device. Its "glow" is the soft
+ * shadow of a page lifted off the table, so anything that glows elsewhere sits here instead.
+ */
+body[data-sfh-device="journal"] {
+	--sfh-bg-rgb: 236 223 192;
+	--sfh-hot: #a3271c;
+	--sfh-glow: rgb(60 40 20 / 22%);
+	--sfh-bright: #1d150d;
+	--sfh-text: #2b2118;
+	--sfh-dim: #6b5842;
+	--sfh-line: rgb(80 58 36 / 50%);
+	--sfh-line-2: rgb(80 58 36 / 18%);
+	/* solid, not a tint: over a dark map a see-through red reads as mud, not as paper */
+	--sfh-hover: #e3cfb2;
+	--sfh-panel: rgb(236 223 192 / 97%);
+	--sfh-cell: rgb(246 238 219 / 94%);
+	--sfh-acc: #8a6a14;
+	--sfh-bad: #b0281c;
+	--sfh-face: "EB Garamond", Georgia, serif;
+	--sfh-display: "IM Fell English SC", "EB Garamond", Georgia, serif;
+	--sfh-mono: "EB Garamond", Georgia, serif;
+	--sfh-radius: 2px;
+}
+
 /* Headings: the device's main color, or the one the player chose in the module settings. */
 body[data-sfh-device] {
 	--sfh-heading: var(--sfh-hot);
@@ -360,4 +385,57 @@ body[data-sfh-power="off"] #sfh-band {
 	body[data-sfh-power="on"] #sfh-disc-ring {
 		animation: none;
 	}
+}
+
+/* ---------------------------------------------------------------- the Journal's strap */
+/*
+ * The macro bar's keys are paper tags hung on the strap, each set a little askew, and the
+ * buckle's prong turns when the book is open.
+ */
+body[data-sfh-device="journal"] #sfh-deck #action-bar .slot {
+	border: 1px solid #8a7050;
+	border-radius: 2px 2px 4px 4px;
+	background: #efe3c6;
+	box-shadow: 1px 3px 5px rgb(0 0 0 / 45%);
+	transform: rotate(-1.2deg);
+}
+
+body[data-sfh-device="journal"] #sfh-deck #action-bar .slot:nth-child(2n) {
+	transform: rotate(1deg);
+}
+
+body[data-sfh-device="journal"] #sfh-deck #action-bar .slot:hover {
+	border-color: var(--sfh-hot);
+	box-shadow: 1px 4px 8px rgb(0 0 0 / 50%);
+}
+
+body[data-sfh-device="journal"] #sfh-deck #action-bar .slot .key,
+body[data-sfh-device="journal"] #sfh-deck #action-bar .slot.full .key {
+	color: #8a7050;
+}
+
+/* the mute, menu, lock and page controls sit on the leather, so they are drawn in its stitching's color */
+body[data-sfh-device="journal"] #sfh-deck #hotbar button,
+body[data-sfh-device="journal"] #sfh-deck .hotbar-page-number {
+	--button-text-color: #e8c496;
+	color: #e8c496;
+}
+
+body[data-sfh-device="journal"] #sfh-deck #hotbar button:hover {
+	color: #fff4dc;
+	text-shadow: none;
+}
+
+#sfh-prong {
+	transform-box: fill-box;
+	transform-origin: center;
+	transition: transform 400ms ease;
+}
+
+body[data-sfh-power="on"] #sfh-prong {
+	transform: rotate(90deg) scaleY(.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-prong { transition: none; }
 }

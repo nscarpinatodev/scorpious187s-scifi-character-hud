@@ -64,7 +64,7 @@ const results = await page.evaluate(async () => {
 		await wait(60);
 	};
 
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		game.settings.set(null, 'device', device);
 		await wait(60);
 		headings.fitHeadings();

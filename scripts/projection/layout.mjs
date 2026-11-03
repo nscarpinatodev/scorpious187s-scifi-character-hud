@@ -16,6 +16,8 @@ export const BOARD = {
 	wrist: { w: 1280, h: 860 },
 	gdi: { w: 1280, h: 860 },
 	nod: { w: 1280, h: 860 },
+	// the open book: 1200 × 800 of pages at 40,34, in a cover that overhangs them by 38
+	journal: { w: 1280, h: 860 },
 };
 
 /** The dossier's parts, in board pixels: its heading, a shields bar, a Paragon or Renegade track. */
@@ -57,6 +59,26 @@ export function layout(device, dossier = 0) {
 			readout: [1048, 360, 204, 366],
 			projection: [250, 92, 780, 470],
 			nav: [250, 580, 780, 120],
+		};
+	}
+	/*
+	 * The Journal: an open book (ornaments.mjs). The main body is written on the left page;
+	 * everything else is kept as notes on the right, under the name: hit points beside the
+	 * defenses, the conditions and the dossier below them, and the readout on a card tucked
+	 * into the page. The index tabs are cut into the left page's fore-edge, over the cover's
+	 * overhang.
+	 */
+	if (device === 'journal') {
+		const d = Math.min(dossier, 140);
+		return {
+			identity: [684, 50, 536, 104],
+			vitals: [684, 170, 256, 310],
+			defenses: [964, 170, 256, 300],
+			effects: extras ? [684, 494, 256, 300 - d - 12] : [684, 494, 256, 300],
+			extras: [684, 794 - d, 256, d],
+			readout: [966, 486, 250, 304],
+			projection: [98, 60, 508, 746],
+			nav: [10, 92, 38, 660],
 		};
 	}
 	if (device === 'wrist') {

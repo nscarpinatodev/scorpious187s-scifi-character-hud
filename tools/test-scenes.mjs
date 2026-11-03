@@ -333,7 +333,7 @@ const results = await page.evaluate(async () => {
 	clashes.clear();
 
 	/* ---- every device ---- */
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		game.settings.set(null, 'device', device);
 		await wait(150);
 		await draw();

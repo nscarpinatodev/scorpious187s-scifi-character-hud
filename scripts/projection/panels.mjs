@@ -22,6 +22,12 @@ export function renderIdentity(c, device) {
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h11"/></svg></button>`;
 	const level = `<div class="lvl">${lbl('Level')}<span class="big" style="font-size:21px">${c.level}</span></div>`;
 
+	if (device === 'journal') {
+		// the page's heading: whose journal this is, and beside it the level, experience and the rests
+		return `<div class="jn-who"><div class="jn-of">${esc(game.i18n.localize('SFH.Projection.Journal.Of'))}</div>
+				<div class="nm">${esc(c.name)}</div><div class="st">${esc(c.sub)}</div></div>
+			<div class="jn-side"><div class="row">${xp}${level}</div><div class="row">${rest}<span class="grow"></span>${sheet}${gear}</div></div>`;
+	}
 	if (device === 'wrist') {
 		return `<div class="lbl">Operator</div><div class="nm">${esc(c.name)}</div><div class="st">${esc(c.sub)}</div>
 			<div class="row" style="margin-top:auto"><div class="grow">${bar(c.xp.value, c.xp.max)}</div>
@@ -138,7 +144,7 @@ export function renderDefenses(c, device) {
 /*  Effects                                      */
 /* -------------------------------------------- */
 
-export function renderEffectsSlot(c) {
+export function renderEffectsSlot(c, device) {
 	// `key` is what the readout describes; `remove` is the [act, k] the × sends, if it has one
 	const chip = (name, inner, key, remove) => `<span class="chip" ${ro(key)}>${esc(name)}${inner}${remove
 		? `<button type="button" data-act="${remove[0]}" data-k="${esc(remove[1])}" aria-label="Remove ${esc(name)}">×</button>`
@@ -165,7 +171,7 @@ export function renderEffectsSlot(c) {
 		? `<select class="sel" data-pick="condition" aria-label="Add a condition"><option value="">+ Add condition…</option>${
 			choices.map((o) => `<option value="${esc(o.id)}">${esc(o.label)}</option>`).join('')}</select>`
 		: '';
-	return `<div class="row sp hd">${lbl('Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
+	return `<div class="row sp hd">${lbl(device === 'journal' ? 'Conditions' : 'Effects')}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
 		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>
 		${picker}`;
 }
@@ -198,14 +204,14 @@ export function renderExtras(c) {
 /* -------------------------------------------- */
 
 /** The strip over the main panel: the last thing this character rolled, and what follows from it. */
-export function renderLatest(roll) {
+export function renderLatest(roll, device) {
 	const verdict = roll.outcome
 		? `<span class="l-o ${esc(roll.outcome.tone)}">${esc(roll.outcome.label)}${roll.dc != null ? ` vs ${esc(roll.dc)}` : ''}</span>`
 		: roll.dc != null ? `<span class="l-o">vs ${esc(roll.dc)}</span>` : '';
 	const follow = roll.damage
 		? `${actBtn('Damage', 'latestDamage', `${roll.messageId}:damage`, { cls: 'sm ghost' })}${actBtn('Critical', 'latestDamage', `${roll.messageId}:critical`, { cls: 'sm ghost' })}`
 		: '';
-	return `<b class="l-t">Latest</b>
+	return `<b class="l-t">${device === 'journal' ? 'Last roll' : 'Latest'}</b>
 		<span class="l-n" title="${esc(roll.name)}">${esc(roll.name)}</span>
 		<span class="l-f mono" title="${esc(roll.formula)}">${esc(roll.formula)}</span>
 		<span class="l-v mono">${esc(roll.total)}</span>
@@ -219,14 +225,19 @@ export function renderLatest(roll) {
 /*  Readout                                      */
 /* -------------------------------------------- */
 
-export function renderReadout(entry) {
+export function renderReadout(entry, device) {
+	// the Journal's readout is a card of field notes, and says so whatever is on it
+	const journal = device === 'journal';
+	const head = journal ? '<div class="jn-card">Field notes</div>' : '';
 	if (!entry) {
-		return `<div class="lbl">Readout</div>
+		return journal
+			? `${head}<p class="jn-hand">Point at anything on these pages to read about it here.</p>`
+			: `<div class="lbl">Readout</div>
 			<p class="dimc" style="font-size:13px;line-height:1.4">Point at a weapon, action, feat, skill or item to read it here.</p>`;
 	}
 	const traits = (entry.traits ?? []).map((t) => `<span class="chip">${esc(t)}</span>`).join('');
 	const meta = (entry.meta ?? []).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
-	return `<div class="row sp"><span class="lbl">${esc(entry.kind ?? '')}</span>${entry.cost ? `<span class="cost">${esc(entry.cost)}</span>` : ''}</div>
+	return `${head}<div class="row sp"><span class="lbl">${esc(entry.kind ?? '')}</span>${entry.cost ? `<span class="cost">${esc(entry.cost)}</span>` : ''}</div>
 		<h3>${esc(entry.name)}</h3>
 		${entry.actions ?? ''}
 		${traits ? `<div style="display:flex;flex-wrap:wrap;gap:4px">${traits}</div>` : ''}
@@ -258,7 +269,7 @@ export function renderNav(c, device, L, current) {
 	const tabs = c.tabs;
 	const btn = (tab, style, cls = '') => `<button type="button" class="navb ${cls} ${tab.id === current ? 'on' : ''}"
 		data-act="tab" data-k="${tab.id}" aria-label="${esc(tab.label)}" aria-current="${tab.id === current}"
-		data-tooltip="${esc(tab.label)}" style="${style}">${svgIcon(tab.id)}${cls === 'cam' ? `<span>${esc(tab.label)}</span>` : ''}</button>`;
+		data-tooltip="${esc(tab.label)}" style="${style}">${svgIcon(tab.id)}${cls === 'cam' || cls === 'idx' ? `<span>${esc(tab.label)}</span>` : ''}</button>`;
 
 	if (device === 'omni' || device === 'tron') {
 		const n = tabs.length;
@@ -274,6 +285,12 @@ export function renderNav(c, device, L, current) {
 		}).join('');
 	}
 
+	if (device === 'journal') {
+		// index tabs cut into the left page's outer edge, one under the next, each a different card
+		const N = L.nav;
+		const pitch = Math.min(96, Math.floor(N[3] / tabs.length));
+		return tabs.map((tab, i) => btn(tab, `left:${N[0]}px;top:${N[1] + i * pitch}px;width:${N[2]}px;height:${pitch - 8}px`, 'idx')).join('');
+	}
 	if (device === 'wrist') {
 		const half = Math.ceil(tabs.length / 2);
 		// the first button is level with the top of the main panel, not tucked under the top row

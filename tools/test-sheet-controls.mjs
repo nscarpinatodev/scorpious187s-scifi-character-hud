@@ -173,7 +173,7 @@ const results = await page.evaluate(async () => {
 
 		// the whole thing fits, on every device and with a long name
 		Projection.noteRoll(msg('m9', { _strike: { ...strikeForRoll, label: 'A Very Long Named Weapon Of Considerable Length And Grandeur' }, rolls: [{ formula: '1d20 + 11 + 2 + 1 + 3 - 2', total: 21 }] }));
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			// the device change redraws and refits; measure once that has settled
 			await wait(450);
@@ -499,7 +499,7 @@ const results = await page.evaluate(async () => {
 
 		/* it fits on every device */
 		const deviceWas = document.body.dataset.sfhDevice;
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			Projection.render();
@@ -535,6 +535,12 @@ const results = await page.evaluate(async () => {
 			const editorBox = opening.getBoundingClientRect();
 			check(`${device}: opening it brings it into view`, editorBox.top >= seen.top - 1 && editorBox.bottom <= seen.bottom + 1, [editorBox.top, editorBox.bottom, seen.top, seen.bottom, scale]);
 			check(`${device}: its toolbar fits`, opening.querySelector('menu').scrollWidth <= opening.querySelector('menu').clientWidth + 1, [opening.querySelector('menu').scrollWidth, opening.querySelector('menu').clientWidth]);
+			// Foundry's theme colors its buttons on the buttons themselves; on the Journal's paper its light ones vanish
+			const ink = Object.assign(document.createElement('span'), { style: 'color:var(--text)' });
+			opening.append(ink);
+			const tool = opening.querySelector('menu button');
+			check(`${device}: its toolbar's buttons are in the page's text color`, getComputedStyle(tool).color === getComputedStyle(ink).color, [getComputedStyle(tool).color, getComputedStyle(ink).color]);
+			ink.remove();
 			opening.removeAttribute('open');
 		}
 		game.settings.set(null, 'device', deviceWas);
@@ -625,7 +631,7 @@ const results = await page.evaluate(async () => {
 		groups[3].feats.pop();
 
 		const deviceWas = document.body.dataset.sfhDevice;
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			Projection.render();
@@ -711,7 +717,7 @@ const results = await page.evaluate(async () => {
 			});
 			return out;
 		};
-		for (const device of ['omni', 'wrist', 'gdi', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			await wait(150);
 			await tab('actions');
@@ -838,7 +844,7 @@ const results = await page.evaluate(async () => {
 		const named = (id, name, type) => ({ id, uuid: id, name, type: 'action', system: { actionType: { value: type }, actions: { value: 1 }, traits: { value: ['manipulate', 'concentrate', 'envoy'] } } });
 		actor.itemTypes.action = [named('u1', 'Stride', 'action'), named('u2', 'A Very Long Action Name That Would Certainly Not Fit On One Or Even Two Lines Of Its Column', 'action'), named('u3', 'Administer First Aid', 'reaction'), named('u4', 'Aid', 'free')];
 		const deviceWas = document.body.dataset.sfhDevice;
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			Projection.render();

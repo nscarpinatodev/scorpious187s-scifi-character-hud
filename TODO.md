@@ -36,6 +36,18 @@ system's own sheet, which the book button opens.
 - [ ] **The readout** — currently name, type, traits and description. The mock-up also showed
       per-kind detail (skill breakdowns, tier lists for Paragon/Renegade).
 
+## Fantasy devices
+
+The approved look is `design/fantasy-mockup.html`. Both work in 5e, PF2e and SF2e.
+
+- [x] **Adventurer's Journal** — the open book, its strap, its sequence and its paper palette.
+- [ ] **Runic Vambrace** — the omni-tool's fantasy counterpart: an engraved bracer whose runes
+      kindle, dark glass edged in light, a sigil behind the board, rune-stone tabs.
+- [ ] **The Journal's fonts as woff2** — they ship as their authors' TTFs (about 2.6 MB); cutting
+      them to Latin woff2 like the others needs fontTools installed.
+- [ ] **Each device's own words** — the Journal's "Field notes", "Conditions" and "Last roll"
+      are written into `panels.mjs`; they belong in `lang/en.json` with the rest.
+
 ## Sidebar panels, one at a time
 
 `styles/interface.css` gives the interface the device's colors, edges and glow. Each panel still

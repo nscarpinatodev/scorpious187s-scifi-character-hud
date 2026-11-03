@@ -34,7 +34,7 @@ await page.evaluate(() => {
 
 const results = [];
 const shots = [];
-for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 	await page.evaluate((d) => game.settings.set(null, 'device', d), device);
 	// long enough for Foundry's color transitions to finish
 	await new Promise((r) => setTimeout(r, 700));
@@ -61,7 +61,9 @@ for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
 		check('other turns are quiet', st('.combatant:not(.active):not(.defeated):not(.hide)').borderTopColor !== token('--sfh-hot'));
 		check('a defeated name can be read', alpha(st('.combatant.defeated .name').color) === 1 && st('.combatant.defeated .name').color === token('--sfh-bad'), st('.combatant.defeated .name').color);
 		check('a defeated name is struck through', /line-through/.test(st('.combatant.defeated .name').textDecorationLine));
-		check('initiative is in the number face', /mono|VT323|Share/i.test(st('.token-initiative input').fontFamily), st('.token-initiative input').fontFamily);
+		// the device's face for numbers: a monospace on the sci-fi devices, Garamond's lining figures in the Journal
+		const numbers = getComputedStyle(document.body).getPropertyValue('--sfh-mono').split(',')[0].replace(/"/g, '').trim();
+		check('initiative is in the number face', st('.token-initiative input').fontFamily.replace(/"/g, '').startsWith(numbers), [st('.token-initiative input').fontFamily, numbers]);
 		const roll = q('.token-initiative button');
 		check('the roll button is showing', roll.getBoundingClientRect().width > 0 && getComputedStyle(roll).maskImage !== 'none', getComputedStyle(roll).maskImage.slice(0, 50));
 		check('the roll button is colored by the device', getComputedStyle(roll).backgroundColor === token('--sfh-hot'));

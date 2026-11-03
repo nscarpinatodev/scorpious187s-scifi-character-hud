@@ -1,4 +1,4 @@
-import { EL, MOD, SEQ, S } from '../constants.mjs';
+import { EL, MOD, S, DEVICES, seqMs } from '../constants.mjs';
 import { currentDevice, setting } from '../settings.mjs';
 import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
@@ -161,9 +161,11 @@ export class Projection {
 		 * one there is nothing to match, and the size setting decides how much of the free room
 		 * it takes — 55% by default, so it sits above the device instead of swallowing the map.
 		 */
-		const fitsArm = art ? (art.getBoundingClientRect().width || board.w) / L.projection[2] : null;
+		// a device whose sheet is a thing of its own, the Journal's book, is not matched to its plate
+		const tied = art && DEVICES[deviceId]?.projects !== false;
+		const fitsArm = tied ? (art.getBoundingClientRect().width || board.w) / L.projection[2] : null;
 		const share = Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
-		const scale = art ? Math.min(room, fitsArm) : room * share;
+		const scale = tied ? Math.min(room, fitsArm) : art ? room : room * share;
 		const clear = clearance(scale * board.h);
 		// the layer is as wide as what it draws, so it never reaches over the furniture beside it
 		const width = scale * board.w;
@@ -174,9 +176,9 @@ export class Projection {
 			standsAt: Math.round(standsAt),
 			room: { scale: +room.toFixed(3), height: Math.round(height), byHeight: +(height / board.h).toFixed(3) },
 			fitsArm: fitsArm && +fitsArm.toFixed(3),
-			share: art ? 'not used (the projection follows the plate)' : share,
+			share: art ? `not used (the projection ${tied ? 'follows the plate' : 'takes the room'})` : share,
 			scale: +scale.toFixed(3),
-			limitedBy: art && scale >= fitsArm - 0.001 ? 'arm'
+			limitedBy: tied && scale >= fitsArm - 0.001 ? 'arm'
 				: !art && share < 1 ? 'size setting'
 				: room >= height / board.h - 0.001 ? 'height'
 				: `width: ${clear.leftBy?.id ?? 'window'} on the left, ${clear.rightBy?.id ?? 'window'} on the right`,
@@ -216,7 +218,9 @@ export class Projection {
 		// projection — the side columns are lit by it, not part of it
 		const lit = this.element?.querySelector('[data-slot="projection"]')?.getBoundingClientRect();
 		let beam = document.getElementById(EL.beam);
-		if (!band || !band.width || !lit?.width || !this.#open) {
+		// the Journal's book is not light from the device, so nothing joins them
+		const projects = DEVICES[currentDevice()]?.projects !== false;
+		if (!projects || !band || !band.width || !lit?.width || !this.#open) {
 			beam?.remove();
 			return;
 		}
@@ -409,7 +413,7 @@ export class Projection {
 
 		// the wrist unit's panels sit inside its case rather than flush to the board edge
 		const inset = device === 'wrist';
-		stage.innerHTML = `<div class="ornlayer">${ornBack(device)}</div>
+		stage.innerHTML = `<div class="ornlayer">${ornBack(device, c)}</div>
 		<div class="foldwrap">
 			<div class="ornlayer">${ornDev(device)}</div>
 			<div class="sweep"></div><div class="flare"></div>
@@ -418,11 +422,11 @@ export class Projection {
 			${panel('identity', L.identity, renderIdentity(c, device), 'ident')}
 			${panel('vitals', L.vitals, renderVitals(c))}
 			${panel('defenses', L.defenses, renderDefenses(c, device), eva ? '' : 'pad')}
-			${panel('effects', L.effects, renderEffectsSlot(c))}
+			${panel('effects', L.effects, renderEffectsSlot(c, device))}
 			${extras ? panel('extras', L.extras, renderExtras(c)) : ''}
 			${eva || device === 'wrist' ? '<div class="scanfx"></div>' : ''}
-			${panel('readout', L.readout, `<div class="ro scroll" id="sfh-readout" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;flex:1">${renderReadout(this.#entry(actor))}</div>`)}
-			${latest ? panel('latest', latestRect, renderLatest(latest), 'sfh-latest') : ''}
+			${panel('readout', L.readout, `<div class="ro scroll" id="sfh-readout" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;flex:1">${renderReadout(this.#entry(actor), device)}</div>`)}
+			${latest ? panel('latest', latestRect, renderLatest(latest, device), 'sfh-latest') : ''}
 			${projection}
 			${renderNav(c, device, L, this.#tab)}
 			${inset ? '</div>' : ''}
@@ -533,7 +537,7 @@ export class Projection {
 		stage.classList.remove('sfh-seq-on', 'sfh-seq-off');
 		void stage.offsetWidth; // restart the animations
 		stage.classList.add(kind === 'on' ? 'sfh-seq-on' : 'sfh-seq-off');
-		setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), kind === 'on' ? SEQ.on : SEQ.off);
+		setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), seqMs(kind, currentDevice()));
 	}
 
 	/* -------------------------------------------- */
@@ -616,7 +620,7 @@ export class Projection {
 		const el = document.getElementById('sfh-readout');
 		const actor = this.actor();
 		if (!el || !actor) return;
-		el.innerHTML = renderReadout(this.#entry(actor));
+		el.innerHTML = renderReadout(this.#entry(actor), currentDevice());
 		// something new starts from its top
 		el.scrollTop = 0;
 		this.#fillReadout();

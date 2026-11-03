@@ -581,6 +581,13 @@ body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:i
 	color: #8dffb0;
 }
 
+/* on the Journal's paper a light green would vanish, so its critical is inked in a dark one */
+body[data-sfh-device="journal"][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:is(.critical, .success):not(.fumble) {
+	background: color-mix(in srgb, #3f8a3a 14%, var(--sfh-panel));
+	border-color: #3f7a32;
+	color: #2a5a22;
+}
+
 body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:is(.fumble, .failure):not(.critical) {
 	background: color-mix(in srgb, var(--sfh-bad) 20%, var(--sfh-panel));
 	border-color: var(--sfh-bad);

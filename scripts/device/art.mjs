@@ -62,7 +62,37 @@ export const DISC = {
 	</g>`,
 };
 
-const ART = { arm: ARM, disc: DISC };
+/**
+ * The Journal's strap: a stitched leather belt that the macro bar's tags hang on, with its
+ * brass buckle at the left end. The buckle opens the book. The strap is the plate the book
+ * stands on, so it is low and flat; the buckle sits beside the bar, not under it.
+ */
+export const STRAP = {
+	viewBox: ARM.viewBox,
+	deck: { bottom: 0.1, width: 0.74 },
+	svg: `
+	<defs>
+		<linearGradient id="sfh-leather" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#6a3020"/><stop offset=".55" stop-color="#43190f"/><stop offset="1" stop-color="#2c100a"/>
+		</linearGradient>
+		<linearGradient id="sfh-brass" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#f0d27a"/><stop offset=".45" stop-color="#c9a227"/><stop offset="1" stop-color="#7a5f12"/>
+		</linearGradient>
+		<filter id="sfh-strapshadow" x="-5%" y="-40%" width="110%" height="200%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-opacity=".55"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M290 792 Q 300 786 312 786 H 968 Q 980 786 990 792 V 852 Q 980 858 968 858 H 312 Q 300 858 290 852 Z"
+		fill="url(#sfh-leather)" stroke="#2a0f08" stroke-width="1.5" filter="url(#sfh-strapshadow)"/>
+	<path d="M300 795 H 980 M300 849 H 980" stroke="#e8c496" stroke-opacity=".35" stroke-width="1.2" stroke-dasharray="6 5"/>
+	<path d="M960 786 Q 1000 786 1000 822 Q 1000 858 960 858" fill="#3a170e" stroke="#2a0f08"/>
+	<g id="sfh-band" role="button" tabindex="0" aria-label="SFH.Power.Toggle">
+		<rect x="300" y="770" width="64" height="104" rx="9" fill="#2c100a" fill-opacity=".001"/>
+		<rect x="306" y="776" width="52" height="92" rx="8" fill="none" stroke="url(#sfh-brass)" stroke-width="7"/>
+		<rect x="306" y="776" width="52" height="92" rx="8" fill="none" stroke="#5a440c" stroke-width="1"/>
+		<rect id="sfh-prong" x="329" y="770" width="6" height="104" rx="2" fill="url(#sfh-brass)" stroke="#5a440c" stroke-width=".8"/>
+	</g>`,
+};
+
+const ART = { arm: ARM, disc: DISC, strap: STRAP };
 
 /** The art layer for a device, or null when it draws nothing at the foot of the screen. */
 export function deviceArt(id) {

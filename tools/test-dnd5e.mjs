@@ -550,7 +550,7 @@ const results = await page.evaluate(async () => {
 	check('then happens once they stop', field('flaw') !== typing);
 
 	/* ---- every tab fits on every device ---- */
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		game.settings.set(null, 'device', device);
 		await wait(250);
 		for (const t of ['details', 'actions', 'inventory', 'spells', 'features', 'effects', 'biography']) {
@@ -603,17 +603,22 @@ const results = await page.evaluate(async () => {
 			const m = css.match(/[\d.]+/g)?.map(Number);
 			// a faint tint over the panel is not a light background
 			if (!m || (m.length > 3 && m[3] < 0.2)) return null;
+			// color-mix() hands back color(srgb …), on a 0–1 scale
+			if (css.startsWith('color(')) for (let i = 0; i < 3; i++) m[i] *= 255;
 			return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
 		};
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			for (const message of log.children) {
 				const name = `${device} ${message.classList.contains('compact') ? 'compact' : 'standard'} card`;
-				const light = [message, ...message.querySelectorAll('*')].filter((e) => { const l = luminance(getComputedStyle(e).backgroundColor); return l !== null && l > 0.5; });
-				check(`${name}: nothing is on a light background`, !light.length, light.slice(0, 4).map((e) => `${e.tagName}.${e.className}:${getComputedStyle(e).backgroundColor}`));
+				// the Journal is ink on paper: there the card is light and its writing dark, the other way around
+				const paper = device === 'journal';
+				// an item's icon is an image in a frame; the frame behind it is not where anything is read
+				const wrong = [message, ...message.querySelectorAll(':not(img)')].filter((e) => { const l = luminance(getComputedStyle(e).backgroundColor); return l !== null && (paper ? l < 0.5 : l > 0.5); });
+				check(`${name}: nothing is on a ${paper ? 'dark' : 'light'} background`, !wrong.length, wrong.slice(0, 4).map((e) => `${e.tagName}.${e.className}:${getComputedStyle(e).backgroundColor}`));
 				check(`${name}: no parchment texture`, !/texture|parchment/i.test(getComputedStyle(message).backgroundImage), getComputedStyle(message).backgroundImage.slice(0, 80));
-				const dark = [...message.querySelectorAll('p, .title, .subtitle, button span, .pill, .dice-formula')].filter((e) => { const l = luminance(getComputedStyle(e).color); return l !== null && l < 0.3; });
+				const dark = [...message.querySelectorAll('p, .title, .subtitle, button span, .pill, .dice-formula')].filter((e) => { const l = luminance(getComputedStyle(e).color); return l !== null && (paper ? l > 0.55 : l < 0.3); });
 				check(`${name}: its text can be read`, !dark.length, dark.slice(0, 4).map((e) => `${e.className || e.tagName}:${getComputedStyle(e).color}`));
 				const probe = document.createElement('i');
 				probe.style.color = 'var(--sfh-heading)';
@@ -666,6 +671,16 @@ if (shotsTo) {
 	const h = Math.max(...metas.map((m) => m.height));
 	const comps = shots.map((b, i) => ({ input: b, left: (i % 2) * (w + 8), top: Math.floor(i / 2) * (h + 8) }));
 	await sharp({ create: { width: 2 * w + 8, height: Math.ceil(shots.length / 2) * (h + 8), channels: 3, background: '#222' } }).composite(comps).png().toFile(`${shotsTo}/dnd5e-tabs.png`);
+	// the Adventurer's Journal, whole, on three of its pages
+	for (const t of ['actions', 'spells', 'inventory']) {
+		await page.evaluate(async (id) => {
+			game.settings.set(null, 'device', 'journal');
+			await new Promise((r) => setTimeout(r, 350));
+			document.querySelector(`#sfh-projection [data-act="tab"][data-k="${id}"]`).click();
+			await new Promise((r) => setTimeout(r, 200));
+		}, t);
+		await page.screenshot({ path: `${shotsTo}/dnd5e-journal-${t}.png` });
+	}
 }
 await browser.close();
 

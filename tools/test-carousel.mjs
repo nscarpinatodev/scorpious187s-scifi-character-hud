@@ -406,7 +406,7 @@ const results = await page.evaluate(async () => {
 	/* ---- it fits, on every device, and the projection clears it ---- */
 	SFH.store.sequences = false;
 	SFH.DeviceChrome.setPower(true, { silent: true });
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		game.settings.set(null, 'device', device);
 		await wait(300);
 		await draw();
@@ -488,7 +488,7 @@ const results = await page.evaluate(async () => {
 		const activeIndex = [...el().querySelector('.sfh-cards').children].findIndex((c) => c.classList.contains('active'));
 		check('centered, last turn: the mark to its right is the next round', markIndex > activeIndex && /Round 3/.test(el().querySelector('.sfh-next-round').textContent), [markIndex, activeIndex]);
 
-		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+		for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 			game.settings.set(null, 'device', device);
 			await wait(250);
 			await settled();
@@ -589,7 +589,7 @@ const results = await page.evaluate(async () => {
 
 if (shotsTo) {
 	const shots = [];
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		await page.evaluate(async (d) => {
 			setUser(true);
 			game.settings.set(null, 'device', d);

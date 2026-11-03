@@ -10,8 +10,28 @@ import { esc, lbl, pct } from './helpers.mjs';
  * a bezel and its own readout bays.
  */
 
+/**
+ * The Adventurer's Journal: the book the sheet is written in. The boards and pages stand
+ * behind the writing; the cover is a leaf hinged on the spine, which the power sequence
+ * swings open (design/1-head.html). At rest the book lies open and the leaf is put away.
+ */
+function journalBook(c) {
+	const rose = `<svg viewBox="-60 -60 120 120" aria-hidden="true"><g fill="none" stroke="#c9a227" stroke-width="1.5"><circle r="54"/><circle r="46" stroke-dasharray="2 4"/><circle r="12"/></g>
+		<g fill="#c9a227"><path d="M0 -52 L7 -7 L0 0 L-7 -7 Z"/><path d="M0 52 L7 7 L0 0 L-7 7 Z" opacity=".7"/><path d="M52 0 L7 7 L0 0 L7 -7 Z" opacity=".7"/><path d="M-52 0 L-7 7 L0 0 L-7 -7 Z" opacity=".7"/></g></svg>`;
+	return `<div class="jb">
+		<div class="jb-board l"></div><div class="jb-board r"></div>
+		<div class="jb-page l"></div><div class="jb-page r"></div>
+		<div class="jb-gutter"></div>
+		<div class="jb-leaf">
+			<div class="jb-front"><div class="jb-title">${rose}${esc(c?.name ?? '')}<small>${esc(game.i18n.localize('SFH.Projection.Journal.Cover'))}</small></div></div>
+			<div class="jb-back"></div>
+		</div>
+	</div>`;
+}
+
 /** Behind the panels, and outside the fold: housing that stays put. */
-export function ornBack(device) {
+export function ornBack(device, c) {
+	if (device === 'journal') return journalBook(c);
 	if (device === 'omni') {
 		return `<svg width="1280" height="740" viewBox="0 0 1280 740" style="position:absolute;inset:0" aria-hidden="true">
 			<defs><pattern id="sfh-hx" width="28" height="48.5" patternUnits="userSpaceOnUse">

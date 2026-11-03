@@ -53,7 +53,7 @@ const results = await page.evaluate(async () => {
 	};
 	const clear = () => !shown('#sfh-projection') && !shown('#sfh-device svg.sfh-art') && !shown('#sfh-beam');
 
-	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron']) {
+	for (const device of ['omni', 'wrist', 'gdi', 'nod', 'tron', 'journal']) {
 		game.settings.set(null, 'device', device);
 		await wait(100);
 		if (!hud.power) hud.setPower(true, { silent: true });

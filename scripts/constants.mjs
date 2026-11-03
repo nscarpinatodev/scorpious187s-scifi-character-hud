@@ -11,6 +11,9 @@ export const MOD = 'scorpious187s-scifi-character-hud';
  *               and the EVA console draw their housing around the projection instead.
  *  - `sequence` which power sequence plays.
  *  - `switch`   where the power control lives: on the device's own band, or on the macro bar.
+ *  - `projects` false for a device whose sheet is a thing in its own right, the Journal's
+ *               book: no beam reaches it from the device, and it takes the free room rather
+ *               than matching the plate's width.
  */
 export const DEVICES = {
 	omni: { id: 'omni', label: 'SFH.Device.Omni', hint: 'SFH.Device.OmniHint', art: 'arm', sequence: 'rise', switch: 'band' },
@@ -18,6 +21,7 @@ export const DEVICES = {
 	gdi: { id: 'gdi', label: 'SFH.Device.Gdi', hint: 'SFH.Device.GdiHint', art: null, sequence: 'crt', switch: 'bar' },
 	nod: { id: 'nod', label: 'SFH.Device.Nod', hint: 'SFH.Device.NodHint', art: null, sequence: 'crt', switch: 'bar' },
 	tron: { id: 'tron', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
+	journal: { id: 'journal', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'strap', sequence: 'book', switch: 'band', projects: false },
 };
 
 export const DEFAULT_DEVICE = 'omni';
@@ -56,6 +60,17 @@ export const KEYS = {
 
 /** Timings for the power sequences, in ms. Keep in step with styles/device.css. */
 export const SEQ = { on: 940, off: 780 };
+
+/**
+ * The sequences that run longer: the Journal rises, swings open and is written in, which
+ * takes longer than light coming on. Keep in step with design/1-head.html.
+ */
+const SEQ_LONG = { book: { on: 3900, off: 1350 } };
+
+/** How long a device's sequence runs, in ms. */
+export function seqMs(kind, deviceId) {
+	return SEQ_LONG[DEVICES[deviceId]?.sequence]?.[kind] ?? SEQ[kind];
+}
 
 /** Element ids this module owns. */
 export const EL = {

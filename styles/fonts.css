@@ -104,3 +104,54 @@
 	font-weight: 200 800;
 	font-display: swap;
 }
+
+/*
+ * The Adventurer's Journal: IM Fell English for its printed headings and the name on the
+ * page, EB Garamond for the writing, and Caveat for the notes in the margin. None reserves
+ * its name; they ship as their authors' own files.
+ */
+@font-face {
+	font-family: "IM Fell English";
+	src: url("../fonts/IMFellEnglish-Regular.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "IM Fell English";
+	src: url("../fonts/IMFellEnglish-Italic.ttf") format("truetype");
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "IM Fell English SC";
+	src: url("../fonts/IMFellEnglishSC-Regular.ttf") format("truetype");
+	font-weight: 400;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "EB Garamond";
+	src: url("../fonts/EBGaramond-Variable.ttf") format("truetype");
+	font-weight: 400 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "EB Garamond";
+	src: url("../fonts/EBGaramond-Italic-Variable.ttf") format("truetype");
+	font-weight: 400 800;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: Caveat;
+	src: url("../fonts/Caveat-Variable.ttf") format("truetype");
+	font-weight: 400 700;
+	font-display: swap;
+}

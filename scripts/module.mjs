@@ -1,4 +1,4 @@
-import { MOD, S, EL, SEQ, KEYS } from './constants.mjs';
+import { MOD, S, EL, KEYS, seqMs } from './constants.mjs';
 import { registerSettings, currentDevice } from './settings.mjs';
 import { DeviceChrome } from './device/chrome.mjs';
 import { Projection } from './projection/projection.mjs';
@@ -129,7 +129,7 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	if (!sequence) return Projection.close();
 	DeviceChrome.playSequence('off');
 	Projection.playSequence('off');
-	setTimeout(() => Projection.close(), SEQ.off);
+	setTimeout(() => Projection.close(), seqMs('off', currentDevice()));
 });
 
 /* The projection shows live data, so it follows the actor. */
