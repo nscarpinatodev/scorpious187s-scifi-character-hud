@@ -58,6 +58,7 @@ export class DeviceChrome {
 		document.body.dataset.sfhDevice = id;
 		document.body.dataset.sfhGrid = setting(S.grid);
 		document.body.dataset.sfhChat = setting(S.chatCards) ? 'on' : 'off';
+		document.body.dataset.sfhCalendaria = setting(S.calendaria) ? 'on' : 'off';
 		document.body.dataset.sfhPower = this.#power ? 'on' : 'off';
 		document.body.dataset.sfhHidden = this.#hidden ? 'on' : 'off';
 

@@ -257,14 +257,24 @@ function strikeRow(strike, index) {
 		${hands ? auxRow(strike, index) : ''}</div>`;
 }
 
+/** The sheet's sections, in its order, with the item types each holds (CharacterSheetPF2e#prepareInventory). */
+const SECTIONS = [
+	['PF2E.Actor.Inventory.Section.WeaponsAndShields', ['weapon', 'shield']],
+	['TYPES.Item.armor', ['armor']],
+	['TYPES.Item.equipment', ['equipment']],
+	['PF2E.Item.Consumable.Plural', ['consumable']],
+	['TYPES.Item.ammo', ['ammo']],
+	['TYPES.Item.treasure', ['treasure']],
+	['PF2E.Item.Container.Plural', ['backpack']],
+];
+
+const bySort = (a, b) => (a.sort || 0) - (b.sort || 0);
+
 function inventory(actor) {
-	const groups = new Map();
-	for (const item of actor.inventory ?? actor.items.filter((i) => i.isOfType?.('physical'))) {
-		const type = item.type === 'treasure' ? 'Treasure' : item.type === 'consumable' ? 'Consumables'
-			: item.type === 'weapon' ? 'Weapons' : item.type === 'armor' ? 'Armor' : 'Equipment';
-		if (!groups.has(type)) groups.set(type, []);
-		groups.get(type).push(item);
-	}
+	const items = [...(actor.inventory ?? actor.items.filter((i) => i.isOfType?.('physical')))].sort(bySort);
+	// what is in a container is listed inside it, as on the sheet; a type it has no section for goes with equipment
+	const sectionOf = (item) => SECTIONS.find(([, types]) => types.includes(item.type)) ?? SECTIONS[2];
+	const groups = SECTIONS.map(([label]) => [game.i18n.localize(label), items.filter((i) => !i.isInContainer && sectionOf(i)[0] === label)]);
 	const bulk = actor.inventory?.bulk;
 	const head = bulk
 		? `<div class="row sp">${lbl('Bulk')}<span class="mono">${bulk.value?.toString?.() ?? ''} · encumbered at ${bulk.encumberedAt ?? '—'} · max ${bulk.max ?? '—'}</span></div>`
@@ -274,15 +284,8 @@ function inventory(actor) {
 		? `<div class="row sp">${lbl('Invested')}<span class="mono"${invested.value > invested.max ? ' style="color:var(--bad)"' : ''}>${invested.value} / ${invested.max}</span></div>`
 		: '';
 	const others = tradePartners(actor);
-	const rows = [...groups].map(([name, items]) => `<div class="sec">${esc(name)}</div>` + items.map((item) => `<div class="li flat">
-		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
-		<span class="row" style="gap:3px">
-			${actBtn('−', 'qty', `${item.id}:-1`, { cls: 'sm' })}
-			<span class="mono" style="width:26px;text-align:center">${item.quantity ?? 1}</span>
-			${actBtn('+', 'qty', `${item.id}:1`, { cls: 'sm' })}
-		</span>
-		<span class="mono dimc" style="width:34px;text-align:right">${item.system?.bulk?.value ?? '—'}</span>
-		${useButton(item)}${investToggle(item)}${carryPicker(actor, item)}${givePicker(item, others)}</div>`).join('')).join('');
+	const rows = groups.filter(([, held]) => held.length)
+		.map(([name, held]) => `<div class="sec">${esc(name)}</div>` + held.map((item) => itemRow(actor, item, others)).join('')).join('');
 	// a quick search that adds from its results, and the system's own Compendium Browser for more
 	const search = `<div class="row sfh-browse">
 		<input class="sfh-in grow" type="search" data-browse="1" placeholder="Quick search: type to find equipment" aria-label="Quick search for equipment">
@@ -294,6 +297,46 @@ function inventory(actor) {
 		${actBtn('+', 'addCoins', '', { cls: 'sm', title: 'Add money' })}
 		${actBtn('−', 'removeCoins', '', { cls: 'sm', title: 'Remove money' })}</span></div>`;
 	return `${search}${head}${investedRow}${money}${rows}`;
+}
+
+function itemRow(actor, item, others, depth = 0) {
+	const box = item.type === 'backpack';
+	// the sheet will not change a container's quantity while something is in it
+	const fixed = box && item.contents?.size > 0;
+	const qty = fixed
+		? `<span class="mono" style="width:76px;text-align:center">${item.quantity ?? 1}</span>`
+		: `${actBtn('−', 'qty', `${item.id}:-1`, { cls: 'sm' })}
+			<span class="mono" style="width:26px;text-align:center">${item.quantity ?? 1}</span>
+			${actBtn('+', 'qty', `${item.id}:1`, { cls: 'sm' })}`;
+	const row = `<div class="li flat sfh-nest" style="--depth:${depth}">
+		${box ? openToggle(item) : ''}
+		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}${box ? capacity(item) : ''}</span>
+		<span class="row" style="gap:3px">${qty}</span>
+		<span class="mono dimc" style="width:34px;text-align:right">${item.system?.bulk?.value ?? '—'}</span>
+		${useButton(item)}${investToggle(item)}${carryPicker(actor, item)}${givePicker(item, others)}</div>`;
+	if (!box) return row;
+	/*
+	 * A container and what it holds are one list item, marked as the sheet marks it, so the
+	 * system puts anything dropped on either inside it, as it would on the sheet. The contents
+	 * are a list of their own, as there: a list item directly in another would end it.
+	 */
+	const inside = item.isCollapsed ? '' : [...(item.contents ?? [])].sort(bySort).map((i) => itemRow(actor, i, others, depth + 1)).join('');
+	return `<li class="sfh-box" data-item-id="${esc(item.id)}" data-is-container>${row}<ul class="sfh-box">${inside}</ul></li>`;
+}
+
+/** The sheet's box icon, open or shut, which shows or hides what is inside. */
+function openToggle(item) {
+	const open = !item.isCollapsed;
+	return `<button type="button" class="b sm ghost sfh-open" data-act="toggleContainer" data-k="${esc(item.id)}" aria-expanded="${open}"
+		aria-label="${esc(`${open ? 'Close' : 'Open'} ${item.name}`)}" data-tooltip="${esc(game.i18n.localize('PF2E.OpenItemTitle'))}"><i class="fa-solid fa-box${open ? '-open' : ''} fa-fw" inert></i></button>`;
+}
+
+/** How full a container is, as the sheet's capacity bar says it. */
+function capacity(item) {
+	const { value, max } = item.capacity ?? {};
+	if (!max) return '';
+	const over = (item.percentFull ?? 0) > 100;
+	return ` <span class="mono dimc sfh-cap"${over ? ' style="color:var(--bad)"' : ''} data-tooltip="${esc(game.i18n.localize('PF2E.CapacityBarLabel'))}">${esc(String(value))} / ${esc(String(max))}</span>`;
 }
 
 /** What each choice in the carry picker asks of the system. */
@@ -660,6 +703,8 @@ export async function act(actor, action, key, event) {
 		case 'addCoins': return pressSheetButton(actor, '[data-action="add-coins"]');
 		case 'removeCoins': return pressSheetButton(actor, '[data-action="remove-coins"]');
 		case 'invest': return actor.toggleInvested?.(key);
+		// the sheet's toggle-container: the container keeps whether it is open
+		case 'toggleContainer': return toggleContainer(actor, key);
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'delete': return actor.items.get(key)?.delete();
 		case 'cond': return setCondition(actor, a, Number(b));
@@ -954,6 +999,12 @@ async function setCarry(actor, id, choice) {
 	const change = CARRY[choice];
 	if (!item || !change || carryState(item) === choice) return;
 	return actor.changeCarryType(item, { handsHeld: 0, inSlot: false, ...change });
+}
+
+async function toggleContainer(actor, id) {
+	const item = actor.items.get(id);
+	if (item?.type !== 'backpack') return;
+	return item.update({ 'system.collapsed': !(item.system?.collapsed ?? false) });
 }
 
 async function changeQuantity(actor, id, delta) {

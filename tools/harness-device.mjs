@@ -164,6 +164,9 @@ const PF2E_WORDS = {
 	'PF2E.CarryType.implanted': 'Implanted', 'PF2E.CarryType.worn': 'Worn', 'PF2E.CarryType.stowed': 'Stowed',
 	'PF2E.CarryType.dropped': 'Dropped', 'PF2E.Item.Physical.Usage.WornSlot.armor': 'Armor',
 	'PF2E.Item.Physical.Usage.WornSlot.bracers': 'Bracers',
+	'PF2E.Actor.Inventory.Section.WeaponsAndShields': 'Weapons & Shields', 'TYPES.Item.armor': 'Armor', 'TYPES.Item.equipment': 'Equipment',
+	'PF2E.Item.Consumable.Plural': 'Consumables', 'TYPES.Item.ammo': 'Ammunition', 'TYPES.Item.treasure': 'Treasure',
+	'PF2E.Item.Container.Plural': 'Containers', 'PF2E.OpenItemTitle': 'Toggle Container Contents', 'PF2E.CapacityBarLabel': 'Capacity',
 	'COMBAT.Begin': 'Start Combat', 'COMBAT.NotStarted': 'Not Started', 'COMBAT.TurnEnd': 'End Turn',
 	'COMBAT.TurnNext': 'Next Turn', 'COMBAT.TurnPrev': 'Previous Turn', 'COMBAT.InitiativeRoll': 'Roll Initiative',
 };

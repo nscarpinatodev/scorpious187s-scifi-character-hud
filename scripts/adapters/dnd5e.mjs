@@ -293,7 +293,9 @@ function itemRow(actor, item, others, depth = 0) {
 			aria-label="${esc(`Attune ${item.name}`)}" data-tooltip="${esc(loc(sys.attuned ? 'DND5E.AttunementAttuned' : 'DND5E.Attunement'))}"><i class="fa-solid fa-sun" inert></i></button>`
 		: '';
 	const use = activitiesOf(item).length ? useButton(item) : '';
-	const row = `<div class="li flat sfh-nest" style="--depth:${depth}" ${ro(`item:${item.id}`)}>
+	// a container is marked as the sheet marks it, so what is dropped on it goes inside
+	const box = item.type === 'container' ? ` class="li flat sfh-nest container" data-item-id="${esc(item.id)}"` : ' class="li flat sfh-nest"';
+	const row = `<div${box} style="--depth:${depth}" ${ro(`item:${item.id}`)}>
 		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
 		<span class="row" style="gap:3px">
 			${actBtn('−', 'qty', `${item.id}:-1`, { cls: 'sm' })}

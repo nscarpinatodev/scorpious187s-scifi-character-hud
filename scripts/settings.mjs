@@ -96,6 +96,17 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		onChange: (v) => { document.body.dataset.sfhChat = v ? 'on' : 'off'; },
 	});
 
+	game.settings.register(MOD, S.calendaria, {
+		name: 'SFH.Settings.Calendaria',
+		hint: 'SFH.Settings.CalendariaHint',
+		scope: 'client',
+		// only worth offering where Calendaria is switched on
+		config: !!game.modules.get('calendaria')?.active,
+		type: Boolean,
+		default: true,
+		onChange: (v) => { document.body.dataset.sfhCalendaria = v ? 'on' : 'off'; },
+	});
+
 	game.settings.register(MOD, S.sceneBar, {
 		name: 'SFH.Settings.SceneBar',
 		hint: 'SFH.Settings.SceneBarHint',

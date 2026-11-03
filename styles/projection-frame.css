@@ -101,3 +101,44 @@ body[data-sfh-font-body] #sfh-projection .sfh-stage[data-device] {
 body[data-sfh-font-mono] #sfh-projection .sfh-stage[data-device] {
 	--mono: var(--sfh-font-mono), monospace;
 }
+
+/* ---------------------------------------------------------------- drops */
+/*
+ * Something dragged over the projection: the board is ringed in the device's color and says
+ * whose it will be, and a container under the pointer lights up as the one it goes into.
+ */
+#sfh-projection .sfh-board[data-drop]::before {
+	content: '';
+	position: absolute;
+	inset: -6px;
+	z-index: 40;
+	border: 2px dashed var(--sfh-hot);
+	box-shadow: 0 0 24px var(--sfh-glow), inset 0 0 24px color-mix(in srgb, var(--sfh-hot) 20%, transparent);
+	border-radius: var(--sfh-radius);
+	pointer-events: none;
+}
+
+#sfh-projection .sfh-board[data-drop]::after {
+	content: attr(data-drop);
+	position: absolute;
+	top: -18px;
+	left: 50%;
+	z-index: 41;
+	transform: translateX(-50%);
+	padding: 6px 18px;
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-hot);
+	box-shadow: 0 0 16px var(--sfh-glow);
+	color: var(--sfh-bright);
+	font: 600 20px/1 var(--sfh-display);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+#sfh-projection .sfh-drop-target {
+	outline: 2px solid var(--sfh-hot);
+	outline-offset: -2px;
+	background: color-mix(in srgb, var(--sfh-hot) 18%, transparent);
+}

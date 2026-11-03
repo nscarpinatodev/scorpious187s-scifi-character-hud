@@ -41,6 +41,13 @@ device, and the character sheet is a projection it raises over the canvas.
 - PF2e and SF2e: the whole Biography tab, editable by the character's owner: appearance, backstory,
   personality with edicts and anathema, and campaign notes, with Foundry's own rich text editor and
   the sheet's control over who may read each section.
+- Drops onto the projection: an item, spell, effect, condition or folder dragged from the
+  sidebar, a compendium or another sheet lands on the character as on its own sheet, and a
+  container under the drop takes it inside.
+- PF2e and SF2e inventory in the sheet's sections and order, with what is in a container
+  listed inside it, its capacity, and the sheet's box icon to open or close it.
+- Calendaria in the device's colors and fonts: its HUD, calendars and windows follow the
+  device, over the theme chosen in 3DS:ATLAS, which comes back when the setting is off.
 - A Scene bar style setting: the bar of scenes, or just the Scenes button that opens the drawer.
 - The carousel steps down below Calendaria's HUD when that is stuck at the top center, and
   follows it when it moves.

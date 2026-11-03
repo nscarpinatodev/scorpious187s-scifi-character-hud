@@ -10,12 +10,13 @@ changes during play. Anything that changes at level-up or character creation sta
 system's own sheet, which the book button opens.
 
 - [x] **Spell slots (5e)** — spend and regain from the Spells tab.
-- [ ] **Dropping onto the projection** — the Inventory tab's quick search adds items directly,
-      but one dragged out of the Compendium Browser has to land on the system's sheet: the
-      projection takes no drops.
+- [x] **Dropping onto the projection** — items, spells, effects, conditions and folders land
+      as they would on the system's sheet, and into a container dropped on, in every system.
+- [ ] **Dragging out of the projection** — its rows cannot be picked up, so an item already
+      carried cannot be dragged into a container, onto another sheet or onto the macro bar.
 - [ ] **Experience and level** — typed, like hit points.
 - [ ] **Item names, quantities and notes** — quantity and equipped are there; the rest is not.
-- [ ] **Biography** — currently read-only text; make it editable in place.
+- [x] **Biography** — the whole tab, editable in place, in every system.
 - [ ] **Right-click elsewhere** — the same editor pattern for any value with more behind it
       than one number (temporary hit points, shields, hero points).
 
@@ -40,9 +41,9 @@ system's own sheet, which the book button opens.
 `styles/interface.css` gives the interface the device's colors, edges and glow. Each panel still
 needs its own pass — that gets the colors right, not the shape.
 
-- [ ] **Chat** — message frames, whispers, rolls and dice results, the roll-mode picker and the
-      chat input. Roll results are the panel players look at most; they should read like the
-      device's own readout.
+- [ ] **Chat** — message frames, whispers, dice totals, 5e's cards and the chat input are in the
+      device's colors. Left: the roll-mode picker and the controls around the input, and a
+      shape pass so roll results read like the device's own readout.
 - [ ] **Actors, Items, Journal, Tables, Cards, Playlists directories** — folder rows, entry rows,
       the search box and the create buttons.
 - [ ] **Compendium** — pack rows and the pack browser.
@@ -56,5 +57,19 @@ needs its own pass — that gets the colors right, not the shape.
 - [ ] **Compact layout** — the projection's panels rearranged below a width threshold.
 - [ ] **Per-character device** — a character can carry its own device choice in an actor
       flag, overriding the player's.
-- [ ] **Scene controls and scene bar shapes** — recolored, and the controls have sci-fi
-      icons; the mock-up's cut corners and station look are not applied.
+- [ ] **Scene controls and the Token HUD** — recolored, and the controls have sci-fi icons; the
+      mock-up's cut corners and station look are not applied. (The scene list is now the
+      module's own scene bar.)
+
+## Loose ends
+
+- [ ] **Stylesheets loaded twice** — `ensureStyles` loads the stylesheets Foundry's own
+      `@import`s already bring in.
+- [ ] **PF2e skill descriptions** — 5e skills and tools show their rules text in the readout;
+      PF2e and SF2e skills show only their name.
+- [ ] **The rest of 5e's Favorites** — items, spells and features can be favorited; the sheet
+      also favorites skills, tools and activities.
+- [ ] **Creating and deleting items** — the projection adds items from the quick search but has
+      no blank create, and no delete.
+- [ ] **Calendaria's dome** — the sky above its HUD is drawn by Calendaria in its own colors and
+      is not in the device's.

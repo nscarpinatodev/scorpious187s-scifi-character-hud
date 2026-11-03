@@ -607,3 +607,90 @@ body[data-sfh-device] #chat-message:focus {
 	border-color: var(--sfh-hot);
 	box-shadow: 0 0 12px var(--sfh-glow);
 }
+
+/* ---------------------------------------------------------------- calendaria */
+/*
+ * Calendaria takes its colors from 3DS:ATLAS, which writes the chosen theme as --atlas-*
+ * variables on `.calendaria`. Setting the same variables here, more specifically, puts its HUD,
+ * calendars and windows in the device's colors and follows the device when it changes. Atlas's
+ * own choice is untouched, and comes back when the setting is off. Atlas works some of these
+ * out from the others; color-mix does the same here.
+ */
+body[data-sfh-device][data-sfh-calendaria="on"] .calendaria {
+	--sfh-cal-bg: rgb(var(--sfh-bg-rgb));
+	--sfh-cal-lighter: color-mix(in srgb, var(--sfh-hot) 7%, var(--sfh-cal-bg));
+	--atlas-bg: var(--sfh-cal-bg);
+	--atlas-bg-lighter: var(--sfh-cal-lighter);
+	--atlas-bg-hover: color-mix(in srgb, var(--sfh-hot) 16%, var(--sfh-cal-bg));
+	--atlas-border: var(--sfh-line);
+	--atlas-border-light: var(--sfh-line-2);
+	--atlas-divider: var(--sfh-line-2);
+	--atlas-input-bg: var(--sfh-cell);
+	--atlas-text: var(--sfh-text);
+	--atlas-text-dim: var(--sfh-dim);
+	--atlas-text-muted: var(--sfh-dim);
+	--atlas-text-secondary: var(--sfh-dim);
+	--atlas-text-heading: var(--sfh-heading);
+	--atlas-title-text: var(--sfh-heading);
+	--atlas-weekday-header: var(--sfh-heading);
+	--atlas-rest-day: var(--sfh-dim);
+	--atlas-button-bg: var(--sfh-cell);
+	--atlas-button-text: var(--sfh-text);
+	--atlas-button-border: var(--sfh-line);
+	--atlas-button-hover: color-mix(in srgb, var(--sfh-hot) 16%, var(--sfh-cal-bg));
+	--atlas-primary: var(--sfh-hot);
+	--atlas-primary-hover: var(--sfh-bright);
+	--atlas-selected-bg: color-mix(in srgb, var(--sfh-hot) 15%, transparent);
+	--atlas-link: var(--sfh-hot);
+	--atlas-accent: var(--sfh-acc);
+	--atlas-today: var(--sfh-acc);
+	--atlas-highlight-bg: color-mix(in srgb, var(--sfh-acc) 20%, transparent);
+	--atlas-current-hour: color-mix(in srgb, var(--sfh-acc) 12%, transparent);
+	--atlas-callout-border: var(--sfh-acc);
+	--atlas-callout-text: var(--sfh-acc);
+	--atlas-callout-bg: color-mix(in srgb, var(--sfh-acc) 15%, transparent);
+	--atlas-error: var(--sfh-bad);
+	--atlas-error-bg: color-mix(in srgb, var(--sfh-bad) 15%, transparent);
+	--atlas-warning: #ffc84a;
+	--atlas-success: #4bd67a;
+	--atlas-positive-bg: rgb(75 214 122 / 20%);
+	--atlas-shadow-color: color-mix(in srgb, var(--sfh-hot) 30%, transparent);
+	--atlas-shadow-light: rgb(0 0 0 / 20%);
+	--atlas-overlay-color: rgb(0 0 0 / 50%);
+	--atlas-surface-dim: var(--sfh-cal-lighter);
+	--atlas-surface-dim-10: color-mix(in srgb, var(--sfh-cal-lighter) 10%, transparent);
+	--atlas-surface-dim-25: color-mix(in srgb, var(--sfh-cal-lighter) 25%, transparent);
+	--atlas-surface-dim-50: color-mix(in srgb, var(--sfh-cal-lighter) 50%, transparent);
+	--atlas-surface-dim-75: color-mix(in srgb, var(--sfh-cal-lighter) 75%, transparent);
+	/* every device's main color is a bright one, so text laid on a color is dark */
+	--atlas-text-on-color: var(--sfh-cal-bg);
+	--atlas-text-shadow-on-color: rgb(255 255 255 / 45%);
+	--calendaria-highlight: var(--sfh-hover);
+	--color-scrollbar: var(--sfh-line);
+	--font-primary: var(--sfh-face);
+	--font-body: var(--sfh-face);
+	color-scheme: dark;
+}
+
+body[data-sfh-device][data-sfh-calendaria="on"] .calendaria-hud .bar {
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 12px var(--atlas-shadow-color);
+}
+
+body[data-sfh-device][data-sfh-calendaria="on"] .calendaria-hud .time {
+	font-family: var(--sfh-mono);
+	text-shadow: 0 0 8px var(--sfh-glow);
+}
+
+body[data-sfh-device][data-sfh-calendaria="on"] .calendaria-hud .tray {
+	border-radius: 0 0 var(--sfh-radius) var(--sfh-radius);
+}
+
+body[data-sfh-device][data-sfh-calendaria="on"] .calendaria-hud .bar-wrapper.tray-up .tray {
+	border-radius: var(--sfh-radius) var(--sfh-radius) 0 0;
+}
+
+/* VT323 is drawn small for its size; this brings the wrist computer's clock up to the others' */
+body[data-sfh-device="wrist"][data-sfh-calendaria="on"] .calendaria-hud .time {
+	font-size-adjust: 0.52;
+}

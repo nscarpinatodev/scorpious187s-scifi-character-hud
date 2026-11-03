@@ -49,6 +49,8 @@
 	"SFH.Device.TronHint": "Light lines on black, rezzed up from the disc you carry",
 	"SFH.Settings.ChatCards": "Chat cards in the device's colors",
 	"SFH.Settings.ChatCardsHint": "Draws chat messages and roll results on the device's panels instead of Foundry's parchment. Turn it off if a game system's or module's cards are hard to read this way.",
+	"SFH.Settings.Calendaria": "Calendaria in the device's colors",
+	"SFH.Settings.CalendariaHint": "Draws Calendaria's HUD, calendars and windows in the device's colors and fonts, and follows the device when it changes. Turn it off to use the theme chosen in 3DS:ATLAS's 3DS Themes instead.",
 	"SFH.Settings.HeadingColor": "Heading color",
 	"SFH.Settings.HeadingColorHint": "The color of the headings in the sidebar and the rest of the interface. Leave it empty for the main color of whichever device you are wearing. A color chosen here stays when you change device.",
 	"SFH.Settings.Carousel": "Carousel combat tracker",
@@ -124,5 +126,6 @@
 	"SFH.Settings.SceneBarStyleButton": "Just the Scenes button",
 	"SFH.Scenes.InNavigation": "In navigation",
 	"SFH.Scenes.IntoNavigation": "Show players",
-	"SFH.Scenes.OutOfNavigation": "Hide from players"
+	"SFH.Scenes.OutOfNavigation": "Hide from players",
+	"SFH.Projection.Drop": "Drop to add to {name}"
 }

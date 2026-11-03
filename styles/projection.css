@@ -197,6 +197,10 @@
 #sfh-projection .sfh-feat.empty .grow{color:var(--dim);font-style:italic}
 /* 5e: what is inside a container, a section's spell slots, and the coin boxes */
 #sfh-projection .sfh-nest{margin-left:calc(var(--depth,0)*18px)}
+#sfh-projection .sfh-box{display:block;list-style:none;margin:0;padding:0}
+#sfh-projection .sfh-box .sfh-nest{margin-left:calc(var(--depth,0)*28px)}
+#sfh-projection .sfh-cap{font-size:11px;margin-left:6px;white-space:nowrap}
+#sfh-projection .b.sfh-open{padding:2px 5px;min-width:0}
 #sfh-projection .sfh-pips{order:1;flex:none;display:flex;gap:3px;width:auto}
 #sfh-projection .sfh-pips .seg{width:14px;height:14px;flex:none}
 #sfh-projection .sfh-action>.sfh-pips{margin-left:auto}

@@ -302,6 +302,35 @@ const results = await page.evaluate(async () => {
 	const nested = row('Rations');
 	check('what is in a container sits under it', parseFloat(nested.style.getPropertyValue('--depth')) === 1 && row('Backpack').compareDocumentPosition(nested) === Node.DOCUMENT_POSITION_FOLLOWING);
 	check('and only there', [...body().querySelectorAll('.li')].filter((l) => l.textContent.includes('Rations')).length === 1);
+	{
+		// 5e's sheet looks for a container under the drop as `.container[data-item-id]`, and makes a
+		// dropped spell a scroll when its own tab is the inventory
+		const seen = [];
+		actor.sheet = {
+			rendered: false,
+			tabGroups: { primary: 'details' },
+			_onDragOver() {},
+			async _onDrop(event) { seen.push({ into: event.target.closest('.container[data-item-id]')?.dataset.itemId ?? null, tab: this.tabGroups.primary }); },
+		};
+		const drag = (type, target) => {
+			const dataTransfer = new DataTransfer();
+			dataTransfer.setData('text/plain', JSON.stringify({ type: 'Item', uuid: 'Compendium.items.rope' }));
+			const event = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer });
+			target.dispatchEvent(event);
+			return event;
+		};
+		const into = row('Backpack').querySelector('.grow');
+		drag('dragover', into);
+		check('a container under the drag lights up', row('Backpack').classList.contains('sfh-drop-target'));
+		drag('drop', into);
+		await wait(30);
+		check('a drop on a container goes into it, as on the sheet', seen.at(-1)?.into === 'pack', seen.at(-1));
+		check('and the sheet is on its inventory while it decides', seen.at(-1)?.tab === 'inventory' && actor.sheet.tabGroups.primary === 'details', [seen.at(-1), actor.sheet.tabGroups.primary]);
+		drag('drop', row('Rations').querySelector('.grow'));
+		await wait(30);
+		check('elsewhere, it goes in loose', seen.at(-1)?.into === null, seen.at(-1));
+		check('nothing stays lit', !document.querySelector('.sfh-drop-target'));
+	}
 	check('encumbrance and attunement show', /42\.5 \/ 150 lb/.test(body().textContent) && /1 \/ 3/.test(body().textContent));
 	await press('[data-act="qty"][data-k="potion:1"]');
 	check('quantity changes', last()[1] === 'potion' && last()[2]['system.quantity'] === 3, last());

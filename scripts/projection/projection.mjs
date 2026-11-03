@@ -36,6 +36,8 @@ export class Projection {
 	static #renders = 0;
 	/** A redraw held back while someone is typing in the main panel. */
 	static #redrawLater = false;
+	/** Closed sheets shown the projection's tab while a drop is decided, with their own to go back to. */
+	static #lent = new WeakMap();
 	/** What the last fit() measured and decided. */
 	static lastFit = null;
 
@@ -803,5 +805,105 @@ export class Projection {
 		el.addEventListener('focusin', (event) => {
 			if (event.target.matches(':focus-visible')) this.#show(event.target.closest('[data-ro]')?.dataset.ro);
 		});
+
+		// things dragged in from the sidebar, a compendium or another sheet
+		el.addEventListener('dragover', (event) => this.#dragOver(event));
+		el.addEventListener('dragleave', (event) => {
+			if (!el.contains(event.relatedTarget)) this.#dragEnd();
+		});
+		el.addEventListener('drop', (event) => this.#drop(event));
+		document.addEventListener('dragend', () => this.#dragEnd());
+	}
+
+	/* -------------------------------------------- */
+	/*  Drops                                        */
+	/* -------------------------------------------- */
+
+	/**
+	 * Whether a drag over the projection is one for the character to take. A text field or an
+	 * editor takes its own drops, as a link or text; anything else Foundry drags carries its
+	 * data as text, and only someone who may change the character can drop on it.
+	 */
+	static #takes(event) {
+		const actor = this.actor();
+		if (!actor?.isOwner || !event.dataTransfer?.types.includes('text/plain')) return null;
+		if (event.target.closest?.('input, textarea, prose-mirror, [contenteditable="true"]')) return null;
+		return actor;
+	}
+
+	static #dragOver(event) {
+		const actor = this.#takes(event);
+		if (!actor) return;
+		event.preventDefault();
+		// the sheet works out a copy or a move from where the drag began, as it would over itself
+		try {
+			actor.sheet?._onDragOver?.(event);
+		} catch (err) {
+			console.debug(`${MOD} | the sheet could not judge the drag`, err);
+		}
+		if (event.dataTransfer.dropEffect === 'none') event.dataTransfer.dropEffect = 'copy';
+		const board = this.element?.querySelector('.sfh-board');
+		if (board && !board.dataset.drop) board.dataset.drop = game.i18n.format('SFH.Projection.Drop', { name: actor.name });
+		// a container, as each system's sheet finds the one under a drop: 5e's row, or PF2e's list item around it and its contents
+		const target = event.target.closest?.('.container[data-item-id], [data-is-container]') ?? null;
+		for (const row of this.element.querySelectorAll('.sfh-drop-target')) if (row !== target) row.classList.remove('sfh-drop-target');
+		target?.classList.add('sfh-drop-target');
+	}
+
+	static #dragEnd() {
+		const el = this.element;
+		if (!el) return;
+		delete el.querySelector('.sfh-board')?.dataset.drop;
+		for (const row of el.querySelectorAll('.sfh-drop-target')) row.classList.remove('sfh-drop-target');
+	}
+
+	/**
+	 * A drop goes to the character's own sheet, open or not, so it lands exactly as it would
+	 * there: an item copied in or moved from another character, a spell, a condition or an
+	 * effect at its level, a folder of items, a feat with its choices, a class with its
+	 * advancement. Where on the sheet it was dropped can matter — a spell dropped on the
+	 * inventory becomes a scroll — so a closed sheet is shown the projection's tab while it
+	 * decides.
+	 */
+	static async #drop(event) {
+		const actor = this.#takes(event);
+		this.#dragEnd();
+		if (!actor) return;
+		event.preventDefault();
+		const sheet = actor.sheet;
+		if (!sheet?._onDrop) return;
+		const restore = this.#lendTab(sheet);
+		try {
+			await sheet._onDrop(event);
+		} catch (err) {
+			console.error(`${MOD} | the drop failed`, err);
+			ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action: 'drop' }));
+		} finally {
+			restore();
+		}
+	}
+
+	/**
+	 * Point a closed sheet at the projection's tab, and hand back what puts it back. Drops can
+	 * overlap, so the sheet's own tab is kept from the first until the last is done.
+	 */
+	static #lendTab(sheet) {
+		const tab = this.#tab;
+		if (!tab || sheet.rendered) return () => {};
+		// ApplicationV2 sheets keep their tabs in groups; the older kind in a list of Tabs
+		const [holder, key] = sheet.tabGroups && 'primary' in sheet.tabGroups ? [sheet.tabGroups, 'primary']
+			: sheet._tabs?.[0] && 'active' in sheet._tabs[0] ? [sheet._tabs[0], 'active']
+			: [null, null];
+		if (!holder) return () => {};
+		const lent = this.#lent.get(sheet) ?? { own: holder[key], count: 0 };
+		lent.count += 1;
+		this.#lent.set(sheet, lent);
+		holder[key] = tab;
+		return () => {
+			lent.count -= 1;
+			if (lent.count) return;
+			holder[key] = lent.own;
+			this.#lent.delete(sheet);
+		};
 	}
 }
