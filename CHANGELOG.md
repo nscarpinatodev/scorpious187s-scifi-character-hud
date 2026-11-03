@@ -48,6 +48,10 @@ device, and the character sheet is a projection it raises over the canvas.
   Cinzel and Alegreya ship with the module for it.
 - The rich-text editor's toolbar stays on one row: on a narrow page its buttons are smaller,
   and shrink further until they fit.
+- The Journal is written in spilled ink: once the cover is open, a ragged front of wet ink
+  runs across both pages from the fore-edge, and the words dry out of the stain behind it.
+- The Vambrace's gem sits lower in the bracer, so none of it is cut off by the edge of the
+  screen, and a clicked switch no longer keeps a focus box around it.
 - The Adventurer's Journal, the first fantasy device, for 5e, PF2e and SF2e alike. The sheet
   is a leather journal opened across the table: the main body on the left page, everything
   else kept as notes on the right, the readout on a card taped into the page, and index tabs

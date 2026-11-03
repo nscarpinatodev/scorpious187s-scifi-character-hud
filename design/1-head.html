@@ -522,8 +522,18 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 @keyframes jbOpen{0%,34%{visibility:visible;transform:none}99%{visibility:visible;transform:rotateY(-180deg)}to{visibility:hidden;transform:rotateY(-180deg)}}
 .seq-on.t-journal :is(.jb-page.l,.jb-board.l){animation:jbAfter 1.9s step-end both}
 @keyframes jbAfter{from{visibility:hidden}to{visibility:visible}}
-.seq-on.t-journal .slot,.seq-on.t-journal .navb{animation:jbInk .8s steps(16,end) backwards;animation-delay:calc(1.9s + var(--d,0ms) * 2.4)}
-@keyframes jbInk{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
+/* then ink spills across the spread from the fore-edge: a ragged front with fingers running
+   ahead along the lines, a dark wet stain on it, and the words drying out of the stain behind.
+   One mask, three spreads wide (written, the front, bare), slides over the book; each panel's
+   copy is laid against the book (--jx, --jy from projection.mjs) so they share the one front.
+   The stain's mask is the same front, cut away where the words already are. */
+.t-journal{--jb-words:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cfilter id='i' filterUnits='userSpaceOnUse' x='-60' y='-60' width='420' height='220'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .14' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='.5'/%3E%3C/filter%3E%3Cpath d='M-60-60H168L120 160H-60Z' filter='url(%23i)'/%3E%3C/svg%3E");
+  --jb-stain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cfilter id='i' filterUnits='userSpaceOnUse' x='-60' y='-60' width='420' height='220'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .14' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='.5'/%3E%3C/filter%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='140' x2='192'%3E%3Cstop offset='0' stop-opacity='0'/%3E%3Cstop offset='.7' stop-opacity='.9'/%3E%3Cstop offset='1'/%3E%3C/linearGradient%3E%3Cmask id='m' maskUnits='userSpaceOnUse' x='-60' y='-60' width='420' height='220'%3E%3Crect x='-60' y='-60' width='420' height='220' fill='%23fff'/%3E%3Cpath d='M-60-60H168L120 160H-60Z' filter='url(%23i)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Cpath d='M-60-60H194L146 160H-60Z' fill='url(%23g)' filter='url(%23i)'/%3E%3C/g%3E%3C/svg%3E")}
+.jb-ink{position:absolute;inset:0;pointer-events:none;opacity:0;background:#1c1009}
+.seq-on.t-journal .jb-ink{opacity:.85;-webkit-mask:var(--jb-stain) -120px 0/3600px 800px no-repeat;mask:var(--jb-stain) -120px 0/3600px 800px no-repeat;animation:jbStain 1.75s cubic-bezier(.3,.55,.4,1) 1.9s backwards}
+@keyframes jbStain{from{-webkit-mask-position:-2520px 0;mask-position:-2520px 0}to{-webkit-mask-position:-120px 0;mask-position:-120px 0}}
+.seq-on.t-journal .slot,.seq-on.t-journal .navb{-webkit-mask:var(--jb-words) calc(var(--jx,0px) - 120px) var(--jy,0px)/3600px 800px repeat-y;mask:var(--jb-words) calc(var(--jx,0px) - 120px) var(--jy,0px)/3600px 800px repeat-y;animation:jbInk 1.75s cubic-bezier(.3,.55,.4,1) 1.9s backwards}
+@keyframes jbInk{from{-webkit-mask-position:calc(var(--jx,0px) - 2520px) var(--jy,0px);mask-position:calc(var(--jx,0px) - 2520px) var(--jy,0px)}to{-webkit-mask-position:calc(var(--jx,0px) - 120px) var(--jy,0px);mask-position:calc(var(--jx,0px) - 120px) var(--jy,0px)}}
 .seq-off.t-journal .slot,.seq-off.t-journal .navb{animation:jbFade .2s ease-in forwards}
 @keyframes jbFade{to{opacity:0}}
 .seq-off.t-journal :is(.jb-page.l,.jb-board.l){visibility:hidden}

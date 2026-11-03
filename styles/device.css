@@ -204,9 +204,12 @@ body[data-sfh-device][data-sfh-font-mono] {
 	pointer-events: none;
 }
 
+/* no box outline once it has been clicked: the art is cut to the frame, and a box around the
+   switch is cut with it. Keyboard focus brightens it instead (below). */
 #sfh-band {
 	pointer-events: auto;
 	cursor: var(--cursor-pointer, pointer);
+	outline: none;
 }
 
 #sfh-band:hover,

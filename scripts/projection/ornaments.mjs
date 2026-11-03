@@ -22,6 +22,7 @@ function journalBook(c) {
 		<div class="jb-board l"></div><div class="jb-board r"></div>
 		<div class="jb-page l"></div><div class="jb-page r"></div>
 		<div class="jb-gutter"></div>
+		<div class="jb-ink"></div>
 		<div class="jb-leaf">
 			<div class="jb-front"><div class="jb-title">${rose}${esc(c?.name ?? '')}<small>${esc(game.i18n.localize('SFH.Projection.Journal.Cover'))}</small></div></div>
 			<div class="jb-back"></div>

@@ -548,6 +548,21 @@ export class Projection {
 			el.style.setProperty('--d', `${200 + i * 26}ms`);
 			el.style.setProperty('--dr', `${i * 14}ms`);
 		});
+		// the Journal's ink runs across the whole spread at once: each panel's mask is laid
+		// against the book, not against the panel, so they share the one front
+		const book = stage.querySelector('.jb');
+		if (!book) return;
+		// from their styles, not their layout: the stage may not be on screen yet when it is drawn
+		const at = (el) => {
+			const { left, top } = getComputedStyle(el);
+			return [parseFloat(left) || 0, parseFloat(top) || 0];
+		};
+		const [bx, by] = at(book);
+		for (const el of stage.querySelectorAll('[data-slot], .navb')) {
+			const [x, y] = at(el);
+			el.style.setProperty('--jx', `${bx - x}px`);
+			el.style.setProperty('--jy', `${by - y}px`);
+		}
 	}
 
 	/** The mock-up's sequences are written against classes on the stage element. */

@@ -130,10 +130,10 @@ export const BRACER = {
 	<path d="M312 768 C 470 757 810 757 968 768" fill="none" stroke="#6b768c" stroke-width="1"/>
 	<path d="M306 792 C 470 781 810 781 974 792" fill="none" stroke="#0a0c12" stroke-width="2"/>
 	<g class="sfh-runes" fill="none" stroke-width="2.2" stroke-linecap="round">${runes}</g>
-	<circle class="sfh-gem-glow" cx="640" cy="754" r="30" fill="#7ab8ff" filter="url(#sfh-gemglow)"/>
+	<circle class="sfh-gem-glow" cx="640" cy="770" r="26" fill="#7ab8ff" filter="url(#sfh-gemglow)"/>
 	<g id="sfh-band" role="button" tabindex="0" aria-label="SFH.Power.Toggle">
-		<rect x="614" y="728" width="52" height="52" rx="6" transform="rotate(45 640 754)" fill="#2a3142" stroke="#59647a" stroke-width="3"/>
-		<rect class="sfh-gem" x="621" y="735" width="38" height="38" rx="5" transform="rotate(45 640 754)" fill="url(#sfh-gem-dark)" stroke="#8fa3c4" stroke-width="2"/>
+		<rect x="617" y="747" width="46" height="46" rx="6" transform="rotate(45 640 770)" fill="#2a3142" stroke="#59647a" stroke-width="3"/>
+		<rect class="sfh-gem" x="623" y="753" width="34" height="34" rx="5" transform="rotate(45 640 770)" fill="url(#sfh-gem-dark)" stroke="#8fa3c4" stroke-width="2"/>
 	</g>`,
 };
 
