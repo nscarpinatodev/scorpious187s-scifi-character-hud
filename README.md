@@ -113,6 +113,9 @@ one character and have none assigned, it shows that one.
   spend and restore, preparing spells, equipping and attuning, typed coins, quick search with Add
   and Buy, an editable Biography and the latest-roll strip. Giving an item to a character you do not
   own goes through the GM's client, so a GM has to be online.
+- **A scene bar** in place of Foundry's scene list: the scenes in navigation across the top left,
+  a drawer of every scene by folder with a search, and a preview of each one with Preload,
+  Activate, Pull all and the rest. It keeps clear of Calendaria's HUD at the top center.
 - **A carousel combat tracker**, if you turn it on: the turn order as a row of portraits across
   the top of the screen, in your device's style, with the current turn on the left or centered, as
   you choose. Hover to light a token, click to pan to it, double-click for its sheet, right-click

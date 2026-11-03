@@ -541,6 +541,8 @@ export class Projection {
 	static #entry(actor) {
 		const key = this.#showing;
 		if (!key) return null;
+		const own = getAdapter()?.readoutEntry?.(actor, key);
+		if (own) return { ...own, html: this.#described.key === key ? this.#described.html : '' };
 		const [kind, id] = key.split(':');
 		if (kind === 'item' || kind === 'effect' || kind === 'strike') {
 			const doc = this.#documentFor(actor, key);
@@ -589,13 +591,15 @@ export class Projection {
 		const key = this.#showing;
 		const actor = this.actor();
 		const doc = key && actor ? this.#documentFor(actor, key) : null;
-		if (!doc) return;
+		const adapter = getAdapter();
+		const own = !doc && key && actor && adapter?.readoutEntry?.(actor, key);
+		if (!doc && !own) return;
 		const token = ++this.#descriptions;
 		let html;
 		try {
-			html = await this.#describe(doc);
+			html = doc ? await this.#describe(doc) : await adapter.describeEntry?.(actor, key) ?? '';
 		} catch (err) {
-			console.error(`${MOD} | the description of "${doc.name}" could not be read`, err);
+			console.error(`${MOD} | the description of "${doc?.name ?? own.name}" could not be read`, err);
 			html = '<p class="dimc">This description could not be read. See the console for details.</p>';
 		}
 		if (token !== this.#descriptions) return;

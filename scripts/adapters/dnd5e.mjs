@@ -29,6 +29,9 @@ const activitiesOf = (item) => [...(item.system?.activities ?? [])];
 /** How long using it takes: its first activity's, which is what the sheet files it under. */
 const activationOf = (item) => activitiesOf(item)[0]?.activation?.type ?? item.system?.activation?.type ?? '';
 
+/** What 5e's labels call the damage, which is a list of parts, each with its own label. */
+const damageText = (labels) => [...(labels?.damages ?? [])].map((part) => part.label ?? part.formula).filter(Boolean).join(' + ');
+
 const glyphFor = (type) => COST_GLYPH[{ action: 'A', bonus: 'B', reaction: 'R' }[type]] ?? '';
 
 /* -------------------------------------------- */
@@ -163,9 +166,9 @@ function details(actor) {
 	const rows = (group, labelOf, act) => Object.entries(sys[group] ?? {})
 		.map(([key, s]) => ({ key, s, label: labelOf(key) }))
 		.sort(byLabel)
-		.map(({ key, s, label }) => `<div class="li flat" style="min-height:32px">
+		.map(({ key, s, label }) => `<div class="li flat" style="min-height:32px" ${ro(`${act}:${key}`)}>
 			${proficiencyPicker(`${group}.${key}`, s.value ?? 0, label)}
-			<span class="grow">${nameBtn(label, `skill:${label}`)}</span>
+			<span class="grow">${nameBtn(label, `${act}:${key}`)}</span>
 			<span class="mono dimc" style="width:30px">${esc(String(s.ability ?? '').toUpperCase())}</span>
 			${rollBtn(sgn(s.total ?? 0), act, key)}</div>`).join('');
 	const skills = rows('skills', (key) => loc(CONFIG.DND5E?.skills?.[key]?.label ?? key), 'skill');
@@ -211,7 +214,7 @@ const isActive = (item) => activitiesOf(item).length > 0 && !item.system?.proper
 function attackRow(item) {
 	const attack = item.system?.activities?.getByType?.('attack')?.[0];
 	const toHit = parseInt(item.labels?.modifier);
-	const facts = [item.labels?.range, attack?.labels?.damage ?? item.labels?.damage].filter(Boolean).join(' · ');
+	const facts = [item.labels?.range, damageText(item.labels) || damageText(attack?.labels)].filter(Boolean).join(' · ');
 	const buttons = attack
 		? `${actBtn(Number.isNaN(toHit) ? 'Attack' : sgn(toHit), 'attack', item.id, { cls: 'roll', title: 'Attack' })}${actBtn('Damage', 'weaponDamage', item.id, { cls: 'sm ghost' })}`
 		: useButton(item);
@@ -230,7 +233,7 @@ function favoriteRow(actor, { type, id }) {
 		const entry = actor.system?.[`${type}s`]?.[id];
 		if (!entry) return '';
 		const label = type === 'skill' ? loc(CONFIG.DND5E?.skills?.[id]?.label ?? id) : traitLabel(id, 'tool');
-		return row(`skill:${label}`, '', label, rollBtn(sgn(entry.total ?? 0), type, id));
+		return row(`${type}:${id}`, '', label, rollBtn(sgn(entry.total ?? 0), type, id));
 	}
 	if (type === 'slots') {
 		const label = CONFIG.DND5E?.spellLevels?.[actor.system?.spells?.[id]?.level] ?? id;
@@ -592,10 +595,58 @@ export function readoutMeta(doc) {
 	}
 	const rows = [
 		['Level', labels.level], ['School', labels.school], ['Time', labels.activation], ['Range', labels.range], ['Target', labels.target],
-		['Duration', labels.duration], ['Components', labels.components?.vsm], ['To hit', labels.modifier], ['Damage', labels.damage], ['Save', labels.save],
+		['Duration', labels.duration], ['Components', labels.components?.vsm], ['To hit', labels.modifier], ['Damage', damageText(labels)], ['Save', labels.save],
 	];
-	for (const [label, value] of rows) if (value) meta.push([label, String(value)]);
+	// a label that is not plain text has no place on this list
+	for (const [label, value] of rows) if (value && typeof value !== 'object') meta.push([label, String(value)]);
 	return meta;
+}
+
+/** A skill or tool the character has: what the readout shows in place of a document. */
+function skillOrTool(actor, key) {
+	const [kind, id] = key.split(':');
+	const entry = kind === 'skill' ? actor.system?.skills?.[id] : kind === 'tool' ? actor.system?.tools?.[id] : null;
+	return entry ? { kind, id, entry } : null;
+}
+
+/** A skill or tool in the readout: its name and its numbers. Its description comes from describeEntry. */
+export function readoutEntry(actor, key) {
+	const found = skillOrTool(actor, key);
+	if (!found) return null;
+	const { kind, id, entry } = found;
+	const ability = CONFIG.DND5E?.abilities?.[entry.ability]?.label;
+	const proficiency = CONFIG.DND5E?.proficiencyLevels?.[entry.value];
+	const meta = [
+		ability ? ['Ability', loc(ability)] : null,
+		['Bonus', sgn(entry.total ?? 0)],
+		entry.passive != null ? ['Passive', String(entry.passive)] : null,
+		proficiency ? ['Proficiency', loc(proficiency)] : null,
+	].filter(Boolean);
+	return {
+		name: kind === 'skill' ? loc(CONFIG.DND5E?.skills?.[id]?.label ?? id) : traitLabel(id, 'tool'),
+		kind: kind === 'skill' ? 'Skill' : 'Tool',
+		meta,
+	};
+}
+
+/** The rules text, once read: it lives in a compendium and never changes during a session. */
+const entryDescriptions = new Map();
+
+/** A skill's rules page or a tool's base item: the same things the sheet's own tooltips show. */
+export async function describeEntry(actor, key) {
+	const found = skillOrTool(actor, key);
+	if (!found) return '';
+	const { kind, id } = found;
+	const reference = kind === 'skill'
+		? CONFIG.DND5E?.skills?.[id]?.reference
+		: CONFIG.DND5E?.tools?.[id]?.id && (globalThis.dnd5e?.documents?.Trait?.getBaseItemUUID?.(CONFIG.DND5E.tools[id].id) ?? CONFIG.DND5E.tools[id].id);
+	if (!reference) return '';
+	if (!entryDescriptions.has(reference)) {
+		const doc = await fromUuid(reference);
+		const raw = doc?.text?.content ?? doc?.system?.description?.value ?? '';
+		entryDescriptions.set(reference, await foundry.applications.ux.TextEditor.implementation.enrichHTML(raw, { relativeTo: doc, secrets: false }));
+	}
+	return entryDescriptions.get(reference);
 }
 
 /** Its properties, as the readout's chips: concentration, ritual, finesse and so on. */

@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scene Navigation Mockup</title>
+<!-- the module's own fonts and device colors, so this looks as the real thing would -->
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/device.css">
+<style>
+	/* ------------------------------------------------------------ the stand-in screen */
+	html, body { margin: 0; height: 100%; overflow: hidden; }
+	body {
+		background: #0b0d10;
+		color: var(--sfh-text);
+		font-family: var(--sfh-face);
+		font-size: 14px;
+	}
+	/* a map on the canvas, and Foundry's sidebar on the right */
+	#canvas { position: fixed; inset: 0; background: radial-gradient(ellipse at 40% 60%, #26313c, #0b0e12 70%); }
+	#canvas::before {
+		content: ''; position: absolute; inset: 0; opacity: .35;
+		background-image: linear-gradient(rgb(255 255 255 / 6%) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 6%) 1px, transparent 1px);
+		background-size: 50px 50px;
+	}
+	#sidebar { position: fixed; top: 0; right: 0; bottom: 0; width: 300px; background: rgb(var(--sfh-bg-rgb) / 92%); border-left: 1px solid var(--sfh-line-2); }
+	#sidebar::before { content: 'Foundry sidebar'; position: absolute; top: 14px; left: 16px; color: var(--sfh-dim); font-family: var(--sfh-mono); font-size: 12px; }
+
+	/* Calendaria's HUD, stuck to the top center as you have it */
+	#calendaria-hud {
+		position: fixed; top: 8px; left: calc((100vw - 300px) / 2); transform: translateX(-50%);
+		width: 360px; height: 58px; display: none; align-items: center; justify-content: center; gap: 10px;
+		background: linear-gradient(180deg, #1f2a44, #121a2c); border: 1px solid #3c5a9a; border-radius: 30px;
+		color: #dfe8ff; font: 600 14px/1 Georgia, serif; box-shadow: 0 4px 18px rgb(0 0 0 / 60%); z-index: 30;
+	}
+	body.calendaria #calendaria-hud { display: flex; }
+	#calendaria-hud .sun { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle, #ffd76a, #e48a1c); box-shadow: 0 0 12px #ffb340; }
+
+	/* ------------------------------------------------------------ the scene bar */
+	#sfh-scenes {
+		position: fixed; top: 8px; left: 10px; z-index: 40;
+		display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+		/* the room it has: set from the HUD's and the sidebar's edges in the script */
+		max-width: var(--room, 900px);
+	}
+	.bar {
+		display: flex; align-items: center; gap: 4px; max-width: 100%; box-sizing: border-box;
+		padding: 4px; background: var(--sfh-panel); border: 1px solid var(--sfh-line); border-radius: var(--sfh-radius);
+		box-shadow: 0 0 14px color-mix(in srgb, var(--sfh-glow) 30%, transparent);
+	}
+	body[data-sfh-device="omni"] .bar, body[data-sfh-device="omni"] .card, body[data-sfh-device="omni"] .drawer {
+		clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+	}
+	.b {
+		display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none;
+		min-width: 30px; height: 30px; padding: 0 8px; box-sizing: border-box;
+		background: var(--sfh-cell); border: 1px solid var(--sfh-line-2); border-radius: calc(var(--sfh-radius) * .6);
+		color: var(--sfh-text); font: 600 13px var(--sfh-face); cursor: pointer; white-space: nowrap;
+	}
+	.b:hover { background: var(--sfh-hover); border-color: var(--sfh-hot); color: var(--sfh-bright); }
+	.b.on { background: color-mix(in srgb, var(--sfh-hot) 22%, transparent); border-color: var(--sfh-hot); color: var(--sfh-bright); }
+	.b:disabled { opacity: .4; cursor: not-allowed; }
+	.b svg { width: 15px; height: 15px; }
+	.sep { width: 1px; align-self: stretch; margin: 2px 3px; background: var(--sfh-line-2); flex: none; }
+
+	/* a scene in the bar */
+	.chips { display: flex; gap: 4px; min-width: 0; overflow: hidden; }
+	.chip {
+		position: relative; display: inline-flex; align-items: center; gap: 6px; flex: none;
+		height: 30px; padding: 0 10px; box-sizing: border-box; max-width: 190px;
+		background: var(--sfh-cell); border: 1px solid var(--sfh-line-2); border-radius: calc(var(--sfh-radius) * .6);
+		color: var(--sfh-text); cursor: pointer; user-select: none;
+	}
+	.chip .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+	.chip:hover { border-color: var(--sfh-hot); background: var(--sfh-hover); }
+	/* the one everyone is on */
+	.chip.active { border-color: var(--sfh-hot); color: var(--sfh-bright); box-shadow: inset 0 -2px 0 var(--sfh-hot); }
+	/* the one this user is looking at */
+	.chip.viewed { background: color-mix(in srgb, var(--sfh-hot) 18%, var(--sfh-cell)); }
+	.chip .ic { color: var(--sfh-dim); font-size: 11px; }
+	.chip .ic.hot { color: var(--sfh-hot); }
+	.who { display: flex; gap: 2px; }
+	.who i { width: 14px; height: 14px; border-radius: 50%; font: 700 9px/14px var(--sfh-face); text-align: center; color: #000; font-style: normal; }
+	.more { font-family: var(--sfh-mono); }
+	.label { font: 700 10px var(--sfh-face); letter-spacing: .14em; text-transform: uppercase; color: var(--sfh-heading); padding: 0 4px; }
+
+	/* ------------------------------------------------------------ the drawer: folders, search and every scene */
+	.drawer {
+		display: none; width: var(--drawer-w, 760px); max-height: 62vh; box-sizing: border-box;
+		/* it may be wider than the bar's room, so it drops below whatever sits at the top center */
+		margin-top: var(--drawer-drop, 0px);
+		background: var(--sfh-panel); border: 1px solid var(--sfh-line); border-radius: var(--sfh-radius);
+		box-shadow: 0 0 18px color-mix(in srgb, var(--sfh-glow) 30%, transparent);
+		grid-template-columns: 190px 1fr; overflow: hidden;
+	}
+	.drawer.open { display: grid; }
+	.folders { border-right: 1px solid var(--sfh-line-2); padding: 8px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+	.folder { display: flex; align-items: center; gap: 8px; padding: 5px 8px; cursor: pointer; border-left: 3px solid transparent; color: var(--sfh-text); }
+	.folder:hover { background: var(--sfh-hover); }
+	.folder.on { border-left-color: var(--sfh-hot); color: var(--sfh-bright); background: var(--sfh-hover); }
+	.folder .n { margin-left: auto; color: var(--sfh-dim); font: 12px var(--sfh-mono); }
+	.folder.sub { padding-left: 24px; font-size: 13px; }
+	.pane { display: flex; flex-direction: column; min-height: 0; }
+	.pane-h { display: flex; align-items: center; gap: 8px; padding: 8px; border-bottom: 1px solid var(--sfh-line-2); }
+	.search { flex: 1; height: 30px; box-sizing: border-box; padding: 0 10px; background: var(--sfh-cell); border: 1px solid var(--sfh-line-2); border-radius: calc(var(--sfh-radius) * .6); color: var(--sfh-bright); font: 14px var(--sfh-face); outline: none; }
+	.search:focus { border-color: var(--sfh-hot); box-shadow: 0 0 8px var(--sfh-glow); }
+	.crumbs { padding: 6px 10px 0; color: var(--sfh-dim); font: 12px var(--sfh-mono); }
+	.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 8px 10px 10px; overflow: auto; }
+	.tile { position: relative; border: 1px solid var(--sfh-line-2); background: var(--sfh-cell); cursor: pointer; border-radius: calc(var(--sfh-radius) * .6); overflow: hidden; }
+	.tile:hover { border-color: var(--sfh-hot); }
+	.tile.active { border-color: var(--sfh-hot); box-shadow: 0 0 10px var(--sfh-glow); }
+	.tile img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+	.tile .t { display: flex; align-items: center; gap: 6px; padding: 5px 7px; font-weight: 600; font-size: 13px; }
+	.tile .t .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+	.tile .flag { position: absolute; top: 5px; left: 5px; padding: 1px 6px; background: rgb(0 0 0 / 70%); border: 1px solid var(--sfh-hot); color: var(--sfh-bright); font: 700 10px var(--sfh-face); letter-spacing: .1em; text-transform: uppercase; }
+	.empty { padding: 16px; color: var(--sfh-dim); }
+
+	/* ------------------------------------------------------------ the preview */
+	.card {
+		position: fixed; z-index: 60; width: 300px; display: none; flex-direction: column;
+		background: var(--sfh-panel); border: 1px solid var(--sfh-line); border-radius: var(--sfh-radius);
+		box-shadow: 0 0 20px color-mix(in srgb, var(--sfh-glow) 40%, transparent), 0 8px 24px rgb(0 0 0 / 60%);
+	}
+	.card.show { display: flex; }
+	.card .thumb { position: relative; aspect-ratio: 16 / 9; background: #000 center / cover; }
+	.card .thumb .state { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 4px; }
+	.pill { padding: 2px 7px; background: rgb(0 0 0 / 72%); border: 1px solid var(--sfh-line); color: var(--sfh-bright); font: 600 11px var(--sfh-face); letter-spacing: .06em; }
+	.pill.hot { border-color: var(--sfh-hot); color: var(--sfh-hot); }
+	.card .body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 8px; }
+	.card h3 { margin: 0; font: 700 16px var(--sfh-display); color: var(--sfh-heading); letter-spacing: .04em; }
+	.card .path { color: var(--sfh-dim); font: 12px var(--sfh-mono); }
+	.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 10px; font-size: 13px; }
+	.facts span { display: flex; align-items: center; gap: 6px; }
+	.facts .off { color: var(--sfh-dim); }
+	.facts .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sfh-hot); box-shadow: 0 0 6px var(--sfh-glow); flex: none; }
+	.facts .off .dot { background: transparent; border: 1px solid var(--sfh-dim); box-shadow: none; }
+	.acts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+	.acts .b { width: 100%; }
+	.acts .wide { grid-column: span 3; }
+	.preload { position: relative; overflow: hidden; }
+	.preload .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: color-mix(in srgb, var(--sfh-hot) 30%, transparent); transition: width .15s linear; }
+	.preload span { position: relative; }
+
+	/* ------------------------------------------------------------ collapsed */
+	body.collapsed .bar .chips, body.collapsed .bar .sep, body.collapsed .bar .gm, body.collapsed .bar .label { display: none; }
+	/* the strip along the top that brings it back on hover */
+	#hover-edge { position: fixed; top: 0; left: 0; right: 300px; height: 6px; z-index: 41; display: none; }
+	body.collapsed.hover-reveal #hover-edge { display: block; }
+	body.player .gm { display: none !important; }
+
+	/* ------------------------------------------------------------ messages */
+	#toasts { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 6px; z-index: 90; }
+	.toast { padding: 8px 14px; background: var(--sfh-panel); border: 1px solid var(--sfh-line); color: var(--sfh-bright); font-weight: 600; box-shadow: 0 0 12px var(--sfh-glow); }
+
+	/* ------------------------------------------------------------ the mockup's own controls, not part of the design */
+	#mock {
+		position: fixed; right: 312px; bottom: 12px; z-index: 100; width: 270px;
+		background: #f4f4f4; color: #111; font: 13px/1.4 system-ui, sans-serif; border-radius: 8px; padding: 10px 12px;
+		box-shadow: 0 6px 24px rgb(0 0 0 / 50%);
+	}
+	#mock h4 { margin: 0 0 6px; font-size: 13px; }
+	#mock label { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+	#mock select { width: 100%; margin-bottom: 4px; }
+	#mock .hint { color: #555; font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body data-sfh-device="tron" class="calendaria">
+<div id="canvas"></div>
+<div id="sidebar"></div>
+<div id="calendaria-hud"><span class="sun"></span><span>14 Kythorn, 1492 DR · 3:20 pm</span></div>
+<div id="hover-edge"></div>
+
+<nav id="sfh-scenes" aria-label="Scenes">
+	<div class="bar">
+		<button class="b gm" data-act="back" title="Back to the last scene you viewed" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
+		<button class="b" data-act="drawer" title="Every scene, by folder, with search" aria-label="All scenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h7l2 2h9v11H3z"/></svg><span>Scenes</span></button>
+		<span class="sep"></span>
+		<div class="chips" id="chips"></div>
+		<button class="b more" id="more" data-act="more" hidden></button>
+		<span class="sep"></span>
+		<button class="b" data-act="collapse" title="Collapse" aria-label="Collapse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 15l6-6 6 6"/></svg></button>
+	</div>
+	<div class="drawer" id="drawer">
+		<div class="folders" id="folders"></div>
+		<div class="pane">
+			<div class="pane-h"><input class="search" id="search" type="search" placeholder="Search every scene…" aria-label="Search scenes"></div>
+			<div class="crumbs" id="crumbs"></div>
+			<div class="tiles" id="tiles"></div>
+		</div>
+	</div>
+</nav>
+
+<div class="card" id="card" role="dialog" aria-label="Scene preview">
+	<div class="thumb" id="c-thumb"><div class="state" id="c-state"></div></div>
+	<div class="body">
+		<div><h3 id="c-name"></h3><div class="path" id="c-path"></div></div>
+		<div class="facts" id="c-facts"></div>
+		<div class="acts">
+			<button class="b" data-act="view" title="Go there yourself. Click a scene to do the same">View</button>
+			<button class="b gm" data-act="activate" title="Move everyone there. Double-click a scene to do the same">Activate</button>
+			<button class="b gm preload" data-act="preload" title="Load it on every player's machine ahead of time"><span class="fill"></span><span class="txt">Preload</span></button>
+			<button class="b gm" data-act="initial" title="Make the current view where everyone starts">Initial view</button>
+			<button class="b gm" data-act="config" title="Open the scene's configuration">Configure</button>
+			<button class="b gm" data-act="nav" title="Show or hide it in the bar">In bar</button>
+		</div>
+	</div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<aside id="mock">
+	<h4>Mockup controls</h4>
+	<select id="m-device" aria-label="Device">
+		<option value="omni">Omni-tool</option><option value="wrist">Wrist computer</option><option value="gdi">EVA: GDI</option><option value="nod">EVA: Nod</option><option value="tron" selected>TRON</option>
+	</select>
+	<label><input type="checkbox" id="m-cal" checked> Calendaria HUD at top center</label>
+	<label><input type="checkbox" id="m-player"> See it as a player</label>
+	<label><input type="checkbox" id="m-hover" checked> Show on hover when collapsed</label>
+	<div class="hint">Hover a scene for its preview. Click to view, double-click to activate. Press Scenes for folders and search.</div>
+</aside>
+
+<script>
+/* ------------------------------------------------------------ a world's scenes, as stand-ins */
+const FOLDERS = [
+	{ id: 'act1', name: 'Act I: The Reach', parent: null },
+	{ id: 'act1-ship', name: 'Shipboard', parent: 'act1' },
+	{ id: 'act1-omega', name: 'Omega Station', parent: 'act1' },
+	{ id: 'act2', name: 'Act II: Horizon', parent: null },
+	{ id: 'wild', name: 'Encounters', parent: null },
+];
+const SCENES = [
+	{ id: 's1', name: 'Normandy Bridge', folder: 'act1-ship', nav: true, light: true, vision: false, sound: 'Galaxy Map', playing: true, hidden: false, players: ['A', 'V'] },
+	{ id: 's2', name: 'Normandy Cargo Bay', folder: 'act1-ship', nav: true, light: true, vision: true, sound: null, hidden: false, players: [] },
+	{ id: 's3', name: 'Afterlife Club', folder: 'act1-omega', nav: true, light: false, vision: true, sound: 'Club Music', playing: false, hidden: false, players: ['T'] },
+	{ id: 's4', name: "Aria's Office", folder: 'act1-omega', nav: false, light: false, vision: true, sound: null, hidden: true, players: [] },
+	{ id: 's5', name: 'Omega Market District', folder: 'act1-omega', nav: true, light: true, vision: true, sound: 'Market Crowd', playing: false, hidden: false, players: [] },
+	{ id: 's6', name: 'Horizon Colony: Landing Zone', folder: 'act2', nav: true, light: true, vision: true, sound: null, hidden: true, players: [] },
+	{ id: 's7', name: 'Horizon Colony: Tower', folder: 'act2', nav: false, light: false, vision: true, sound: 'Collector Theme', playing: false, hidden: true, players: [] },
+	{ id: 's8', name: 'Geth Ambush', folder: 'wild', nav: true, light: false, vision: true, sound: null, hidden: false, players: [] },
+	{ id: 's9', name: 'Thresher Maw Field', folder: 'wild', nav: false, light: true, vision: true, sound: null, hidden: false, players: [] },
+	{ id: 's10', name: 'Mako Run', folder: 'wild', nav: true, light: true, vision: false, sound: null, hidden: false, players: [] },
+];
+const PLAYER_COLORS = { A: '#ff8f3a', V: '#6fe08a', T: '#9b8cff' };
+let active = 's1';
+let viewed = 's1';
+let previous = null;
+const preloaded = new Set();
+
+/* a map for each scene, drawn rather than shipped */
+const thumbs = new Map();
+function thumbFor(scene) {
+	if (thumbs.has(scene.id)) return thumbs.get(scene.id);
+	let seed = [...scene.id].reduce((a, c) => a * 31 + c.charCodeAt(0), 7);
+	const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+	const hue = Math.floor(rnd() * 360);
+	let rooms = '';
+	for (let i = 0; i < 9; i++) {
+		const x = Math.floor(rnd() * 260), y = Math.floor(rnd() * 120), w = 40 + Math.floor(rnd() * 70), h = 25 + Math.floor(rnd() * 45);
+		rooms += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="hsl(${hue} 22% ${18 + rnd() * 18}%)" stroke="hsl(${hue} 30% 55%)" stroke-width="1.5"/>`;
+	}
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180"><rect width="320" height="180" fill="hsl(${hue} 25% 9%)"/>${rooms}<path d="M0 90h320M160 0v180" stroke="hsl(${hue} 40% 40%)" stroke-width="6" opacity=".35"/></svg>`;
+	const url = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+	thumbs.set(scene.id, url);
+	return url;
+}
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const isPlayer = () => document.body.classList.contains('player');
+const scene = (id) => SCENES.find((s) => s.id === id);
+const folderPath = (id) => { const out = []; let f = FOLDERS.find((x) => x.id === id); while (f) { out.unshift(f.name); f = FOLDERS.find((x) => x.id === f.parent); } return out.join(' / '); };
+/* a player sees what is in the bar and not hidden; the GM sees everything */
+const visibleScenes = () => SCENES.filter((s) => !isPlayer() || (!s.hidden || s.id === active));
+
+function toast(text) {
+	const el = document.createElement('div');
+	el.className = 'toast';
+	el.textContent = text;
+	$('#toasts').append(el);
+	setTimeout(() => el.remove(), 2600);
+}
+
+/* ------------------------------------------------------------ the bar */
+function chipHTML(s) {
+	const who = s.players.length ? `<span class="who">${s.players.map((p) => `<i style="background:${PLAYER_COLORS[p]}" title="${p}">${p}</i>`).join('')}</span>` : '';
+	const icons = [
+		s.id === active ? '<span class="ic hot" title="Active: everyone is here">▲</span>' : '',
+		s.hidden && !isPlayer() ? '<span class="ic" title="Hidden from players until activated">⛔</span>' : '',
+	].join('');
+	return `<div class="chip ${s.id === active ? 'active' : ''} ${s.id === viewed ? 'viewed' : ''}" data-scene="${s.id}" tabindex="0">${icons}<span class="nm">${esc(s.name)}</span>${who}</div>`;
+}
+
+/* the active scene first, then the rest of the bar's, as Foundry orders them */
+function barScenes() {
+	const list = visibleScenes().filter((s) => s.nav || s.id === active);
+	return [...list.filter((s) => s.id === active), ...list.filter((s) => s.id !== active)];
+}
+
+/*
+ * Keep out of Calendaria's way: the bar may run from the left edge to just short of whatever
+ * sits at the top center, or of the sidebar. What does not fit goes into "+N", never under it.
+ */
+function measureRoom() {
+	const cal = $('#calendaria-hud');
+	const sidebar = $('#sidebar').getBoundingClientRect().left;
+	const calLeft = getComputedStyle(cal).display !== 'none' ? cal.getBoundingClientRect().left : Infinity;
+	const right = Math.min(calLeft, sidebar) - 12;
+	document.documentElement.style.setProperty('--room', `${Math.max(240, right - 10)}px`);
+	// the drawer is not held to that: it can run to the sidebar, below Calendaria
+	const drawerWidth = Math.min(900, sidebar - 30);
+	document.documentElement.style.setProperty('--drawer-w', `${drawerWidth}px`);
+	const barBottom = $('.bar').getBoundingClientRect().bottom;
+	const calBottom = calLeft !== Infinity && 10 + drawerWidth > calLeft ? cal.getBoundingClientRect().bottom : 0;
+	document.documentElement.style.setProperty('--drawer-drop', `${Math.max(0, calBottom + 8 - barBottom - 6)}px`);
+	return right;
+}
+
+function drawBar() {
+	const right = measureRoom();
+	const chips = $('#chips');
+	const list = barScenes();
+	chips.innerHTML = list.map(chipHTML).join('');
+	const more = $('#more');
+	more.hidden = true;
+	// the bar is held to the room, so what overflows is the scenes inside it: take them off the end
+	let hidden = 0;
+	while (chips.scrollWidth > chips.clientWidth + 1 && chips.children.length > 1) {
+		chips.lastElementChild.remove();
+		hidden++;
+		more.hidden = false;
+		more.textContent = `+${hidden}`;
+		more.title = `${hidden} more in the bar: open Scenes for them`;
+	}
+}
+
+/* ------------------------------------------------------------ the drawer */
+let folder = 'act1-ship';
+function drawDrawer() {
+	const counts = (id) => visibleScenes().filter((s) => s.folder === id || FOLDERS.find((f) => f.id === s.folder)?.parent === id).length;
+	const shown = FOLDERS.filter((f) => !isPlayer() || counts(f.id));
+	$('#folders').innerHTML = `<div class="folder ${folder === 'bar' ? 'on' : ''}" data-folder="bar">In the bar<span class="n">${barScenes().length}</span></div>`
+		+ shown.map((f) => `<div class="folder ${f.parent ? 'sub' : ''} ${folder === f.id ? 'on' : ''}" data-folder="${f.id}">${esc(f.name)}<span class="n">${counts(f.id)}</span></div>`).join('');
+	const query = $('#search').value.trim().toLowerCase();
+	let list;
+	if (query) {
+		list = visibleScenes().filter((s) => s.name.toLowerCase().includes(query) || folderPath(s.folder).toLowerCase().includes(query));
+		$('#crumbs').textContent = `${list.length} found for "${$('#search').value.trim()}"`;
+	} else if (folder === 'bar') {
+		list = barScenes();
+		$('#crumbs').textContent = 'In the bar';
+	} else {
+		list = visibleScenes().filter((s) => s.folder === folder || FOLDERS.find((f) => f.id === s.folder)?.parent === folder);
+		$('#crumbs').textContent = folderPath(folder);
+	}
+	$('#tiles').innerHTML = list.length ? list.map((s) => `<div class="tile ${s.id === active ? 'active' : ''}" data-scene="${s.id}" tabindex="0">
+		${s.id === active ? '<span class="flag">Active</span>' : ''}<img src="${thumbFor(s)}" alt="">
+		<div class="t"><span class="nm">${esc(s.name)}</span>${s.hidden && !isPlayer() ? '<span class="ic" title="Hidden from players">⛔</span>' : ''}${preloaded.has(s.id) ? '<span class="ic hot" title="Preloaded">⬇</span>' : ''}</div></div>`).join('')
+		: '<div class="empty">No scenes here.</div>';
+}
+
+/* ------------------------------------------------------------ the preview */
+let previewing = null;
+let hoverTimer = null;
+let leaveTimer = null;
+function showCard(id, anchor) {
+	const s = scene(id);
+	previewing = id;
+	$('#c-thumb').style.backgroundImage = `url("${thumbFor(s)}")`;
+	$('#c-state').innerHTML = [id === active ? '<span class="pill hot">Active</span>' : '', id === viewed ? '<span class="pill">Viewing</span>' : '', s.hidden && !isPlayer() ? '<span class="pill">Hidden from players</span>' : ''].join('');
+	$('#c-name').textContent = s.name;
+	$('#c-path').textContent = folderPath(s.folder);
+	const fact = (on, onText, offText) => `<span class="${on ? '' : 'off'}"><i class="dot"></i>${on ? onText : offText}</span>`;
+	$('#c-facts').innerHTML = [
+		fact(s.light, 'Global light on', 'Global light off'),
+		fact(s.vision, 'Token vision on', 'Token vision off'),
+		s.sound ? fact(s.playing, `Playing: ${esc(s.sound)}`, `Sound: ${esc(s.sound)}`) : fact(false, '', 'No sound'),
+		fact(s.players.length, `${s.players.length} player${s.players.length === 1 ? '' : 's'} here`, 'Nobody here'),
+	].join('');
+	const pre = $('[data-act="preload"]');
+	pre.querySelector('.fill').style.width = preloaded.has(id) ? '100%' : '0';
+	pre.querySelector('.txt').textContent = preloaded.has(id) ? 'Preloaded ✓' : 'Preload';
+	$('[data-act="activate"]').disabled = id === active;
+	$('[data-act="view"]').disabled = id === viewed;
+	$('[data-act="nav"]').textContent = s.nav ? 'Out of bar' : 'Into bar';
+	const card = $('#card');
+	card.classList.add('show');
+	// beside what it describes, and always on the screen
+	const r = anchor.getBoundingClientRect();
+	const w = card.offsetWidth, h = card.offsetHeight;
+	let left = Math.min(r.left, window.innerWidth - 310 - w);
+	let top = r.bottom + 8;
+	if (top + h > window.innerHeight - 10) top = Math.max(10, r.top - h - 8);
+	// a tile's preview goes beside the drawer, where it hides none of the other tiles
+	if (anchor.closest('.tile')) {
+		const d = $('#drawer').getBoundingClientRect();
+		top = Math.min(r.top, window.innerHeight - h - 10);
+		left = d.right + 8;
+		if (left + w > window.innerWidth - 310) left = r.right + 8;
+	}
+	// nor under Calendaria: beside it if there is room, else below it
+	const cal = $('#calendaria-hud');
+	if (getComputedStyle(cal).display !== 'none') {
+		const c = cal.getBoundingClientRect();
+		const overlaps = left < c.right && left + w > c.left && top < c.bottom && top + h > c.top;
+		if (overlaps && c.left - w - 8 >= 10) left = c.left - w - 8;
+		else if (overlaps) top = c.bottom + 8;
+	}
+	card.style.left = `${Math.max(10, left)}px`;
+	card.style.top = `${top}px`;
+}
+function hideCard() { $('#card').classList.remove('show'); previewing = null; }
+
+/* the preview waits a moment, so crossing the bar does not flash every one; it stays while you move onto it */
+document.addEventListener('mouseover', (e) => {
+	const target = e.target.closest('[data-scene]');
+	if (e.target.closest('#card')) { clearTimeout(leaveTimer); return; }
+	clearTimeout(hoverTimer);
+	if (target) {
+		clearTimeout(leaveTimer);
+		hoverTimer = setTimeout(() => showCard(target.dataset.scene, target), 250);
+	} else if (previewing) {
+		leaveTimer = setTimeout(hideCard, 300);
+	}
+});
+
+/* ------------------------------------------------------------ what everything does */
+function view(id) {
+	if (id === viewed) return;
+	previous = viewed;
+	viewed = id;
+	toast(`Viewing ${scene(id).name}`);
+	redraw();
+}
+function activate(id) {
+	if (isPlayer()) return;
+	active = id;
+	scene(id).hidden = false;
+	view(id);
+	toast(`${scene(id).name} is now active for everyone`);
+	redraw();
+}
+function preload(id) {
+	if (preloaded.has(id)) return toast('Already preloaded on every player\'s machine');
+	const pre = $('[data-act="preload"]');
+	let pct = 0;
+	pre.disabled = true;
+	pre.querySelector('.txt').textContent = 'Preloading…';
+	const tick = setInterval(() => {
+		pct += 12;
+		if (previewing === id) pre.querySelector('.fill').style.width = `${Math.min(100, pct)}%`;
+		if (pct >= 100) {
+			clearInterval(tick);
+			preloaded.add(id);
+			pre.disabled = false;
+			if (previewing === id) pre.querySelector('.txt').textContent = 'Preloaded ✓';
+			toast(`${scene(id).name} preloaded for players`);
+			drawDrawer();
+		}
+	}, 120);
+}
+function redraw() {
+	drawBar();
+	drawDrawer();
+	if (previewing) {
+		const anchor = document.querySelector(`[data-scene="${previewing}"]`);
+		if (anchor) showCard(previewing, anchor); else hideCard();
+	}
+}
+
+let clickTimer = null;
+document.addEventListener('click', (e) => {
+	const act = e.target.closest('[data-act]')?.dataset.act;
+	const s = e.target.closest('[data-scene]')?.dataset.scene;
+	if (s) {
+		// a single click waits to see if it becomes a double
+		clearTimeout(clickTimer);
+		clickTimer = setTimeout(() => view(s), 220);
+		return;
+	}
+	switch (act) {
+		case 'drawer': $('#drawer').classList.toggle('open'); e.target.closest('.b').classList.toggle('on'); drawDrawer(); if ($('#drawer').classList.contains('open')) $('#search').focus(); return;
+		case 'more': $('#drawer').classList.add('open'); $('[data-act="drawer"]').classList.add('on'); folder = 'bar'; $('#search').value = ''; drawDrawer(); return;
+		case 'collapse': document.body.classList.toggle('collapsed'); e.target.closest('.b').classList.toggle('on'); $('#drawer').classList.remove('open'); hideCard(); drawBar(); return;
+		case 'back': if (previous) view(previous); else toast('No scene to go back to yet'); return;
+		case 'view': return previewing && view(previewing);
+		case 'activate': return previewing && activate(previewing);
+		case 'preload': return previewing && preload(previewing);
+		case 'initial': return toast(`The current view is now where everyone starts on ${scene(previewing).name}`);
+		case 'config': return toast(`Opens ${scene(previewing).name}'s configuration`);
+		case 'nav': { const sc = scene(previewing); sc.nav = !sc.nav; toast(sc.nav ? `${sc.name} added to the bar` : `${sc.name} taken out of the bar`); return redraw(); }
+	}
+	const f = e.target.closest('[data-folder]')?.dataset.folder;
+	if (f) { folder = f; $('#search').value = ''; drawDrawer(); }
+});
+document.addEventListener('dblclick', (e) => {
+	const s = e.target.closest('[data-scene]')?.dataset.scene;
+	if (!s) return;
+	clearTimeout(clickTimer);
+	if (isPlayer()) view(s); else activate(s);
+});
+$('#search').addEventListener('input', drawDrawer);
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'Escape') { $('#drawer').classList.remove('open'); $('[data-act="drawer"]').classList.remove('on'); hideCard(); }
+	if (e.key === 'Enter' && document.activeElement?.dataset.scene) view(document.activeElement.dataset.scene);
+});
+
+/* showing it again by touching the top edge, while collapsed */
+$('#hover-edge').addEventListener('mouseenter', () => { document.body.classList.remove('collapsed'); document.body.classList.add('peek'); drawBar(); });
+$('#sfh-scenes').addEventListener('mouseleave', () => { if (document.body.classList.contains('peek')) { document.body.classList.remove('peek'); document.body.classList.add('collapsed'); hideCard(); } });
+
+/* ------------------------------------------------------------ the mockup's controls */
+$('#m-device').addEventListener('change', (e) => { document.body.dataset.sfhDevice = e.target.value; redraw(); });
+$('#m-cal').addEventListener('change', (e) => { document.body.classList.toggle('calendaria', e.target.checked); redraw(); });
+$('#m-player').addEventListener('change', (e) => { document.body.classList.toggle('player', e.target.checked); if (!e.target.checked) return redraw(); if (scene(viewed).hidden) viewed = active; redraw(); });
+$('#m-hover').addEventListener('change', (e) => document.body.classList.toggle('hover-reveal', e.target.checked));
+document.body.classList.add('hover-reveal');
+window.addEventListener('resize', redraw);
+document.fonts?.ready.then(redraw);
+redraw();
+</script>
+</body>
+</html>

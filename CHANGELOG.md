@@ -41,6 +41,14 @@ device, and the character sheet is a projection it raises over the canvas.
 - PF2e and SF2e: the whole Biography tab, editable by the character's owner: appearance, backstory,
   personality with edicts and anathema, and campaign notes, with Foundry's own rich text editor and
   the sheet's control over who may read each section.
+- A scene bar in place of Foundry's scene list: the scenes in navigation across the top left in
+  the device's style, a drawer of every scene by folder with a search, and a preview of each with
+  View, Activate, Preload, Pull all, Initial view, Configure and showing it in the bar. Click to
+  view, double-click to activate, drag to reorder, a back button, a level picker, and Foundry's
+  own right-click menu. It ends short of Calendaria's HUD, and can collapse, open on hover, and get
+  out of the way during combat.
+- D&D 5e: pointing at a skill or tool shows its rules text and its numbers in the readout. Attacks
+  list their damage properly, instead of "[object Object]".
 - D&D 5e: Favorites at the head of the Actions tab, marked from the readout; a picker for spell
   level and level headers that stand out; chat cards in the device's colors.
 - D&D 5e, rebuilt on system 6: Details with proficiency pickers, tools and traits; an Actions tab

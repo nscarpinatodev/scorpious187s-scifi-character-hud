@@ -10,6 +10,8 @@ import * as dnd5e from './dnd5e.mjs';
  *   readoutMeta(doc)       optional: [label, value] pairs for the readout to list
  *   readoutTraits(doc)     optional: the readout's chips, if not the document's traits
  *   readoutActions(doc, actor)  optional: buttons for the readout, as markup
+ *   readoutEntry(actor, key)    optional: what the readout shows for a key that is not a document
+ *   describeEntry(actor, key)   optional: that entry's description as HTML
  *   readRoll(message)      optional: a chat message, as the latest-roll strip shows it
  *   searchItems(text)      optional: the Inventory tab's quick search, as markup
  *   onGiveRequest(data)    optional: the GM's side of giving an item to someone else's character

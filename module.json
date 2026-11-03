@@ -53,6 +53,7 @@
 		"styles/device.css",
 		"styles/interface.css",
 		"styles/carousel.css",
+		"styles/scenes.css",
 		"styles/projection.css",
 		"styles/projection-frame.css"
 	],

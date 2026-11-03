@@ -200,7 +200,8 @@ export class Carousel {
 		const center = parent.left + parent.width / 2;
 		const sidebar = document.getElementById('sidebar')?.getBoundingClientRect();
 		// the buttons, not their list: the list stretches to fill a column that is mostly empty
-		const scenes = [...document.querySelectorAll('#scene-navigation .scene')].map((s) => s.getBoundingClientRect().right);
+		// the scene bar, or Foundry's own list where that is off
+		const scenes = [...document.querySelectorAll('#sfh-scenes .sfh-bar, #scene-navigation .scene')].map((s) => s.getBoundingClientRect().right).filter(Boolean);
 		const gap = 12;
 		const toRight = sidebar?.width ? sidebar.left - center - gap : Infinity;
 		const toLeft = scenes.length ? center - Math.max(...scenes) - gap : Infinity;

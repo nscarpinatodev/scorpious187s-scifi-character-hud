@@ -1,0 +1,510 @@
+/* =========================================================================
+   The scene bar: Foundry's scene navigation as a bar across the top left, a
+   drawer of every scene, and a preview of each. Foundry's own list is hidden
+   while it is on, and still does the work behind it.
+   ========================================================================= */
+
+body[data-sfh-scenes="on"] #scene-navigation {
+	display: none;
+}
+
+#sfh-scenes {
+	position: relative;
+	z-index: 40;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	/* the column is narrow; the bar runs past it, to the room it is given */
+	width: max-content;
+	max-width: var(--room, 900px);
+	pointer-events: none;
+	font-family: var(--sfh-face);
+	font-size: 14px;
+	color: var(--sfh-text);
+}
+
+#sfh-scenes > * {
+	pointer-events: auto;
+}
+
+#sfh-scenes ol {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+#sfh-scenes .sfh-bar {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	max-width: 100%;
+	box-sizing: border-box;
+	padding: 4px;
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 14px color-mix(in srgb, var(--sfh-glow) 30%, transparent);
+}
+
+:is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, #sfh-scenes-preview) {
+	backdrop-filter: blur(4px);
+}
+
+body[data-sfh-device="omni"] :is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, #sfh-scenes-preview) {
+	clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+:is(#sfh-scenes, #sfh-scenes-preview) .sfh-sb {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	flex: none;
+	min-width: 30px;
+	width: auto;
+	height: 30px;
+	min-height: 0;
+	margin: 0;
+	padding: 0 8px;
+	box-sizing: border-box;
+	position: relative;
+	overflow: hidden;
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line-2);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	color: var(--sfh-text);
+	font: 600 13px var(--sfh-face);
+	line-height: 1;
+	white-space: nowrap;
+	cursor: var(--cursor-pointer, pointer);
+}
+
+:is(#sfh-scenes, #sfh-scenes-preview) .sfh-sb:hover:not(:disabled) {
+	background: var(--sfh-hover);
+	border-color: var(--sfh-hot);
+	color: var(--sfh-bright);
+	box-shadow: 0 0 8px var(--sfh-glow);
+}
+
+:is(#sfh-scenes, #sfh-scenes-preview) .sfh-sb.on {
+	background: color-mix(in srgb, var(--sfh-hot) 22%, transparent);
+	border-color: var(--sfh-hot);
+	color: var(--sfh-bright);
+}
+
+:is(#sfh-scenes, #sfh-scenes-preview) .sfh-sb:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+#sfh-scenes .sfh-sb svg {
+	width: 15px;
+	height: 15px;
+}
+
+#sfh-scenes .sfh-more {
+	font-family: var(--sfh-mono);
+}
+
+#sfh-scenes .sfh-sep {
+	flex: none;
+	align-self: stretch;
+	width: 1px;
+	margin: 2px 3px;
+	background: var(--sfh-line-2);
+}
+
+/* a scene in the bar */
+#sfh-scenes .sfh-chips {
+	display: flex;
+	gap: 4px;
+	min-width: 0;
+	overflow: hidden;
+}
+
+#sfh-scenes .sfh-scene {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: none;
+	max-width: 190px;
+	height: 30px;
+	padding: 0 10px;
+	box-sizing: border-box;
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line-2);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	color: var(--sfh-text);
+	cursor: var(--cursor-pointer, pointer);
+	user-select: none;
+}
+
+#sfh-scenes .sfh-scene:hover,
+#sfh-scenes .sfh-scene:focus-visible {
+	border-color: var(--sfh-hot);
+	background: var(--sfh-hover);
+	outline: none;
+}
+
+/* the one everyone is on */
+#sfh-scenes .sfh-scene.active {
+	border-color: var(--sfh-hot);
+	color: var(--sfh-bright);
+	box-shadow: inset 0 -2px 0 var(--sfh-hot);
+}
+
+/* the one this user is looking at */
+#sfh-scenes .sfh-scene.viewed {
+	background: color-mix(in srgb, var(--sfh-hot) 18%, var(--sfh-cell));
+}
+
+#sfh-scenes .sfh-nm {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 600;
+}
+
+:is(#sfh-scenes, #sfh-scenes-preview) .sfh-mark {
+	flex: none;
+	color: var(--sfh-dim);
+	font-size: 11px;
+}
+
+:is(#sfh-scenes, #sfh-scenes-preview) .sfh-mark.hot {
+	color: var(--sfh-hot);
+}
+
+#sfh-scenes .sfh-pips {
+	display: flex;
+	gap: 2px;
+}
+
+#sfh-scenes .sfh-pips i {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--pip);
+	color: #000;
+	font: 700 9px/14px var(--sfh-face);
+	font-style: normal;
+	text-align: center;
+}
+
+#sfh-scenes .sfh-level {
+	flex: none;
+	height: 30px;
+	max-width: 140px;
+	padding: 0 6px;
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	color: var(--sfh-text);
+	font: 600 13px var(--sfh-face);
+}
+
+/* the drawer: folders, a search, and every scene */
+#sfh-scenes .sfh-drawer {
+	display: grid;
+	grid-template-columns: 200px 1fr;
+	max-height: 62vh;
+	box-sizing: border-box;
+	overflow: hidden;
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 18px color-mix(in srgb, var(--sfh-glow) 30%, transparent);
+}
+
+#sfh-scenes .sfh-folders {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 8px;
+	overflow: auto;
+	border-right: 1px solid var(--sfh-line-2);
+}
+
+#sfh-scenes .sfh-folder {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 5px 8px 5px calc(8px + var(--depth, 0) * 14px);
+	border-left: 3px solid var(--folder, transparent);
+	color: var(--sfh-text);
+	cursor: var(--cursor-pointer, pointer);
+}
+
+#sfh-scenes .sfh-folder:hover {
+	background: var(--sfh-hover);
+}
+
+#sfh-scenes .sfh-folder.on {
+	border-left-color: var(--sfh-hot);
+	background: var(--sfh-hover);
+	color: var(--sfh-bright);
+}
+
+#sfh-scenes .sfh-folder span {
+	margin-left: auto;
+	color: var(--sfh-dim);
+	font: 12px var(--sfh-mono);
+}
+
+#sfh-scenes .sfh-pane {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	min-width: 0;
+}
+
+#sfh-scenes .sfh-pane-h {
+	padding: 8px;
+	border-bottom: 1px solid var(--sfh-line-2);
+}
+
+#sfh-scenes .sfh-search {
+	width: 100%;
+	height: 30px;
+	box-sizing: border-box;
+	padding: 0 10px;
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line-2);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	color: var(--sfh-bright);
+	font: 14px var(--sfh-face);
+	outline: none;
+}
+
+#sfh-scenes .sfh-search:focus {
+	border-color: var(--sfh-hot);
+	box-shadow: 0 0 8px var(--sfh-glow);
+}
+
+#sfh-scenes .sfh-crumbs {
+	padding: 6px 10px 0;
+	color: var(--sfh-dim);
+	font: 12px var(--sfh-mono);
+}
+
+#sfh-scenes .sfh-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 8px;
+	padding: 8px 10px 10px;
+	overflow: auto;
+}
+
+#sfh-scenes .sfh-tile {
+	position: relative;
+	overflow: hidden;
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line-2);
+	border-radius: calc(var(--sfh-radius) * 0.6);
+	cursor: var(--cursor-pointer, pointer);
+}
+
+#sfh-scenes .sfh-tile:hover,
+#sfh-scenes .sfh-tile:focus-visible {
+	border-color: var(--sfh-hot);
+	outline: none;
+}
+
+#sfh-scenes .sfh-tile.active {
+	border-color: var(--sfh-hot);
+	box-shadow: 0 0 10px var(--sfh-glow);
+}
+
+#sfh-scenes .sfh-tile img,
+#sfh-scenes .sfh-nothumb {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border: 0;
+}
+
+#sfh-scenes .sfh-nothumb {
+	background: repeating-linear-gradient(45deg, var(--sfh-cell), var(--sfh-cell) 8px, var(--sfh-line-2) 8px, var(--sfh-line-2) 9px);
+}
+
+#sfh-scenes .sfh-tile-t {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 7px;
+	font-size: 13px;
+}
+
+#sfh-scenes .sfh-tile-t .sfh-nm {
+	flex: 1;
+}
+
+#sfh-scenes .sfh-flag {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	padding: 1px 6px;
+	background: rgb(0 0 0 / 70%);
+	border: 1px solid var(--sfh-hot);
+	color: var(--sfh-bright);
+	font: 700 10px var(--sfh-face);
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+#sfh-scenes .sfh-none {
+	padding: 16px;
+	color: var(--sfh-dim);
+}
+
+/* collapsed: the buttons and nothing else */
+#sfh-scenes.collapsed .sfh-drawer {
+	display: none;
+}
+
+/* the preview */
+#sfh-scenes-preview {
+	position: fixed;
+	z-index: 100;
+	display: none;
+	flex-direction: column;
+	width: 300px;
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 20px color-mix(in srgb, var(--sfh-glow) 40%, transparent), 0 8px 24px rgb(0 0 0 / 60%);
+	color: var(--sfh-text);
+	font-family: var(--sfh-face);
+	font-size: 14px;
+	pointer-events: auto;
+}
+
+#sfh-scenes-preview.show {
+	display: flex;
+}
+
+#sfh-scenes-preview .sfh-thumb {
+	position: relative;
+	aspect-ratio: 16 / 9;
+	background: var(--sfh-cell) center / cover;
+}
+
+#sfh-scenes-preview .sfh-state {
+	position: absolute;
+	left: 8px;
+	bottom: 8px;
+	display: flex;
+	gap: 4px;
+}
+
+#sfh-scenes-preview .sfh-pill {
+	padding: 2px 7px;
+	background: rgb(0 0 0 / 72%);
+	border: 1px solid var(--sfh-line);
+	color: var(--sfh-bright);
+	font: 600 11px var(--sfh-face);
+	letter-spacing: 0.06em;
+}
+
+#sfh-scenes-preview .sfh-pill.hot {
+	border-color: var(--sfh-hot);
+	color: var(--sfh-hot);
+}
+
+#sfh-scenes-preview .sfh-card-b {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px 10px 10px;
+}
+
+#sfh-scenes-preview h3 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: var(--sfh-heading);
+	font: 700 16px var(--sfh-display);
+	letter-spacing: 0.04em;
+}
+
+#sfh-scenes-preview .sfh-path {
+	color: var(--sfh-dim);
+	font: 12px var(--sfh-mono);
+}
+
+#sfh-scenes-preview .sfh-facts {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 4px 10px;
+	font-size: 13px;
+}
+
+#sfh-scenes-preview .sfh-facts span {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+
+#sfh-scenes-preview .sfh-facts .off {
+	color: var(--sfh-dim);
+}
+
+#sfh-scenes-preview .sfh-dot {
+	flex: none;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--sfh-hot);
+	box-shadow: 0 0 6px var(--sfh-glow);
+}
+
+#sfh-scenes-preview .off .sfh-dot {
+	background: transparent;
+	border: 1px solid var(--sfh-dim);
+	box-shadow: none;
+}
+
+#sfh-scenes-preview .sfh-acts {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 4px;
+}
+
+#sfh-scenes-preview .sfh-acts .sfh-sb {
+	width: 100%;
+	padding: 0 4px;
+}
+
+#sfh-scenes-preview .sfh-preload .sfh-fill {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 0;
+	background: color-mix(in srgb, var(--sfh-hot) 30%, transparent);
+}
+
+#sfh-scenes-preview .sfh-preload.busy .sfh-fill {
+	animation: sfh-preloading 1.2s ease-in-out infinite;
+}
+
+#sfh-scenes-preview .sfh-preload.done .sfh-fill {
+	width: 100%;
+}
+
+#sfh-scenes-preview .sfh-preload span:last-child {
+	position: relative;
+}
+
+@keyframes sfh-preloading {
+	0% { width: 0; }
+	100% { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-scenes-preview .sfh-preload.busy .sfh-fill {
+		animation: none;
+		width: 50%;
+	}
+}

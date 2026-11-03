@@ -6,7 +6,7 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
  * The device is a per-user choice: two players at the same table can wear different
  * hardware. The world setting only decides what a user gets before they have chosen.
  */
-export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange, onHeadingColorChange, onCarouselChange) {
+export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange, onHeadingColorChange, onCarouselChange, onScenesChange) {
 	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
 
 	// Both device settings repaint immediately: a player following the world default has to
@@ -94,6 +94,52 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		type: Boolean,
 		default: true,
 		onChange: (v) => { document.body.dataset.sfhChat = v ? 'on' : 'off'; },
+	});
+
+	game.settings.register(MOD, S.sceneBar, {
+		name: 'SFH.Settings.SceneBar',
+		hint: 'SFH.Settings.SceneBarHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: true,
+		onChange: () => onScenesChange?.(),
+	});
+
+	game.settings.register(MOD, S.sceneBarStartCollapsed, {
+		name: 'SFH.Settings.SceneBarStartCollapsed',
+		hint: 'SFH.Settings.SceneBarStartCollapsedHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: false,
+	});
+
+	game.settings.register(MOD, S.sceneBarCombat, {
+		name: 'SFH.Settings.SceneBarCombat',
+		hint: 'SFH.Settings.SceneBarCombatHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: false,
+		onChange: () => onScenesChange?.(),
+	});
+
+	game.settings.register(MOD, S.sceneBarHover, {
+		name: 'SFH.Settings.SceneBarHover',
+		hint: 'SFH.Settings.SceneBarHoverHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: true,
+	});
+
+	// whether it is collapsed now, kept between sessions
+	game.settings.register(MOD, S.sceneBarCollapsed, {
+		scope: 'client',
+		config: false,
+		type: Boolean,
+		default: false,
 	});
 
 	game.settings.register(MOD, S.carousel, {

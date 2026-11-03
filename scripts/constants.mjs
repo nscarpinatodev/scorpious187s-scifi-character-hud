@@ -33,6 +33,11 @@ export const S = {
 	carousel: 'carousel',         // client — the turn order as a row of portraits across the top
 	carouselScale: 'carouselScale', // client — how large the carousel is, %
 	carouselLayout: 'carouselLayout', // client — the current turn on the left, or centered
+	sceneBar: 'sceneBar',           // client — the scene bar in place of Foundry's scene list
+	sceneBarCollapsed: 'sceneBarCollapsed', // client, hidden — whether it is collapsed now
+	sceneBarStartCollapsed: 'sceneBarStartCollapsed', // client — collapsed each time Foundry loads
+	sceneBarCombat: 'sceneBarCombat', // client — collapsed while an encounter runs
+	sceneBarHover: 'sceneBarHover', // client — collapsed, it opens under the pointer
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
 	headingColor: 'headingColor', // client — the player's own color for the interface's headings
 	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names
@@ -59,6 +64,7 @@ export const EL = {
 	projection: 'sfh-projection',
 	beam: 'sfh-beam',           // the cone of light from the emitter to the projection
 	carousel: 'sfh-carousel',   // the turn order across the top of the screen
+	scenes: 'sfh-scenes',       // the scene bar, in place of Foundry's scene list
 };
 
 /** The Mass Effect conversion, whose data the Dossier panel reads. */

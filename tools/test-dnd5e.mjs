@@ -48,7 +48,7 @@ const results = await page.evaluate(async () => {
 	const innate = new (class { key = 'innate'; slots = false; order = 500; getLabel() { return 'Innate'; } getSpellSlotKey() { return 'innate'; } })();
 	globalThis.dnd5e = {
 		dataModels: { spellcasting: { SingleLevelSpellcasting } },
-		documents: { Trait: { keyLabel: (key) => key[0].toUpperCase() + key.slice(1) } },
+		documents: { Trait: { keyLabel: (key) => key[0].toUpperCase() + key.slice(1), getBaseItemUUID: (id) => id } },
 		applications: {
 			CompendiumBrowser: Object.assign(class { constructor(o) { record('browser')(o); } render() { calls.push(['browser.render']); } }, {
 				fetch: async (cls, options) => { calls.push(['fetch', [...options.types]]); return [
@@ -67,7 +67,9 @@ const results = await page.evaluate(async () => {
 		return null;
 	};
 	globalThis.CONFIG = { ...(globalThis.CONFIG ?? {}), Item: { documentClass: { createWithContents: async (items) => items.map((i) => ({ name: i.name, copied: true })) } }, DND5E: {
-		skills: { acr: { label: 'Acrobatics' }, ath: { label: 'Athletics' } },
+		skills: { acr: { label: 'Acrobatics', reference: 'Compendium.rules.acr' }, ath: { label: 'Athletics' } },
+		abilities: { dex: { label: 'Dexterity' }, str: { label: 'Strength' } },
+		tools: { herb: { ability: 'int', id: 'Compendium.items.herbkit' } },
 		senses: { darkvision: { label: 'Darkvision' }, truesight: { label: 'Truesight' } },
 		proficiencyLevels: { 0: 'Not Proficient', 0.5: 'Half', 1: 'Proficient', 2: 'Expertise' },
 		currencies: { pp: {}, gp: {}, ep: {}, sp: {}, cp: {} },
@@ -84,7 +86,7 @@ const results = await page.evaluate(async () => {
 
 	/* ---- a character in those shapes ---- */
 	const activities = (...list) => Object.assign(list, { getByType: (t) => list.filter((a) => a.type === t) });
-	const attackActivity = { type: 'attack', activation: { type: 'action' }, consumption: { targets: [] }, labels: { damage: '1d8 + 3' }, use: record('attack.use'), rollDamage: record('attack.rollDamage') };
+	const attackActivity = { type: 'attack', activation: { type: 'action' }, consumption: { targets: [] }, labels: { damage: [{ formula: '1d8 + 3', label: '1d8 + 3 Slashing', base: true }], damages: [{ formula: '1d8 + 3', label: '1d8 + 3 Slashing', base: true }] }, use: record('attack.use'), rollDamage: record('attack.rollDamage') };
 	const spends = (type) => ({ type: 'utility', activation: { type }, consumption: { targets: [{ type: 'itemUses' }] } });
 	const free = (type) => ({ type: 'utility', activation: { type }, consumption: { targets: [] } });
 	const items = new Map();
@@ -104,7 +106,7 @@ const results = await page.evaluate(async () => {
 	item('breath', 'Breath Weapon', 'feat', { uses: { value: 0, max: 1, recovery: [{ period: 'recharge' }], rollRecharge: record('rollRecharge') }, activities: activities(spends('action')), properties: new Set() }, { isOnCooldown: true, flags: { dnd5e: { advancementOrigin: 'sp.y' } } });
 	item('react', 'A Very Long Reaction Feature Name That Would Certainly Not Fit On Two Lines Of Its Column', 'feat', { activities: activities(free('reaction')), properties: new Set() }, { flags: { dnd5e: { advancementOrigin: 'bg.y' } } });
 	item('passive', 'Darkvision Lore', 'feat', { activities: activities(), properties: new Set() });
-	item('sword', 'Longsword', 'weapon', { equipped: true, type: { value: 'martialM' }, quantity: 1, weight: { value: 3 }, activities: activities(attackActivity), properties: new Set(['fin']), attunement: '' }, { labels: { modifier: '+7', range: '5 ft' } });
+	item('sword', 'Longsword', 'weapon', { equipped: true, type: { value: 'martialM' }, quantity: 1, weight: { value: 3 }, activities: activities(attackActivity), properties: new Set(['fin']), attunement: '' }, { labels: { modifier: '+7', range: '5 ft', damages: [{ formula: '1d8 + 3', label: '1d8 + 3 Slashing', base: true }, { formula: '1d6', label: '1d6 Fire' }] } });
 	item('bow', 'Stowed Bow', 'weapon', { equipped: false, type: { value: 'martialR' }, quantity: 1, weight: { value: 2 }, activities: activities(attackActivity), properties: new Set() });
 	item('ring', 'Ring of Warmth', 'equipment', { equipped: false, attunement: 'required', attuned: false, quantity: 1, weight: { value: 0 }, activities: activities(), properties: new Set() });
 	item('potion', 'Potion of Healing', 'consumable', { quantity: 2, weight: { value: 0.5 }, uses: { value: 0, max: 1, recovery: [] }, activities: activities(spends('action')), properties: new Set() });
@@ -164,7 +166,7 @@ const results = await page.evaluate(async () => {
 	const you = { id: 'owner', isGM: false, character: actor };
 	Object.defineProperty(game, 'user', { configurable: true, get: () => you });
 	game.system.id = 'dnd5e';
-	globalThis.fromUuid = async (uuid) => { calls.push(['fromUuid', uuid]); return uuid.includes('rope') ? { name: 'Rope, Hempen', type: 'loot', uuid, _stats: { compendiumSource: uuid }, system: { price: { value: 1, denomination: 'gp' }, quantity: 1 } } : uuid.includes('climb') ? { name: 'Rope of Climbing', type: 'loot', uuid, _stats: {}, system: { price: { value: 2000, denomination: 'gp' } } } : { update: async (d) => calls.push(['doc.update', uuid, d]), sheet: { render: () => calls.push(['sheet', uuid]) } }; };
+	globalThis.fromUuid = async (uuid) => { calls.push(['fromUuid', uuid]); if (uuid === 'Compendium.rules.acr') return { text: { content: '<p>Stay on your feet. @UUID[x]{Link}</p>' } }; if (uuid === 'Compendium.items.herbkit') return { system: { description: { value: '<p>Clippers and pouches.</p>' } } }; return uuid.includes('rope') ? { name: 'Rope, Hempen', type: 'loot', uuid, _stats: { compendiumSource: uuid }, system: { price: { value: 1, denomination: 'gp' }, quantity: 1 } } : uuid.includes('climb') ? { name: 'Rope of Climbing', type: 'loot', uuid, _stats: {}, system: { price: { value: 2000, denomination: 'gp' } } } : { update: async (d) => calls.push(['doc.update', uuid, d]), sheet: { render: () => calls.push(['sheet', uuid]) } }; };
 	game.i18n.format = (k) => k;
 	game.socket = { emit: (...a) => calls.push(['emit', ...a]), on() {} };
 	game.users = { activeGM: { id: 'gm' }, get: (id) => ({ id }) };
@@ -229,6 +231,7 @@ const results = await page.evaluate(async () => {
 	/* ---- actions ---- */
 	await tab('actions');
 	check('an equipped weapon shows its to-hit', /\+7/.test(row('Longsword')?.textContent ?? ''));
+	check('and its damage, in words', /5 ft · 1d8 \+ 3 Slashing \+ 1d6 Fire/.test(row('Longsword').textContent), row('Longsword').textContent.replace(/\s+/g, ' '));
 	check('a stowed one does not show', !row('Stowed Bow'));
 	await press('[data-act="attack"][data-k="sword"]');
 	check('attacking uses the attack activity', last()[0] === 'attack.use' && !!last()[1].event, last()[0]);
@@ -435,6 +438,32 @@ const results = await page.evaluate(async () => {
 	over(row('Wild Shape'));
 	await wait(200);
 	check('the readout lists uses with how they come back', /Uses/.test(readout().textContent) && /2 \/ 3 · Long Rest/.test(readout().textContent), readout().textContent);
+	over(row('Longsword'));
+	await wait(200);
+	check('the readout gives damage in words', /1d8 \+ 3 Slashing \+ 1d6 Fire/.test(readout().textContent), readout().textContent.replace(/\s+/g, ' '));
+	check('no label ever prints as an object', !/\[object/.test(readout().textContent));
+	await tab('details');
+	over(row('Acrobatics').querySelector('.mono'));
+	await wait(200);
+	check('anywhere on a skill\'s row shows it', /Acrobatics/.test(readout().querySelector('h3')?.textContent ?? ''), readout().textContent.replace(/\s+/g, ' ').slice(0, 120));
+	check('with its rules text', /Stay on your feet/.test(readout().textContent) && !!readout().querySelector('a.content-link'), readout().textContent.replace(/\s+/g, ' ').slice(0, 160));
+	check('and its numbers', /Dexterity/.test(readout().textContent) && /\+5/.test(readout().textContent) && /15/.test(readout().textContent) && /Proficient/.test(readout().textContent), readout().textContent.replace(/\s+/g, ' ').slice(0, 160));
+	over(row('Herb'));
+	await wait(200);
+	check('a tool shows its base item\'s text', /Herb/.test(readout().querySelector('h3').textContent) && /Clippers and pouches/.test(readout().textContent) && /Tool/.test(readout().textContent), readout().textContent.replace(/\s+/g, ' ').slice(0, 160));
+	over(row('Athletics'));
+	await wait(200);
+	check('a skill with no reference still shows its numbers', /Athletics/.test(readout().querySelector('h3').textContent) && /Strength/.test(readout().textContent));
+	const fetched = () => calls.filter((c) => c[0] === 'fromUuid' && c[1] === 'Compendium.rules.acr').length;
+	const firstFetch = fetched();
+	over(row('Acrobatics'));
+	await wait(200);
+	check('the rules text is read once', fetched() === firstFetch && /Stay on your feet/.test(readout().textContent), [firstFetch, fetched()]);
+	await tab('actions');
+	const favSkill = [...body().querySelectorAll('.sfh-action')].find((r) => /Acrobatics/.test(r.textContent));
+	over(favSkill);
+	await wait(200);
+	check('a favorite skill shows the same', /Stay on your feet/.test(readout().textContent));
 	await tab('spells');
 	over(row('Cure Wounds'));
 	await wait(200);
@@ -498,6 +527,7 @@ const results = await page.evaluate(async () => {
 		for (const t of ['details', 'actions', 'inventory', 'spells', 'features', 'effects', 'biography']) {
 			await tab(t);
 			await wait(40);
+			check(`${device} ${t}: nothing prints as an object`, !/\[object|undefined/.test(body().textContent), body().textContent.match(/.{0,30}(\[object|undefined).{0,20}/)?.[0]);
 			const box = body().getBoundingClientRect();
 			const spilled = [...body().querySelectorAll('.li, .sec, .sfh-in, .ta, .sfh-rich, .b, .sel')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && (r.left < box.left - 1 || r.right > box.right + 1); });
 			check(`${device} ${t}: nothing runs off the side`, !spilled.length && body().scrollWidth <= body().clientWidth + 1, spilled.slice(0, 4).map((e) => `${e.className}:${e.textContent.trim().slice(0, 20)}`));

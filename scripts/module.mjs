@@ -7,6 +7,7 @@ import { restyleControls, redrawControls } from './interface/controls.mjs';
 import { applyFonts, onFontChange, reportMissingFonts, suggestFonts } from './interface/fonts.mjs';
 import { watchPlacement } from './interface/placement.mjs';
 import { Carousel } from './interface/carousel.mjs';
+import { SceneBar } from './interface/scenes.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
 /**
@@ -31,6 +32,7 @@ const STYLES = [
 	'styles/device.css',
 	'styles/interface.css',
 	'styles/carousel.css',
+	'styles/scenes.css',
 	'styles/projection.css',
 	'styles/projection-frame.css',
 ];
@@ -58,7 +60,10 @@ Hooks.once('init', () => {
 		Projection.syncDevice();
 		// the display face comes with the device
 		scheduleFitHeadings();
-	}, redrawControls, onFontChange, applyHeadingColor, () => Carousel.schedule());
+	}, redrawControls, onFontChange, applyHeadingColor, () => Carousel.schedule(), () => {
+		SceneBar.noteCombat();
+		SceneBar.schedule();
+	});
 	applyFonts();
 	applyHeadingColor();
 	watchPlacement();
@@ -84,6 +89,7 @@ Hooks.once('ready', () => {
 	reportMissingFonts();
 	watchHeadings();
 	Carousel.schedule();
+	SceneBar.ready();
 	if (!DeviceChrome.mount()) {
 		console.warn(`${MOD} | the interface has no #ui-bottom or #hotbar to mount on; the device is not shown`);
 	}
@@ -140,6 +146,23 @@ for (const hook of ['createCombat', 'updateCombat', 'deleteCombat', 'createComba
 	Hooks.on(hook, () => Carousel.schedule());
 }
 addEventListener('resize', () => Carousel.schedule());
+
+/*
+ * The scene bar follows the scenes, their folders, who is looking at what, and anything that
+ * can sit at the top of the screen beside it, such as Calendaria's HUD.
+ */
+for (const hook of ['createScene', 'updateScene', 'deleteScene', 'createFolder', 'updateFolder', 'deleteFolder',
+	'updateUser', 'userConnected', 'updatePlaylistSound', 'collapseSidebar', 'renderSidebar', 'renderApplicationV2', 'closeApplicationV2']) {
+	Hooks.on(hook, () => SceneBar.schedule());
+}
+Hooks.on('canvasReady', () => SceneBar.noteView());
+for (const hook of ['createCombat', 'updateCombat', 'deleteCombat', 'canvasReady']) {
+	Hooks.on(hook, () => SceneBar.noteCombat());
+}
+addEventListener('resize', () => SceneBar.schedule());
+
+/* The carousel shares the top of the screen with it, and keeps clear. */
+Hooks.on('sfhScenes', () => Carousel.schedule());
 
 /* A token hovered on the map lights its card, as it does its row in the tracker. */
 Hooks.on('hoverToken', (token, hovered) => {
