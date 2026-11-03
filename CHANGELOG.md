@@ -41,6 +41,9 @@ device, and the character sheet is a projection it raises over the canvas.
 - PF2e and SF2e: the whole Biography tab, editable by the character's owner: appearance, backstory,
   personality with edicts and anathema, and campaign notes, with Foundry's own rich text editor and
   the sheet's control over who may read each section.
+- A Scene bar style setting: the bar of scenes, or just the Scenes button that opens the drawer.
+- The carousel steps down below Calendaria's HUD when that is stuck at the top center, and
+  follows it when it moves.
 - A scene bar in place of Foundry's scene list: the scenes in navigation across the top left in
   the device's style, a drawer of every scene by folder with a search, and a preview of each with
   View, Activate, Preload, Pull all, Initial view, Configure and showing it in the bar. Click to

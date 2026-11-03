@@ -359,6 +359,50 @@ const results = await page.evaluate(async () => {
 		check('at its proper size', Math.abs(el().querySelector('.sfh-card:not(.active)').getBoundingClientRect().width - 66) < 1, el().querySelector('.sfh-card:not(.active)').getBoundingClientRect().width);
 	}
 
+	/* ---- it steps down below Calendaria's HUD, and follows it ---- */
+	{
+		SFH.store.sequences = false;
+		SFH.DeviceChrome.setPower(true, { silent: true });
+		game.settings.set(null, 'device', 'omni');
+		await wait(200);
+		await draw();
+		const natural = el().getBoundingClientRect();
+		const hud = document.createElement('div');
+		hud.id = 'calendaria-hud';
+		const centre = natural.left + natural.width / 2;
+		hud.style.cssText = `position:fixed;top:${natural.top + 10}px;left:${centre - 180}px;width:360px;height:60px;background:#1f2a44;z-index:30`;
+		document.body.append(hud);
+		const { refreshObstacles } = await import('../scripts/interface/obstacles.mjs');
+		refreshObstacles();
+		await wait(120);
+		const overlap = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+		let box = el().getBoundingClientRect();
+		let h = hud.getBoundingClientRect();
+		check('with Calendaria\'s HUD in its place, it steps down below it', box.top >= h.bottom && !overlap(box, h), [box.top, h.bottom]);
+		check('and only just below it', box.top - h.bottom < 12, box.top - h.bottom);
+		SFH.Projection.fit();
+		await wait(120);
+		const panel = document.querySelector('#sfh-projection [data-slot="identity"]').getBoundingClientRect();
+		check('the projection still clears it', panel.top >= box.bottom - 1, [panel.top, box.bottom]);
+		hud.style.top = `${natural.top + 60}px`;
+		await wait(200);
+		box = el().getBoundingClientRect();
+		h = hud.getBoundingClientRect();
+		check('dragging the HUD lower takes it lower too', box.top >= h.bottom && !overlap(box, h), [box.top, h.bottom]);
+		hud.style.left = '20px';
+		await wait(200);
+		box = el().getBoundingClientRect();
+		check('moved out of the way, it goes back up', Math.abs(box.top - natural.top) < 1, [box.top, natural.top]);
+		hud.style.left = `${centre - 180}px`;
+		await wait(200);
+		hud.remove();
+		refreshObstacles();
+		await wait(200);
+		box = el().getBoundingClientRect();
+		check('closed, it goes back up', Math.abs(box.top - natural.top) < 1, [box.top, natural.top]);
+		SFH.DeviceChrome.setPower(false, { silent: true });
+	}
+
 	/* ---- it fits, on every device, and the projection clears it ---- */
 	SFH.store.sequences = false;
 	SFH.DeviceChrome.setPower(true, { silent: true });

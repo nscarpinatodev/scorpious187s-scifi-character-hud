@@ -106,6 +106,17 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		onChange: () => onScenesChange?.(),
 	});
 
+	game.settings.register(MOD, S.sceneBarStyle, {
+		name: 'SFH.Settings.SceneBarStyle',
+		hint: 'SFH.Settings.SceneBarStyleHint',
+		scope: 'client',
+		config: true,
+		type: String,
+		choices: { bar: 'SFH.Settings.SceneBarStyleBar', button: 'SFH.Settings.SceneBarStyleButton' },
+		default: 'bar',
+		onChange: () => onScenesChange?.(),
+	});
+
 	game.settings.register(MOD, S.sceneBarStartCollapsed, {
 		name: 'SFH.Settings.SceneBarStartCollapsed',
 		hint: 'SFH.Settings.SceneBarStartCollapsedHint',

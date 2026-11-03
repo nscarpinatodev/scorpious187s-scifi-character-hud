@@ -344,6 +344,38 @@ const results = await page.evaluate(async () => {
 		check(`${device}: every button's label fits`, !labels.length, labels.map((x) => x.textContent));
 	}
 
+	/* ---- just the button ---- */
+	SFH.store.sceneBarStyle = 'button';
+	game.settings.set(null, 'device', 'tron');
+	await wait(150);
+	await draw();
+	check('just the button: no row of scenes', !el().querySelector('.sfh-scene') && !el().querySelector('.sfh-more'));
+	check('and nothing to collapse', !el().querySelector('[data-sact="collapse"]'));
+	check('Foundry\'s list stays hidden', getComputedStyle(document.getElementById('scene-navigation')).display === 'none');
+	check('the button is small', el().querySelector('.sfh-bar').getBoundingClientRect().width < 200, el().querySelector('.sfh-bar').getBoundingClientRect().width);
+	await click(el().querySelector('[data-sact="drawer"]'));
+	check('it opens the drawer', !!el().querySelector('.sfh-drawer'));
+	check('which calls the first list "In navigation"', /In navigation/.test(el().querySelector('[data-folder="bar"]').textContent));
+	await click(el().querySelector('[data-folder="bar"]'));
+	await hover(tile('bridge'));
+	check('and its preview\'s navigation button says what it does to players', /Hide from players/.test(card().querySelector('[data-sact="nav"]').textContent), card().querySelector('[data-sact="nav"]').textContent);
+	await unhover();
+	el().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+	canvas.scene.availableLevels = [{ id: 'l1', name: 'Deck 1', isView: false }, { id: 'l2', name: 'Deck 2', isView: true }];
+	await draw();
+	check('a scene of several levels keeps its picker', !!el().querySelector('.sfh-level'));
+	canvas.scene.availableLevels = [];
+	await draw();
+	SFH.store.sceneBarCollapsed = true;
+	await draw();
+	el().dispatchEvent(new PointerEvent('pointerenter'));
+	await wait(40);
+	check('a collapsed bar left from before does not hide the button', !!el().querySelector('[data-sact="drawer"]') && !el().classList.contains('collapsed') && !el().querySelector('.sfh-scene'));
+	SFH.store.sceneBarCollapsed = false;
+	SFH.store.sceneBarStyle = 'bar';
+	await draw();
+	check('back to the bar, the scenes come back', !!el().querySelector('.sfh-scene') && !!el().querySelector('[data-sact="collapse"]'));
+
 	/* ---- off ---- */
 	SFH.store.sceneBar = false;
 	await draw();

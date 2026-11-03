@@ -117,5 +117,12 @@
 	"SFH.Scenes.NavHint": "Show or hide it in the bar, and in players' navigation.",
 	"SFH.Scenes.Notes": "Notes",
 	"SFH.Scenes.NotesHint": "Open the scene's journal notes.",
-	"SFH.Scenes.Clash": "{module} also replaces the scene navigation. Turn off its scene navigation, or this module's Scene bar setting, so they do not fight over it."
+	"SFH.Scenes.Clash": "{module} also replaces the scene navigation. Turn off its scene navigation, or this module's Scene bar setting, so they do not fight over it.",
+	"SFH.Settings.SceneBarStyle": "Scene bar style",
+	"SFH.Settings.SceneBarStyleHint": "A bar of the scenes in navigation, or just the Scenes button, which opens every scene by folder with a search and previews. The collapse settings only apply to the bar.",
+	"SFH.Settings.SceneBarStyleBar": "A bar of scenes",
+	"SFH.Settings.SceneBarStyleButton": "Just the Scenes button",
+	"SFH.Scenes.InNavigation": "In navigation",
+	"SFH.Scenes.IntoNavigation": "Show players",
+	"SFH.Scenes.OutOfNavigation": "Hide from players"
 }

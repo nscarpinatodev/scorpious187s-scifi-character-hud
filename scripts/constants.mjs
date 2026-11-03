@@ -34,6 +34,7 @@ export const S = {
 	carouselScale: 'carouselScale', // client — how large the carousel is, %
 	carouselLayout: 'carouselLayout', // client — the current turn on the left, or centered
 	sceneBar: 'sceneBar',           // client — the scene bar in place of Foundry's scene list
+	sceneBarStyle: 'sceneBarStyle', // client — a bar of scenes, or just the button that opens them
 	sceneBarCollapsed: 'sceneBarCollapsed', // client, hidden — whether it is collapsed now
 	sceneBarStartCollapsed: 'sceneBarStartCollapsed', // client — collapsed each time Foundry loads
 	sceneBarCombat: 'sceneBarCombat', // client — collapsed while an encounter runs

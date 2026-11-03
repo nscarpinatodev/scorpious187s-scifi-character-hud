@@ -1,5 +1,6 @@
 import { EL, MOD, S } from '../constants.mjs';
 import { esc } from '../projection/helpers.mjs';
+import { topObstacles, watchObstacles } from './obstacles.mjs';
 
 /**
  * The scene bar: Foundry's scene navigation as a bar across the top left, in the device's style,
@@ -31,9 +32,8 @@ export class SceneBar {
 	static #peeking = false;
 	static #preloaded = new Set();
 	static #preloading = new Set();
-	static #watched = null;
-	static #observers = [];
 	static #dragging = null;
+	static #watching = false;
 
 	static get element() {
 		return document.getElementById(EL.scenes);
@@ -50,6 +50,11 @@ export class SceneBar {
 
 	static get collapsed() {
 		return !this.#peeking && this.#keptCollapsed;
+	}
+
+	/** Just the button that opens the drawer, and no row of scenes: there is nothing then to collapse. */
+	static get buttonOnly() {
+		return game.settings.get(MOD, S.sceneBarStyle) === 'button';
 	}
 
 	/** Draw it again once the current burst of changes is over. */
@@ -154,26 +159,35 @@ export class SceneBar {
 			parent.prepend(el);
 			this.#bind(el);
 		}
-		this.#watch();
+		if (!this.#watching) {
+			this.#watching = true;
+			watchObstacles(() => this.schedule());
+		}
 		const l = (key) => game.i18n.localize(key);
 		const icon = (path) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="${path}"/></svg>`;
 		const gm = game.user.isGM;
-		const collapsed = this.collapsed;
+		const buttonOnly = this.buttonOnly;
+		const collapsed = !buttonOnly && this.collapsed;
 		// the button says what it will do: open for a look, it still opens the bar for good
 		const kept = this.#keptCollapsed;
 		const viewers = this.#viewers();
-		const chips = collapsed ? '' : this.#barScenes().map((s) => this.#chip(s, viewers[s.id])).join('');
+		const chips = collapsed || buttonOnly ? '' : this.#barScenes().map((s) => this.#chip(s, viewers[s.id])).join('');
 		const back = this.#previous && game.scenes.get(this.#previous)
 			? `<button type="button" class="sfh-sb" data-sact="back" aria-label="${esc(l('SFH.Scenes.Back'))}" data-tooltip="${esc(game.i18n.format('SFH.Scenes.BackTo', { name: this.#name(game.scenes.get(this.#previous)) }))}">${icon('M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3')}</button>`
 			: '';
 		el.classList.toggle('collapsed', collapsed);
+		el.classList.toggle('button-only', buttonOnly);
+		// with just the button, a scene of several levels still needs its picker beside it
+		const row = buttonOnly
+			? this.#levels()
+			: collapsed ? '' : `<span class="sfh-sep"></span><ol class="sfh-chips plain">${chips}</ol>${this.#levels()}
+			<button type="button" class="sfh-sb sfh-more" data-sact="more" hidden></button>`;
+		const collapse = buttonOnly ? '' : `<span class="sfh-sep"></span>
+			<button type="button" class="sfh-sb" data-sact="collapse" aria-pressed="${kept}" aria-label="${esc(l(kept ? 'SFH.Scenes.Expand' : 'SFH.Scenes.Collapse'))}" data-tooltip="${esc(l(kept ? 'SFH.Scenes.Expand' : 'SFH.Scenes.Collapse'))}">${icon(kept ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6')}</button>`;
 		el.innerHTML = `<div class="sfh-bar">
 			${back}
 			<button type="button" class="sfh-sb ${this.#drawerOpen ? 'on' : ''}" data-sact="drawer" aria-expanded="${this.#drawerOpen}" data-tooltip="${esc(l('SFH.Scenes.AllHint'))}">${icon('M3 6h7l2 2h9v11H3z')}<span>${esc(l('SFH.Scenes.All'))}</span></button>
-			${collapsed ? '' : `<span class="sfh-sep"></span><ol class="sfh-chips plain">${chips}</ol>${this.#levels()}
-			<button type="button" class="sfh-sb sfh-more" data-sact="more" hidden></button>`}
-			<span class="sfh-sep"></span>
-			<button type="button" class="sfh-sb" data-sact="collapse" aria-pressed="${kept}" aria-label="${esc(l(kept ? 'SFH.Scenes.Expand' : 'SFH.Scenes.Collapse'))}" data-tooltip="${esc(l(kept ? 'SFH.Scenes.Expand' : 'SFH.Scenes.Collapse'))}">${icon(kept ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6')}</button>
+			${row}${collapse}
 		</div>
 		${this.#drawerOpen ? this.#drawer(viewers, gm) : ''}`;
 		this.#fit(el);
@@ -212,7 +226,7 @@ export class SceneBar {
 		const loose = all.filter((s) => !s.folder);
 		const count = (id) => all.filter((s) => this.#inFolder(s, id)).length;
 		const folders = [
-			`<li class="sfh-folder ${this.#folder === 'bar' ? 'on' : ''}" data-folder="bar">${esc(l('SFH.Scenes.InTheBar'))}<span>${this.#barScenes().length}</span></li>`,
+			`<li class="sfh-folder ${this.#folder === 'bar' ? 'on' : ''}" data-folder="bar">${esc(l(this.buttonOnly ? 'SFH.Scenes.InNavigation' : 'SFH.Scenes.InTheBar'))}<span>${this.#barScenes().length}</span></li>`,
 			...tree.map(({ folder, depth }) => `<li class="sfh-folder ${this.#folder === folder.id ? 'on' : ''}" data-folder="${esc(folder.id)}" style="--depth:${depth}${folder.color ? `;--folder:${esc(folder.color.css ?? folder.color)}` : ''}">${esc(folder.name)}<span>${count(folder.id)}</span></li>`),
 			loose.length ? `<li class="sfh-folder ${this.#folder === 'loose' ? 'on' : ''}" data-folder="loose">${esc(l('SFH.Scenes.NoFolder'))}<span>${loose.length}</span></li>` : '',
 		].join('');
@@ -224,7 +238,7 @@ export class SceneBar {
 			crumbs = game.i18n.format('SFH.Scenes.Found', { count: list.length, query: this.#query.trim() });
 		} else if (this.#folder === 'bar') {
 			list = this.#barScenes();
-			crumbs = l('SFH.Scenes.InTheBar');
+			crumbs = l(this.buttonOnly ? 'SFH.Scenes.InNavigation' : 'SFH.Scenes.InTheBar');
 		} else if (this.#folder === 'loose') {
 			list = loose;
 			crumbs = l('SFH.Scenes.NoFolder');
@@ -262,9 +276,9 @@ export class SceneBar {
 	/*  Room                                         */
 	/* -------------------------------------------- */
 
-	/** What sits at the top of the screen that the bar must not run under: Calendaria's HUD, wherever it is stuck. */
+	/** What sits at the top of the screen that the bar must not run under. */
 	static #obstacles() {
-		return [document.getElementById('calendaria-hud')].filter((el) => el && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+		return topObstacles();
 	}
 
 	/**
@@ -312,21 +326,6 @@ export class SceneBar {
 		}
 	}
 
-	/** Calendaria's HUD can be dragged and resized; the bar follows it. */
-	static #watch() {
-		const hud = document.getElementById('calendaria-hud');
-		if (hud === this.#watched) return;
-		for (const o of this.#observers) o.disconnect();
-		this.#observers = [];
-		this.#watched = hud;
-		if (!hud) return;
-		const resized = new ResizeObserver(() => this.schedule());
-		resized.observe(hud);
-		const moved = new MutationObserver(() => this.schedule());
-		moved.observe(hud, { attributes: true, attributeFilter: ['style', 'class'] });
-		this.#observers = [resized, moved];
-	}
-
 	/* -------------------------------------------- */
 	/*  The preview                                  */
 	/* -------------------------------------------- */
@@ -370,7 +369,7 @@ export class SceneBar {
 			gm ? button('pull', esc(l('SFH.Scenes.Pull')), l('SFH.Scenes.PullHint')) : '',
 			gm ? button('initial', esc(l('SFH.Scenes.Initial')), l(scene.isView ? 'SFH.Scenes.InitialHint' : 'SFH.Scenes.InitialNotViewed'), { disabled: !scene.isView }) : '',
 			gm ? button('config', esc(l('SFH.Scenes.Configure')), l('SFH.Scenes.ConfigureHint')) : '',
-			gm ? button('nav', esc(l(scene.navigation ? 'SFH.Scenes.OutOfBar' : 'SFH.Scenes.IntoBar')), l('SFH.Scenes.NavHint')) : '',
+			gm ? button('nav', esc(l(this.buttonOnly ? (scene.navigation ? 'SFH.Scenes.OutOfNavigation' : 'SFH.Scenes.IntoNavigation') : (scene.navigation ? 'SFH.Scenes.OutOfBar' : 'SFH.Scenes.IntoBar'))), l('SFH.Scenes.NavHint')) : '',
 			gm && scene.journal ? button('notes', esc(l('SFH.Scenes.Notes')), l('SFH.Scenes.NotesHint')) : '',
 		].join('');
 		const state = [
@@ -481,7 +480,7 @@ export class SceneBar {
 		});
 		// collapsed, it opens while the pointer is on it, if the setting says so
 		el.addEventListener('pointerenter', () => {
-			if (!this.collapsed || !game.settings.get(MOD, S.sceneBarHover)) return;
+			if (this.buttonOnly || !this.collapsed || !game.settings.get(MOD, S.sceneBarHover)) return;
 			this.#peeking = true;
 			this.render();
 		});

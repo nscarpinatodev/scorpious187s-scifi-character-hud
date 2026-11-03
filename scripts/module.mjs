@@ -8,6 +8,7 @@ import { applyFonts, onFontChange, reportMissingFonts, suggestFonts } from './in
 import { watchPlacement } from './interface/placement.mjs';
 import { Carousel } from './interface/carousel.mjs';
 import { SceneBar } from './interface/scenes.mjs';
+import { refreshObstacles } from './interface/obstacles.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
 /**
@@ -156,6 +157,8 @@ for (const hook of ['createScene', 'updateScene', 'deleteScene', 'createFolder',
 	Hooks.on(hook, () => SceneBar.schedule());
 }
 Hooks.on('canvasReady', () => SceneBar.noteView());
+// an application opening or closing may be Calendaria's HUD, which the bar and the carousel keep clear of
+for (const hook of ['renderApplicationV2', 'closeApplicationV2']) Hooks.on(hook, () => refreshObstacles());
 for (const hook of ['createCombat', 'updateCombat', 'deleteCombat', 'canvasReady']) {
 	Hooks.on(hook, () => SceneBar.noteCombat());
 }

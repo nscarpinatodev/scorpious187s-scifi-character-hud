@@ -1,5 +1,6 @@
 import { EL, MOD, S } from '../constants.mjs';
 import { esc } from '../projection/helpers.mjs';
+import { topObstacles, watchObstacles } from './obstacles.mjs';
 
 /**
  * The carousel: the turn order as a row of portraits across the top of the screen, in the
@@ -13,6 +14,7 @@ import { esc } from '../projection/helpers.mjs';
  */
 export class Carousel {
 	static #pending = false;
+	static #watching = false;
 	static #renders = 0;
 
 	static get element() {
@@ -87,6 +89,11 @@ export class Carousel {
 		el.style.setProperty('--cs', String((game.settings.get(MOD, S.carouselScale) ?? 100) / 100));
 		el.innerHTML = `<ol class="sfh-cards plain">${cards.join('')}</ol>${this.#controls(combat, started)}`;
 		this.#fitWidth(el);
+		this.#dropBelow(el);
+		if (!this.#watching) {
+			this.#watching = true;
+			watchObstacles(() => this.schedule());
+		}
 		const cardsRow = el.querySelector('.sfh-cards');
 		if (anchorId) this.#balance(cardsRow, anchorId);
 		// a new turn starts with the current one in view; anything else leaves the row where it was
@@ -208,6 +215,23 @@ export class Carousel {
 		const scale = parent.width / (el.parentElement.offsetWidth || parent.width) || 1;
 		const room = Math.min(toRight, toLeft, parent.width / 2) * 2;
 		el.style.maxWidth = `${Math.max(240, Math.floor(room / scale))}px`;
+	}
+
+	/**
+	 * Step down below anything stuck at the top of the screen in its way, as Calendaria's HUD at
+	 * the top center would be. The interface can be scaled, which rectangles see and a style's
+	 * pixels do not.
+	 */
+	static #dropBelow(el) {
+		el.style.removeProperty('margin-top');
+		const box = el.getBoundingClientRect();
+		const scale = box.width / (el.offsetWidth || box.width) || 1;
+		let drop = 0;
+		for (const other of topObstacles()) {
+			const r = other.getBoundingClientRect();
+			if (r.left < box.right && r.right > box.left && r.top < box.bottom && r.bottom > box.top) drop = Math.max(drop, r.bottom + 6 - box.top);
+		}
+		if (drop) el.style.marginTop = `${drop / scale}px`;
 	}
 
 	/**
