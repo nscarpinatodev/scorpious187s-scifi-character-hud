@@ -263,6 +263,11 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .sfh-menu{position:absolute;left:8px;right:8px;top:8px;z-index:12;display:flex;flex-direction:column;gap:6px;padding:10px;background:linear-gradient(var(--pnl),var(--pnl)),#0a0b0e;border:1px solid var(--hot);border-radius:calc(var(--r)*.6);box-shadow:0 0 22px var(--glow)}
 .sfh-menu label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--dim)}
 .sfh-menu .sfh-in{width:5em;flex:none}
+/* immunities, weaknesses and resistances: a line of words, not a number */
+.sfh-iwr{align-items:flex-start;text-align:left}
+.sfh-iwr-v{font-size:12px;line-height:1.3;color:var(--text);white-space:normal}
+/* a strike's damage formula, after the word on its button */
+.sfh-formula{font-family:var(--mono);font-size:.92em;opacity:.85;text-transform:none;letter-spacing:0}
 .sel{font:inherit;font-size:12px;color:var(--text);background:var(--pnl2);border:1px solid var(--line);border-radius:calc(var(--r)*.6);height:30px;padding:0 6px}
 /* the etched grid: off, across the whole ground, or only on the panels */
 .hexbg{display:none}
@@ -579,11 +584,16 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .vb-sigil text{fill:#7ab8ff;font:22px serif}
 .vb-turn{animation:vbTurn 180s linear infinite}
 @keyframes vbTurn{to{transform:rotate(360deg)}}
-/* Vambrace: the runes kindle along the bracer, the sigil turns open behind the board, and each
-   panel is drawn outward from its own center in a flash of light. Keep in step with SEQ_LONG. */
+/* Vambrace: the runes kindle along the bracer, the sigil turns open behind the board and the main
+   body is drawn out of it in a flash of light; then the sigil's ring flares and an arcane bolt
+   leaps from it to every other panel at once (bolts.mjs), each drawn out from where it strikes.
+   Until then they wait, hidden. Keep in step with SEQ_LONG. */
 .seq-on.t-vambrace .vb-sigil{animation:vbSigil 1.4s ease-out both}
 @keyframes vbSigil{0%{opacity:0;transform:scale(.1) rotate(-90deg)}35%{opacity:.9}to{opacity:.07;transform:none}}
-.seq-on.t-vambrace .slot{animation:vbDraw .7s ease-out backwards;animation-delay:calc(350ms + var(--d,0ms))}
+.seq-on.t-vambrace .slot[data-slot="projection"]{animation:vbDraw .7s ease-out 350ms backwards}
+.seq-on.t-vambrace .slot:not([data-slot="projection"]):not(.vb-struck){opacity:0}
+.seq-on.t-vambrace .slot.vb-struck{animation:vbDraw .65s cubic-bezier(.2,.7,.3,1)}
+.vb-bolts{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:60}
 @keyframes vbDraw{from{clip-path:circle(0% at 50% 50%);filter:brightness(2.2)}to{clip-path:circle(150% at 50% 50%);filter:none}}
 .seq-on.t-vambrace .navb{animation:vbStone .4s ease-out backwards;animation-delay:calc(500ms + var(--d,0ms))}
 @keyframes vbStone{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
@@ -596,6 +606,8 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 
 @media (prefers-reduced-motion:reduce){
   .vb-sigil,.vb-turn,.t-vambrace .pnl::after{animation:none!important}
+  .seq-on.t-vambrace .slot{opacity:1!important}
+  .vb-bolts{display:none}
 }
 
 @media (prefers-reduced-motion:reduce){

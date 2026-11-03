@@ -6,22 +6,26 @@ import { esc, sgn, lbl, bar, actBtn, rollBtn, nameBtn, ro } from './helpers.mjs'
  */
 
 /**
- * What the fantasy devices call the panels the others call Effects, Readout and Latest. The
- * Journal's readout is a card of field notes; the Vambrace's is lore.
+ * What each device calls its Effects, Readout and Latest panels. The fantasy devices have words
+ * of their own: the Journal's readout is a card of field notes; the Vambrace's is lore.
  */
 const WORDS = {
-	journal: { effects: 'Conditions', readout: 'Field notes', latest: 'Last roll' },
-	vambrace: { effects: 'Wards & Hexes', readout: 'Lore', latest: 'Last casting' },
+	any: { effects: 'SFH.Projection.Words.Effects', readout: 'SFH.Projection.Words.Readout', latest: 'SFH.Projection.Words.Latest' },
+	journal: { effects: 'SFH.Projection.Words.Journal.Effects', readout: 'SFH.Projection.Words.Journal.Readout', latest: 'SFH.Projection.Words.Journal.Latest' },
+	vambrace: { effects: 'SFH.Projection.Words.Vambrace.Effects', readout: 'SFH.Projection.Words.Vambrace.Readout', latest: 'SFH.Projection.Words.Vambrace.Latest' },
 };
-const word = (device, key, fallback) => WORDS[device]?.[key] ?? fallback;
+const word = (device, key) => game.i18n.localize(WORDS[device]?.[key] ?? WORDS.any[key]);
 
 /* -------------------------------------------- */
 /*  Identity                                     */
 /* -------------------------------------------- */
 
 export function renderIdentity(c, device) {
-	const xp = `<div style="display:flex;flex-direction:column;gap:4px;width:170px;flex:none">${lbl('Experience')}
-		<span class="mono" style="font-size:13px">${c.xp.value.toLocaleString()} / ${c.xp.max.toLocaleString()}</span>
+	// experience is typed, like hit points; right-click it for the level as well
+	const xpDigits = Math.max(1, String(c.xp.value).length);
+	const xp = `<div class="sfh-xp" data-menu="xp" style="display:flex;flex-direction:column;gap:4px;width:170px;flex:none">${lbl(game.i18n.localize('SFH.Projection.Experience'))}
+		<span class="mono" style="font-size:13px"><input class="sfh-in mono sfh-in-xp" type="number" inputmode="numeric" min="0" value="${c.xp.value}"
+			style="width:${xpDigits + 1.2}ch" data-commit="xp" aria-label="${esc(game.i18n.localize('SFH.Projection.Experience'))}"> / ${c.xp.max.toLocaleString()}</span>
 		${bar(c.xp.value, c.xp.max)}</div>`;
 	const rest = c.system === 'dnd5e'
 		? `${actBtn('Short rest', 'rest', 'short', { cls: 'sm ghost', extra: 'sfh-rest' })}${actBtn('Long rest', 'rest', 'long', { cls: 'sm ghost', extra: 'sfh-rest' })}`
@@ -30,7 +34,12 @@ export function renderIdentity(c, device) {
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></button>`;
 	const sheet = `<button type="button" class="b ic" data-act="sheet" data-k="" data-tooltip="Open the system sheet" aria-label="Open the system sheet">
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h11"/></svg></button>`;
-	const level = `<div class="lvl">${lbl('Level')}<span class="big" style="font-size:21px">${c.level}</span></div>`;
+	// a level the system keeps as a number is typed; one made of class levels is the sheet's to change
+	const levelValue = c.levelEditable
+		? `<input class="sfh-in mono big sfh-in-lvl" type="number" inputmode="numeric" min="1" value="${c.level}" style="width:${String(c.level).length + 1.2}ch;font-size:21px"
+			data-commit="level" aria-label="${esc(game.i18n.localize('SFH.Projection.Level'))}">`
+		: `<span class="big" style="font-size:21px">${c.level}</span>`;
+	const level = `<div class="lvl" data-menu="xp">${lbl(game.i18n.localize('SFH.Projection.Level'))}${levelValue}</div>`;
 
 	if (device === 'journal') {
 		// the page's heading: whose journal this is, and beside it the level, experience and the rests
@@ -86,7 +95,7 @@ export function renderVitals(c) {
 		// the system has already taken doomed off dying's maximum; those points show as locked
 		// the recovery check is only there to roll while dying
 		const recover = v.dying.value > 0 ? actBtn('Roll', 'recovery', '', { cls: 'sm trk-roll', title: 'Recovery check' }) : '';
-		cells = `${track('Hero Points', v.hero, 'hero')}
+		cells = `${track('Hero Points', v.hero, 'hero', { menu: 'hero' })}
 			${track('Dying', v.dying, 'dying', { bad: true, locked: v.doomed, extra: recover })}
 			${counter('Wounded', v.wounded, 'wounded', 'warn')}
 			${counter('Doomed', v.doomed, 'doomed', 'bad')}`;
@@ -115,13 +124,13 @@ const counter = (label, value, key, lit = '') => `<div class="cell">${lbl(label)
  * clicking the last lit one takes it back off. `locked` adds dead segments at the end, for
  * points the maximum has lost; a dying track above zero puts its cell on alert.
  */
-const track = (label, { value, max }, act, { bad = false, locked = 0, extra = '' } = {}) => {
+const track = (label, { value, max }, act, { bad = false, locked = 0, extra = '', menu = '' } = {}) => {
 	const name = label.toLowerCase();
 	const segs = Array.from({ length: max }, (_, i) => `<button type="button" class="seg ${bad ? 'bad' : ''} ${i < value ? 'on' : ''}"
 		data-act="${act}" data-k="${i + 1 === value ? i : i + 1}" aria-label="${esc(`${label} ${i + 1}`)}"></button>`).join('')
 		+ '<span class="seg lock" aria-hidden="true"></span>'.repeat(Math.max(0, locked));
 	const title = `${label}: ${value} / ${max}`;
-	return `<div class="cell trk ${bad && value > 0 ? 'alert' : ''}" data-tooltip="${esc(title)}" aria-label="${esc(title)}"><div class="trk-h">${lbl(label)}${extra}</div>
+	return `<div class="cell trk ${bad && value > 0 ? 'alert' : ''}" ${menu ? `data-menu="${menu}"` : ''} data-tooltip="${esc(title)}" aria-label="${esc(title)}"><div class="trk-h">${lbl(label)}${extra}</div>
 		<div class="segs" role="group" aria-label="${esc(name)}">${segs}</div></div>`;
 };
 
@@ -146,8 +155,11 @@ export function renderDefenses(c, device) {
 			? `<button type="button" class="${cls}" data-act="${esc(d.act)}" data-k="${esc(d.k ?? '')}" ${ro(`def:${d.label}`)}${style}>${lbl(d.label)}${value}</button>`
 			: `<div class="${cls}"${style} ${ro(`def:${d.label}`)}>${lbl(d.label)}${value}</div>`;
 	}).join('');
+	// what the character is immune to, weak against and resists, each across the whole panel
+	const iwr = (c.iwr ?? []).filter((g) => g.items.length).map((g) => `<div class="cell wide sfh-iwr" ${ro(`def:${g.label}`)}>${lbl(g.label)}
+		<span class="sfh-iwr-v">${esc(g.items.join(', '))}</span></div>`).join('');
 	const style = eva ? ' style="grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);height:100%"' : '';
-	return `<div class="cells scroll"${style}>${cells}</div>`;
+	return `<div class="cells scroll"${style}>${cells}${eva ? '' : iwr}</div>`;
 }
 
 /* -------------------------------------------- */
@@ -181,7 +193,7 @@ export function renderEffectsSlot(c, device) {
 		? `<select class="sel" data-pick="condition" aria-label="Add a condition"><option value="">+ Add condition…</option>${
 			choices.map((o) => `<option value="${esc(o.id)}">${esc(o.label)}</option>`).join('')}</select>`
 		: '';
-	return `<div class="row sp hd">${lbl(word(device, 'effects', 'Effects'))}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
+	return `<div class="row sp hd">${lbl(word(device, 'effects'))}<span class="mono dimc" style="font-size:12px">${c.effects.length + c.conditions.length}</span></div>
 		<div class="scroll grow" style="display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start">${effects}${conditions}${empty}</div>
 		${picker}`;
 }
@@ -221,7 +233,7 @@ export function renderLatest(roll, device) {
 	const follow = roll.damage
 		? `${actBtn('Damage', 'latestDamage', `${roll.messageId}:damage`, { cls: 'sm ghost' })}${actBtn('Critical', 'latestDamage', `${roll.messageId}:critical`, { cls: 'sm ghost' })}`
 		: '';
-	return `<b class="l-t">${esc(word(device, 'latest', 'Latest'))}</b>
+	return `<b class="l-t">${esc(word(device, 'latest'))}</b>
 		<span class="l-n" title="${esc(roll.name)}">${esc(roll.name)}</span>
 		<span class="l-f mono" title="${esc(roll.formula)}">${esc(roll.formula)}</span>
 		<span class="l-v mono">${esc(roll.total)}</span>
@@ -242,7 +254,7 @@ export function renderReadout(entry, device) {
 	if (!entry) {
 		return journal
 			? `${head}<p class="jn-hand">Point at anything on these pages to read about it here.</p>`
-			: `<div class="lbl">${esc(word(device, 'readout', 'Readout'))}</div>
+			: `<div class="lbl">${esc(word(device, 'readout'))}</div>
 			<p class="dimc" style="font-size:13px;line-height:1.4">Point at a weapon, action, feat, skill or item to read it here.</p>`;
 	}
 	const traits = (entry.traits ?? []).map((t) => `<span class="chip">${esc(t)}</span>`).join('');

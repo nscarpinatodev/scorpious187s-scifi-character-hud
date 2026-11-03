@@ -615,6 +615,100 @@ body[data-sfh-device] #chat-message:focus {
 	box-shadow: 0 0 12px var(--sfh-glow);
 }
 
+/* ---------------------------------------------------------------- the fantasy devices */
+/*
+ * The palette makes the fantasy devices' interface the right colors; these make it the right
+ * things. The Journal's is paper: grain under the panels, shadows where the sci-fi devices
+ * glow, the lit control inked in rubric red, a sender's name in the title hand. The Vambrace's
+ * is dark glass, blurred over the map and edged in blue and violet, as its panels are.
+ */
+body[data-sfh-device="journal"] {
+	/* paper grain, drawn rather than loaded */
+	--sfh-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+body[data-sfh-device="journal"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
+body[data-sfh-device="journal"] #sidebar-content .chat-sidebar.with-background,
+body[data-sfh-device="journal"] #players :is(#players-active, #players-inactive) {
+	background: var(--sfh-grain), var(--sfh-panel);
+	box-shadow: inset 8px 0 18px -10px rgb(60 40 20 / 50%), 0 4px 14px rgb(0 0 0 / 35%);
+}
+
+body[data-sfh-device="journal"] #camera-views {
+	box-shadow: 0 4px 14px rgb(0 0 0 / 35%);
+}
+
+/* the lit control is inked in, not glowing */
+body[data-sfh-device="journal"] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu) :is(.ui-control, .placeable-hud) {
+	--control-active-bg-color: var(--sfh-hot);
+	--control-active-border-color: #7a1c14;
+	--control-active-icon-color: #fbf3df;
+}
+
+body[data-sfh-device="journal"] :is(#ui-left, #ui-right, #ui-middle, #hud) .ui-control:is([aria-pressed="true"], :hover),
+body[data-sfh-device="journal"] #scene-navigation .scene.view {
+	box-shadow: 0 2px 6px rgb(40 26 10 / 45%);
+}
+
+/* chat: cards of paper laid on the map */
+body[data-sfh-device="journal"][data-sfh-chat="on"] .chat-message {
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%), 0 2px 6px rgb(40 26 10 / 35%);
+}
+
+/* the sender is a heading, which the interface sets in the display face: here it is the title hand */
+body[data-sfh-device="journal"][data-sfh-chat="on"] :is(#ui-left, #ui-right, #ui-middle, #chat-notifications) .chat-message .message-header .message-sender {
+	font-family: "IM Fell English", var(--sfh-face);
+	font-size: 17px;
+	letter-spacing: 0;
+}
+
+body[data-sfh-device="journal"][data-sfh-chat="on"] .chat-message .dice-roll .dice-total {
+	font-family: var(--sfh-face);
+	font-size: 24px;
+	font-weight: 600;
+	font-variant-numeric: lining-nums;
+	text-shadow: none;
+}
+
+/* an emote is an aside, written in the margin */
+body[data-sfh-device="journal"][data-sfh-chat="on"] .chat-message.emote .message-content {
+	font-family: "Caveat", cursive;
+	font-size: 19px;
+	color: var(--sfh-hot);
+}
+
+body[data-sfh-device="journal"] #chat-message {
+	background: var(--sfh-grain), var(--sfh-panel);
+}
+
+body[data-sfh-device="journal"] #chat-message:focus {
+	box-shadow: 0 2px 8px rgb(40 26 10 / 35%);
+}
+
+/* the Vambrace: dark glass over the map */
+body[data-sfh-device="vambrace"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
+body[data-sfh-device="vambrace"] #sidebar-content .chat-sidebar.with-background,
+body[data-sfh-device="vambrace"] #players :is(#players-active, #players-inactive),
+body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message {
+	backdrop-filter: blur(6px);
+}
+
+/* edged in blue and violet, as its panels are; whispers keep their own edge */
+body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message:not(.whisper, .blind) {
+	border-color: transparent;
+	background:
+		linear-gradient(var(--sfh-panel), var(--sfh-panel)) padding-box,
+		linear-gradient(140deg, rgb(122 184 255 / 60%), rgb(180 140 255 / 32%) 40%, rgb(122 184 255 / 12%) 70%, rgb(122 184 255 / 50%)) border-box;
+}
+
+body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message .message-header .message-sender {
+	letter-spacing: 0.08em;
+}
+
+body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message :is(.flavor-text, .whisper-to) {
+	font-style: italic;
+}
+
 /* ---------------------------------------------------------------- calendaria */
 /*
  * Calendaria takes its colors from 3DS:ATLAS, which writes the chosen theme as --atlas-*

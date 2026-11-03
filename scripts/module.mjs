@@ -12,7 +12,7 @@ import { refreshObstacles } from './interface/obstacles.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
 /**
- * Scorpious187's Sci-Fi Character HUD.
+ * Scorpious187's HUD UI for 5e and PF2e/SF2e.
  *
  * A skin for the Foundry interface: the foot of the screen becomes the device the
  * character is wearing, the macro bar rides on it, and its switch raises a projected
@@ -38,10 +38,26 @@ const STYLES = [
 	'styles/projection-frame.css',
 ];
 
+/**
+ * Whether a stylesheet is already on the page: linked, or, as Foundry 13 and 14 bring in a
+ * module's styles, pulled in by an `@import` in one of its own sheets.
+ */
+function hasStyle(href) {
+	if (document.querySelector(`link[href*="${href}"]`)) return true;
+	for (const sheet of document.styleSheets) {
+		let rules;
+		try { rules = sheet.cssRules; } catch { continue; }   // another origin's sheet cannot be read
+		for (const rule of rules) {
+			if (rule instanceof CSSImportRule && rule.href?.includes(href)) return true;
+		}
+	}
+	return false;
+}
+
 function ensureStyles() {
 	for (const path of STYLES) {
 		const href = `modules/${MOD}/${path}`;
-		if (document.querySelector(`link[href^="${href}"]`)) continue;
+		if (hasStyle(href)) continue;
 		const link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = `${href}?v=${game.modules.get(MOD)?.version ?? '0'}`;

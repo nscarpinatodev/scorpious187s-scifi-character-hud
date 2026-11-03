@@ -43,7 +43,7 @@
 
 @font-face {
 	font-family: "Share Tech Mono";
-	src: url("../fonts/ShareTechMono-Regular.ttf") format("truetype");
+	src: url("../fonts/ShareTechMono-Regular.woff2") format("woff2");
 	font-weight: 400;
 	font-display: swap;
 }
@@ -78,7 +78,7 @@
 
 @font-face {
 	font-family: Audiowide;
-	src: url("../fonts/Audiowide-Regular.ttf") format("truetype");
+	src: url("../fonts/Audiowide-Regular.woff2") format("woff2");
 	font-weight: 400;
 	font-display: swap;
 }
@@ -93,7 +93,7 @@
 /* variable: one file for every weight */
 @font-face {
 	font-family: Orbitron;
-	src: url("../fonts/Orbitron-Variable.ttf") format("truetype");
+	src: url("../fonts/Orbitron-Variable.woff2") format("woff2");
 	font-weight: 400 900;
 	font-display: swap;
 }
@@ -112,7 +112,7 @@
  */
 @font-face {
 	font-family: "IM Fell English";
-	src: url("../fonts/IMFellEnglish-Regular.ttf") format("truetype");
+	src: url("../fonts/IMFellEnglish-Regular.woff2") format("woff2");
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
@@ -120,7 +120,7 @@
 
 @font-face {
 	font-family: "IM Fell English";
-	src: url("../fonts/IMFellEnglish-Italic.ttf") format("truetype");
+	src: url("../fonts/IMFellEnglish-Italic.woff2") format("woff2");
 	font-weight: 400;
 	font-style: italic;
 	font-display: swap;
@@ -128,14 +128,14 @@
 
 @font-face {
 	font-family: "IM Fell English SC";
-	src: url("../fonts/IMFellEnglishSC-Regular.ttf") format("truetype");
+	src: url("../fonts/IMFellEnglishSC-Regular.woff2") format("woff2");
 	font-weight: 400;
 	font-display: swap;
 }
 
 @font-face {
 	font-family: "EB Garamond";
-	src: url("../fonts/EBGaramond-Variable.ttf") format("truetype");
+	src: url("../fonts/EBGaramond-Variable.woff2") format("woff2");
 	font-weight: 400 800;
 	font-style: normal;
 	font-display: swap;
@@ -143,7 +143,7 @@
 
 @font-face {
 	font-family: "EB Garamond";
-	src: url("../fonts/EBGaramond-Italic-Variable.ttf") format("truetype");
+	src: url("../fonts/EBGaramond-Italic-Variable.woff2") format("woff2");
 	font-weight: 400 800;
 	font-style: italic;
 	font-display: swap;
@@ -151,7 +151,7 @@
 
 @font-face {
 	font-family: Caveat;
-	src: url("../fonts/Caveat-Variable.ttf") format("truetype");
+	src: url("../fonts/Caveat-Variable.woff2") format("woff2");
 	font-weight: 400 700;
 	font-display: swap;
 }
@@ -160,14 +160,14 @@
    reserves its name; they ship as their authors' own files. */
 @font-face {
 	font-family: Cinzel;
-	src: url("../fonts/Cinzel-Variable.ttf") format("truetype");
+	src: url("../fonts/Cinzel-Variable.woff2") format("woff2");
 	font-weight: 400 900;
 	font-display: swap;
 }
 
 @font-face {
 	font-family: Alegreya;
-	src: url("../fonts/Alegreya-Variable.ttf") format("truetype");
+	src: url("../fonts/Alegreya-Variable.woff2") format("woff2");
 	font-weight: 400 900;
 	font-style: normal;
 	font-display: swap;
@@ -175,7 +175,7 @@
 
 @font-face {
 	font-family: Alegreya;
-	src: url("../fonts/Alegreya-Italic-Variable.ttf") format("truetype");
+	src: url("../fonts/Alegreya-Italic-Variable.woff2") format("woff2");
 	font-weight: 400 900;
 	font-style: italic;
 	font-display: swap;

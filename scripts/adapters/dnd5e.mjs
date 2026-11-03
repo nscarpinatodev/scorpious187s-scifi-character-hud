@@ -56,6 +56,7 @@ export function read(actor) {
 		ac: sys.attributes?.ac?.value ?? 10,
 		speed: sys.attributes?.movement?.walk ?? 30,
 		defenses: defenses(actor),
+		iwr: iwr(actor),
 		vitals: {
 			kind: 'dnd5e',
 			hd: { value: sys.attributes?.hd?.value ?? 0, max: sys.attributes?.hd?.max ?? sys.details?.level ?? 0 },
@@ -101,6 +102,21 @@ function defenses(actor) {
 		{ label: 'Prof', value: sgn(sys.attributes?.prof ?? 2) },
 		{ label: 'Passive', value: sys.skills?.prc?.passive ?? 10 },
 		{ label: 'Spell DC', value: sys.attributes?.spell?.dc ?? sys.attributes?.spelldc ?? 10 },
+	];
+}
+
+/** What the character resists, is vulnerable to, and is immune to, named as the system names them. */
+function iwr(actor) {
+	const traits = actor.system?.traits ?? {};
+	const names = (trait, config) => [
+		...[...(trait?.value ?? [])].map((k) => config?.[k]?.label ?? config?.[k] ?? k),
+		...String(trait?.custom ?? '').split(';').map((s) => s.trim()).filter(Boolean),
+	];
+	const damage = CONFIG.DND5E?.damageTypes;
+	return [
+		{ label: game.i18n.localize('SFH.Projection.Immunities'), items: [...names(traits.di, damage), ...names(traits.ci, CONFIG.DND5E?.conditionTypes)] },
+		{ label: game.i18n.localize('SFH.Projection.Vulnerabilities'), items: names(traits.dv, damage) },
+		{ label: game.i18n.localize('SFH.Projection.Resistances'), items: names(traits.dr, damage) },
 	];
 }
 
@@ -881,6 +897,7 @@ export async function act(actor, action, key, event) {
 		case 'setHp': return setHp(actor, Number(key));
 		case 'setMax': return actor.update({ 'system.attributes.hp.max': Math.max(1, Number(key)) });
 		case 'setTemp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, Number(key)) });
+		case 'setXp': return actor.update({ 'system.details.xp.value': Math.max(0, Math.round(Number(key))) });
 		default: return null;
 	}
 }

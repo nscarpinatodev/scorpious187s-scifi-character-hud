@@ -44,11 +44,13 @@ export function read(actor) {
 		name: actor.name,
 		sub: [heritage, background, cls].filter(Boolean).join(' · '),
 		level,
+		levelEditable: true,
 		xp: { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 1000 },
 		hp: { value: hp.value ?? 0, max: hp.max ?? 0, temp: hp.temp ?? 0 },
 		ac: sys.attributes?.ac?.value ?? 10,
 		speed: landSpeed(actor),
 		defenses: defenses(actor),
+		iwr: iwr(actor),
 		vitals: {
 			kind: 'pf2e',
 			hero: { value: actor.heroPoints?.value ?? 0, max: actor.heroPoints?.max ?? 3 },
@@ -107,6 +109,39 @@ function defenses(actor) {
 	out.push({ label: 'Speed', value: `${landSpeed(actor)} ft` });
 	if (perception) out.push({ label: 'Initiative', value: sgn(perception.mod ?? 0), act: 'initiative', k: '' });
 	return out;
+}
+
+/** Immunities, weaknesses and resistances, by the labels the system gives them. */
+function iwr(actor) {
+	const attrs = actor.attributes ?? actor.system?.attributes ?? {};
+	const labels = (list) => [...(list ?? [])].map((x) => x.label ?? x.type ?? '').filter(Boolean);
+	return [
+		{ label: game.i18n.localize('SFH.Projection.Immunities'), items: labels(attrs.immunities) },
+		{ label: game.i18n.localize('SFH.Projection.Weaknesses'), items: labels(attrs.weaknesses) },
+		{ label: game.i18n.localize('SFH.Projection.Resistances'), items: labels(attrs.resistances) },
+	];
+}
+
+/**
+ * The damage each strike deals, on its Damage and Critical buttons ("Damage 2d8+4 piercing"), as
+ * the sheet shows it. The system works the formula out asynchronously, so it is filled in once
+ * the tab is drawn; `live` says whether that tab is still the one on the screen.
+ */
+export async function decorate(actor, body, live) {
+	const buttons = [...body.querySelectorAll('[data-act="strikeDamage"], [data-act="critical"]')];
+	for (const button of buttons) {
+		const [index, alt] = String(button.dataset.k).split(':');
+		const strike = actor.system?.actions?.[Number(index)];
+		const usage = alt === undefined ? strike : strike?.altUsages?.[Number(alt)];
+		const roll = button.dataset.act === 'critical' ? usage?.critical : usage?.damage;
+		if (typeof roll !== 'function') continue;
+		const formula = await roll.call(usage, { getFormula: true });
+		if (!live()) return;
+		if (typeof formula !== 'string' || !formula) continue;
+		const plain = formula.replace(/<[^>]+>/g, '').trim();
+		button.dataset.tooltip = plain;
+		button.innerHTML = `${button.textContent.split(' ')[0]} <span class="sfh-formula">${esc(plain)}</span>`;
+	}
 }
 
 function durationLabel(effect) {
@@ -715,6 +750,12 @@ export async function act(actor, action, key, event) {
 		case 'setHp': return setHp(actor, Number(key));
 		case 'setMax': return actor.update({ 'system.attributes.hp.max': Math.max(1, Number(key)) });
 		case 'setTemp': return actor.update({ 'system.attributes.hp.temp': Math.max(0, Number(key)) });
+		case 'setXp': return actor.update({ 'system.details.xp.value': Math.max(0, Math.round(Number(key))) });
+		case 'setLevel': return actor.update({ 'system.details.level.value': Math.max(1, Math.min(30, Math.round(Number(key)))) });
+		case 'setHero': {
+			const max = actor.heroPoints?.max ?? 3;
+			return actor.update({ 'system.resources.heroPoints.value': Math.max(0, Math.min(max, Math.round(Number(key)))) });
+		}
 		case 'hero': return actor.update({ 'system.resources.heroPoints.value': Number(key) });
 		// dying, wounded and doomed are conditions; the attributes are derived from them
 		case 'dying': return setConditionValue(actor, 'dying', Number(key));

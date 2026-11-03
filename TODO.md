@@ -4,24 +4,23 @@ Work that is known, wanted and not done yet. Ordered roughly by when it should h
 
 ## Start here: getting 0.2.0 ready
 
-Everything below "Start here" is built, deployed and passing its tests in the harness. What is
-left before the module is ready is mostly looking at it in Foundry, in that order:
+The module is now "Scorpious187's HUD UI for 5e and PF2e/SF2e" (the title; its id is unchanged,
+so existing installs keep working). Its fonts are all Latin woff2, and its stylesheets load once.
+What is left, in order:
 
-1. **Try both fantasy devices in Foundry, in a 5e world and a PF2e world.** Neither has been
-   seen outside the test harness. For each, with sequences on: open and close it; switch tabs;
-   type in the Biography (the editor's toolbar should stay on one row); roll something, so the
-   chat card and the latest-roll strip show; and look at Calendaria's HUD and the carousel. The
-   Journal needs a full relaunch after deploying, for its fonts.
-2. **Decide the module's name.** It is still "Sci-Fi Character HUD" in `module.json` and the
-   README, which now describe two fantasy devices as well. Renaming the id would break the
-   install for anyone who has it; the title can change freely.
-3. **Fonts as woff2.** The Journal's and the Vambrace's fonts ship as TTFs, 3.9 MB in `fonts/`
-   in all. Cutting them to Latin woff2 like the rest needs `pip install fonttools brotli`, then
-   `pyftsubset` per file; the size of the module download is the only thing it changes.
-4. **Stylesheets loaded twice** (Loose ends, below): the one known cost at load time.
-5. **Release.** Bump nothing until 1–4 are done: `module.json` is at 0.2.0 with its manifest
-   and download URLs pointing at the GitHub release, and CHANGELOG.md's 0.2.0 section is the
-   release notes. The repo has no remote yet.
+1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch (the fonts
+   changed). With sequences on: the Vambrace's arcane bolts; the Journal and the Vambrace in the
+   sidebar, chat, player list and carousel (paper, and dark glass); typing experience and level;
+   right-clicking experience, hero points and an item; dragging an item into a container and onto
+   the macro bar; PF2e's resistances and the damage formulas on the strikes.
+2. **Decide on the Journal's mock-ups** (`tools/harness-device.html?mockup`, served by
+   `node tools/serve-harness.mjs`): the satchel (straps, clasps, flap, the book rising out of it)
+   and the Marauder's Map fade-in. Either is built into the module on a yes: the satchel's back
+   has to be drawn inside the projection, behind the book (see the mock-up's `satchelBack`), and
+   its art allowed past the top of its frame.
+3. **Release.** `module.json` is at 0.2.0 with its manifest and download URLs pointing at the
+   GitHub release, and CHANGELOG.md's 0.2.0 section is the release notes. The repo has no remote
+   yet.
 
 Everything after this section is wanted, not needed for the release.
 
@@ -35,24 +34,27 @@ system's own sheet, which the book button opens.
 - [x] **Spell slots (5e)** — spend and regain from the Spells tab.
 - [x] **Dropping onto the projection** — items, spells, effects, conditions and folders land
       as they would on the system's sheet, and into a container dropped on, in every system.
-- [ ] **Dragging out of the projection** — its rows cannot be picked up, so an item already
-      carried cannot be dragged into a container, onto another sheet or onto the macro bar.
-- [ ] **Experience and level** — typed, like hit points.
-- [ ] **Item names, quantities and notes** — quantity and equipped are there; the rest is not.
+- [x] **Dragging out of the projection** — an item's or effect's name can be picked up, with the
+      drag data the system's sheet gives: into a container, onto another sheet or the macro bar.
+- [x] **Experience and level** — experience typed in both systems; the level too in PF2e and
+      SF2e (5e's comes from class levels, which stay on the sheet).
+- [ ] **Item names, quantities and notes** — names and quantities from an item's right-click
+      editor; notes (the item's description) are not editable from the projection yet.
 - [x] **Biography** — the whole tab, editable in place, in every system.
-- [ ] **Right-click elsewhere** — the same editor pattern for any value with more behind it
-      than one number (temporary hit points, shields, hero points).
+- [ ] **Right-click elsewhere** — hit points (with maximum and temporary), experience (with the
+      level) and hero points have their editor. Left: shields, and 5e's inspiration and hit dice.
 
 ## Next
 
 - [ ] **Remaining tab bodies** — PF2e crafting, 5e bastion and special traits.
-- [ ] **PF2e and SF2e, from the review against the sheet** — immunities, weaknesses and
-      resistances; toggles for roll options, and counters on effects; special resources, stamina
-      and resolve; real names for size and languages, senses, other speeds and reach; the
-      initiative box following the statistic actually rolled; typing a loaded magazine's count.
+- [ ] **PF2e and SF2e, from the review against the sheet** — toggles for roll options, and
+      counters on effects; special resources, stamina and resolve; real names for size and
+      languages, senses, other speeds and reach; the initiative box following the statistic
+      actually rolled; typing a loaded magazine's count. (Immunities, weaknesses and resistances
+      are done, in the defenses panel, and 5e's too.)
 - [ ] **What the mock-up has that the build does not** — the Actions tab's encounter /
-      exploration / downtime filter; the damage formula on each strike's Damage button
-      ("Damage 3d8+6"); the dossier's shield controls (−5, regen), credits and omni-gel.
+      exploration / downtime filter; the dossier's shield controls (−5, regen), credits and
+      omni-gel. (Each strike's damage formula is on its Damage and Critical buttons.)
 - [ ] **Translatable strings** — every label in `projection/panels.mjs` and the adapters is
       written in English in the markup. Move them to `lang/en.json`; `tools/check.mjs` will
       then hold them to it.
@@ -61,18 +63,30 @@ system's own sheet, which the book button opens.
 
 ## Fantasy devices
 
-The approved look is `design/fantasy-mockup.html`. Both work in 5e, PF2e and SF2e.
+Both work in 5e, PF2e and SF2e. `design/fantasy-mockup.html` was the first, static design, drawn
+before either was built; the live mock-ups are now in the harness (`?mockup`), on the real
+projection, and new work is tried there.
 
 - [x] **Adventurer's Journal** — the open book, its strap, its sequence and its paper palette.
-- [x] **Runic Vambrace** — the bracer, its runes and gem, the sigil sequence, dark glass panels
-      and rune-stone tabs.
-- [ ] **The fantasy fonts as woff2** — see Start here, 3.
-- [ ] **Each device's own words** — the fantasy devices' "Field notes", "Lore", "Conditions",
-      "Wards & Hexes", "Last roll" and "Last casting" are in `WORDS` in `panels.mjs`; they belong
-      in `lang/en.json` with the rest (and see Translatable strings, above).
-- [ ] **More fantasy looks** — the variations proposed with the first two: a Reliquary
-      (stained glass, for clerics), a Grove (living wood), a Runeforge (stone and brass) and
-      Witchfire (bone and green flame). Each is a palette and art on one of the two built so far.
+- [x] **Runic Vambrace** — the bracer, its runes and gem, the sigil sequence with its arcane
+      bolts, dark glass panels and rune-stone tabs.
+- [x] **The fantasy fonts as woff2**, and **each device's own words** in `lang/en.json`.
+- [x] **Their interface** — the sidebar, chat, player list, controls and carousel as paper (the
+      Journal) and dark glass (the Vambrace), as the static mock-up drew them.
+- [ ] **The Journal's satchel and fade-in ink** — mocked up; see Start here, 2.
+- [ ] **More fantasy looks** — the Reliquary, Runeforge and Witchfire over the Vambrace and the
+      Grove over the Journal are mocked up (`?mockup`, Fantasy look) as palettes over the built
+      devices. Building one means its palette as a device, its own art (the mock-up recolors the
+      existing art with filters) and its own corner marks and textures.
+
+## Sci-fi devices
+
+`design/theme-ideas.md` has the research and seven proposals: a Holoprojector, Datapad and
+Beskar vambrace for Star Wars games (SW5e may already run on the dnd5e system), a Comm unit for
+Starfinder, an Esper core for Esper Genesis, a Retro terminal for horror in space and a Cyberdeck.
+Decide the naming question there before any of them ships.
+
+- [ ] **Pick the first** — the Holoprojector is the closest to what the module already does.
 
 ## Sidebar panels, one at a time
 
@@ -80,8 +94,9 @@ The approved look is `design/fantasy-mockup.html`. Both work in 5e, PF2e and SF2
 needs its own pass — that gets the colors right, not the shape.
 
 - [ ] **Chat** — message frames, whispers, dice totals, 5e's cards and the chat input are in the
-      device's colors. Left: the roll-mode picker and the controls around the input, and a
-      shape pass so roll results read like the device's own readout.
+      device's colors, and the fantasy devices have their own (paper cards; dark glass edged in
+      light). Left: the roll-mode picker and the controls around the input, and a shape pass so
+      roll results read like the device's own readout on the sci-fi devices.
 - [ ] **Actors, Items, Journal, Tables, Cards, Playlists directories** — folder rows, entry rows,
       the search box and the create buttons.
 - [ ] **Compendium** — pack rows and the pack browser.
@@ -101,8 +116,6 @@ needs its own pass — that gets the colors right, not the shape.
 
 ## Loose ends
 
-- [ ] **Stylesheets loaded twice** — `ensureStyles` loads the stylesheets Foundry's own
-      `@import`s already bring in.
 - [ ] **PF2e skill descriptions** — 5e skills and tools show their rules text in the readout;
       PF2e and SF2e skills show only their name.
 - [ ] **The rest of 5e's Favorites** — items, spells and features can be favorited; the sheet

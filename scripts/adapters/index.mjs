@@ -16,6 +16,7 @@ import * as dnd5e from './dnd5e.mjs';
  *   searchItems(text)      optional: the Inventory tab's quick search, as markup
  *   onGiveRequest(data)    optional: the GM's side of giving an item to someone else's character
  *   setField(actor, field, value)  optional: save a typed field marked `data-field`
+ *   decorate(actor, body, live)    optional: fill in what the system answers asynchronously, once a tab is drawn
  *   act(actor, action, k)  what the system should do when a button is pressed
  *
  * and may offer searchItems(text), the results of a quick search box in one of its tab bodies,

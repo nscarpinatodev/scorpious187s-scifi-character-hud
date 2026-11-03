@@ -1,4 +1,4 @@
-# Scorpious187's Sci-Fi Character HUD — Plan
+# Scorpious187's HUD UI for 5e and PF2e/SF2e — Plan
 
 A Foundry VTT v13–v14 module that dresses the **interface** as the device the character is
 wearing: the Mass Effect **omni-tool**, a synthwave **wrist computer**, the Command & Conquer

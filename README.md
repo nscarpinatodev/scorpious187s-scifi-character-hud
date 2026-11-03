@@ -1,4 +1,4 @@
-# Scorpious187's Sci-Fi Character HUD
+# Scorpious187's HUD UI for 5e and PF2e/SF2e
 
 Turns the Foundry VTT interface into the device your character is wearing — a **Mass Effect
 omni-tool**, a **synthwave wrist computer**, a **Command & Conquer EVA console**, or a **TRON

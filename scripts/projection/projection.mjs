@@ -6,6 +6,7 @@ import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, render
 import { getAdapter } from '../adapters/index.mjs';
 import { readDossier } from './dossier.mjs';
 import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
+import { arcaneBolts, stopBolts } from './bolts.mjs';
 
 /**
  * The projection: the character sheet the device raises over the canvas.
@@ -354,6 +355,60 @@ export class Projection {
 		}
 	}
 
+	/**
+	 * What the system only answers asynchronously is filled in once the tab is drawn: PF2e's
+	 * damage formulas on the strikes' buttons. Only the newest render's tab is filled.
+	 */
+	static async #decorate(actor, stage, token) {
+		const body = stage.querySelector('.proj-b');
+		if (!body) return;
+		try {
+			await getAdapter()?.decorate?.(actor, body, () => token === this.#renders && body.isConnected);
+		} catch (err) {
+			console.warn(`${MOD} | the tab's details could not be filled in`, err);
+		}
+	}
+
+	/** One of the character's items or effects, from a row's key: `item:<id>` or `effect:<id>`. */
+	static #ownDoc(key) {
+		const actor = this.actor();
+		const [type, id] = String(key ?? '').split(':');
+		if (!actor || !id) return null;
+		if (type === 'item') return actor.items.get(id) ?? null;
+		if (type === 'effect') return actor.effects?.get(id) ?? actor.items.get(id) ?? null;
+		return null;
+	}
+
+	/**
+	 * What a right-click opens, if anything: hit points with their maximum and temporary pool;
+	 * experience with the level, where it is typed; hero points; and a thing the character has,
+	 * by name and, where it has one, quantity.
+	 */
+	static #menuFields(target) {
+		const c = getAdapter()?.read(this.actor());
+		if (!c || !this.actor()?.isOwner) return null;
+		const num = (label, commit, value) => ({ label, value, attrs: `data-commit="${commit}"` });
+		const host = target.closest('[data-menu]');
+		const kind = host?.dataset.menu;
+		if (kind === 'hp') {
+			return { host, rows: [num('SFH.Projection.Menu.HitPoints', 'hp', c.hp.value), num('SFH.Projection.Menu.Maximum', 'max', c.hp.max), num('SFH.Projection.Menu.Temporary', 'temp', c.hp.temp)] };
+		}
+		if (kind === 'xp') {
+			return { host, rows: [num('SFH.Projection.Experience', 'xp', c.xp.value), ...(c.levelEditable ? [num('SFH.Projection.Level', 'level', c.level)] : [])] };
+		}
+		if (kind === 'hero' && c.vitals?.hero) return { host, rows: [num('SFH.Projection.Menu.HeroPoints', 'hero', c.vitals.hero.value)] };
+		const key = target.closest('[data-ro][draggable="true"]')?.dataset.ro;
+		const item = key?.startsWith('item:') ? this.#ownDoc(key) : null;
+		if (!item?.isOwner) return null;
+		const rows = [{ label: 'SFH.Projection.Menu.Name', value: item.name, text: true, attrs: `data-item-field="name" data-k="${esc(key)}"` }];
+		// a container's count is the sheet's to keep while there is something in it
+		const quantity = item.system?.quantity;
+		if (typeof quantity === 'number' && !(item.contents?.size > 0)) {
+			rows.push({ label: 'SFH.Projection.Menu.Quantity', value: quantity, attrs: `data-item-field="system.quantity" data-k="${esc(key)}"` });
+		}
+		return { host: target.closest('.li, .row, .cell') ?? target.parentElement, rows };
+	}
+
 	/** Save what is being typed, as leaving the field or pressing the editor's save would. */
 	static #finishEditing() {
 		const el = this.element;
@@ -461,7 +516,7 @@ export class Projection {
 			if (scrolled && next && next.dataset.key === scrolled.key) next.scrollTop = scrolled.top;
 		};
 		restore();
-		if (!pending) return;
+		if (!pending) return this.#decorate(actor, stage, token);
 
 		// only the newest render may fill the tab: an older promise can resolve after it
 		body.then((html) => {
@@ -474,6 +529,7 @@ export class Projection {
 			}
 			next.innerHTML = html;
 			restore();
+			this.#decorate(actor, stage, token);
 		}, (err) => {
 			console.error(`${MOD} | the "${tab.id}" tab could not be read`, err);
 			const next = stage.querySelector('.proj-b');
@@ -573,6 +629,9 @@ export class Projection {
 		void stage.offsetWidth; // restart the animations
 		stage.classList.add(kind === 'on' ? 'sfh-seq-on' : 'sfh-seq-off');
 		setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), seqMs(kind, currentDevice()));
+		// the Vambrace's side panels are each set off by a bolt from the sigil, drawn here
+		stopBolts(stage);
+		if (kind === 'on' && currentDevice() === 'vambrace') arcaneBolts(stage);
 	}
 
 	/* -------------------------------------------- */
@@ -759,6 +818,23 @@ export class Projection {
 				return this.render();
 			}
 
+			// a field of one of the character's things, from its right-click editor
+			if (event.target.matches('[data-item-field]')) {
+				const doc = this.#ownDoc(event.target.dataset.k);
+				const path = event.target.dataset.itemField;
+				let value = event.target.value;
+				if (path === 'name') value = value.trim();
+				else value = Math.max(0, Math.round(Number(value)));
+				if (!doc || (path === 'name' ? !value : !Number.isFinite(value))) return this.render();
+				try {
+					await doc.update({ [path]: value });
+				} catch (err) {
+					console.error(`${MOD} | "${path}" could not be saved`, err);
+					ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action: path }));
+				}
+				return;
+			}
+
 			// a field of a tab, typed or saved from its editor; the system's update redraws it
 			if (event.target.matches('[data-field]')) {
 				try {
@@ -774,7 +850,7 @@ export class Projection {
 			if (!field) return;
 			const value = Number(field.value);
 			if (!Number.isFinite(value)) return this.render();
-			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax', shieldHp: 'setShieldHp' }[field.dataset.commit];
+			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax', shieldHp: 'setShieldHp', xp: 'setXp', level: 'setLevel', hero: 'setHero' }[field.dataset.commit];
 			if (!action) return;
 			try {
 				await adapter.act(actor, action, value, event);
@@ -784,7 +860,7 @@ export class Projection {
 			}
 		});
 		el.addEventListener('keydown', (event) => {
-			if (event.key === 'Enter' && event.target.matches('[data-commit],[data-amount],input[data-field]')) event.target.blur();
+			if (event.key === 'Enter' && event.target.matches('[data-commit],[data-amount],input[data-field],[data-item-field]')) event.target.blur();
 			if (event.key === 'Enter' && event.target.matches('[data-browse]')) {
 				event.preventDefault();
 				event.target.closest('.sfh-browse')?.querySelector('[data-act="browseEquipment"]')?.click();
@@ -796,23 +872,33 @@ export class Projection {
 			}
 		});
 
-		// right-click a value that has more to it than one number
+		// right-click a value that has more to it than one number, or one of the character's things
 		el.addEventListener('contextmenu', (event) => {
-			const host = event.target.closest('[data-menu="hp"]');
-			if (!host) return;
+			const fields = this.#menuFields(event.target);
+			if (!fields) return;
 			event.preventDefault();
 			el.querySelector('.sfh-menu')?.remove();
-			const c = getAdapter()?.read(this.actor());
-			if (!c) return;
+			const host = fields.host;
+			if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
 			const menu = document.createElement('div');
 			menu.className = 'sfh-menu';
-			menu.innerHTML = `
-				<label>Hit points<input class="sfh-in mono" type="number" value="${c.hp.value}" data-commit="hp" autofocus></label>
-				<label>Maximum<input class="sfh-in mono" type="number" value="${c.hp.max}" data-commit="max"></label>
-				<label>Temporary<input class="sfh-in mono" type="number" value="${c.hp.temp}" data-commit="temp"></label>
-				<button type="button" class="b sm" data-act="menu-close" data-k="">Close</button>`;
+			const word = (k) => esc(game.i18n.localize(k));
+			menu.innerHTML = fields.rows.map(({ label, attrs, value, text }) =>
+				`<label>${word(label)}<input class="sfh-in${text ? '' : ' mono'}" type="${text ? 'text' : 'number'}" value="${esc(value)}" ${attrs}
+					${text ? 'style="width:12em"' : ''}></label>`).join('')
+				+ `<button type="button" class="b sm" data-act="menu-close" data-k="">${word('SFH.Projection.Menu.Close')}</button>`;
 			host.append(menu);
 			menu.querySelector('input')?.focus();
+		});
+
+		// the character's things can be picked up, as on the system's sheet: into a container, onto
+		// another sheet, or onto the macro bar
+		el.addEventListener('dragstart', (event) => {
+			const key = event.target.closest?.('[data-ro][draggable="true"]')?.dataset.ro;
+			const doc = key && this.#ownDoc(key);
+			if (!doc?.toDragData) return event.preventDefault();
+			event.dataTransfer.setData('text/plain', JSON.stringify(doc.toDragData()));
+			event.dataTransfer.effectAllowed = 'copyMove';
 		});
 
 		// clicking away closes the editor

@@ -50,6 +50,24 @@ device, and the character sheet is a projection it raises over the canvas.
   and shrink further until they fit.
 - The Journal is written in spilled ink: once the cover is open, a ragged front of wet ink
   runs across both pages from the fore-edge, and the words dry out of the stain behind it.
+- Renamed "Scorpious187's HUD UI for 5e and PF2e/SF2e". The module's id is unchanged, so an
+  existing install updates in place.
+- Experience is typed in both systems, like hit points, and the level too in PF2e and SF2e.
+  Right-click experience, hero points or an item for an editor: an item's name and quantity.
+- The character's items and effects can be dragged out of the projection by their names: into a
+  container, onto another sheet or onto the macro bar, as from the system's sheet.
+- Immunities, weaknesses, resistances and vulnerabilities in the defenses panel, in both
+  systems; in PF2e each strike's damage formula is on its Damage and Critical buttons.
+- The Journal's and the Vambrace's interface: the sidebar, chat, player list and controls as
+  paper, with the turn order as heraldic shields, or as dark glass edged in blue and violet.
+- Every font ships as Latin woff2: the fonts folder is 1.3 MB, down from 4.8 MB.
+- The stylesheets are no longer loaded twice: Foundry imports them, and the module only adds
+  one that is missing.
+- The fantasy devices' own words ("Field notes", "Wards & Hexes" and the rest) are in the
+  language file.
+- The Vambrace's side panels open together, each set off by an arcane bolt: once the main body
+  is drawn, the sigil's ring flares and forked lightning leaps from it to the middle of every
+  other panel, which is drawn out of the light from where it strikes.
 - The Vambrace's gem sits lower in the bracer, so none of it is cut off by the edge of the
   screen, and a clicked switch no longer keeps a focus box around it.
 - The Adventurer's Journal, the first fantasy device, for 5e, PF2e and SF2e alike. The sheet

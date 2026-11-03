@@ -67,7 +67,7 @@ export const SEQ = { on: 940, off: 780 };
  * Vambrace's sigil turns open before its panels are drawn, which takes longer than light
  * coming on. Keep in step with design/1-head.html.
  */
-const SEQ_LONG = { book: { on: 3900, off: 1350 }, sigil: { on: 1500, off: 950 } };
+export const SEQ_LONG = { book: { on: 3900, off: 1350 }, sigil: { on: 1500, off: 950 } };
 
 /** How long a device's sequence runs, in ms. */
 export function seqMs(kind, deviceId) {

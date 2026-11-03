@@ -5,6 +5,7 @@
  * own code to run unmodified, and supplies a character shaped like a real PF2e/SF2e actor
  * so the adapter and the projection can be rendered and measured without Foundry.
  */
+const MODULE_WORDS = await (await fetch(new URL('../lang/en.json', import.meta.url))).json();
 const store = { device: 'omni', worldDevice: 'omni', sequences: true, deckSize: 40, grid: 'panels' };
 const onChange = {};
 const hooks = {};
@@ -201,10 +202,12 @@ globalThis.game = {
 		},
 		sheet: { render: () => {} },
 	},
+	// the module's own words, as Foundry would load them from lang/en.json
 	i18n: {
-		localize: (k) => PF2E_WORDS[k] ?? k,
+		localize: (k) => PF2E_WORDS[k] ?? MODULE_WORDS[k] ?? k,
 		format: (k, data) => (k === 'PF2E.Item.Physical.Usage.WornParenthetical' ? `Worn (${data.where})`
-			: k === 'COMBAT.Round' ? `Round ${data.round}` : `${k} ${JSON.stringify(data)}`),
+			: k === 'COMBAT.Round' ? `Round ${data.round}`
+				: MODULE_WORDS[k] ? MODULE_WORDS[k].replace(/\{(\w+)\}/g, (_, n) => data?.[n] ?? '') : `${k} ${JSON.stringify(data)}`),
 	},
 	modules: { get: () => ({ version: 'harness', active: true }) },
 	// the hide key, as Configure Controls would hold it
@@ -234,7 +237,7 @@ globalThis.Hooks = {
 const { DeviceChrome } = await import('../scripts/device/chrome.mjs');
 const { registerSettings } = await import('../scripts/settings.mjs');
 const { Projection } = await import('../scripts/projection/projection.mjs');
-const { SEQ } = await import('../scripts/constants.mjs');
+const { seqMs } = await import('../scripts/constants.mjs');
 
 // what module.mjs does in Foundry: the switch says what it wants, the projection obeys
 Hooks.on('sfhPower', async (on, { sequence } = {}) => {
@@ -250,7 +253,7 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	if (!sequence) return Projection.close();
 	DeviceChrome.playSequence('off');
 	Projection.playSequence('off');
-	setTimeout(() => Projection.close(), SEQ.off);
+	setTimeout(() => Projection.close(), seqMs('off', store.device)); // as module.mjs does
 });
 
 Hooks.on('sfhHidden', (hidden) => {
@@ -276,3 +279,6 @@ document.getElementById('rigPower').addEventListener('click', () => DeviceChrome
 addEventListener('resize', () => Projection.scheduleFit());
 
 globalThis.SFH = { DeviceChrome, Projection, store, actor };
+
+// ?mockup adds the sequence mock-ups (tools/mockup-sequences.mjs) and their picker
+if (new URLSearchParams(location.search).has('mockup')) await import('./mockup-sequences.mjs');
