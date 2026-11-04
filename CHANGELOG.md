@@ -56,6 +56,12 @@ device, and the character sheet is a projection it raises over the canvas.
   out across both pages, soaking up through the paper unevenly and settling sharp.
 - A projection switched off and straight back on no longer has its sequence cut short, or is
   put away once it is back up.
+- Four looks, picked like a device: the Reliquary, a bracer of white gold with a rose window of
+  stained glass, gold-edged panels with jewel colors pooled in them and golden bolts; the
+  Runeforge, a bracer of stone banded in brass with an ember stone, stone panels and runes like
+  coals; Witchfire, a bracer of bone with a green witch-fire, panels framed in bone and green
+  bolts; and the Grove, the Journal bound in green leather, its satchel tooled with leaves and
+  leaves pressed in its pages. Each works as the device it dresses, in every system.
 - An item dragged from another character's inventory onto the projection is taken again. Such
   a drag allows only a move, and the projection answered it as a copy, so the browser dropped
   nothing; in PF2e and SF2e the item now moves, as it does onto the sheet.

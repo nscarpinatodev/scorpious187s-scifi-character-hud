@@ -1,5 +1,5 @@
 import { EL, DEVICES, S, MOD, KEYS, seqMs } from '../constants.mjs';
-import { currentDevice, setting } from '../settings.mjs';
+import { currentDevice, currentLook, setting } from '../settings.mjs';
 import { deviceArt, buildArt } from './art.mjs';
 
 /**
@@ -55,7 +55,12 @@ export class DeviceChrome {
 
 		const id = currentDevice();
 		const device = DEVICES[id];
+		// a look keeps its device's behavior and brings its own art and colors
+		const look = currentLook();
+		const artId = DEVICES[look ?? id].art;
 		document.body.dataset.sfhDevice = id;
+		if (look) document.body.dataset.sfhLook = look;
+		else delete document.body.dataset.sfhLook;
 		document.body.dataset.sfhGrid = setting(S.grid);
 		document.body.dataset.sfhChat = setting(S.chatCards) ? 'on' : 'off';
 		document.body.dataset.sfhCalendaria = setting(S.calendaria) ? 'on' : 'off';
@@ -72,15 +77,17 @@ export class DeviceChrome {
 			bottom.append(layer);
 		}
 		layer.dataset.device = id;
+		if (look) layer.dataset.look = look;
+		else delete layer.dataset.look;
 
 		// the art layer: only the devices with a plate of their own have one
-		const art = deviceArt(device.art);
+		const art = deviceArt(artId);
 		const existing = layer.querySelector('svg.sfh-art');
 		if (!art) existing?.remove();
-		else if (!existing || existing.dataset.art !== device.art) {
+		else if (!existing || existing.dataset.art !== artId) {
 			existing?.remove();
 			const svg = buildArt(art);
-			svg.dataset.art = device.art;
+			svg.dataset.art = artId;
 			layer.prepend(svg);
 			layer.style.setProperty('--sfh-deck-bottom', `${art.deck.bottom * 100}%`);
 			layer.style.setProperty('--sfh-deck-width', `${art.deck.width * 100}%`);
@@ -131,7 +138,7 @@ export class DeviceChrome {
 			bottom.append(hotbar);
 		}
 		document.getElementById(EL.device)?.remove();
-		for (const k of ['sfhDevice', 'sfhGrid', 'sfhChat', 'sfhPower', 'sfhHidden', 'sfhSuspended']) delete document.body.dataset[k];
+		for (const k of ['sfhDevice', 'sfhLook', 'sfhGrid', 'sfhChat', 'sfhPower', 'sfhHidden', 'sfhSuspended']) delete document.body.dataset[k];
 	}
 
 	/** Rebuild for a new device or a changed setting, keeping the power state. */

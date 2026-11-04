@@ -129,6 +129,15 @@ body[data-sfh-device="vambrace"] {
 	--sfh-display: Cinzel, Georgia, serif;
 	--sfh-mono: Alegreya, Georgia, serif;
 	--sfh-radius: 4px;
+	/* the bracer's runes and the sockets of its macro bar, and the edge its panels share */
+	--sfh-rune-dark: #3b4d70;
+	--sfh-rune-lit: #9cc9ff;
+	--sfh-rune-glow: #7ab8ff;
+	--sfh-socket-line: #4a5670;
+	--sfh-socket-a: #1d2436;
+	--sfh-socket-b: #0b0f18;
+	--sfh-socket-lit: #6f9be0;
+	--sfh-edge: linear-gradient(140deg, rgb(122 184 255 / 60%), rgb(180 140 255 / 32%) 40%, rgb(122 184 255 / 12%) 70%, rgb(122 184 255 / 50%));
 }
 
 /*
@@ -463,7 +472,7 @@ body[data-sfh-device="journal"] #sfh-deck #hotbar button:hover {
  * The book passes in front of the bag's back, so while it is out the back is drawn in the
  * projection, behind it, and the art's own is hidden.
  */
-#sfh-device svg.sfh-art[data-art="satchel"] {
+#sfh-device svg.sfh-art:has(.sfh-flap) {
 	overflow: visible;
 }
 
@@ -528,25 +537,25 @@ body[data-sfh-power="on"] #sfh-device .sfh-satchel-back,
  * fills with light.
  */
 body[data-sfh-device="vambrace"] #sfh-deck #action-bar .slot {
-	border: 1px solid #4a5670;
+	border: 1px solid var(--sfh-socket-line);
 	border-radius: 6px;
-	background: radial-gradient(circle at 50% 30%, #1d2436, #0b0f18);
+	background: radial-gradient(circle at 50% 30%, var(--sfh-socket-a), var(--sfh-socket-b));
 	box-shadow: inset 0 2px 6px rgb(0 0 0 / 80%);
 }
 
 body[data-sfh-power="on"][data-sfh-device="vambrace"] #sfh-deck #action-bar .slot {
-	border-color: #6f9be0;
-	box-shadow: inset 0 2px 6px rgb(0 0 0 / 80%), 0 0 8px rgb(122 184 255 / 35%);
+	border-color: var(--sfh-socket-lit);
+	box-shadow: inset 0 2px 6px rgb(0 0 0 / 80%), 0 0 8px var(--sfh-glow);
 }
 
 .sfh-rune {
-	stroke: #3b4d70;
+	stroke: var(--sfh-rune-dark);
 	transition: stroke 300ms, filter 300ms;
 }
 
 body[data-sfh-power="on"] .sfh-rune {
-	stroke: #9cc9ff;
-	filter: drop-shadow(0 0 4px #7ab8ff);
+	stroke: var(--sfh-rune-lit);
+	filter: drop-shadow(0 0 4px var(--sfh-rune-glow));
 }
 
 #sfh-device.sfh-seq-on .sfh-rune {
@@ -555,9 +564,9 @@ body[data-sfh-power="on"] .sfh-rune {
 }
 
 @keyframes sfh-kindle {
-	from { stroke: #3b4d70; filter: none; }
+	from { stroke: var(--sfh-rune-dark); filter: none; }
 	60% { stroke: #ffffff; }
-	to { stroke: #9cc9ff; filter: drop-shadow(0 0 4px #7ab8ff); }
+	to { stroke: var(--sfh-rune-lit); filter: drop-shadow(0 0 4px var(--sfh-rune-glow)); }
 }
 
 .sfh-gem-glow {

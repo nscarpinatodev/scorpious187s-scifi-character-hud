@@ -1,5 +1,5 @@
 import { EL, MOD, S, DEVICES, seqMs } from '../constants.mjs';
-import { currentDevice, setting } from '../settings.mjs';
+import { currentDevice, currentLook, setting } from '../settings.mjs';
 import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav, renderLatest } from './panels.mjs';
@@ -7,7 +7,7 @@ import { getAdapter } from '../adapters/index.mjs';
 import { readDossier } from './dossier.mjs';
 import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 import { arcaneBolts, stopBolts } from './bolts.mjs';
-import { satchelBackSvg } from '../device/art.mjs';
+import { deviceArt } from '../device/art.mjs';
 
 /**
  * The drop effect to answer a drag with: the one the sheet chose, if the drag allows it, or else
@@ -235,13 +235,17 @@ export class Projection {
 	static #satchelBack() {
 		const el = this.element;
 		if (!el) return;
-		const art = document.querySelector(`#${EL.device} svg.sfh-art[data-art="satchel"]`);
+		const art = document.querySelector(`#${EL.device} svg.sfh-art`);
+		// only a satchel has a back to draw, in its own leather: the Journal's, or a look's
+		const behind = deviceArt(art?.dataset.art)?.behind;
 		let back = el.querySelector(':scope > svg.sfh-satchel-back');
 		const at = art?.getBoundingClientRect();
-		if (!this.#open || !at?.width) return back?.remove();
-		if (!back) {
-			el.insertAdjacentHTML('afterbegin', satchelBackSvg());
+		if (!this.#open || !behind || !at?.width) return back?.remove();
+		if (back?.dataset.art !== art.dataset.art) {
+			back?.remove();
+			el.insertAdjacentHTML('afterbegin', behind());
 			back = el.firstElementChild;
+			back.dataset.art = art.dataset.art;
 		}
 		const box = el.getBoundingClientRect();
 		Object.assign(back.style, {
@@ -493,6 +497,10 @@ export class Projection {
 		el.dataset.device = device;
 		const stage = el.querySelector('.sfh-stage');
 		stage.dataset.device = device;
+		// a look over the device: its own colors (styles/looks.css), the device's everything else
+		const look = currentLook();
+		if (look) stage.dataset.look = look;
+		else delete stage.dataset.look;
 
 		// keep the scroll position of the tab body across re-renders
 		const previous = stage.querySelector('.proj-b');

@@ -44,6 +44,28 @@ sheet over the table.
 7. **Cyberdeck** (Neon Odyssey, Carbon 2025): neon magenta and cyan, glitching on open and close;
    different enough from the synthwave wrist computer to stand on its own.
 
+## The mock-ups
+
+All seven are mocked up on the real projection in the device harness: run
+`node tools/serve-harness.mjs`, open `http://localhost:8187/tools/harness-device.html?mockup`
+and pick one under Look, Sci-fi. Each is dressed over the built device it is closest to, so it
+borrows that device's layout and, unless it says otherwise, its way of opening:
+
+| Proposal | Over | What the mock-up shows |
+| --- | --- | --- |
+| Holoprojector | omni-tool | A disc emitter on a low pedestal; translucent blue panels with heavy scanlines, an interference band rolling down them and an idle flicker; they flicker and jitter in as they open. |
+| Datapad | wrist computer | The wrist unit's case worn to grey plastic around a dark olive screen; amber VT323 on an LCD grid, chunky keys. |
+| Beskar vambrace | omni-tool | A hammered steel gauntlet with rivets, plate seams, two red lights and a small red display for the switch; gunmetal panels with silver edges and red readings. |
+| Comm unit | omni-tool | A slate wrist slab with teal light strips, orange signals and a hexagonal emitter; cut-cornered panels and hexagonal tabs over a teal hex grid. |
+| Esper core | Runic Vambrace | A white ceramic band with a cut crystal for the switch; frosted white glass panels in navy and cyan, the sigil's rings in white without its runes. The Vambrace's bolts stay, and suit it. |
+| Retro terminal | EVA (GDI) | Green phosphor in an old beige monitor: VT323 throughout, glowing text, a dark vignette, a blinking cursor after each heading, and every panel typed out top to bottom as it opens. |
+| Cyberdeck | TRON | A neon slab with rows of little keys and a glitched logo for the switch; magenta and cyan, and every panel glitches open in torn slices. |
+
+What they borrow is also what they would not keep: the Esper core still says "Wards & Hexes"
+and "Lore" (the Vambrace's words), and the Retro terminal is the EVA's console, with its link
+dish and unit card. A device built from one of these has its own words and layout where it needs
+them.
+
 ## Names
 
 Trademarked names (Star Wars, Mandalorian, Starfinder, Esper Genesis) belong in descriptions at

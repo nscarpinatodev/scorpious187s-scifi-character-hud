@@ -1,0 +1,258 @@
+/* =========================================================================
+   Looks: a device dressed in another palette and its own art.
+
+   A look keeps everything of the device it dresses — its layout, its board, its sequence, its
+   words — so all it brings is here: the interface's palette (as device.css gives each device),
+   the projection's tokens (as design/1-head.html does), and the few textures and marks that
+   make it itself. The art is in scripts/device/art.mjs.
+
+   Selectors carry both the device and the look, so they win over the device's own rules
+   wherever they are loaded:
+     body[data-sfh-device][data-sfh-look="x"]                       the interface
+     #sfh-projection .sfh-stage[data-device][data-look="x"]         the projection
+   ========================================================================= */
+
+/* ======================================================== the Reliquary (over the Vambrace) */
+/*
+ * Stained glass in gold leading, for a cleric or a paladin: panels like the glass of a rose
+ * window, jewel colors pooled in their corners, edged in gold, with a cross at each top corner.
+ * The bracer is white gold, its stone a rose window, and its bolts strike golden.
+ */
+body[data-sfh-device][data-sfh-look="reliquary"] {
+	--sfh-bg-rgb: 22 14 30;
+	--sfh-hot: #e8c25a;
+	--sfh-glow: rgb(232 194 90 / 45%);
+	--sfh-bright: #fff8e8;
+	--sfh-text: #f2e8d6;
+	--sfh-dim: #b8a68a;
+	--sfh-line: rgb(214 170 70 / 60%);
+	--sfh-line-2: rgb(214 170 70 / 18%);
+	--sfh-hover: rgb(232 194 90 / 12%);
+	--sfh-panel: rgb(22 14 30 / 90%);
+	--sfh-cell: rgb(16 10 22 / 85%);
+	--sfh-acc: #e0577f;
+	--sfh-bad: #ff7a7a;
+	--sfh-face: Alegreya, Georgia, serif;
+	--sfh-display: Cinzel, Georgia, serif;
+	--sfh-mono: Alegreya, Georgia, serif;
+	--sfh-radius: 4px;
+	--sfh-rune-dark: #7a6838;
+	--sfh-rune-lit: #ffe08a;
+	--sfh-rune-glow: #e8c25a;
+	--sfh-socket-line: #8a6a14;
+	--sfh-socket-a: #2a1d36;
+	--sfh-socket-b: #120a18;
+	--sfh-socket-lit: #f2d27a;
+	--sfh-edge: linear-gradient(140deg, #f2d27a, #8a6a14 45%, #f2d27a 70%, #8a6a14);
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="reliquary"] {
+	--pnl: rgba(22, 14, 30, .86); --pnl2: rgba(232, 194, 90, .05);
+	--line: rgba(214, 170, 70, .7); --line2: rgba(214, 170, 70, .2);
+	--text: #f2e8d6; --bright: #fff8e8; --dim: #b8a68a;
+	--hot: #e8c25a; --hotbg: rgba(232, 194, 90, .18); --hover: rgba(232, 194, 90, .12); --glow: rgba(232, 194, 90, .45);
+	--acc: #e0577f; --accbg: rgba(224, 87, 127, .16); --good: #6fd89a;
+	--pshadow: 0 0 22px rgba(232, 194, 90, .14), 0 12px 28px rgba(0, 0, 0, .5);
+	--edge: linear-gradient(140deg, #f2d27a, #8a6a14 45%, #f2d27a 70%, #8a6a14);
+	--corner: '✠ ✠'; --mote: #ffe9a8; --mote2: #ff9ab8; --sigil: #e8c25a;
+	--bolt: #e8c25a; --bolt-core: #fff8e0; --bolt-fork: #ffe6a0; --bolt-ring: #f2d27a;
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="reliquary"] .pnl {
+	border-width: 2px;
+	background:
+		radial-gradient(circle at 12% 18%, rgba(196, 40, 80, .2), transparent 38%) padding-box,
+		radial-gradient(circle at 88% 30%, rgba(40, 90, 200, .22), transparent 40%) padding-box,
+		radial-gradient(circle at 30% 92%, rgba(30, 150, 90, .18), transparent 42%) padding-box,
+		linear-gradient(var(--pnl), var(--pnl)) padding-box,
+		var(--edge) border-box;
+}
+
+/* ======================================================== the Runeforge (over the Vambrace) */
+/*
+ * Dressed stone banded in brass, for a dwarf or a smith: the panels are grained stone without
+ * the glass's blur, embers drift up through them where the Vambrace has motes, the runes glow
+ * like coals, and the bolts strike like sparks off an anvil.
+ */
+body[data-sfh-device][data-sfh-look="runeforge"] {
+	--sfh-bg-rgb: 40 38 36;
+	--sfh-hot: #ff9a3c;
+	--sfh-glow: rgb(255 130 40 / 45%);
+	--sfh-bright: #fff6ea;
+	--sfh-text: #ece4d8;
+	--sfh-dim: #a59a8a;
+	--sfh-line: rgb(196 150 74 / 65%);
+	--sfh-line-2: rgb(196 150 74 / 18%);
+	--sfh-hover: rgb(255 154 60 / 10%);
+	--sfh-panel: rgb(40 38 36 / 94%);
+	--sfh-cell: rgb(28 26 24 / 90%);
+	--sfh-acc: #c4964a;
+	--sfh-bad: #ff6a5a;
+	--sfh-face: Alegreya, Georgia, serif;
+	--sfh-display: Cinzel, Georgia, serif;
+	--sfh-mono: Alegreya, Georgia, serif;
+	--sfh-radius: 2px;
+	--sfh-rune-dark: #4a3a2a;
+	--sfh-rune-lit: #ffb060;
+	--sfh-rune-glow: #ff7a20;
+	--sfh-socket-line: #6a5a40;
+	--sfh-socket-a: #3a3632;
+	--sfh-socket-b: #1e1c1a;
+	--sfh-socket-lit: #ff9a3c;
+	--sfh-edge: linear-gradient(140deg, #e0b870, #6a4a1c 50%, #e0b870);
+	--sfh-stone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.08' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .48 0 0 0 0 .44 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="runeforge"] {
+	--pnl: rgba(40, 38, 36, .95); --pnl2: rgba(196, 150, 74, .05);
+	--line: rgba(196, 150, 74, .75); --line2: rgba(196, 150, 74, .2);
+	--text: #ece4d8; --bright: #fff6ea; --dim: #a59a8a;
+	--hot: #ff9a3c; --hotbg: rgba(255, 154, 60, .16); --hover: rgba(255, 154, 60, .1); --glow: rgba(255, 130, 40, .5);
+	--acc: #c4964a; --accbg: rgba(196, 150, 74, .16); --bad: #ff6a5a;
+	--r: 2px;
+	--pshadow: 0 0 18px rgba(255, 120, 30, .12), 0 12px 28px rgba(0, 0, 0, .55);
+	--edge: linear-gradient(140deg, #e0b870, #6a4a1c 50%, #e0b870);
+	--corner: 'ᛞ ᛟ'; --mote: #ffb060; --mote2: #ff7a30; --sigil: #ff9a3c;
+	--bolt: #ff8a2a; --bolt-core: #fff0d8; --bolt-fork: #ffc890; --bolt-ring: #ffb060;
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="runeforge"] .pnl {
+	border-width: 2px;
+	background:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.08' numOctaves='4'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .48 0 0 0 0 .44 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E") padding-box,
+		linear-gradient(var(--pnl), var(--pnl)) padding-box,
+		var(--edge) border-box;
+	backdrop-filter: none;
+}
+
+/* stone, not glass: the sidebar and chat are dressed stone too */
+body[data-sfh-device][data-sfh-look="runeforge"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
+body[data-sfh-device][data-sfh-look="runeforge"] #sidebar-content .chat-sidebar.with-background,
+body[data-sfh-device][data-sfh-look="runeforge"] #players :is(#players-active, #players-inactive) {
+	background: var(--sfh-stone), var(--sfh-panel);
+	backdrop-filter: none;
+}
+
+/* ======================================================== Witchfire (over the Vambrace) */
+/*
+ * Bone and a green flame, for a witch, a warlock or a necromancer: the panels are smoke-dark
+ * glass framed in bone, a sickly glow pooled at their foot and sparks of witch-fire drifting
+ * up through them, a crescent moon at each top corner, and the bolts strike green.
+ */
+body[data-sfh-device][data-sfh-look="witchfire"] {
+	--sfh-bg-rgb: 12 14 10;
+	--sfh-hot: #7dff6a;
+	--sfh-glow: rgb(125 255 106 / 45%);
+	--sfh-bright: #fbf8ee;
+	--sfh-text: #e8e4d4;
+	--sfh-dim: #9a9a86;
+	--sfh-line: rgb(222 214 190 / 50%);
+	--sfh-line-2: rgb(222 214 190 / 16%);
+	--sfh-hover: rgb(125 255 106 / 10%);
+	--sfh-panel: rgb(12 14 10 / 92%);
+	--sfh-cell: rgb(8 10 6 / 88%);
+	--sfh-acc: #d8d0b4;
+	--sfh-bad: #ff6a5a;
+	--sfh-face: Alegreya, Georgia, serif;
+	--sfh-display: Cinzel, Georgia, serif;
+	--sfh-mono: Alegreya, Georgia, serif;
+	--sfh-radius: 4px;
+	--sfh-rune-dark: #5a5648;
+	--sfh-rune-lit: #b8ff9a;
+	--sfh-rune-glow: #5aff4a;
+	--sfh-socket-line: #8a8470;
+	--sfh-socket-a: #1a1c16;
+	--sfh-socket-b: #0a0c08;
+	--sfh-socket-lit: #7dff6a;
+	--sfh-edge: linear-gradient(160deg, #f2ead2, #8a8470 40%, #e6dcc0 75%, #6a6656);
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="witchfire"] {
+	--pnl: rgba(12, 14, 10, .9); --pnl2: rgba(125, 255, 106, .04);
+	--line: rgba(222, 214, 190, .55); --line2: rgba(222, 214, 190, .16);
+	--text: #e8e4d4; --bright: #fbf8ee; --dim: #9a9a86;
+	--hot: #7dff6a; --hotbg: rgba(125, 255, 106, .14); --hover: rgba(125, 255, 106, .1); --glow: rgba(125, 255, 106, .5);
+	--acc: #d8d0b4; --accbg: rgba(216, 208, 180, .14); --bad: #ff6a5a;
+	--pshadow: 0 0 22px rgba(90, 255, 74, .12), 0 12px 28px rgba(0, 0, 0, .55);
+	--edge: linear-gradient(160deg, #f2ead2, #8a8470 40%, #e6dcc0 75%, #6a6656);
+	--corner: '☾ ☽'; --mote: #b8ff9a; --mote2: #7dff6a; --sigil: #7dff6a;
+	--bolt: #5aff4a; --bolt-core: #eaffd8; --bolt-fork: #b8ff9a; --bolt-ring: #7dff6a;
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="witchfire"] .pnl {
+	border-width: 2px;
+	background:
+		radial-gradient(ellipse at 50% 120%, rgba(125, 255, 106, .12), transparent 60%) padding-box,
+		linear-gradient(var(--pnl), var(--pnl)) padding-box,
+		var(--edge) border-box;
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="witchfire"] .pnl::before {
+	text-shadow: 0 0 6px var(--glow);
+}
+
+/* ======================================================== the Grove (over the Journal) */
+/*
+ * A druid's herbarium: the journal bound in green leather, its paper a little greener, its notes
+ * in leaf-green ink, and leaves pressed between the pages. The satchel is green leather tooled
+ * with a spray of leaves.
+ */
+body[data-sfh-device][data-sfh-look="grove"] {
+	--sfh-bg-rgb: 233 228 198;
+	--sfh-hot: #3f6b2a;
+	--sfh-glow: rgb(30 40 20 / 22%);
+	--sfh-bright: #141a0d;
+	--sfh-text: #232a18;
+	--sfh-dim: #5a6446;
+	--sfh-line: rgb(60 76 40 / 50%);
+	--sfh-line-2: rgb(60 76 40 / 18%);
+	--sfh-hover: #d8dcb8;
+	--sfh-panel: rgb(233 228 198 / 97%);
+	--sfh-cell: rgb(244 240 220 / 94%);
+	--sfh-acc: #8a6a14;
+	--sfh-bad: #b0281c;
+	--sfh-face: "EB Garamond", Georgia, serif;
+	--sfh-display: "IM Fell English SC", "EB Garamond", Georgia, serif;
+	--sfh-mono: "EB Garamond", Georgia, serif;
+	--sfh-radius: 2px;
+}
+
+/* the lit control is inked in green */
+body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu) :is(.ui-control, .placeable-hud) {
+	--control-active-border-color: #26401a;
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="grove"] {
+	--hot: #3f6b2a; --hotbg: rgba(63, 107, 42, .12); --hover: rgba(63, 107, 42, .08);
+	--line: rgba(60, 76, 40, .45); --line2: rgba(60, 76, 40, .16);
+	--text: #232a18; --bright: #141a0d; --dim: #5a6446;
+	--good: #3f6b2a;
+	--jb-l1: #3f5a2a; --jb-l2: #2a4019; --jb-l3: #1a2a10; --jb-paper: #e9e4c6;
+}
+
+/* leaves pressed between the pages: one sticking out past the fore-edge, a small one on the left page */
+#sfh-projection .sfh-stage[data-device][data-look="grove"] :is(.jb-page.r, .jb-page.l)::after {
+	content: '';
+	position: absolute;
+	pointer-events: none;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 100'%3E%3Cpath d='M30 98 C 30 70 30 40 30 6' stroke='%234f6b2c' stroke-width='1.6' fill='none'/%3E%3Cpath d='M30 8 C 6 26 4 62 30 90 C 56 62 54 26 30 8 Z' fill='%234f6b2c' fill-opacity='.35' stroke='%234f6b2c' stroke-opacity='.6'/%3E%3Cpath d='M30 30 L 16 22 M30 46 L 13 36 M30 62 L 15 52 M30 30 L 44 22 M30 46 L 47 36 M30 62 L 45 52' stroke='%234f6b2c' stroke-opacity='.5'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="grove"] .jb-page.r::after {
+	/* the stage ends just past the cover, so it pokes out over the cover's edge and no further */
+	right: -30px;
+	top: 230px;
+	width: 44px;
+	height: 76px;
+	transform: rotate(72deg);
+}
+
+#sfh-projection .sfh-stage[data-device][data-look="grove"] .jb-page.l::after {
+	left: 70px;
+	bottom: 26px;
+	width: 48px;
+	height: 80px;
+	transform: rotate(18deg);
+	opacity: .7;
+	filter: sepia(.6);
+}

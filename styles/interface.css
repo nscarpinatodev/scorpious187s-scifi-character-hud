@@ -698,7 +698,7 @@ body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message:not(.whisper,
 	border-color: transparent;
 	background:
 		linear-gradient(var(--sfh-panel), var(--sfh-panel)) padding-box,
-		linear-gradient(140deg, rgb(122 184 255 / 60%), rgb(180 140 255 / 32%) 40%, rgb(122 184 255 / 12%) 70%, rgb(122 184 255 / 50%)) border-box;
+		var(--sfh-edge) border-box;
 }
 
 body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message .message-header .message-sender {

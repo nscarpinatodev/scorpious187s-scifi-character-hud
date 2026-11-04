@@ -41,19 +41,31 @@ function jag(a, b, rough = 0.42, depth = 5) {
 	}
 	return pts;
 }
+/** The bolts' colors: the Vambrace's spell-light, or a look's own, from the stage's --bolt tokens. */
+const SPELL_LIGHT = { glow: '#7ab8ff', core: '#eef6ff', fork: '#cfe6ff', ring: '#9fd0ff' };
+let color = SPELL_LIGHT;
+function colorsOf(stage) {
+	const style = getComputedStyle(stage);
+	const token = (name, fallback) => style.getPropertyValue(name).trim() || fallback;
+	return {
+		glow: token('--bolt', SPELL_LIGHT.glow), core: token('--bolt-core', SPELL_LIGHT.core),
+		fork: token('--bolt-fork', SPELL_LIGHT.fork), ring: token('--bolt-ring', SPELL_LIGHT.ring),
+	};
+}
+
 const points = (pts) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
 /** The ring flaring, and the flash where a bolt lands: both fade by themselves. */
 function flare(svg) {
 	for (const [width, filter] of [[3, 'url(#sfh-bolt-glow)'], [1.2, 'none']]) {
-		const ring = make('circle', { cx: SIGIL.x, cy: SIGIL.y, r: SIGIL.r, fill: 'none', stroke: '#9fd0ff', 'stroke-width': width, filter, opacity: 0 }, svg);
+		const ring = make('circle', { cx: SIGIL.x, cy: SIGIL.y, r: SIGIL.r, fill: 'none', stroke: color.ring, 'stroke-width': width, filter, opacity: 0 }, svg);
 		ring.animate([{ opacity: 0, r: SIGIL.r - 14 }, { opacity: 0.95, r: SIGIL.r, offset: 0.3 }, { opacity: 0, r: SIGIL.r + 14 }], { duration: 700, fill: 'forwards' });
 	}
 }
 function burst(svg, p) {
-	const flash = make('circle', { cx: p.x, cy: p.y, r: 3, fill: '#eaf4ff', filter: 'url(#sfh-bolt-glow)' }, svg);
+	const flash = make('circle', { cx: p.x, cy: p.y, r: 3, fill: color.core, filter: 'url(#sfh-bolt-glow)' }, svg);
 	flash.animate([{ r: 3, opacity: 1 }, { r: 28, opacity: 0 }], { duration: 380, easing: 'ease-out', fill: 'forwards' });
-	const ring = make('circle', { cx: p.x, cy: p.y, r: 4, fill: 'none', stroke: '#9fd0ff', 'stroke-width': 3 }, svg);
+	const ring = make('circle', { cx: p.x, cy: p.y, r: 4, fill: 'none', stroke: color.ring, 'stroke-width': 3 }, svg);
 	ring.animate([{ r: 4, opacity: 1, strokeWidth: 3 }, { r: 38, opacity: 0, strokeWidth: 0.5 }], { duration: 480, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
 }
 
@@ -69,9 +81,9 @@ function fire(svg, panels) {
 		const g = make('g', { fill: 'none', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
 		return {
 			el, p, o: { x: SIGIL.x + (dx / d) * r, y: SIGIL.y + (dy / d) * r }, g,
-			glow: make('polyline', { stroke: '#7ab8ff', 'stroke-width': 7, opacity: 0.55, filter: 'url(#sfh-bolt-glow)' }, g),
-			core: make('polyline', { stroke: '#eef6ff', 'stroke-width': 1.8 }, g),
-			fork: make('polyline', { stroke: '#cfe6ff', 'stroke-width': 1.1, opacity: 0.8 }, g),
+			glow: make('polyline', { stroke: color.glow, 'stroke-width': 7, opacity: 0.55, filter: 'url(#sfh-bolt-glow)' }, g),
+			core: make('polyline', { stroke: color.core, 'stroke-width': 1.8 }, g),
+			fork: make('polyline', { stroke: color.fork, 'stroke-width': 1.1, opacity: 0.8 }, g),
 			at: rand(0, 0.12), next: 0, struck: false,
 		};
 	});
@@ -117,6 +129,7 @@ export function arcaneBolts(stage) {
 		panels.forEach((el) => el.classList.add('vb-struck'));
 		return;
 	}
+	color = colorsOf(stage);
 	const svg = make('svg', { class: 'vb-bolts', width: stage.offsetWidth || 1280, height: stage.offsetHeight || 728, 'aria-hidden': 'true' }, stage);
 	const glow = make('filter', { id: 'sfh-bolt-glow', x: '-50%', y: '-50%', width: '200%', height: '200%' }, make('defs', {}, svg));
 	make('feGaussianBlur', { stdDeviation: 4 }, glow);

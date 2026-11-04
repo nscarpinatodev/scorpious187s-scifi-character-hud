@@ -235,11 +235,26 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 	});
 }
 
-/** The device this user wears, falling back to the world's choice. */
-export function currentDevice() {
+/** The device or look this user chose, falling back to the world's choice. */
+function chosenDevice() {
 	const mine = game.settings.get(MOD, S.device);
 	const id = mine || game.settings.get(MOD, S.worldDevice);
 	return DEVICES[id] ? id : DEFAULT_DEVICE;
+}
+
+/**
+ * The device this user wears: for a look, the device it dresses, which decides the layout, the
+ * board and the sequence.
+ */
+export function currentDevice() {
+	const id = chosenDevice();
+	return DEVICES[id].base ?? id;
+}
+
+/** The look this user chose over their device, or null for the device as it is. */
+export function currentLook() {
+	const id = chosenDevice();
+	return DEVICES[id].base ? id : null;
 }
 
 export function setting(key) {

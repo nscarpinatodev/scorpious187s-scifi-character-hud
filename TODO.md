@@ -73,10 +73,12 @@ projection, and new work is tried there.
 - [x] **The Journal's satchel and fade-in ink** — the book comes out of a satchel whose straps
       pull free and whose flap turns away, and its writing fades in from the spine like the
       Marauder's Map's. Built from the mock-ups, which have left the harness.
-- [ ] **More fantasy looks** — the Reliquary, Runeforge and Witchfire over the Vambrace and the
-      Grove over the Journal are mocked up (`?mockup`, Fantasy look) as palettes over the built
-      devices. Building one means its palette as a device, its own art (the mock-up recolors the
-      existing art with filters) and its own corner marks and textures.
+- [x] **More fantasy looks** — the Reliquary, Runeforge and Witchfire over the Vambrace and the
+      Grove over the Journal, each picked like a device. A look is a device with a `base`: it
+      keeps its base's layout, board, sequence and words, and brings its own palette and marks
+      (`styles/looks.css`) and its own art, drawn from the base's with its own metal or leather,
+      stone and glyphs (`scripts/device/art.mjs`). The Vambrace's bolts take the look's colors.
+- [ ] **See the looks in Foundry** — none has been seen outside the harness.
 
 ## Sci-fi devices
 
@@ -85,7 +87,14 @@ Beskar vambrace for Star Wars games (SW5e may already run on the dnd5e system), 
 Starfinder, an Esper core for Esper Genesis, a Retro terminal for horror in space and a Cyberdeck.
 Decide the naming question there before any of them ships.
 
+- [x] **Mock-ups** — all seven, on the real projection in the harness (`?mockup`, Look, Sci-fi),
+      each dressed over the device it is closest to, with its own art, palette and, for the
+      Holoprojector, Retro terminal and Cyberdeck, its own opening (`tools/mockup-scifi.mjs`).
 - [ ] **Pick the first** — the Holoprojector is the closest to what the module already does.
+      Most of them could be built as looks, as the fantasy ones are (a `base` in `DEVICES`, a
+      palette and marks in `styles/looks.css`, art in `scripts/device/art.mjs`); the three with an
+      opening of their own (the Holoprojector, Retro terminal and Cyberdeck) also need it written
+      for the look, which the look mechanism does not cover yet.
 
 ## Sidebar panels, one at a time
 

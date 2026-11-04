@@ -47,9 +47,11 @@ one character and have none assigned, it shows that one.
 
 ## What you get
 
-- **Seven devices.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON, and for fantasy
-  games the Adventurer's Journal and the Runic Vambrace. Every device works with every system.
-  The GM sets the world default; each player can pick their own in the module settings.
+- **Seven devices, and four looks.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON,
+  and for fantasy games the Adventurer's Journal and the Runic Vambrace, with the Reliquary,
+  Runeforge and Witchfire as looks over the Vambrace and the Grove over the Journal. Every device
+  works with every system. The GM sets the world default; each player can pick their own in the
+  module settings.
 - **The Adventurer's Journal.** The sheet is a leather journal kept in a satchel at the foot of
   the screen: the straps pull free, the flap turns back, and the book slides out, swings open on
   its spine and its writing fades in as you watch. The main body is
@@ -57,6 +59,10 @@ one character and have none assigned, it shows that one.
   pages and the interface around it in ink on paper.
 - **The Runic Vambrace.** An engraved bracer whose runes kindle one after another; a sigil turns
   open behind the board and the panels are drawn out of the light in dark glass edged in blue.
+- **Four looks.** The Reliquary (white gold and stained glass, for a cleric or a paladin), the
+  Runeforge (stone and brass, runes like coals) and Witchfire (bone and a green witch-fire) dress
+  the Vambrace; the Grove binds the Journal in green leather with leaves pressed in its pages.
+  Each has its own art, colors and bolts, and otherwise works as the device it dresses.
 - **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
   drop, paging and keybinds all work as they always do.
 - **The projection.** Identity, vitals, defenses, effects and a tabbed main panel, laid out

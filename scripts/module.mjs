@@ -36,6 +36,7 @@ const STYLES = [
 	'styles/scenes.css',
 	'styles/projection.css',
 	'styles/projection-frame.css',
+	'styles/looks.css',
 ];
 
 /**

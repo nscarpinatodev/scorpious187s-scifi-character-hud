@@ -68,10 +68,16 @@ const deviceCss = readFileSync(join(root, 'styles/device.css'), 'utf8');
 const required = ['--sfh-bg-rgb', '--sfh-hot', '--sfh-glow', '--sfh-bright', '--sfh-text', '--sfh-dim', '--sfh-line',
 	'--sfh-line-2', '--sfh-hover', '--sfh-panel', '--sfh-cell', '--sfh-acc', '--sfh-bad', '--sfh-face', '--sfh-display', '--sfh-mono'];
 const { DEVICES } = await import(new URL('../scripts/constants.mjs', import.meta.url));
-for (const device of Object.keys(DEVICES)) {
-	const selector = device === 'omni' ? 'body[data-sfh-device] {' : `body[data-sfh-device="${device}"] {`;
-	const block = deviceCss.split(selector)[1]?.split('}')[0] ?? '';
-	for (const prop of required) if (!block.includes(`${prop}:`)) fail(`device ${device} is missing ${prop} in styles/device.css`);
+// a look keeps its whole palette in styles/looks.css, over its device's
+const looksCss = existsSync(join(root, 'styles/looks.css')) ? readFileSync(join(root, 'styles/looks.css'), 'utf8') : '';
+for (const [device, def] of Object.entries(DEVICES)) {
+	const [css, file, selector] = def.base
+		? [looksCss, 'styles/looks.css', `body[data-sfh-device][data-sfh-look="${device}"] {`]
+		: [deviceCss, 'styles/device.css', device === 'omni' ? 'body[data-sfh-device] {' : `body[data-sfh-device="${device}"] {`];
+	const block = css.split(selector)[1]?.split('}')[0] ?? '';
+	for (const prop of required) if (!block.includes(`${prop}:`)) fail(`device ${device} is missing ${prop} in ${file}`);
+	if (def.base && !DEVICES[def.base]) fail(`look ${device} dresses a device that does not exist: ${def.base}`);
+	if (def.base && !manifest.styles.includes('styles/looks.css')) fail('module.json does not list styles/looks.css');
 }
 
 /* ---- the scene-control icons exist in the Font Awesome Foundry ships (when it is installed here) ---- */

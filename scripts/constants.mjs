@@ -14,6 +14,11 @@ export const MOD = 'scorpious187s-scifi-character-hud';
  *  - `projects` false for a device whose sheet is a thing in its own right, the Journal's
  *               book: no beam reaches it from the device, and it takes the free room rather
  *               than matching the plate's width.
+ *  - `base`     makes the device a look: another device dressed in its own palette and art.
+ *               Everything but the colors and the art is the base device's — its layout, its
+ *               board, its sequence and its words — so the code asks for the base
+ *               (currentDevice) and the look's own styles key off `data-sfh-look`
+ *               (styles/looks.css).
  */
 export const DEVICES = {
 	omni: { id: 'omni', label: 'SFH.Device.Omni', hint: 'SFH.Device.OmniHint', art: 'arm', sequence: 'rise', switch: 'band' },
@@ -23,6 +28,11 @@ export const DEVICES = {
 	tron: { id: 'tron', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
 	vambrace: { id: 'vambrace', label: 'SFH.Device.Vambrace', hint: 'SFH.Device.VambraceHint', art: 'bracer', sequence: 'sigil', switch: 'band' },
 	journal: { id: 'journal', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'satchel', sequence: 'book', switch: 'band', projects: false },
+	// looks over the Vambrace and the Journal
+	reliquary: { id: 'reliquary', label: 'SFH.Device.Reliquary', hint: 'SFH.Device.ReliquaryHint', base: 'vambrace', art: 'reliquary', sequence: 'sigil', switch: 'band' },
+	runeforge: { id: 'runeforge', label: 'SFH.Device.Runeforge', hint: 'SFH.Device.RuneforgeHint', base: 'vambrace', art: 'runeforge', sequence: 'sigil', switch: 'band' },
+	witchfire: { id: 'witchfire', label: 'SFH.Device.Witchfire', hint: 'SFH.Device.WitchfireHint', base: 'vambrace', art: 'witchfire', sequence: 'sigil', switch: 'band' },
+	grove: { id: 'grove', label: 'SFH.Device.Grove', hint: 'SFH.Device.GroveHint', base: 'journal', art: 'grove', sequence: 'book', switch: 'band', projects: false },
 };
 
 export const DEFAULT_DEVICE = 'omni';
