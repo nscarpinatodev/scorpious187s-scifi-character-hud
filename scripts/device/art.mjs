@@ -86,11 +86,63 @@ const LEATHER = {
 	emboss: '',
 };
 
+/*
+ * What else a traveler keeps in the satchel, sticking up out of it: a map rolled and tied with a
+ * red ribbon, loose pages, a sealed letter, a quill and a corked vial. They stand inside the bag,
+ * in front of its back and behind its front, so with the flap down their tops show above it. The
+ * middle is left clear for the book, which comes up in front of them: they are part of the back,
+ * so the projection's copy behind the book has them too. `id` names the map's shading, which the
+ * art and the copy each have their own of.
+ */
+const clutter = (id) => `
+	<g class="sfh-clutter">
+		<defs>
+			<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0">
+				<stop offset="0" stop-color="#b8a274"/><stop offset=".45" stop-color="#efe2c0"/><stop offset="1" stop-color="#a08a5c"/>
+			</linearGradient>
+		</defs>
+		<!-- a map, rolled and tied, leaning to the left -->
+		<g transform="rotate(-12 400 760)">
+			<rect x="384" y="652" width="30" height="110" rx="5" fill="url(#${id})" stroke="#6b5530" stroke-width="1"/>
+			<ellipse cx="399" cy="652" rx="15" ry="5" fill="#f2e6c8" stroke="#6b5530" stroke-width="1"/>
+			<path d="M399 652 m-9 0 a9 3 0 1 0 18 0 a6 2 0 1 0 -12 0" fill="none" stroke="#a08a5c" stroke-width=".8"/>
+			<path d="M384 684 h30" stroke="#a3271c" stroke-width="4"/>
+			<path d="M412 684 q12 8 5 22 M412 684 q18 1 20 16" stroke="#a3271c" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+		</g>
+		<!-- loose pages, fanned -->
+		<path d="M446 770 L 442 690 L 524 683 L 532 770 Z" fill="#e2d2ac" stroke="#8a7050" stroke-width=".8" transform="rotate(-7 488 740)"/>
+		<path d="M468 770 L 466 682 L 552 680 L 556 770 Z" fill="#efe3c6" stroke="#8a7050" stroke-width=".8" transform="rotate(5 510 740)"/>
+		<g transform="rotate(5 510 740)" stroke="#6b5842" stroke-opacity=".45" stroke-width="1">
+			<path d="M478 694 h62 M478 702 h54 M478 710 h58 M478 718 h40"/>
+		</g>
+		<!-- a sealed letter, tucked in on the right -->
+		<g transform="rotate(9 790 730)">
+			<rect x="754" y="692" width="72" height="62" fill="#f2e8d0" stroke="#8a7050" stroke-width=".9"/>
+			<path d="M754 692 l36 27 l36 -27" fill="none" stroke="#8a7050" stroke-width=".9"/>
+			<circle cx="790" cy="719" r="7.5" fill="#a3271c" stroke="#6a140e"/>
+			<path d="M786 717 l4 4 l4 -6" fill="none" stroke="#e26a4f" stroke-width="1"/>
+		</g>
+		<!-- a quill, standing tall -->
+		<g transform="rotate(13 878 770)">
+			<path d="M878 640 C 858 664 856 704 876 744 C 898 704 900 664 878 640 Z" fill="#f6f2e8" stroke="#b8ad96" stroke-width=".8"/>
+			<path d="M878 652 L 878 780" stroke="#7a6a4e" stroke-width="1.6"/>
+			<path d="M878 664 l -12 8 M878 680 l -15 9 M878 696 l -15 10 M878 712 l -12 10 M878 670 l 12 8 M878 686 l 15 9 M878 702 l 14 10 M878 718 l 10 9"
+				stroke="#c9bfa8" stroke-width=".9"/>
+		</g>
+		<!-- a vial, corked -->
+		<g transform="rotate(-6 922 740)">
+			<rect x="914" y="692" width="17" height="64" rx="6" fill="#5aa0c8" fill-opacity=".55" stroke="#cfe6f2" stroke-width="1"/>
+			<rect x="916" y="682" width="13" height="12" rx="2" fill="#9a7444" stroke="#5a4020" stroke-width=".8"/>
+			<path d="M918 700 v40" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+		</g>
+	</g>`;
+
 function satchel(p) {
 	const back = (inside) => `
 	<path d="M292 762 V 726 Q 292 712 308 712 H 972 Q 988 712 988 726 V 762 Z" fill="url(#${inside})" stroke="${p.seam}" stroke-width="1.5"/>
 	<path d="M300 724 Q 300 718 310 718 H 970 Q 980 718 980 724" fill="none" stroke="${p.stitch}" stroke-opacity=".3" stroke-width="1.1" stroke-dasharray="6 5"/>
-	<path d="M282 760 L 292 718 L 300 760 Z M998 760 L 988 718 L 980 760 Z" fill="${p.wing}" stroke="${p.dark}"/>`;
+	<path d="M282 760 L 292 718 L 300 760 Z M998 760 L 988 718 L 980 760 Z" fill="${p.wing}" stroke="${p.dark}"/>
+	${clutter(`${inside}-roll`)}`;
 	const inside = (id) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
 	<stop offset="0" stop-color="${p.inside[0]}"/><stop offset=".25" stop-color="${p.inside[1]}"/><stop offset="1" stop-color="${p.inside[2]}"/>
 </linearGradient>`;

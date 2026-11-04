@@ -5,10 +5,11 @@
  *   The sci-fi devices proposed in design/theme-ideas.md, each dressed over a device already
  *   built (tools/mockup-scifi.mjs).
  *
- * The Vambrace's arcane bolts, the Journal's satchel and Marauder's Map fade-in, and the four
- * fantasy looks were tried here, chosen and built (scripts/projection/bolts.mjs; the satchel in
- * scripts/device/art.mjs and styles/device.css, the book and its writing in design/1-head.html;
- * the looks in styles/looks.css); the buttons play the real things.
+ * The Vambrace's arcane bolts, the Journal's satchel, what else is kept in it and the Marauder's
+ * Map fade-in, and the four fantasy looks were tried here, chosen and built
+ * (scripts/projection/bolts.mjs; the satchel and its clutter in scripts/device/art.mjs and
+ * styles/device.css, the book and its writing in design/1-head.html; the looks in
+ * styles/looks.css); the buttons play the real things.
  */
 import { SCIFI, scifiCss } from './mockup-scifi.mjs';
 

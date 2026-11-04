@@ -86,6 +86,16 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		onChange: () => onControlIconsChange?.(),
 	});
 
+	game.settings.register(MOD, S.journalDark, {
+		name: 'SFH.Settings.JournalDark',
+		hint: 'SFH.Settings.JournalDarkHint',
+		scope: 'client',
+		config: true,
+		type: Boolean,
+		default: false,
+		onChange: (v) => { document.body.dataset.sfhDark = v ? 'on' : 'off'; },
+	});
+
 	game.settings.register(MOD, S.chatCards, {
 		name: 'SFH.Settings.ChatCards',
 		hint: 'SFH.Settings.ChatCardsHint',

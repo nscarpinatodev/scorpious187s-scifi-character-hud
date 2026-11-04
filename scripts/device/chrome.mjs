@@ -63,6 +63,8 @@ export class DeviceChrome {
 		else delete document.body.dataset.sfhLook;
 		document.body.dataset.sfhGrid = setting(S.grid);
 		document.body.dataset.sfhChat = setting(S.chatCards) ? 'on' : 'off';
+		// the Journal's interface in the dark: only the Journal and its looks have a light one
+		document.body.dataset.sfhDark = setting(S.journalDark) ? 'on' : 'off';
 		document.body.dataset.sfhCalendaria = setting(S.calendaria) ? 'on' : 'off';
 		document.body.dataset.sfhPower = this.#power ? 'on' : 'off';
 		document.body.dataset.sfhHidden = this.#hidden ? 'on' : 'off';
@@ -138,7 +140,7 @@ export class DeviceChrome {
 			bottom.append(hotbar);
 		}
 		document.getElementById(EL.device)?.remove();
-		for (const k of ['sfhDevice', 'sfhLook', 'sfhGrid', 'sfhChat', 'sfhPower', 'sfhHidden', 'sfhSuspended']) delete document.body.dataset[k];
+		for (const k of ['sfhDevice', 'sfhLook', 'sfhDark', 'sfhGrid', 'sfhChat', 'sfhPower', 'sfhHidden', 'sfhSuspended']) delete document.body.dataset[k];
 	}
 
 	/** Rebuild for a new device or a changed setting, keeping the power state. */

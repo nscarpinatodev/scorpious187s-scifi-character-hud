@@ -217,6 +217,23 @@ body[data-sfh-device][data-sfh-look="grove"] {
 	--sfh-radius: 2px;
 }
 
+/* the Grove in the dark: dark green leather, its ink pale, a spring green for the main color */
+body[data-sfh-device][data-sfh-look="grove"][data-sfh-dark="on"] {
+	--sfh-bg-rgb: 20 28 14;
+	--sfh-hot: #8fc46a;
+	--sfh-glow: rgb(0 0 0 / 40%);
+	--sfh-bright: #f6f8e4;
+	--sfh-text: #e6e8cc;
+	--sfh-dim: #a3ad84;
+	--sfh-line: rgb(200 220 160 / 38%);
+	--sfh-line-2: rgb(200 220 160 / 14%);
+	--sfh-hover: #2e4220;
+	--sfh-panel: rgb(24 32 17 / 96%);
+	--sfh-cell: rgb(34 46 24 / 92%);
+	--sfh-acc: #d9b44a;
+	--sfh-bad: #ff7a64;
+}
+
 /* the lit control is inked in green */
 body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu) :is(.ui-control, .placeable-hud) {
 	--control-active-border-color: #26401a;

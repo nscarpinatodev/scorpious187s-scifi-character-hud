@@ -51,11 +51,16 @@ device, and the character sheet is a projection it raises over the canvas.
 - The Journal is kept in a satchel at the foot of the screen, its flap buckled down by two straps
   through brass clasps; the left clasp opens it. The straps pull free, the flap turns over and
   falls away behind the bag, and the book slides up out of it and swings open. Closing, the book
-  goes back in and the flap comes over and is buckled shut after it.
+  goes back in and the flap comes over and is buckled shut after it. With the flap open, a rolled
+  map, loose pages, a sealed letter, a quill and a corked vial stand up out of the bag beside the
+  book; they are packed out of sight again before the flap closes.
 - The Journal's writing fades in as the Marauder's Map's does: touched at the spine, ink blooms
   out across both pages, soaking up through the paper unevenly and settling sharp.
 - A projection switched off and straight back on no longer has its sequence cut short, or is
   put away once it is back up.
+- The Journal's interface in the dark, a setting: with the Journal or the Grove, the sidebar,
+  chat, player list, controls, scene bar and turn order are dark leather with pale ink instead
+  of paper, while the journal itself stays paper.
 - Four looks, picked like a device: the Reliquary, a bracer of white gold with a rose window of
   stained glass, gold-edged panels with jewel colors pooled in them and golden bolts; the
   Runeforge, a bracer of stone banded in brass with an ember stone, stone panels and runes like

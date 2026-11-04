@@ -3,7 +3,8 @@
  * the page, the device layer and the stage are marked with both the device and the look, so the
  * device's layout, board and sequence are kept while its colors, art and bolts are the look's; a
  * satchel look draws its own leather behind the book; and going back to the device itself takes
- * every trace of the look away.
+ * every trace of the look away. Then the Journal's interface in the dark: the interface around the
+ * book goes dark, the Journal and the Grove each in their own leather, and the book stays paper.
  */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
@@ -117,6 +118,46 @@ const bolts = await page.evaluate(async () => {
 	return glow;
 });
 results.push({ name: 'witchfire: the bolts fly green', ok: bolts === '#5aff4a', detail: JSON.stringify(bolts) });
+
+// the Journal's interface in the dark: the interface around the book, never the book
+const dark = await page.evaluate(async () => {
+	const out = [];
+	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const { DeviceChrome: hud } = SFH;
+	const ui = (name) => getComputedStyle(document.body).getPropertyValue(name).trim();
+	const paper = () => getComputedStyle(document.querySelector('#sfh-projection .sfh-stage')).getPropertyValue('--jb-paper').trim();
+	const light = (rgb) => rgb.split(/\s+/).map(Number).reduce((a, b) => a + b, 0) > 3 * 128;
+	for (const id of ['journal', 'grove']) {
+		if (hud.power) hud.setPower(false, { silent: true });
+		await game.settings.set(null, 'device', id);
+		await game.settings.set(null, 'journalDark', false);
+		await wait(300);
+		hud.setPower(true, { silent: true });
+		await wait(500);
+		const before = { hot: ui('--sfh-hot'), bg: ui('--sfh-bg-rgb'), paper: paper() };
+		await game.settings.set(null, 'journalDark', true);
+		await wait(100);
+		check(`${id} in the dark: the page says so`, document.body.dataset.sfhDark === 'on');
+		check(`${id} in the dark: the interface is dark`, light(before.bg) && !light(ui('--sfh-bg-rgb')), [before.bg, ui('--sfh-bg-rgb')]);
+		check(`${id} in the dark: its own main color`, ui('--sfh-hot') !== before.hot, ui('--sfh-hot'));
+		check(`${id} in the dark: the book is still paper`, paper() === before.paper, paper());
+		await game.settings.set(null, 'journalDark', false);
+		await wait(100);
+		check(`${id} back on paper: as it was`, document.body.dataset.sfhDark === 'off' && ui('--sfh-bg-rgb') === before.bg && ui('--sfh-hot') === before.hot);
+	}
+	// the other devices are dark already, and the setting leaves them be
+	await game.settings.set(null, 'device', 'vambrace');
+	await wait(300);
+	const hot = ui('--sfh-hot');
+	await game.settings.set(null, 'journalDark', true);
+	await wait(100);
+	check('the Vambrace is left as it is', ui('--sfh-hot') === hot, [hot, ui('--sfh-hot')]);
+	await game.settings.set(null, 'journalDark', false);
+	hud.setPower(false, { silent: true });
+	return out;
+});
+results.push(...dark);
 
 await browser.close();
 for (const r of results) if (!r.ok) console.log(`FAIL ${r.name} ${r.detail}`);

@@ -45,6 +45,7 @@ export const S = {
 	grid: 'grid',                 // client — the etched grid: 'panels' | 'full' | 'off'
 	controlIcons: 'controlIcons', // client — sci-fi icons on the scene controls
 	chatCards: 'chatCards',       // client — chat cards in the device's colors, not on parchment
+	journalDark: 'journalDark',   // client — the Journal's interface in dark leather, not paper
 	calendaria: 'calendaria',     // client — Calendaria in the device's colors, over the 3DS:ATLAS theme
 	carousel: 'carousel',         // client — the turn order as a row of portraits across the top
 	carouselScale: 'carouselScale', // client — how large the carousel is, %

@@ -588,6 +588,13 @@ body[data-sfh-device="journal"][data-sfh-chat="on"] .chat-message .dice-roll .di
 	color: #2a5a22;
 }
 
+/* in the dark it is light again, as on the other devices */
+body[data-sfh-device="journal"][data-sfh-dark="on"][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:is(.critical, .success):not(.fumble) {
+	background: color-mix(in srgb, #2fbf5f 20%, var(--sfh-panel));
+	border-color: #6fcf7f;
+	color: #a8f0b8;
+}
+
 body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:is(.fumble, .failure):not(.critical) {
 	background: color-mix(in srgb, var(--sfh-bad) 20%, var(--sfh-panel));
 	border-color: var(--sfh-bad);
@@ -627,6 +634,11 @@ body[data-sfh-device="journal"] {
 	--sfh-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* in the dark, the grain is leather's: pale flecks on the dark */
+body[data-sfh-device="journal"][data-sfh-dark="on"] {
+	--sfh-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .9 0 0 0 0 .78 0 0 0 0 .6 0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 body[data-sfh-device="journal"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
 body[data-sfh-device="journal"] #sidebar-content .chat-sidebar.with-background,
 body[data-sfh-device="journal"] #players :is(#players-active, #players-inactive) {
@@ -653,6 +665,11 @@ body[data-sfh-device="journal"] #scene-navigation .scene.view {
 /* chat: cards of paper laid on the map */
 body[data-sfh-device="journal"][data-sfh-chat="on"] .chat-message {
 	box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%), 0 2px 6px rgb(40 26 10 / 35%);
+}
+
+/* on leather the paper's highlight would be a bright line, and the shadow has to be deeper to show */
+body[data-sfh-device="journal"][data-sfh-dark="on"][data-sfh-chat="on"] .chat-message {
+	box-shadow: inset 0 1px 0 rgb(255 240 210 / 6%), 0 2px 8px rgb(0 0 0 / 55%);
 }
 
 /* the sender is a heading, which the interface sets in the display face: here it is the title hand */

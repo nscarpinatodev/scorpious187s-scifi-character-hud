@@ -8,7 +8,8 @@
  * Then the Journal's: the book waits shut inside its satchel, cut off at the mouth, while the
  * straps are pulled free and the flap turns away; it comes out and opens, and its writing fades in
  * from the spine; closing, it goes back in and the flap is buckled down after it. While the book
- * is out, the bag's back is drawn behind it in the projection, exactly where the art's is.
+ * is out, the bag's back is drawn behind it in the projection, exactly where the art's is. What
+ * else is kept in the bag stays packed out of sight while the flap is shut.
  */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
@@ -119,10 +120,18 @@ const journal = () => page.evaluate(async () => {
 	const panels = () => [...stage().querySelectorAll('.slot, .navb')];
 	const masked = (el) => getComputedStyle(el).maskImage !== 'none';
 	const shut = () => shown(flap()) && lift(straps()) === 0;
+	// what else is kept in the bag: packed down behind its front while the flap is shut, up out of
+	// its mouth once the flap is away, in the art's back and in the projection's copy of it
+	const mouth = () => art().querySelector('#sfh-arm').getBoundingClientRect().top;
+	const clutterTop = (where) => document.querySelector(`${where} .sfh-clutter`)?.getBoundingClientRect().top ?? NaN;
+	const packed = (where) => clutterTop(where) >= mouth() - 0.5;
+	const up = (where) => clutterTop(where) < mouth() - 30;
+	const IN_ART = '#sfh-device svg.sfh-art', BEHIND = '#sfh-projection > svg.sfh-satchel-back';
 
 	check(`${tag}the satchel is the art`, art()?.dataset.art === 'satchel' && flap() && straps());
 	check(`${tag}it reaches above its frame`, getComputedStyle(art()).overflow === 'visible');
 	check(`${tag}buckled shut while the power is off`, shut(), [getComputedStyle(flap()).opacity, lift(straps())]);
+	check(`${tag}what else is in the bag is packed out of sight`, packed(IN_ART), [clutterTop(IN_ART), mouth()]);
 
 	hud.toggle();
 	for (let i = 0; i < 40 && !stage()?.classList.contains('sfh-seq-on'); i++) await wait(25);
@@ -130,6 +139,7 @@ const journal = () => page.evaluate(async () => {
 	if (reduced) {
 		check(`${tag}the book is out and open at once`, getComputedStyle(book()).transform === 'none', getComputedStyle(book()).transform);
 		check(`${tag}the flap is away at once`, !shown(flap()));
+		check(`${tag}what else is in the bag is up at once`, up(BEHIND), [clutterTop(BEHIND), mouth()]);
 		check(`${tag}the writing is not masked`, panels().every((el) => !masked(el)));
 		await wait(6100);
 		hud.setPower(false, { silent: true });
@@ -146,6 +156,7 @@ const journal = () => page.evaluate(async () => {
 	const a = art().getBoundingClientRect(), b = copy().getBoundingClientRect();
 	check(`${tag}exactly where the art's is`, ['left', 'top', 'width', 'height'].every((k) => Math.abs(a[k] - b[k]) < 0.5), { art: [a.left, a.top, a.width], copy: [b.left, b.top, b.width] });
 	check(`${tag}and the art's own is hidden`, artBack() === 'hidden');
+	check(`${tag}what else is in the bag waits packed for the flap`, packed(BEHIND), [clutterTop(BEHIND), mouth()]);
 
 	await wait(700); // 0.9s: the flap is turning over, the book still in the bag
 	check(`${tag}the flap turns over on its hinge`, scale(flap()) < 0.6, getComputedStyle(flap()).transform);
@@ -153,6 +164,7 @@ const journal = () => page.evaluate(async () => {
 	check(`${tag}out of the mouth by 1.8s`, lift(book()) < 400 && scale(book()) < 0.8, getComputedStyle(book()).transform);
 	check(`${tag}no longer cut off once out`, getComputedStyle(layer).clipPath === 'none');
 	check(`${tag}the flap has fallen away behind`, Number(getComputedStyle(flap()).opacity) < 0.05);
+	check(`${tag}what else is in the bag is up out of it`, up(BEHIND), [clutterTop(BEHIND), mouth()]);
 	await wait(1900); // 3.6s: open, the writing about to fade in
 	check(`${tag}open by 3.6s`, Math.abs(scale(book()) - 1) < 1e-3 && Math.abs(lift(book())) < 0.5, getComputedStyle(book()).transform);
 	await wait(700); // 4.4s: fading in from the spine
@@ -170,6 +182,7 @@ const journal = () => page.evaluate(async () => {
 	await wait(1600); // 2.8s
 	check(`${tag}put away by 2.7s`, !Projection.isOpen);
 	check(`${tag}buckled shut after it`, shut(), [getComputedStyle(flap()).opacity, lift(straps())]);
+	check(`${tag}with what else is in the bag packed away under it`, packed(IN_ART), [clutterTop(IN_ART), mouth()]);
 	check(`${tag}the art's back is back`, artBack() === 'visible');
 
 	// switched back on while it is being put away: it stays up

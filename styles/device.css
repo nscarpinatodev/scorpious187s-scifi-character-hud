@@ -165,6 +165,27 @@ body[data-sfh-device="journal"] {
 	--sfh-radius: 2px;
 }
 
+/*
+ * The Journal in the dark (a setting): the interface around the book in dark leather, its ink
+ * pale, the rubric red lifted so it reads on the dark, and gold for the accent. The book itself
+ * stays paper; its colors are the projection's own. The Grove's is in styles/looks.css.
+ */
+body[data-sfh-device="journal"][data-sfh-dark="on"] {
+	--sfh-bg-rgb: 30 20 14;
+	--sfh-hot: #e26a4f;
+	--sfh-glow: rgb(0 0 0 / 40%);
+	--sfh-bright: #fbf3df;
+	--sfh-text: #ecdfc0;
+	--sfh-dim: #b39a78;
+	--sfh-line: rgb(232 196 150 / 40%);
+	--sfh-line-2: rgb(232 196 150 / 14%);
+	--sfh-hover: #4a3022;
+	--sfh-panel: rgb(36 24 17 / 96%);
+	--sfh-cell: rgb(52 36 26 / 92%);
+	--sfh-acc: #d9b44a;
+	--sfh-bad: #ff7a64;
+}
+
 /* Headings: the device's main color, or the one the player chose in the module settings. */
 body[data-sfh-device] {
 	--sfh-heading: var(--sfh-hot);
@@ -470,7 +491,8 @@ body[data-sfh-device="journal"] #sfh-deck #hotbar button:hover {
  * and design/1-head.html.
  *
  * The book passes in front of the bag's back, so while it is out the back is drawn in the
- * projection, behind it, and the art's own is hidden.
+ * projection, behind it, and the art's own is hidden. What else is kept in the bag is drawn with
+ * its back (below).
  */
 #sfh-device svg.sfh-art:has(.sfh-flap) {
 	overflow: visible;
@@ -526,8 +548,36 @@ body[data-sfh-power="on"] #sfh-device .sfh-satchel-back,
 	100% { transform: scaleY(-.2); filter: brightness(.4); opacity: 0; }
 }
 
+/*
+ * The things kept in the satchel with the book stay packed down inside it, out of sight, while the
+ * flap is shut. They come up into view once the flap has turned away, and are packed down again
+ * before it closes. While the book is out they are in the projection's copy of the bag's back,
+ * which plays the projection's sequence.
+ */
+.sfh-clutter {
+	transform: translateY(110px);
+}
+
+body[data-sfh-power="on"] .sfh-clutter {
+	transform: none;
+}
+
+#sfh-projection.sfh-seq-on .sfh-clutter {
+	animation: sfh-clutter-up 600ms cubic-bezier(.3, .6, .4, 1) 450ms backwards;
+}
+
+#sfh-projection.sfh-seq-off .sfh-clutter {
+	animation: sfh-clutter-up 450ms cubic-bezier(.5, 0, .75, 0) 1150ms reverse both;
+}
+
+@keyframes sfh-clutter-up {
+	from { transform: translateY(110px); }
+	to { transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
 	#sfh-device :is(.sfh-flap, .sfh-straps) { animation: none !important; }
+	#sfh-projection .sfh-clutter { animation: none !important; }
 }
 
 /* ---------------------------------------------------------------- the Vambrace's bracer */

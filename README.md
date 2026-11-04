@@ -53,8 +53,9 @@ one character and have none assigned, it shows that one.
   works with every system. The GM sets the world default; each player can pick their own in the
   module settings.
 - **The Adventurer's Journal.** The sheet is a leather journal kept in a satchel at the foot of
-  the screen: the straps pull free, the flap turns back, and the book slides out, swings open on
-  its spine and its writing fades in as you watch. The main body is
+  the screen: the straps pull free, the flap turns back, a traveler's odds and ends come up out
+  of the bag, and the book slides out, swings open on its spine and its writing fades in as you
+  watch. The main body is
   on the left page, everything else kept as notes on the right, with index tabs cut into the
   pages and the interface around it in ink on paper.
 - **The Runic Vambrace.** An engraved bracer whose runes kindle one after another; a sigil turns
@@ -166,6 +167,7 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
 | Etched grid | client | The etching on the projection: hexes on the omni-tool, a square grid on TRON. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
+| The Journal's interface in the dark | client | With the Adventurer's Journal or the Grove, the sidebar, chat, player list, controls, scene bar and turn order in dark leather with pale ink instead of paper. The journal itself stays paper. Off by default. |
 | Chat cards in the device's colors | client | Draws chat messages and rolls on the device's panels. Off keeps Foundry's parchment, if a system's or module's cards are hard to read this way. |
 | Heading font, Text font, Number font | client | Your own font in place of the device's. Type its name; the settings window suggests the fonts it finds. Empty keeps the device's. |
 | Carousel combat tracker | client | Also shows the turn order as portraits across the top of the screen. Off by default. |
