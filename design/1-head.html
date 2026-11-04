@@ -254,6 +254,12 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .sfh-hp .lbl{overflow:visible;text-overflow:clip;letter-spacing:.1em}
 .sfh-hp .sfh-in:not(.sfh-in-hp){height:24px;min-height:0}
 .sfh-hp .hp-a .b{height:24px;min-height:24px}
+/* Heal and Damage keep their words whole, whatever the device's face: tight, and never narrower than
+   their words; the amount box beside them gives up the room instead */
+.sfh-hp .hp-a .b.ghost{flex:1 0 auto;padding:0 4px;letter-spacing:.04em;white-space:nowrap}
+/* and a size smaller in the narrow column under the identity, where the omni-tool, TRON and the
+   Vambrace keep their vitals */
+:is(.t-omni,.t-vambrace) .sfh-hp .hp-a .b.ghost{font-size:10.5px}
 .sfh-hp .hp-b{align-self:center;width:100%}
 /* where the panel is wide or short, the number shares its row: with the buttons on the wrist, with the bar on the EVA */
 .t-wrist .sfh-hp{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"h h" "v a" "b b";column-gap:14px}

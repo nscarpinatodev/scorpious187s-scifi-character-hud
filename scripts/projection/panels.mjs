@@ -87,7 +87,7 @@ export function renderVitals(c) {
 				data-commit="hp" aria-label="Hit points"><span class="mono" style="font-size:15px;color:var(--dim)">/ ${c.hp.max}</span></div>
 		${bar(c.hp.value, c.hp.max, 'hp-b')}
 		<div class="row hp-a" style="gap:4px">
-			<input class="sfh-in mono" type="number" inputmode="numeric" min="0" placeholder="amt" style="width:3.6em;flex:none"
+			<input class="sfh-in mono" type="number" inputmode="numeric" min="0" placeholder="amt" style="width:auto;flex:1 1 3.4em;min-width:2.6em"
 				data-amount="1" aria-label="Amount to heal or damage">
 			${actBtn('Heal', 'heal', '', { cls: 'sm ghost', extra: 'grow' })}
 			${actBtn('Damage', 'damage', '', { cls: 'sm ghost', extra: 'grow' })}</div></div>`;

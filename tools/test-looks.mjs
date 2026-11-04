@@ -208,6 +208,98 @@ const dark = await page.evaluate(async () => {
 });
 results.push(...dark);
 
+// the Holoprojector closes its hologram first and its light last
+const holo = await page.evaluate(async () => {
+	const out = [];
+	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const { DeviceChrome: hud, store } = SFH;
+	store.sequences = false;
+	if (hud.power) hud.setPower(false, { silent: true });
+	await game.settings.set(null, 'device', 'holoprojector');
+	await wait(300);
+	hud.setPower(true, { silent: true });
+	await wait(400);
+	store.sequences = true;
+	hud.toggle();
+	const stage = () => document.querySelector('#sfh-projection .sfh-stage');
+	for (let i = 0; i < 40 && !stage()?.classList.contains('sfh-seq-off'); i++) await wait(20);
+	await wait(60);
+	const main = stage().querySelector('[data-slot="projection"]');
+	check('Holoprojector closing: the hologram flickers out', getComputedStyle(main).animationName === 'sfh-look-holo-out', getComputedStyle(main).animationName);
+	check('not the idle flicker standing in for it', !stage().querySelector('.pnl') || [...stage().querySelectorAll('.pnl')].every((p) => getComputedStyle(p).animationName !== 'sfh-look-holo-idle'));
+	await wait(400);
+	const beam = Number(getComputedStyle(document.getElementById('sfh-beam')).opacity);
+	const panels = Math.max(...[...stage().querySelectorAll('.slot')].map((e) => Number(getComputedStyle(e).opacity)));
+	const emitter = Number(/brightness\(([\d.]+)\)/.exec(getComputedStyle(document.getElementById('sfh-band')).filter)?.[1] ?? 0);
+	check('the light still on while the hologram is going', beam > 0.95 && panels > 0.05, { beam, panels });
+	check('and the emitter still lit', emitter >= 0.99, emitter);
+	await wait(500);
+	hud.setPower(false, { silent: true });
+	store.sequences = false;
+	return out;
+});
+results.push(...holo);
+
+// Heal and Damage keep their words inside them, on every device and look
+const words = await page.evaluate(async () => {
+	const out = [];
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const { DeviceChrome: hud, store } = SFH;
+	const { DEVICES } = await import('../scripts/constants.mjs');
+	store.sequences = false;
+	for (const id of Object.keys(DEVICES)) {
+		if (hud.power) hud.setPower(false, { silent: true });
+		await game.settings.set(null, 'device', id);
+		await wait(200);
+		hud.setPower(true, { silent: true });
+		await wait(300);
+		const over = [];
+		for (const b of document.querySelectorAll('#sfh-projection .sfh-hp .hp-a .b')) {
+			const range = document.createRange();
+			range.selectNodeContents(b);
+			const box = b.getBoundingClientRect();
+			const s = getComputedStyle(b);
+			const k = box.width / b.offsetWidth;
+			const room = box.width - (parseFloat(s.paddingLeft) + parseFloat(s.paddingRight) + parseFloat(s.borderLeftWidth) + parseFloat(s.borderRightWidth)) * k;
+			if (range.getBoundingClientRect().width > room + 0.5) over.push(b.textContent.trim());
+		}
+		out.push({ name: `${id}: Heal and Damage keep their words inside them`, ok: over.length === 0, detail: JSON.stringify(over) });
+	}
+	hud.setPower(false, { silent: true });
+	return out;
+});
+results.push(...words);
+
+// a device of your own wins over the world's, and changing the world's says so
+const notice = await page.evaluate(async () => {
+	const out = [];
+	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const said = [];
+	const before = ui.notifications;
+	ui.notifications = { info: (m) => said.push(m), warn: () => {}, error: () => {} };
+	const user = Object.getOwnPropertyDescriptor(game, 'user');
+	Object.defineProperty(game, 'user', { configurable: true, get: () => ({ isGM: true, character: SFH.actor }) });
+	await game.settings.set(null, 'device', 'cyberdeck');
+	await game.settings.set(null, 'worldDevice', 'omni');
+	await wait(100);
+	check('the GM is told their own device stays', said.length === 1 && /Mass Effect Omni-tool/.test(said[0]) && /Cyberdeck/.test(said[0]), said);
+	check('and it does', document.body.dataset.sfhLook === 'cyberdeck');
+	said.length = 0;
+	await game.settings.set(null, 'device', '');
+	await game.settings.set(null, 'worldDevice', 'tron');
+	await wait(100);
+	check('following the world, nothing to say', said.length === 0, said);
+	check('and the world\'s is worn', document.body.dataset.sfhDevice === 'tron' && !document.body.dataset.sfhLook);
+	await game.settings.set(null, 'worldDevice', 'omni');
+	await game.settings.set(null, 'device', 'omni');
+	Object.defineProperty(game, 'user', user);
+	ui.notifications = before;
+	return out;
+});
+results.push(...notice);
+
 await browser.close();
 for (const r of results) if (!r.ok) console.log(`FAIL ${r.name} ${r.detail}`);
 const failed = results.filter((r) => !r.ok).length + errors.length;

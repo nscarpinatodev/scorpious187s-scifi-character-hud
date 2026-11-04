@@ -301,12 +301,28 @@ body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle
 }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .hexbg { display: none; }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] :is(.pnl, .big, .proj-t) { text-shadow: 0 0 6px rgba(111, 200, 255, .7); }
-#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .pnl { animation: sfh-look-holo-idle 7s infinite; }
+/* the idle flicker only while nothing is opening or closing, or it would stand in for the closing */
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"]:not(.sfh-seq-on, .sfh-seq-off) .pnl { animation: sfh-look-holo-idle 7s infinite; }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .pnl::before { content: ''; position: absolute; left: 0; right: 0; top: -24px; height: 22px; z-index: 4; pointer-events: none;
 	background: linear-gradient(transparent, rgba(170, 225, 255, .16), transparent); animation: sfh-look-holo-band 5.5s linear infinite; }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .navb { background: rgba(10, 30, 50, .5); border-color: var(--line); }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .navb.on { background: var(--hotbg); border-color: var(--hot); box-shadow: 0 0 16px var(--glow); }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-holo-in .95s linear backwards; animation-delay: var(--d, 0ms); }
+/* closing, the hologram flickers out, and the projector's light goes once it has */
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"].sfh-seq-off :is(.slot, .navb) { animation: sfh-look-holo-out .5s linear forwards; animation-delay: var(--dr, 0ms); }
+body[data-sfh-look="holoprojector"]:has(#sfh-projection .sfh-seq-off) #sfh-beam { animation: sfh-look-holo-beam-out .76s linear forwards; }
+@keyframes sfh-look-holo-out {
+	0% { opacity: 1; transform: none; filter: none; }
+	18% { opacity: .35; transform: translateX(5px); }
+	28% { opacity: .9; transform: translateX(-4px) skewX(4deg); }
+	50% { opacity: .4; }
+	64% { opacity: .85; filter: brightness(1.8); }
+	to { opacity: 0; transform: scaleY(.02); filter: brightness(3); }
+}
+@keyframes sfh-look-holo-beam-out { 0%, 82% { opacity: 1; } to { opacity: 0; } }
+/* and the emitter stays lit as long as the beam, dimming with it rather than as soon as it is switched off */
+body[data-sfh-look="holoprojector"] #sfh-device.sfh-seq-off #sfh-band { animation: sfh-look-holo-emitter-out .76s linear forwards; }
+@keyframes sfh-look-holo-emitter-out { 0% { filter: brightness(1.5); } 30%, 82% { filter: brightness(1); } to { filter: brightness(.6); } }
 @keyframes sfh-look-holo-idle { 0%, 46%, 50%, 80%, 84%, 100% { opacity: .95; } 47% { opacity: .62; } 48% { opacity: .9; } 49% { opacity: .7; } 82% { opacity: .85; } }
 @keyframes sfh-look-holo-band { from { top: -24px; } to { top: 105%; } }
 @keyframes sfh-look-holo-in {
@@ -512,7 +528,13 @@ body[data-sfh-device][data-sfh-look="cyberdeck"] {
 	--sfh-face: 'Chakra Petch', sans-serif; --sfh-display: Audiowide, 'Chakra Petch', sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 0px;
 }
 
+/* VT323 is drawn small for its size: the small buttons' words are set a size up in the two looks in it */
+#sfh-projection .sfh-stage[data-device]:is([data-look="datapad"], [data-look="retro"]) .ghost { font-size: 15px; letter-spacing: .08em; }
+/* but a cell's name stays its usual size, or "Perception" and "Initiative" lose their ends */
+#sfh-projection .sfh-stage[data-device]:is([data-look="datapad"], [data-look="retro"]) .cell .lbl { font-size: 13px; letter-spacing: .03em; }
+
 @media (prefers-reduced-motion: reduce) {
 	#sfh-projection .sfh-stage[data-device]:is([data-look="holoprojector"], [data-look="retro"], [data-look="cyberdeck"]) :is(.slot, .navb, .pnl, .pnl::before) { animation: none !important; }
 	#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after { animation: none !important; }
+	body[data-sfh-look="holoprojector"] :is(#sfh-beam, #sfh-device #sfh-band) { animation: none !important; }
 }

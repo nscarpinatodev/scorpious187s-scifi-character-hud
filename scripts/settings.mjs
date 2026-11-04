@@ -19,7 +19,17 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		type: String,
 		choices: deviceChoices,
 		default: DEFAULT_DEVICE,
-		onChange: () => onDeviceChange?.(),
+		onChange: (world) => {
+			onDeviceChange?.();
+			// a device of your own wins over the world's, so changing the world's shows you nothing: say why
+			const mine = game.settings.get(MOD, S.device);
+			if (game.user.isGM && mine && mine !== world && DEVICES[mine]) {
+				ui.notifications.info(game.i18n.format('SFH.Settings.DeviceOverridden', {
+					mine: game.i18n.localize(DEVICES[mine].label),
+					world: game.i18n.localize(DEVICES[world]?.label ?? world),
+				}));
+			}
+		},
 	});
 
 	game.settings.register(MOD, S.device, {

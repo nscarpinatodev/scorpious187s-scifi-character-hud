@@ -64,6 +64,10 @@ device, and the character sheet is a projection it raises over the canvas.
   the Datapad, amber on a battered handheld; the Crystal core, a white band set with a crystal and
   frosted glass panels; the Retro terminal, green phosphor in a beige monitor that types its panels
   out; and the Cyberdeck, neon magenta and cyan, glitching open. A look can now open its own way.
+  The Holoprojector closes its own way too: the hologram flickers out before its light goes.
+- Heal and Damage keep their words inside their buttons on every device and look.
+- Changing the Default device while your own My device is set now says that yours still wins, as it
+  always did; the settings' hints say so too.
 - The Journal's interface in the dark, a setting: with the Journal or the Grove, the sidebar,
   chat, player list, controls, scene bar and turn order are dark leather with pale ink instead
   of paper, while the journal itself stays paper.
