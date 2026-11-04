@@ -23,7 +23,9 @@ export const BOARD = {
 };
 
 /** The dossier's parts, in board pixels: its heading, a shields bar, a Paragon or Renegade track. */
-const DOSSIER = { head: 20, shields: 26, track: 36, gap: 10 };
+const DOSSIER = { head: 20, shields: 34, track: 36, kit: 18, gap: 10 };
+/** The devices whose dossier is the narrow column under the vitals. */
+const NARROW = new Set(['omni', 'tron', 'vambrace']);
 
 /**
  * How tall the Mass Effect dossier needs to be for what it shows. Where it shares a column
@@ -33,8 +35,10 @@ const DOSSIER = { head: 20, shields: 26, track: 36, gap: 10 };
  */
 export function dossierHeight(device, x) {
 	if (!x) return 0;
-	const rows = [x.shields && DOSSIER.shields, x.paragon != null && DOSSIER.track, x.renegade != null && DOSSIER.track]
-		.filter(Boolean);
+	const rows = [x.shields && DOSSIER.shields, x.paragon != null && DOSSIER.track, x.renegade != null && DOSSIER.track,
+		(x.credits != null || x.omniGel) && DOSSIER.kit,
+		// the credits and the omni-gel share a line, but not in the narrow column under the vitals
+		NARROW.has(device) && x.credits != null && x.omniGel && DOSSIER.kit].filter(Boolean);
 	const body = rows.reduce((h, row) => h + DOSSIER.gap + row, 0);
 	// the EVA's caption and bay padding stand in for the panel's own heading
 	if (device === 'gdi' || device === 'nod') return 46 + body - DOSSIER.gap;
@@ -51,7 +55,7 @@ export function layout(device, dossier = 0) {
 	// TRON and the Vambrace stand on a plate as the omni-tool does, and lay out the same way
 	if (device === 'omni' || device === 'tron' || device === 'vambrace') {
 		// the effects and the dossier share the column under the vitals, 370–726
-		const d = Math.min(dossier, 194);
+		const d = Math.min(dossier, 222);
 		return {
 			identity: [250, 20, 780, 60],
 			vitals: [28, 96, 204, 262],

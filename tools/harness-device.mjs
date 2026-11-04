@@ -21,7 +21,8 @@ const actor = {
 	hasPlayerOwner: true,
 	system: {
 		attributes: {
-			hp: { value: 71, max: 84, temp: 0 },
+			// the conversion keeps the Kinetic Shield's points as temporary hit points
+			hp: { value: 71, max: 84, temp: 22 },
 			ac: { value: 25 },
 			speed: { value: 25 },
 			dying: { value: 0, max: 4 },
@@ -71,6 +72,13 @@ const actor = {
 			{ id: 'a4', name: 'Adrenaline Rush', system: { actionType: { value: 'action' }, actions: { value: 1 }, traits: { value: [] } } },
 			{ id: 'a5', name: 'Take Cover', system: { actionType: { value: 'action' }, actions: { value: 1 }, traits: { value: ['basic'] } } },
 			{ id: 'a6', name: 'Aid', system: { actionType: { value: 'reaction' }, traits: { value: ['basic'] } } },
+			{ id: 'a7', name: 'Search', system: { actionType: { value: 'passive' }, traits: { value: ['concentrate', 'exploration'] } } },
+			{ id: 'a8', name: 'Earn Income', system: { actionType: { value: 'passive' }, traits: { value: ['downtime'] } } },
+		],
+		// the conversion's Kinetic Shield, and a capacitor invested to raise it
+		equipment: [
+			{ id: 'k1', name: 'Kinetic Shield', type: 'equipment', flags: { 'mass-effect-sf2e-conversion': { shieldMax: 30, shieldRegen: 10 } }, system: { traits: { value: [] } } },
+			{ id: 'k2', name: 'Shield Capacitor I', type: 'equipment', flags: { 'mass-effect-sf2e-conversion': { shieldHpBonus: 10 } }, system: { traits: { value: ['invested'] }, equipped: { invested: true } } },
 		],
 		feat: [
 			{ id: 'f1', name: 'Combat Training', system: { category: 'class', level: { value: 1 }, traits: { value: [] } } },
@@ -84,6 +92,16 @@ const actor = {
 		filter: () => [],
 	},
 	getFlag: (scope, key) => ({ paragon: 62, renegade: 18 }[key] ?? null),
+	// an update as Foundry makes one: the changes written in by path, and the last one kept to look at
+	async update(changes, options = {}) {
+		for (const [path, value] of Object.entries(changes)) {
+			const keys = path.split('.');
+			const last = keys.pop();
+			keys.reduce((at, k) => (at[k] ??= {}), actor)[last] = value;
+		}
+		actor.lastUpdate = { changes, options };
+		return actor;
+	},
 };
 
 // the strikes the adapter reads off system.actions

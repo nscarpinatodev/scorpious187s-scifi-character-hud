@@ -187,13 +187,32 @@ function character(actor) {
 		<div class="sec">Attribute Modifiers</div><div class="grid6">${attrs}</div>`;
 }
 
+/*
+ * The sheet's three kinds of action: what is done in an encounter, in exploration and in
+ * downtime, by the traits the sheet sorts them by. An action can be of both of the last two.
+ * Which one a character's Actions tab shows is kept for as long as Foundry is open.
+ */
+const ACTION_KINDS = ['encounter', 'exploration', 'downtime'];
+const KIND_LABEL = { encounter: 'SFH.Projection.Actions.Encounter', exploration: 'SFH.Projection.Actions.Exploration', downtime: 'SFH.Projection.Actions.Downtime' };
+const shownKind = new Map();
+const kindsOf = (item) => {
+	const traits = item.system?.traits?.value ?? [];
+	const kinds = ['exploration', 'downtime'].filter((k) => traits.includes(k));
+	return kinds.length ? kinds : ['encounter'];
+};
+
 function actions(actor) {
+	const shown = shownKind.get(actor.id) ?? 'encounter';
+	const filter = `<div class="row sfh-kinds" role="group" style="gap:4px">${ACTION_KINDS.map((kind) => actBtn(
+		game.i18n.localize(KIND_LABEL[kind]), 'actionKind', kind,
+		{ cls: `sm ghost ${kind === shown ? 'on' : ''}` },
+	)).join('')}</div>`;
 	// every button says which strike by its place in this list, so hidden ones keep their place
 	const strikes = (actor.system?.actions ?? []).map((s, index) => (s.visible === false ? '' : strikeRow(s, index))).join('');
 	const byCost = (item) => {
 		const type = item.system?.actionType?.value;
 		const n = item.system?.actions?.value;
-		return type === 'reaction' ? 'R' : type === 'free' ? 'F' : String(n ?? 1);
+		return type === 'reaction' ? 'R' : type === 'free' ? 'F' : type === 'passive' ? '' : String(n ?? 1);
 	};
 	// every row the same size: what else there is to know about it is in the readout, from anywhere on the row
 	const row = (item) => {
@@ -207,10 +226,12 @@ function actions(actor) {
 	};
 	// as on the sheet: action items, and feats that cost an action
 	const usable = [...(actor.itemTypes?.action ?? []), ...(actor.itemTypes?.feat ?? []).filter((f) => f.actionCost)]
-		.filter((item) => !item.suppressed);
+		.filter((item) => !item.suppressed && kindsOf(item).includes(shown));
 	const acts = usable.map(row).join('');
-	return `${shieldRow(actor)}<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
-		<div class="sec">Actions</div><div class="grid2 sfh-actions">${acts || '<p class="dimc">None.</p>'}</div>`;
+	const none = '<p class="dimc">None.</p>';
+	if (shown !== 'encounter') return `${filter}<div class="grid2 sfh-actions">${acts || none}</div>`;
+	return `${filter}${shieldRow(actor)}<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
+		<div class="sec">Actions</div><div class="grid2 sfh-actions">${acts || none}</div>`;
 }
 
 /** The held shield, with the sheet's hit points and its Raise a Shield. Nothing without one. */
@@ -697,6 +718,10 @@ function bioDelete(actor, name, index) {
 export async function act(actor, action, key, event) {
 	const [a, b, c] = String(key ?? '').split(':');
 	switch (action) {
+		case 'actionKind':
+			if (!ACTION_KINDS.includes(key)) return null;
+			shownKind.set(actor.id, key);
+			return 'redraw';
 		case 'skill': return actor.skills?.[key]?.roll({ event });
 		case 'save': return actor.saves?.[key]?.roll({ event });
 		case 'perception': return (actor.perception ?? actor.system?.attributes?.perception)?.roll({ event });

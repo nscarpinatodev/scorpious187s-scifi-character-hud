@@ -67,6 +67,12 @@ device, and the character sheet is a projection it raises over the canvas.
   coals; Witchfire, a bracer of bone with a green witch-fire, panels framed in bone and green
   bolts; and the Grove, the Journal bound in green leather, its satchel tooled with leaves and
   leaves pressed in its pages. Each works as the device it dresses, in every system.
+- PF2e and SF2e: the Actions tab shows what is done in an encounter, in exploration or in
+  downtime, one at a time, as the sheet does; the strikes and the held shield are an encounter's.
+- The Mass Effect dossier: the shields read from the conversion as it keeps them, as temporary hit
+  points over the Kinetic Shield's maximum, raised by a shield capacitor; −5 lowers them alone,
+  without the barrier, armor or hit points, and the recharge adds their regeneration up to full.
+  The credits and the omni-gel the character carries are there too.
 - A scene's preview, in the scene bar or its drawer, opens right under the scene, beneath the
   pointer, so the pointer goes straight down onto its buttons; it closes the moment the pointer
   leaves the scene, or the preview.

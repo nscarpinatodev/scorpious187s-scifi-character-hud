@@ -4,7 +4,7 @@ import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav, renderLatest } from './panels.mjs';
 import { getAdapter } from '../adapters/index.mjs';
-import { readDossier } from './dossier.mjs';
+import { readDossier, adjustShields, regenShields } from './dossier.mjs';
 import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 import { arcaneBolts, stopBolts } from './bolts.mjs';
 import { deviceArt } from '../device/art.mjs';
@@ -816,6 +816,18 @@ export class Projection {
 			}
 			if (action === 'latestClear') {
 				this.#latest.delete(this.actor()?.id);
+				return this.render();
+			}
+			// the Mass Effect dossier's shields, kept by the conversion module, not the game system
+			if (action === 'shieldAdjust' || action === 'shieldRegen') {
+				const actor = this.actor();
+				if (!actor?.isOwner) return;
+				try {
+					await (action === 'shieldRegen' ? regenShields(actor) : adjustShields(actor, Number(key)));
+				} catch (err) {
+					console.error(`${MOD} | "${action}" failed`, err);
+					ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action }));
+				}
 				return this.render();
 			}
 

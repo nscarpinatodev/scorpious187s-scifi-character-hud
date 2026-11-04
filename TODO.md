@@ -55,9 +55,10 @@ system's own sheet, which the book button opens.
       languages, senses, other speeds and reach; the initiative box following the statistic
       actually rolled; typing a loaded magazine's count. (Immunities, weaknesses and resistances
       are done, in the defenses panel, and 5e's too.)
-- [ ] **What the mock-up has that the build does not** — the Actions tab's encounter /
-      exploration / downtime filter; the dossier's shield controls (−5, regen), credits and
-      omni-gel. (Each strike's damage formula is on its Damage and Critical buttons.)
+- [x] **What the mock-up has that the build does not** — the Actions tab's encounter /
+      exploration / downtime filter (PF2e and SF2e); the dossier's shield controls (−5, and the
+      recharge), credits and omni-gel; each strike's damage formula on its Damage and Critical
+      buttons. Not seen in Foundry yet.
 - [ ] **Translatable strings** — every label in `projection/panels.mjs` and the adapters is
       written in English in the markup. Move them to `lang/en.json`; `tools/check.mjs` will
       then hold them to it.

@@ -287,6 +287,16 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .ident .nm{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:.06em;color:var(--bright);text-shadow:0 0 10px var(--glow);line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ident .st{font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lvl{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:44px;border:1px solid var(--hot);background:var(--hotbg)}
+/* the Mass Effect dossier: the shields' buttons small beside their value, and the omni-gel a label to
+   point at, not a button to press. The credits and the omni-gel share a line where the panel is wide
+   enough, and take one each where it is not (layout.mjs counts which). */
+.sfh-me-shields .sfh-me-b{min-height:0;height:20px;padding:0 6px;font-size:11px}
+.sfh-me-v{white-space:nowrap;font-size:13px;color:var(--bright)}
+.sfh-me-shields .lbl{letter-spacing:.08em;margin-right:4px}
+.sfh-me-kit{flex-wrap:wrap;gap:4px 12px}
+.sfh-me-kit>span{flex:1 0 auto;justify-content:space-between}
+.sfh-me-gel{background:none;border:0;padding:0;margin:0;min-height:0;height:auto;width:auto;box-shadow:none;cursor:pointer;white-space:nowrap}
+.sfh-me-gel:hover{color:var(--hot)}
 /* the experience and the level are typed in the identity strip, which is 60 tall: the fields lose
    the extra height an input has, so the labels and the bar keep clear of the edges */
 .sfh-xp{gap:3px}

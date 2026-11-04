@@ -213,15 +213,31 @@ export function renderExtras(c) {
 			<span class="row sp" style="font-size:11px;font-weight:700;letter-spacing:.12em;color:${color}">${key.toUpperCase()}<span class="mono" style="font-size:14px">${value}</span></span>
 			<span style="position:relative;height:6px;background:rgba(255,255,255,.08)"><span style="position:absolute;left:0;top:0;bottom:0;width:${Math.max(0, Math.min(100, value))}%;background:${color};box-shadow:0 0 8px ${color}"></span>${ticks}</span></button>`;
 	};
-	const shields = x.shields
-		? `<div ${ro('shield')} style="display:flex;flex-direction:column;gap:4px">
-			<div class="row sp"><span class="lbl" style="color:var(--acc)">Shields</span><span class="mono" style="color:#d9f2ff">${x.shields.value} / ${x.shields.max}</span></div>
-			${bar(x.shields.value, x.shields.max, 'a')}</div>`
+	const t = (key, data) => (data ? game.i18n.format(key, data) : game.i18n.localize(key));
+	// the shields, with the mock-up's −5 and the recharge beside the bar
+	const s = x.shields;
+	const shields = s
+		? `<div class="sfh-me-shields" ${ro('shield')} style="display:flex;flex-direction:column;gap:4px">
+			<div class="row" style="gap:5px;align-items:center"><span class="lbl grow" style="color:var(--acc)">${esc(t('SFH.Projection.Dossier.Shields'))}</span>
+				<span class="mono sfh-me-v">${s.value} / ${s.max}</span>
+				${actBtn('−5', 'shieldAdjust', '-5', { cls: 'sm sfh-me-b', title: t('SFH.Projection.Dossier.LoseHint'), disabled: s.value <= 0 })}
+				${actBtn(t('SFH.Projection.Dossier.Regen', { n: s.regen }), 'shieldRegen', '', { cls: 'sm sfh-me-b', title: t('SFH.Projection.Dossier.RegenHint'), disabled: !s.regen || s.value >= s.max })}</div>
+			${bar(s.value, s.max, 'a')}</div>`
+		: '';
+	// the credits and the omni-gel the character carries, on one line
+	const gel = x.omniGel;
+	const kit = x.credits != null || gel
+		? `<div class="row sp sfh-me-kit" style="font-size:13px">
+			${x.credits != null ? `<span class="row" style="gap:6px">${lbl(t('SFH.Projection.Dossier.Credits'))}<span class="mono brt" style="white-space:nowrap">${esc(x.credits)}</span></span>` : '<span></span>'}
+			${gel ? `<span class="row" style="gap:6px">${gel.id
+				? `<button type="button" class="lbl sfh-me-gel" ${ro(`item:${gel.id}`)} data-act="read" data-k="item:${esc(gel.id)}">${esc(t('SFH.Projection.Dossier.OmniGel'))}</button>`
+				: lbl(t('SFH.Projection.Dossier.OmniGel'))}<span class="mono brt">${gel.quantity}</span></span>` : ''}</div>`
 		: '';
 	return `<div class="row sp hd">${lbl('Dossier')}<span class="chip me">ME</span></div>
 		${shields}
 		${x.paragon != null ? track('paragon', x.paragon, '#4aa8ff') : ''}
-		${x.renegade != null ? track('renegade', x.renegade, '#ff4a3a') : ''}`;
+		${x.renegade != null ? track('renegade', x.renegade, '#ff4a3a') : ''}
+		${kit}`;
 }
 
 /* -------------------------------------------- */
