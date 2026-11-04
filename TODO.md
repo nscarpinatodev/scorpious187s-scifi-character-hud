@@ -9,16 +9,10 @@ so existing installs keep working). Its fonts are all Latin woff2, and its style
 What is left, in order:
 
 1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch first (a
-   stylesheet was added). Seen in Foundry already, and fixed from what was seen: the Journal's
-   satchel and what else is in it, the experience and level fields, the identity strip, dropping
-   an item from another character's sheet (PF2e), and the scene bar's preview. Not seen yet:
-   - **The four looks** — the Reliquary, Runeforge and Witchfire over the Vambrace, the Grove over
-     the Journal: their art, panels, bolts, and the interface around them.
-   - **The Journal's interface in the dark** (a setting) — the harness has only the scene list,
-     chat cards and player list, so Foundry's own sidebar tabs, the controls and the turn order
-     are the ones to look at.
-   - **The scene bar's preview since the fix** — under the scene, beneath the pointer, and closing
-     as soon as the pointer leaves; in the drawer most of all.
+   stylesheet was added). Seen in Foundry and good: the four looks, the Journal's interface in
+   the dark, and the scene bar's preview under the pointer. Seen, and fixed from what was seen:
+   the Journal's satchel and what else is in it, the experience and level fields, the identity
+   strip, and dropping an item from another character's sheet (PF2e). Not seen yet:
    - **The satchel's clutter since the fix** — up only once the flap has gone.
    - **The rest from the last batch** — the Vambrace's arcane bolts; right-clicking experience,
      hero points and an item; dragging an item into a container and onto the macro bar; PF2e's
@@ -90,10 +84,10 @@ projection, and new work is tried there.
       keeps its base's layout, board, sequence and words, and brings its own palette and marks
       (`styles/looks.css`) and its own art, drawn from the base's with its own metal or leather,
       stone and glyphs (`scripts/device/art.mjs`). The Vambrace's bolts take the look's colors.
-      Not seen in Foundry yet (Start here, 1).
+      Seen in Foundry and good.
 - [x] **The Journal's interface in the dark** — a setting: the sidebar, chat, player list,
       controls, scene bar and turn order in dark leather with pale ink, the Grove's in dark green;
-      the book stays paper.
+      the book stays paper. Seen in Foundry and good.
 - [x] **Odds and ends in the satchel** — a map, pages, a sealed letter, a quill and a vial, packed
       out of sight while the flap is shut and up beside the book once it has gone.
 - [ ] **The looks' own words** — a look keeps its device's panel names, so the Reliquary's
