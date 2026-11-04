@@ -69,6 +69,17 @@ const results = await page.evaluate(async () => {
 	check('a drag over it is taken', over.defaultPrevented);
 	// a made-up drag's dropEffect cannot be set, so this sees the sheet asked, not its answer
 	check('the sheet judges it, copy or move', overs.at(-1) === 'dragover');
+	// and it is answered with an effect the drag allows, or the browser drops nothing at all
+	const { dropEffectFor } = await import('../scripts/projection/projection.mjs');
+	const effects = [
+		['a sortable list allows only a move', 'move', 'none', 'move'],
+		['a move-only drag the sheet called a copy', 'move', 'copy', 'move'],
+		['a drag that allows anything is a copy', 'all', 'none', 'copy'],
+		['an unmarked drag is a copy', 'uninitialized', 'none', 'copy'],
+		['the sheet\'s own choice stands when allowed', 'copyMove', 'move', 'move'],
+		['a drag that allows nothing cannot be dropped', 'none', 'copy', 'none'],
+	];
+	for (const [name, allowed, wanted, want] of effects) check(`drop effect: ${name}`, dropEffectFor(allowed, wanted) === want, dropEffectFor(allowed, wanted));
 	check('the board says whose it will be', board().dataset.drop === `Drop to add to ${actor.name}`, board().dataset.drop);
 	const ring = getComputedStyle(board(), '::before');
 	check('and is ringed in the device\'s color', ring.borderTopStyle === 'dashed' && ring.content !== 'none', [ring.borderTopStyle, ring.content]);

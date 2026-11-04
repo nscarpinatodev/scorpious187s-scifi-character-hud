@@ -10,6 +10,22 @@ import { arcaneBolts, stopBolts } from './bolts.mjs';
 import { satchelBackSvg } from '../device/art.mjs';
 
 /**
+ * The drop effect to answer a drag with: the one the sheet chose, if the drag allows it, or else
+ * the first the drag allows of copy, move and link. The effect only tells the browser the drop is
+ * welcome; what the drop does is still the sheet's to decide.
+ * @param {string} allowed  The drag's effectAllowed.
+ * @param {string} [wanted] The effect the sheet chose, or 'none'.
+ */
+export function dropEffectFor(allowed, wanted = 'none') {
+	const ALLOWS = {
+		none: [], copy: ['copy'], move: ['move'], link: ['link'],
+		copyMove: ['copy', 'move'], copyLink: ['copy', 'link'], linkMove: ['move', 'link'],
+	};
+	const ok = ALLOWS[allowed] ?? ['copy', 'move', 'link'];
+	return ok.includes(wanted) ? wanted : ok[0] ?? 'none';
+}
+
+/**
  * The projection: the character sheet the device raises over the canvas.
  *
  * It is the mock-up's own layout — the panels, the tab ring, the readout — drawn on the
@@ -995,7 +1011,9 @@ export class Projection {
 		} catch (err) {
 			console.debug(`${MOD} | the sheet could not judge the drag`, err);
 		}
-		if (event.dataTransfer.dropEffect === 'none') event.dataTransfer.dropEffect = 'copy';
+		// the browser drops only an effect the drag allows: a sheet's sortable list allows a move
+		// and nothing else, so a copy there would end the drag with no drop at all
+		event.dataTransfer.dropEffect = dropEffectFor(event.dataTransfer.effectAllowed, event.dataTransfer.dropEffect);
 		const board = this.element?.querySelector('.sfh-board');
 		if (board && !board.dataset.drop) board.dataset.drop = game.i18n.format('SFH.Projection.Drop', { name: actor.name });
 		// a container, as each system's sheet finds the one under a drop: 5e's row, or PF2e's list item around it and its contents

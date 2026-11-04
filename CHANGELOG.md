@@ -56,6 +56,9 @@ device, and the character sheet is a projection it raises over the canvas.
   out across both pages, soaking up through the paper unevenly and settling sharp.
 - A projection switched off and straight back on no longer has its sequence cut short, or is
   put away once it is back up.
+- An item dragged from another character's inventory onto the projection is taken again. Such
+  a drag allows only a move, and the projection answered it as a copy, so the browser dropped
+  nothing; in PF2e and SF2e the item now moves, as it does onto the sheet.
 - Renamed "Scorpious187's HUD UI for 5e and PF2e/SF2e". The module's id is unchanged, so an
   existing install updates in place.
 - Experience is typed in both systems, like hit points, and the level too in PF2e and SF2e.
