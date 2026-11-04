@@ -67,6 +67,9 @@ device, and the character sheet is a projection it raises over the canvas.
   coals; Witchfire, a bracer of bone with a green witch-fire, panels framed in bone and green
   bolts; and the Grove, the Journal bound in green leather, its satchel tooled with leaves and
   leaves pressed in its pages. Each works as the device it dresses, in every system.
+- A scene's preview, in the scene bar or its drawer, opens right under the scene, beneath the
+  pointer, so the pointer goes straight down onto its buttons; it closes the moment the pointer
+  leaves the scene, or the preview.
 - An item dragged from another character's inventory onto the projection is taken again. Such
   a drag allows only a move, and the projection answered it as a copy, so the browser dropped
   nothing; in PF2e and SF2e the item now moves, as it does onto the sheet.

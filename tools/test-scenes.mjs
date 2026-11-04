@@ -165,6 +165,8 @@ const results = await page.evaluate(async () => {
 	card().dispatchEvent(new PointerEvent('pointerenter'));
 	await wait(400);
 	check('the preview stays while the pointer is on it', card().classList.contains('show'));
+	const chipBox = chip('club').getBoundingClientRect(), cardBox = card().getBoundingClientRect();
+	check('in the bar it opens under the scene, touching it', Math.abs(cardBox.top - (chipBox.bottom - 1)) < 1.5, [cardBox.top, chipBox.bottom]);
 	await act('view');
 	check('View views it', last()[0] === 'view:club');
 	await act('activate');
@@ -244,9 +246,35 @@ const results = await page.evaluate(async () => {
 	check('with their pictures', !!tile('club').querySelector('img[src]'));
 	const dbox = drawer().getBoundingClientRect();
 	check('the drawer drops below Calendaria rather than squeezing beside it', dbox.top >= hud.bottom && dbox.width >= 800, dbox);
-	await hover(tile('market'));
+	// the preview opens under the scene, under the pointer, touching it
+	const tb = tile('market').getBoundingClientRect();
+	tile('market').dispatchEvent(new PointerEvent('pointerover', { bubbles: true, clientX: tb.left + tb.width * 0.7, clientY: tb.top + 20 }));
+	await wait(320);
 	const tcard = card().getBoundingClientRect();
-	check('a tile previews beside the drawer, not over it', tcard.left >= dbox.right, [tcard.left, dbox.right]);
+	check('a tile previews under itself, touching it', Math.abs(tcard.top - (tb.bottom - 1)) < 1.5 || Math.abs(tcard.bottom - (tb.top + 1)) < 1.5, [tcard.top, tb.bottom]);
+	check('centered under the pointer', Math.abs(tcard.left + tcard.width / 2 - (tb.left + tb.width * 0.7)) < 2
+		|| tcard.left === 10 || Math.abs(tcard.right - ((document.getElementById('sidebar')?.getBoundingClientRect().left || innerWidth) - 10)) < 2, [tcard.left + tcard.width / 2, tb.left + tb.width * 0.7]);
+	// off the scene onto its preview, it stays; off the preview onto anything else, it goes
+	el().dispatchEvent(new PointerEvent('pointerleave', { relatedTarget: card() }));
+	card().dispatchEvent(new PointerEvent('pointerenter'));
+	await wait(400);
+	check('straight down onto the preview, it stays', card().classList.contains('show'));
+	card().dispatchEvent(new PointerEvent('pointerleave', { relatedTarget: tile('market') }));
+	tile('market').dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+	await wait(50);
+	check('and back up onto its scene, it stays', card().classList.contains('show'));
+	drawer().dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+	await wait(20);
+	check('off the scene onto the drawer, it closes at once', !card().classList.contains('show'));
+	await hover(tile('market'));
+	tile('club').dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+	await wait(20);
+	check('onto another scene, it closes at once, before the next opens', !card().classList.contains('show'));
+	await wait(320);
+	check('and the next opens under it', card().classList.contains('show') && /Afterlife Club/.test(card().querySelector('h3').textContent));
+	card().dispatchEvent(new PointerEvent('pointerleave', { relatedTarget: document.body }));
+	await wait(20);
+	check('off the preview onto the map, it closes at once', !card().classList.contains('show'));
 	await unhover();
 	const search = drawer().querySelector('.sfh-search');
 	search.value = 'horizon';
@@ -384,6 +412,53 @@ const results = await page.evaluate(async () => {
 	await draw();
 	return out;
 });
+
+/*
+ * The same with a real pointer, as the browser moves it: hovering a tile in the drawer, then going
+ * straight down onto its preview, then off it onto the map, and from one tile to the gap beside it.
+ */
+const where = (sel) => page.evaluate((sel) => { const r = document.querySelector(sel)?.getBoundingClientRect(); return r && { x: r.left, y: r.top, w: r.width, h: r.height }; }, sel);
+const showing = () => page.evaluate(() => document.getElementById('sfh-scenes-preview')?.classList.contains('show') ?? false);
+const real = [];
+const say = (name, ok, detail = '') => real.push({ name: `real pointer: ${name}`, ok: !!ok, detail: JSON.stringify(detail) });
+await page.evaluate(async () => {
+	SceneBar.render();
+	await new Promise((r) => setTimeout(r, 60));
+	if (!document.querySelector('#sfh-scenes .sfh-drawer')) document.querySelector('#sfh-scenes [data-sact="drawer"]').click();
+	await new Promise((r) => setTimeout(r, 60));
+	document.querySelector('#sfh-scenes [data-folder="omega"]')?.click();
+	await new Promise((r) => setTimeout(r, 80));
+});
+const t = await where('#sfh-scenes .sfh-tile[data-scene-id="club"]');
+if (!t) say('the drawer shows the Omega Station tiles', false);
+else {
+	const px = t.x + t.w * 0.35;
+	await page.mouse.move(px, t.y + t.h / 2, { steps: 6 });
+	await new Promise((r) => setTimeout(r, 400));
+	const c = await where('#sfh-scenes-preview');
+	say('the preview opens under the tile', (await showing()) && Math.abs(c.y - (t.y + t.h - 1)) < 1.5, [c?.y, t.y + t.h]);
+	say('centered on the pointer', Math.abs(c.x + c.w / 2 - px) < 2 || c.x <= 10.5, [c.x + c.w / 2, px]);
+	// straight down onto its buttons
+	await page.mouse.move(px, c.y + c.h - 20, { steps: 12 });
+	await new Promise((r) => setTimeout(r, 400));
+	say('straight down onto the preview, it stays', await showing());
+	// off the preview, onto the map
+	await page.mouse.move(c.x + c.w + 120, c.y + c.h + 120, { steps: 6 });
+	await new Promise((r) => setTimeout(r, 30));
+	say('off the preview onto the map, it closes at once', !(await showing()));
+	// onto a tile, then off it onto the drawer's padding beside it
+	await page.mouse.move(px, t.y + t.h / 2, { steps: 6 });
+	await new Promise((r) => setTimeout(r, 400));
+	say('back onto the tile, it opens again', await showing());
+	const d = await where('#sfh-scenes .sfh-drawer');
+	await page.mouse.move(d.x + 3, t.y + t.h / 2, { steps: 4 });
+	await new Promise((r) => setTimeout(r, 30));
+	say('off the tile, it closes at once', !(await showing()));
+	await page.mouse.move(5, 880);
+}
+// leave the drawer shut, as it was
+await page.evaluate(() => { if (document.querySelector('#sfh-scenes .sfh-drawer')) document.querySelector('#sfh-scenes [data-sact="drawer"]').click(); });
+results.push(...real);
 
 if (shotsTo) {
 	const states = [

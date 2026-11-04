@@ -24,7 +24,8 @@ export class SceneBar {
 	static #current = null;
 	static #previewing = null;
 	static #hover = null;
-	static #leave = null;
+	/** Where the pointer is across the screen: the preview opens under it. */
+	static #pointerX = null;
 	static #click = null;
 	/** Collapsed for an encounter, and back as it was afterward. */
 	static #combatCollapsed = false;
@@ -346,8 +347,11 @@ export class SceneBar {
 			card.id = `${EL.scenes}-preview`;
 			card.setAttribute('role', 'dialog');
 			card.addEventListener('click', (event) => this.#onClick(event));
-			card.addEventListener('pointerenter', () => clearTimeout(this.#leave));
-			card.addEventListener('pointerleave', () => { this.#leave = setTimeout(() => this.#hideCard(), 300); });
+			card.addEventListener('pointerenter', () => clearTimeout(this.#hover));
+			// off the preview is off the scene, unless the pointer goes straight back onto it
+			card.addEventListener('pointerleave', (event) => {
+				if (event.relatedTarget?.closest?.('[data-scene-id]')?.dataset.sceneId !== card.dataset.sceneId) this.#hideCard();
+			});
 			document.body.append(card);
 		}
 		const users = this.#viewers()[id] ?? [];
@@ -387,28 +391,28 @@ export class SceneBar {
 		this.#place(card, anchor);
 	}
 
-	/** Beside what it describes, on the screen, and clear of the drawer and of Calendaria. */
+	/**
+	 * Under the scene, where the pointer is on it: touching its foot, so the pointer goes straight
+	 * down from the scene onto the preview's buttons without crossing anything else. Kept on the
+	 * screen and clear of the sidebar; above the scene if there is no room below. In the bar it
+	 * also keeps clear of Calendaria.
+	 */
 	static #place(card, anchor) {
 		const r = anchor.getBoundingClientRect();
 		const w = card.offsetWidth;
 		const h = card.offsetHeight;
 		const limit = (document.getElementById('sidebar')?.getBoundingClientRect().left || window.innerWidth) - 10;
-		let left = Math.min(r.left, limit - w);
-		let top = r.bottom + 8;
-		const tile = anchor.closest('.sfh-tile');
-		if (tile) {
-			const drawer = anchor.closest('.sfh-drawer').getBoundingClientRect();
-			top = Math.min(r.top, window.innerHeight - h - 10);
-			left = drawer.right + 8 + w <= limit ? drawer.right + 8 : r.right + 8 + w <= limit ? r.right + 8 : r.left - w - 8;
+		const x = this.#pointerX != null && this.#pointerX >= r.left && this.#pointerX <= r.right ? this.#pointerX : r.left + r.width / 2;
+		const left = Math.max(10, Math.min(x - w / 2, limit - w));
+		let top = r.bottom - 1;
+		if (top + h > window.innerHeight - 10) top = Math.max(10, r.top - h + 1);
+		if (!anchor.closest('.sfh-tile')) {
+			for (const other of this.#obstacles()) {
+				const c = other.getBoundingClientRect();
+				if (left < c.right && left + w > c.left && top < c.bottom && top + h > c.top) top = c.bottom + 8;
+			}
 		}
-		if (top + h > window.innerHeight - 10) top = Math.max(10, r.top - h - 8);
-		for (const other of this.#obstacles()) {
-			const c = other.getBoundingClientRect();
-			const overlaps = left < c.right && left + w > c.left && top < c.bottom && top + h > c.top;
-			if (overlaps && c.left - w - 8 >= 10) left = c.left - w - 8;
-			else if (overlaps) top = c.bottom + 8;
-		}
-		card.style.left = `${Math.max(10, left)}px`;
+		card.style.left = `${left}px`;
 		card.style.top = `${Math.max(10, top)}px`;
 	}
 
@@ -459,20 +463,23 @@ export class SceneBar {
 			const id = event.target.closest?.('[data-scene-id]')?.dataset.sceneId;
 			if (event.key === 'Enter' && id) game.scenes.get(id)?.view();
 		});
-		// the preview waits a moment, so crossing the bar does not flash every scene
+		/*
+		 * The preview waits a moment, so crossing the bar does not flash every scene, and opens under
+		 * the pointer. It closes the moment the pointer is off its scene, unless it goes straight
+		 * down onto the preview.
+		 */
+		el.addEventListener('pointermove', (event) => { this.#pointerX = event.clientX; });
 		el.addEventListener('pointerover', (event) => {
 			const target = event.target.closest('[data-scene-id]');
+			if (event.clientX) this.#pointerX = event.clientX;
+			if (target?.dataset.sceneId === this.#previewing) return clearTimeout(this.#hover);
 			clearTimeout(this.#hover);
-			if (target) {
-				clearTimeout(this.#leave);
-				this.#hover = setTimeout(() => this.#showCard(target.dataset.sceneId, target), 250);
-			} else if (this.#previewing) {
-				this.#leave = setTimeout(() => this.#hideCard(), 300);
-			}
+			if (this.#previewing) this.#hideCard();
+			if (target) this.#hover = setTimeout(() => this.#showCard(target.dataset.sceneId, target), 250);
 		});
-		el.addEventListener('pointerleave', () => {
+		el.addEventListener('pointerleave', (event) => {
 			clearTimeout(this.#hover);
-			if (this.#previewing) this.#leave = setTimeout(() => this.#hideCard(), 300);
+			if (this.#previewing && !event.relatedTarget?.closest?.(`#${EL.scenes}-preview`)) this.#hideCard();
 			if (this.#peeking) {
 				this.#peeking = false;
 				this.render();
