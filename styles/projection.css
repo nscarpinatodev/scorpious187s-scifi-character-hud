@@ -291,6 +291,13 @@ body[data-sfh-grid="panels"] #sfh-projection .sfh-stage[data-device="omni"] :is(
 #sfh-projection .ident .nm{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:.06em;color:var(--bright);text-shadow:0 0 10px var(--glow);line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sfh-projection .ident .st{font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sfh-projection .lvl{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:44px;border:1px solid var(--hot);background:var(--hotbg)}
+/* the experience and the level are typed in the identity strip, which is 60 tall: the fields lose
+   the extra height an input has, so the labels and the bar keep clear of the edges */
+#sfh-projection .sfh-xp{gap:3px}
+#sfh-projection .sfh-xp .lbl, #sfh-projection .lvl .lbl{line-height:1.2}
+#sfh-projection .sfh-xp .sfh-in-xp{height:20px;padding:0 6px;line-height:18px}
+#sfh-projection .lvl{gap:1px;height:48px;padding:5px 0;box-sizing:border-box}
+#sfh-projection .lvl .sfh-in-lvl{height:24px;padding:0 4px;line-height:22px}
 #sfh-projection .sfh-stage[data-device="wrist"] .ident{flex-direction:column;align-items:stretch;padding:14px 16px;gap:8px}
 #sfh-projection .sfh-stage[data-device="wrist"] .ident .nm{font-size:24px;color:#ff4fb4;text-shadow:0 0 12px rgba(255,79,180,.8);white-space:normal}
 #sfh-projection .sfh-stage[data-device="wrist"] .ident .st{white-space:normal}

@@ -69,7 +69,8 @@ device, and the character sheet is a projection it raises over the canvas.
   existing install updates in place.
 - Experience is typed in both systems, like hit points, and the level too in PF2e and SF2e.
   Right-click experience, hero points or an item for an editor: an item's name and quantity.
-  The fields are wide enough for every digit, up to the experience the next level needs.
+  The fields are wide enough for every digit, up to the experience the next level needs, and
+  sit clear of the edges of the identity strip and the level's box.
 - The character's items and effects can be dragged out of the projection by their names: into a
   container, onto another sheet or onto the macro bar, as from the system's sheet.
 - Immunities, weaknesses, resistances and vulnerabilities in the defenses panel, in both

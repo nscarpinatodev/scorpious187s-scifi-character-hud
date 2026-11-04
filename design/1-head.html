@@ -287,6 +287,13 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .ident .nm{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:.06em;color:var(--bright);text-shadow:0 0 10px var(--glow);line-height:1.05;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ident .st{font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lvl{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:44px;border:1px solid var(--hot);background:var(--hotbg)}
+/* the experience and the level are typed in the identity strip, which is 60 tall: the fields lose
+   the extra height an input has, so the labels and the bar keep clear of the edges */
+.sfh-xp{gap:3px}
+.sfh-xp .lbl,.lvl .lbl{line-height:1.2}
+.sfh-xp .sfh-in-xp{height:20px;padding:0 6px;line-height:18px}
+.lvl{gap:1px;height:48px;padding:5px 0;box-sizing:border-box}
+.lvl .sfh-in-lvl{height:24px;padding:0 4px;line-height:22px}
 .t-wrist .ident{flex-direction:column;align-items:stretch;padding:14px 16px;gap:8px}
 .t-wrist .ident .nm{font-size:24px;color:#ff4fb4;text-shadow:0 0 12px rgba(255,79,180,.8);white-space:normal}
 .t-wrist .ident .st{white-space:normal}

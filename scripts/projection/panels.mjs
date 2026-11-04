@@ -26,7 +26,7 @@ export function renderIdentity(c, device) {
 	// has, so typing up to the next level fits too
 	const fits = (digits) => `calc(${digits + 0.4}ch + 14px)`;
 	const xpDigits = Math.max(3, String(Math.round(c.xp.value)).length, String(Math.round(c.xp.max ?? 0)).length);
-	const xp = `<div class="sfh-xp" data-menu="xp" style="display:flex;flex-direction:column;gap:4px;width:170px;flex:none">${lbl(game.i18n.localize('SFH.Projection.Experience'))}
+	const xp = `<div class="sfh-xp" data-menu="xp" style="display:flex;flex-direction:column;width:170px;flex:none">${lbl(game.i18n.localize('SFH.Projection.Experience'))}
 		<span class="mono" style="font-size:13px"><input class="sfh-in mono sfh-in-xp" type="number" inputmode="numeric" min="0" value="${c.xp.value}"
 			style="width:${fits(xpDigits)}" data-commit="xp" aria-label="${esc(game.i18n.localize('SFH.Projection.Experience'))}"> / ${c.xp.max.toLocaleString()}</span>
 		${bar(c.xp.value, c.xp.max)}</div>`;
