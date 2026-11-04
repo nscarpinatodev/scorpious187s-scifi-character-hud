@@ -4,6 +4,11 @@
  * each, all together, and each is drawn out as it is struck; and nothing is left behind once the
  * sequence is over, or when it is stopped early. With reduced motion there are no bolts and
  * nothing waits. With an output folder as the argument, it also shoots the bolts mid-strike.
+ *
+ * Then the Journal's: the book waits shut inside its satchel, cut off at the mouth, while the
+ * straps are pulled free and the flap turns away; it comes out and opens, and its writing fades in
+ * from the spine; closing, it goes back in and the flap is buckled down after it. While the book
+ * is out, the bag's back is drawn behind it in the projection, exactly where the art's is.
  */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
@@ -88,8 +93,101 @@ const play = () => page.evaluate(async () => {
 	return out;
 });
 
+/* ------------------------------------------------ the Journal and its satchel */
+
+const journal = () => page.evaluate(async () => {
+	const out = [];
+	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const { DeviceChrome: hud, Projection, store } = SFH;
+	store.sequences = true;
+	await game.settings.set(null, 'device', 'journal');
+	await wait(300);
+	if (Projection.isOpen) { hud.setPower(false, { silent: true }); await wait(300); }
+	const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+	const tag = reduced ? 'Journal, reduced motion: ' : 'Journal: ';
+	const art = () => document.querySelector('#sfh-device svg.sfh-art');
+	const flap = () => art().querySelector('.sfh-flap');
+	const straps = () => art().querySelector('.sfh-straps');
+	const artBack = () => getComputedStyle(art().querySelector('.sfh-satchel-back')).visibility;
+	const stage = () => document.querySelector('#sfh-projection .sfh-stage');
+	const book = () => stage().querySelector('.jb');
+	const copy = () => document.querySelector('#sfh-projection > svg.sfh-satchel-back');
+	const shown = (el) => Number(getComputedStyle(el).opacity) > 0.99;
+	const lift = (el) => new DOMMatrix(getComputedStyle(el).transform).f;
+	const scale = (el) => new DOMMatrix(getComputedStyle(el).transform).d;
+	const panels = () => [...stage().querySelectorAll('.slot, .navb')];
+	const masked = (el) => getComputedStyle(el).maskImage !== 'none';
+	const shut = () => shown(flap()) && lift(straps()) === 0;
+
+	check(`${tag}the satchel is the art`, art()?.dataset.art === 'satchel' && flap() && straps());
+	check(`${tag}it reaches above its frame`, getComputedStyle(art()).overflow === 'visible');
+	check(`${tag}buckled shut while the power is off`, shut(), [getComputedStyle(flap()).opacity, lift(straps())]);
+
+	hud.toggle();
+	for (let i = 0; i < 40 && !stage()?.classList.contains('sfh-seq-on'); i++) await wait(25);
+	await wait(100);
+	if (reduced) {
+		check(`${tag}the book is out and open at once`, getComputedStyle(book()).transform === 'none', getComputedStyle(book()).transform);
+		check(`${tag}the flap is away at once`, !shown(flap()));
+		check(`${tag}the writing is not masked`, panels().every((el) => !masked(el)));
+		await wait(6100);
+		hud.setPower(false, { silent: true });
+		await wait(300);
+		return out;
+	}
+	check(`${tag}the straps are pulled free first`, lift(straps()) < 0 && lift(straps()) > -58, lift(straps()));
+	check(`${tag}the flap has not turned yet`, shown(flap()) && Math.abs(scale(flap()) - 1) < 0.05, getComputedStyle(flap()).transform);
+	check(`${tag}the book waits small, inside the bag`, Math.abs(scale(book()) - 0.45) < 1e-3 && lift(book()) > 600, getComputedStyle(book()).transform);
+	const layer = book().parentElement;
+	check(`${tag}it is cut off at the mouth`, getComputedStyle(layer).clipPath.includes('862px'), getComputedStyle(layer).clipPath);
+	check(`${tag}the writing waits unseen`, panels().every(masked));
+	check(`${tag}the bag's back is drawn under the book`, copy() && copy().compareDocumentPosition(stage()) & Node.DOCUMENT_POSITION_FOLLOWING);
+	const a = art().getBoundingClientRect(), b = copy().getBoundingClientRect();
+	check(`${tag}exactly where the art's is`, ['left', 'top', 'width', 'height'].every((k) => Math.abs(a[k] - b[k]) < 0.5), { art: [a.left, a.top, a.width], copy: [b.left, b.top, b.width] });
+	check(`${tag}and the art's own is hidden`, artBack() === 'hidden');
+
+	await wait(700); // 0.9s: the flap is turning over, the book still in the bag
+	check(`${tag}the flap turns over on its hinge`, scale(flap()) < 0.6, getComputedStyle(flap()).transform);
+	await wait(900); // 1.8s: out of the bag and rising, still small and shut
+	check(`${tag}out of the mouth by 1.8s`, lift(book()) < 400 && scale(book()) < 0.8, getComputedStyle(book()).transform);
+	check(`${tag}no longer cut off once out`, getComputedStyle(layer).clipPath === 'none');
+	check(`${tag}the flap has fallen away behind`, Number(getComputedStyle(flap()).opacity) < 0.05);
+	await wait(1900); // 3.6s: open, the writing about to fade in
+	check(`${tag}open by 3.6s`, Math.abs(scale(book()) - 1) < 1e-3 && Math.abs(lift(book())) < 0.5, getComputedStyle(book()).transform);
+	await wait(700); // 4.4s: fading in from the spine
+	const main = stage().querySelector('[data-slot="projection"]');
+	check(`${tag}the writing fades in from the spine`, masked(main) && parseFloat(getComputedStyle(main).maskSize) > 0, getComputedStyle(main).maskSize);
+	await wait(1800); // past the end
+	check(`${tag}the sequence is over by 6s`, !stage().classList.contains('sfh-seq-on'));
+	check(`${tag}every panel is written, unmasked`, panels().every((el) => !masked(el) && shown(el)));
+	check(`${tag}the back stays behind the open book`, copy() && artBack() === 'hidden');
+
+	hud.toggle();
+	await wait(1200);
+	check(`${tag}closing, the flap stays away while the book goes in`, !shown(flap()));
+	check(`${tag}the book goes back in small`, scale(book()) < 0.6, getComputedStyle(book()).transform);
+	await wait(1600); // 2.8s
+	check(`${tag}put away by 2.7s`, !Projection.isOpen);
+	check(`${tag}buckled shut after it`, shut(), [getComputedStyle(flap()).opacity, lift(straps())]);
+	check(`${tag}the art's back is back`, artBack() === 'visible');
+
+	// switched back on while it is being put away: it stays up
+	hud.setPower(true, { silent: true });
+	await wait(300);
+	hud.toggle();
+	await wait(600);
+	hud.setPower(true, { silent: true });
+	await wait(2600);
+	check(`${tag}switched back on mid-close, it stays up`, Projection.isOpen);
+	hud.setPower(false, { silent: true });
+	await wait(300);
+	return out;
+});
+
 const results = [];
 results.push(...await play());
+results.push(...await journal());
 if (shots) {
 	await page.evaluate(() => SFH.DeviceChrome.toggle());
 	await new Promise((r) => setTimeout(r, 740));
@@ -98,6 +196,7 @@ if (shots) {
 }
 await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
 results.push(...await play());
+results.push(...await journal());
 await browser.close();
 
 for (const r of results) if (!r.ok) console.log(`FAIL ${r.name} ${r.detail}`);

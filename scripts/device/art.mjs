@@ -2,7 +2,8 @@
  * Device art drawn at the foot of the interface.
  *
  * The omni-tool has a single forearm section, centered, with the emitter band on it. The
- * TRON device has a deck of light lines with the identity disc on it. Either way the plate
+ * TRON device has a deck of light lines with the identity disc on it, the Journal a satchel and
+ * the Vambrace a bracer. Either way the plate
  * (#sfh-arm) is what the macro bar is mounted on, and the switch (#sfh-band) raises and
  * lowers the projection.
  *
@@ -63,11 +64,31 @@ export const DISC = {
 };
 
 /**
- * The Journal's strap: a stitched leather belt that the macro bar's tags hang on, with its
- * brass buckle at the left end. The buckle opens the book. The strap is the plate the book
- * stands on, so it is low and flat; the buckle sits beside the bar, not under it.
+ * The Journal's satchel: the bag the book is kept in, its back standing above its front and the
+ * flap hinged on the back and buckled down over the mouth. Two straps run down from the flap
+ * through brass clasps on the front, over the clasps' outer edges and under their middle bars;
+ * the left clasp is the switch. The macro bar's tags hang on the front, which is the plate the
+ * book stands on.
+ *
+ * Opening, the straps pull free, the flap turns over on its hinge and falls away behind the bag,
+ * and the book rises out of the mouth; closing runs it backward (styles/device.css and
+ * design/1-head.html). The art is drawn over the projection, so the book could never pass in
+ * front of the bag's back here: while the book is out, the projection draws the back again behind
+ * it (satchelBackSvg, placed by Projection.fit), and this copy is hidden.
  */
-export const STRAP = {
+const satchelBack = (inside) => `
+	<path d="M292 762 V 726 Q 292 712 308 712 H 972 Q 988 712 988 726 V 762 Z" fill="url(#${inside})" stroke="#2a0f08" stroke-width="1.5"/>
+	<path d="M300 724 Q 300 718 310 718 H 970 Q 980 718 980 724" fill="none" stroke="#e8c496" stroke-opacity=".3" stroke-width="1.1" stroke-dasharray="6 5"/>
+	<path d="M282 760 L 292 718 L 300 760 Z M998 760 L 988 718 L 980 760 Z" fill="#2c100a" stroke="#1a0805"/>`;
+const satchelInside = (id) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+	<stop offset="0" stop-color="#5a2618"/><stop offset=".25" stop-color="#2a0f08"/><stop offset="1" stop-color="#0e0402"/>
+</linearGradient>`;
+const strap = (x) => `<path d="M${x} 770 H ${x + 28} V 842 Q ${x + 14} 856 ${x} 842 Z" fill="url(#sfh-flapleather)" stroke="#2a0f08" stroke-width="1.2"/>
+	<path d="M${x + 4} 772 V 840 M${x + 24} 772 V 840" stroke="#e8c496" stroke-opacity=".35" stroke-width="1" stroke-dasharray="4 4"/>`;
+const clasp = (x) => `<rect x="${x}" y="796" width="40" height="40" rx="6" fill="none" stroke="url(#sfh-brass)" stroke-width="6"/>`;
+const claspBar = (x) => `<rect x="${x - 4}" y="813" width="48" height="6" rx="2" fill="url(#sfh-brass)" stroke="#5a440c" stroke-width=".8"/>`;
+
+export const SATCHEL = {
 	viewBox: ARM.viewBox,
 	deck: { bottom: 0.1, width: 0.74 },
 	svg: `
@@ -75,22 +96,37 @@ export const STRAP = {
 		<linearGradient id="sfh-leather" x1="0" y1="0" x2="0" y2="1">
 			<stop offset="0" stop-color="#6a3020"/><stop offset=".55" stop-color="#43190f"/><stop offset="1" stop-color="#2c100a"/>
 		</linearGradient>
+		<linearGradient id="sfh-flapleather" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#7a3826"/><stop offset="1" stop-color="#4a1c12"/>
+		</linearGradient>
+		${satchelInside('sfh-inside')}
 		<linearGradient id="sfh-brass" x1="0" y1="0" x2="1" y2="1">
 			<stop offset="0" stop-color="#f0d27a"/><stop offset=".45" stop-color="#c9a227"/><stop offset="1" stop-color="#7a5f12"/>
 		</linearGradient>
-		<filter id="sfh-strapshadow" x="-5%" y="-40%" width="110%" height="200%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-opacity=".55"/></filter>
+		<filter id="sfh-bagshadow" x="-5%" y="-40%" width="110%" height="200%"><feDropShadow dx="0" dy="-4" stdDeviation="6" flood-opacity=".55"/></filter>
 	</defs>
-	<path id="sfh-arm" d="M290 792 Q 300 786 312 786 H 968 Q 980 786 990 792 V 852 Q 980 858 968 858 H 312 Q 300 858 290 852 Z"
-		fill="url(#sfh-leather)" stroke="#2a0f08" stroke-width="1.5" filter="url(#sfh-strapshadow)"/>
-	<path d="M300 795 H 980 M300 849 H 980" stroke="#e8c496" stroke-opacity=".35" stroke-width="1.2" stroke-dasharray="6 5"/>
-	<path d="M960 786 Q 1000 786 1000 822 Q 1000 858 960 858" fill="#3a170e" stroke="#2a0f08"/>
+	<g class="sfh-satchel-back">${satchelBack('sfh-inside')}</g>
+	<path id="sfh-arm" d="M282 758 Q 282 742 300 742 H 980 Q 998 742 998 758 V 860 H 282 Z"
+		fill="url(#sfh-leather)" stroke="#2a0f08" stroke-width="1.5" filter="url(#sfh-bagshadow)"/>
+	<path d="M286 756 Q 286 745 300 745 H 980 Q 994 745 994 756" fill="none" stroke="#1a0805" stroke-width="5" stroke-opacity=".7"/>
+	<path d="M294 860 V 762 Q 294 752 306 752 H 974 Q 986 752 986 762 V 860" fill="none" stroke="#e8c496" stroke-opacity=".35" stroke-width="1.2" stroke-dasharray="6 5"/>
+	${clasp(312)}${clasp(928)}
+	<g class="sfh-flap">
+		<g class="sfh-straps">${strap(318)}${strap(934)}</g>
+		<path d="M288 724 Q 288 710 304 710 H 976 Q 992 710 992 724 V 778 Q 640 796 288 778 Z" fill="url(#sfh-flapleather)" stroke="#2a0f08" stroke-width="1.5"/>
+		<path d="M298 726 Q 298 718 308 718 H 972 Q 982 718 982 726 V 772 Q 640 789 298 772" fill="none" stroke="#e8c496" stroke-opacity=".4" stroke-width="1.2" stroke-dasharray="6 5"/>
+	</g>
+	${claspBar(312)}${claspBar(928)}
 	<g id="sfh-band" role="button" tabindex="0" aria-label="SFH.Power.Toggle">
-		<rect x="300" y="770" width="64" height="104" rx="9" fill="#2c100a" fill-opacity=".001"/>
-		<rect x="306" y="776" width="52" height="92" rx="8" fill="none" stroke="url(#sfh-brass)" stroke-width="7"/>
-		<rect x="306" y="776" width="52" height="92" rx="8" fill="none" stroke="#5a440c" stroke-width="1"/>
-		<rect id="sfh-prong" x="329" y="770" width="6" height="104" rx="2" fill="url(#sfh-brass)" stroke="#5a440c" stroke-width=".8"/>
+		<rect x="304" y="788" width="56" height="56" rx="7" fill="#2c100a" fill-opacity=".001"/>
 	</g>`,
 };
+
+/** The satchel's back alone, for the projection to draw behind the book: the same box as the art. */
+export function satchelBackSvg() {
+	return `<svg class="sfh-satchel-back" viewBox="${SATCHEL.viewBox}" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+		<defs>${satchelInside('sfh-inside-behind')}</defs>${satchelBack('sfh-inside-behind')}</svg>`;
+}
 
 /**
  * The Runic Vambrace: an engraved steel bracer on the arm's own lines. The runes in its groove
@@ -137,7 +173,7 @@ export const BRACER = {
 	</g>`,
 };
 
-const ART = { arm: ARM, disc: DISC, strap: STRAP, bracer: BRACER };
+const ART = { arm: ARM, disc: DISC, satchel: SATCHEL, bracer: BRACER };
 
 /** The art layer for a device, or null when it draws nothing at the foot of the screen. */
 export function deviceArt(id) {

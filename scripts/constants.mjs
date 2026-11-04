@@ -22,7 +22,7 @@ export const DEVICES = {
 	nod: { id: 'nod', label: 'SFH.Device.Nod', hint: 'SFH.Device.NodHint', art: null, sequence: 'crt', switch: 'bar' },
 	tron: { id: 'tron', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
 	vambrace: { id: 'vambrace', label: 'SFH.Device.Vambrace', hint: 'SFH.Device.VambraceHint', art: 'bracer', sequence: 'sigil', switch: 'band' },
-	journal: { id: 'journal', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'strap', sequence: 'book', switch: 'band', projects: false },
+	journal: { id: 'journal', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'satchel', sequence: 'book', switch: 'band', projects: false },
 };
 
 export const DEFAULT_DEVICE = 'omni';
@@ -63,11 +63,12 @@ export const KEYS = {
 export const SEQ = { on: 940, off: 780 };
 
 /**
- * The sequences that run longer: the Journal rises, swings open and is written in, and the
- * Vambrace's sigil turns open before its panels are drawn, which takes longer than light
- * coming on. Keep in step with design/1-head.html.
+ * The sequences that run longer: the Journal comes out of its satchel, swings open and its
+ * writing fades in, and the Vambrace's sigil turns open before its panels are drawn, which takes
+ * longer than light coming on. Closing, the Journal goes back in and the satchel is buckled shut
+ * after it. Keep in step with design/1-head.html and styles/device.css.
  */
-export const SEQ_LONG = { book: { on: 3900, off: 1350 }, sigil: { on: 1500, off: 950 } };
+export const SEQ_LONG = { book: { on: 6000, off: 2700 }, sigil: { on: 1500, off: 950 } };
 
 /** How long a device's sequence runs, in ms. */
 export function seqMs(kind, deviceId) {

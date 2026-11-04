@@ -518,34 +518,46 @@ body[data-sfh-grid="panels"] #sfh-projection .sfh-stage[data-device="omni"] :is(
 #sfh-projection .jb-title svg{display:block;width:180px;height:180px;margin:0 auto 28px}
 #sfh-projection .jb-back{transform:rotateY(180deg);border-radius:10px 0 0 10px!important;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(160deg,#6a2a22,#4a1914 55%,#34100d)}
 #sfh-projection .jb-back::after{content:'';position:absolute;top:16px;bottom:16px;left:38px;right:0;border-radius:3px 0 0 3px;background:linear-gradient(90deg,rgba(120,90,50,.18),transparent 6%,transparent 86%,rgba(90,64,34,.22) 97%,rgba(60,40,20,.38)),#ecdfc0}
-/* Journal: the book rises closed in the middle of the board; its cover swings open on the
-   spine while the book slides over, so the spine ends in the center; then the pages are
-   written in, the left one first. Closing runs it backward. Keep in step with SEQ_LONG. */
-#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb{animation:sfh-jbRise 1.9s cubic-bezier(.45,.05,.25,1) both}
-@keyframes sfh-jbRise {0%{opacity:0;transform:translateX(-300px) translateY(320px) scale(.45)}24%,34%{opacity:1;transform:translateX(-300px)}to{opacity:1;transform:none}}
-#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb-leaf{animation:sfh-jbOpen 1.9s cubic-bezier(.45,.05,.25,1) both}
-@keyframes sfh-jbOpen {0%,34%{visibility:visible;transform:none}99%{visibility:visible;transform:rotateY(-180deg)}to{visibility:hidden;transform:rotateY(-180deg)}}
-#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] :is(.jb-page.l,.jb-board.l){animation:sfh-jbAfter 1.9s step-end both}
+/* Journal: the book comes out of its satchel. The bag is device art at the foot of the screen,
+   and the board stands on its front, so the bag's mouth is the board's foot (862, a hair under
+   its 860). Shut and small (.45), the book waits inside, cut off at the mouth, while the straps
+   are pulled free and the flap turns away (styles/device.css); it slides up out of the mouth,
+   grows as it slides over, and its cover swings open on the spine, so the spine ends in the
+   center. The closed book is the right half and its cover, so it is kept over the bag's middle
+   (-143.55 is half of 319 × .45). Closing runs it backward into the bag. Keep in step with
+   SEQ_LONG. */
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .ornlayer:has(>.jb){animation:sfh-jbMouth 1.6s}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .ornlayer:has(>.jb){animation:sfh-jbMouth 1.9s}
+@keyframes sfh-jbMouth {from,to{clip-path:polygon(-4000px -4000px,5000px -4000px,5000px 862px,-4000px 862px)}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb{animation:sfh-jbOut 3.4s linear both}
+@keyframes sfh-jbOut {0%{transform:translate(-143.55px,623.2px) scale(.45)}
+  23.53%{transform:translate(-143.55px,623.2px) scale(.45);animation-timing-function:cubic-bezier(.25,.7,.35,1)}
+  47.06%{transform:translate(-143.55px,230.8px) scale(.45);animation-timing-function:cubic-bezier(.45,.05,.3,1)}
+  64.71%{transform:translate(-300px,0) scale(1);animation-timing-function:cubic-bezier(.45,.05,.25,1)}
+  to{transform:none}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb-leaf{animation:sfh-jbOpen 3.4s linear both}
+@keyframes sfh-jbOpen {0%{visibility:visible;transform:none}64.71%{visibility:visible;transform:none;animation-timing-function:cubic-bezier(.45,.05,.25,1)}99.5%{visibility:visible;transform:rotateY(-180deg)}to{visibility:hidden;transform:rotateY(-180deg)}}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] :is(.jb-page.l,.jb-board.l){animation:sfh-jbAfter 3.4s step-end both}
 @keyframes sfh-jbAfter {from{visibility:hidden}to{visibility:visible}}
-/* then ink spills across the spread from the fore-edge: a ragged front with fingers running
-   ahead along the lines, a dark wet stain on it, and the words drying out of the stain behind.
-   One mask, three spreads wide (written, the front, bare), slides over the book; each panel's
-   copy is laid against the book (--jx, --jy from projection.mjs) so they share the one front.
-   The stain's mask is the same front, cut away where the words already are. */
-#sfh-projection .sfh-stage[data-device="journal"]{--jb-words:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cfilter id='i' filterUnits='userSpaceOnUse' x='-60' y='-60' width='420' height='220'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .14' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='.5'/%3E%3C/filter%3E%3Cpath d='M-60-60H168L120 160H-60Z' filter='url(%23i)'/%3E%3C/svg%3E");
-  --jb-stain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cfilter id='i' filterUnits='userSpaceOnUse' x='-60' y='-60' width='420' height='220'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03 .14' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3CfeGaussianBlur stdDeviation='.5'/%3E%3C/filter%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='140' x2='192'%3E%3Cstop offset='0' stop-opacity='0'/%3E%3Cstop offset='.7' stop-opacity='.9'/%3E%3Cstop offset='1'/%3E%3C/linearGradient%3E%3Cmask id='m' maskUnits='userSpaceOnUse' x='-60' y='-60' width='420' height='220'%3E%3Crect x='-60' y='-60' width='420' height='220' fill='%23fff'/%3E%3Cpath d='M-60-60H168L120 160H-60Z' filter='url(%23i)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Cpath d='M-60-60H194L146 160H-60Z' fill='url(%23g)' filter='url(%23i)'/%3E%3C/g%3E%3C/svg%3E")}
-#sfh-projection .jb-ink{position:absolute;inset:0;pointer-events:none;opacity:0;background:#1c1009}
-#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .jb-ink{opacity:.85;-webkit-mask:var(--jb-stain) -120px 0/3600px 800px no-repeat;mask:var(--jb-stain) -120px 0/3600px 800px no-repeat;animation:sfh-jbStain 1.75s cubic-bezier(.3,.55,.4,1) 1.9s backwards}
-@keyframes sfh-jbStain {from{-webkit-mask-position:-2520px 0;mask-position:-2520px 0}to{-webkit-mask-position:-120px 0;mask-position:-120px 0}}
-#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .navb{-webkit-mask:var(--jb-words) calc(var(--jx,0px) - 120px) var(--jy,0px)/3600px 800px repeat-y;mask:var(--jb-words) calc(var(--jx,0px) - 120px) var(--jy,0px)/3600px 800px repeat-y;animation:sfh-jbInk 1.75s cubic-bezier(.3,.55,.4,1) 1.9s backwards}
-@keyframes sfh-jbInk {from{-webkit-mask-position:calc(var(--jx,0px) - 2520px) var(--jy,0px);mask-position:calc(var(--jx,0px) - 2520px) var(--jy,0px)}to{-webkit-mask-position:calc(var(--jx,0px) - 120px) var(--jy,0px);mask-position:calc(var(--jx,0px) - 120px) var(--jy,0px)}}
+/* then the writing fades in as the Marauder's Map's does: touched at the spine, ink blooms out
+   across both pages, soaking up through the paper unevenly and settling sharp, the far corners
+   last. The bloom is a soft disc, solid in the middle and ragged at its rim; each panel's copy is
+   laid about the spine (--tx, --ty from projection.mjs), so every panel shares the one bloom. */
+#sfh-projection .sfh-stage[data-device="journal"]{--jb-bloom:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g'%3E%3Cstop offset='0'/%3E%3Cstop offset='.5'/%3E%3Cstop offset='.78' stop-opacity='.35'/%3E%3Cstop offset='1' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cfilter id='f' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035' numOctaves='4' seed='3'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='34' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/defs%3E%3Ccircle cx='100' cy='100' r='88' fill='url(%23g)' filter='url(%23f)'/%3E%3C/svg%3E")}
+#sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .slot, #sfh-projection .sfh-seq-on.sfh-stage[data-device="journal"] .navb{-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;animation:sfh-jbBloom 2.4s cubic-bezier(.35,.15,.45,1) 3.3s backwards}
+@keyframes sfh-jbBloom {from{-webkit-mask-image:var(--jb-bloom);mask-image:var(--jb-bloom);-webkit-mask-size:0 0;mask-size:0 0;-webkit-mask-position:var(--tx,0px) var(--ty,0px);mask-position:var(--tx,0px) var(--ty,0px);filter:blur(1.6px)}
+  to{-webkit-mask-image:var(--jb-bloom);mask-image:var(--jb-bloom);-webkit-mask-size:3600px 3600px;mask-size:3600px 3600px;-webkit-mask-position:calc(var(--tx,0px) - 1800px) calc(var(--ty,0px) - 1800px);mask-position:calc(var(--tx,0px) - 1800px) calc(var(--ty,0px) - 1800px);filter:blur(0)}}
 #sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .slot, #sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .navb{animation:sfh-jbFade .2s ease-in forwards}
 @keyframes sfh-jbFade {to{opacity:0}}
 #sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] :is(.jb-page.l,.jb-board.l){visibility:hidden}
-#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb-leaf{animation:sfh-jbShut 1.35s cubic-bezier(.45,.05,.25,1) both}
-@keyframes sfh-jbShut {0%,15%{visibility:visible;transform:rotateY(-180deg)}70%,to{visibility:visible;transform:none}}
-#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb{animation:sfh-jbSink 1.35s cubic-bezier(.45,.05,.25,1) both}
-@keyframes sfh-jbSink {0%,15%{opacity:1;transform:none}70%{opacity:1;transform:translateX(-300px)}to{opacity:0;transform:translateX(-300px) translateY(320px) scale(.45)}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb-leaf{animation:sfh-jbShut 1.7s linear both}
+@keyframes sfh-jbShut {0%{visibility:visible;transform:rotateY(-180deg)}8.82%{visibility:visible;transform:rotateY(-180deg);animation-timing-function:cubic-bezier(.45,.05,.25,1)}47.06%,to{visibility:visible;transform:none}}
+#sfh-projection .sfh-seq-off.sfh-stage[data-device="journal"] .jb{animation:sfh-jbIn 1.7s linear both}
+@keyframes sfh-jbIn {0%{transform:none}
+  8.82%{transform:none;animation-timing-function:cubic-bezier(.45,.05,.25,1)}
+  47.06%{transform:translate(-300px,0) scale(1);animation-timing-function:cubic-bezier(.45,.05,.3,1)}
+  70.59%{transform:translate(-143.55px,230.8px) scale(.45);animation-timing-function:cubic-bezier(.5,0,.75,0)}
+  to{transform:translate(-143.55px,623.2px) scale(.45)}}
 /* ---------- the Runic Vambrace ---------- */
 /* Spell-light: dark glass edged in blue and violet, a rune in each top corner, and motes drifting
    up through it where the sci-fi devices have scanlines. */

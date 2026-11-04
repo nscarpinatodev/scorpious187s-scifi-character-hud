@@ -145,7 +145,8 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	if (!sequence) return Projection.close();
 	DeviceChrome.playSequence('off');
 	Projection.playSequence('off');
-	setTimeout(() => Projection.close(), seqMs('off', currentDevice()));
+	// switched back on before it was put away: it stays up
+	setTimeout(() => DeviceChrome.power || Projection.close(), seqMs('off', currentDevice()));
 });
 
 /* The projection shows live data, so it follows the actor. */

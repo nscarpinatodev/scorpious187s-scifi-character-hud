@@ -36,6 +36,16 @@
 }
 
 /*
+ * The back of the Journal's satchel, behind the book: placed by Projection.fit over the art's
+ * own, which it stands in for while the book is out. Its top reaches above the art's box.
+ */
+#sfh-projection > svg.sfh-satchel-back {
+	position: absolute;
+	overflow: visible;
+	pointer-events: none;
+}
+
+/*
  * Nothing where there are no panels. The mock-up's stage paints a backdrop because it was
  * a page; over a battle map it has to be air — each device's housing brings its own
  * background where it needs one.

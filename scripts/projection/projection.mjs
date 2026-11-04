@@ -7,6 +7,7 @@ import { getAdapter } from '../adapters/index.mjs';
 import { readDossier } from './dossier.mjs';
 import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 import { arcaneBolts, stopBolts } from './bolts.mjs';
+import { satchelBackSvg } from '../device/art.mjs';
 
 /**
  * The projection: the character sheet the device raises over the canvas.
@@ -34,6 +35,8 @@ export class Projection {
 	static #hover = null;
 	static #bound = false;
 	static #fitPending = false;
+	/** When the sequence playing now ends; a new one cancels it, or it would cut the new one short. */
+	static #seqTimer = null;
 	static #renders = 0;
 	/** A redraw held back while someone is typing in the main panel. */
 	static #redrawLater = false;
@@ -204,6 +207,30 @@ export class Projection {
 			boardEl.style.setProperty('--scanpitch', `${(px * 3).toFixed(3)}px`);
 		}
 		this.#beam();
+		this.#satchelBack();
+	}
+
+	/**
+	 * The back of the Journal's satchel, drawn again behind the book. The satchel is device art,
+	 * drawn over the projection, so the book could only ever pass behind its back; while the
+	 * projection is up, this copy stands exactly where the art's does, under the board, and the
+	 * art's own is hidden (styles/device.css). It is kept out of the stage, which is redrawn.
+	 */
+	static #satchelBack() {
+		const el = this.element;
+		if (!el) return;
+		const art = document.querySelector(`#${EL.device} svg.sfh-art[data-art="satchel"]`);
+		let back = el.querySelector(':scope > svg.sfh-satchel-back');
+		const at = art?.getBoundingClientRect();
+		if (!this.#open || !at?.width) return back?.remove();
+		if (!back) {
+			el.insertAdjacentHTML('afterbegin', satchelBackSvg());
+			back = el.firstElementChild;
+		}
+		const box = el.getBoundingClientRect();
+		Object.assign(back.style, {
+			left: `${at.left - box.left}px`, top: `${at.top - box.top}px`, width: `${at.width}px`, height: `${at.height}px`,
+		});
 	}
 
 	/**
@@ -604,20 +631,21 @@ export class Projection {
 			el.style.setProperty('--d', `${200 + i * 26}ms`);
 			el.style.setProperty('--dr', `${i * 14}ms`);
 		});
-		// the Journal's ink runs across the whole spread at once: each panel's mask is laid
-		// against the book, not against the panel, so they share the one front
+		// the Journal's writing fades in from the spine across the whole spread at once: each
+		// panel's mask is laid about the spine, not about the panel, so they share the one bloom
 		const book = stage.querySelector('.jb');
 		if (!book) return;
 		// from their styles, not their layout: the stage may not be on screen yet when it is drawn
 		const at = (el) => {
-			const { left, top } = getComputedStyle(el);
-			return [parseFloat(left) || 0, parseFloat(top) || 0];
+			const { left, top, width, height } = getComputedStyle(el);
+			return [parseFloat(left) || 0, parseFloat(top) || 0, parseFloat(width) || 0, parseFloat(height) || 0];
 		};
-		const [bx, by] = at(book);
+		const [bx, by, bw, bh] = at(book);
+		const spine = [bx + bw / 2, by + bh / 2];
 		for (const el of stage.querySelectorAll('[data-slot], .navb')) {
 			const [x, y] = at(el);
-			el.style.setProperty('--jx', `${bx - x}px`);
-			el.style.setProperty('--jy', `${by - y}px`);
+			el.style.setProperty('--tx', `${spine[0] - x}px`);
+			el.style.setProperty('--ty', `${spine[1] - y}px`);
 		}
 	}
 
@@ -628,7 +656,8 @@ export class Projection {
 		stage.classList.remove('sfh-seq-on', 'sfh-seq-off');
 		void stage.offsetWidth; // restart the animations
 		stage.classList.add(kind === 'on' ? 'sfh-seq-on' : 'sfh-seq-off');
-		setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), seqMs(kind, currentDevice()));
+		clearTimeout(this.#seqTimer);
+		this.#seqTimer = setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), seqMs(kind, currentDevice()));
 		// the Vambrace's side panels are each set off by a bolt from the sigil, drawn here
 		stopBolts(stage);
 		if (kind === 'on' && currentDevice() === 'vambrace') arcaneBolts(stage);

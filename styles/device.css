@@ -411,10 +411,9 @@ body[data-sfh-power="off"] #sfh-band {
 	}
 }
 
-/* ---------------------------------------------------------------- the Journal's strap */
+/* ---------------------------------------------------------------- the Journal's satchel */
 /*
- * The macro bar's keys are paper tags hung on the strap, each set a little askew, and the
- * buckle's prong turns when the book is open.
+ * The macro bar's keys are paper tags hung on the front of the satchel, each set a little askew.
  */
 body[data-sfh-device="journal"] #sfh-deck #action-bar .slot {
 	border: 1px solid #8a7050;
@@ -450,18 +449,76 @@ body[data-sfh-device="journal"] #sfh-deck #hotbar button:hover {
 	text-shadow: none;
 }
 
-#sfh-prong {
-	transform-box: fill-box;
-	transform-origin: center;
-	transition: transform 400ms ease;
+/*
+ * Its back and its flap stand above the art's box, and the flap turns up higher still, so the
+ * satchel is not cut to its frame.
+ *
+ * While the book is out, the flap is folded away behind the bag and the straps are pulled up out
+ * of the clasps. Opening, the straps are pulled free first, then the flap turns over on its hinge:
+ * it shortens as it swings up to edge-on, shows its darker underside standing up past the hinge,
+ * and tips back behind the bag out of sight. Closing is the same turn backward, once the book is
+ * back in, and the straps are pushed back down into the clasps last. Keep in step with SEQ_LONG
+ * and design/1-head.html.
+ *
+ * The book passes in front of the bag's back, so while it is out the back is drawn in the
+ * projection, behind it, and the art's own is hidden.
+ */
+#sfh-device svg.sfh-art[data-art="satchel"] {
+	overflow: visible;
 }
 
-body[data-sfh-power="on"] #sfh-prong {
-	transform: rotate(90deg) scaleY(.6);
+#sfh-device .sfh-flap {
+	transform-box: fill-box;
+	transform-origin: 50% 0;
+}
+
+body[data-sfh-power="on"] #sfh-device .sfh-flap {
+	transform: scaleY(-.2);
+	opacity: 0;
+}
+
+body[data-sfh-power="on"] #sfh-device .sfh-straps {
+	transform: translateY(-58px);
+}
+
+body[data-sfh-power="on"] #sfh-device .sfh-satchel-back,
+#sfh-device.sfh-seq-off .sfh-satchel-back {
+	visibility: hidden;
+}
+
+#sfh-device.sfh-seq-on .sfh-straps {
+	animation: sfh-straps-free 320ms cubic-bezier(.5, 0, .4, 1);
+}
+
+#sfh-device.sfh-seq-on .sfh-flap {
+	animation: sfh-flap-turn 700ms linear 280ms backwards;
+}
+
+#sfh-device.sfh-seq-off .sfh-flap {
+	animation: sfh-flap-turn 700ms linear 1650ms reverse backwards;
+}
+
+#sfh-device.sfh-seq-off .sfh-straps {
+	animation: sfh-straps-free 320ms cubic-bezier(.5, 0, .4, 1) 2310ms reverse backwards;
+}
+
+@keyframes sfh-straps-free {
+	from { transform: translateY(0); }
+	to { transform: translateY(-58px); }
+}
+
+/* eased in and out over the whole turn: the stops are where an ease-in-out curve reaches them */
+@keyframes sfh-flap-turn {
+	0% { transform: scaleY(1); filter: brightness(1); opacity: 1; animation-timing-function: cubic-bezier(.55, 0, 1, .85); }
+	42.9% { transform: scaleY(.06); filter: brightness(.62); opacity: 1; animation-timing-function: linear; }
+	44.2% { transform: scaleY(-.06); filter: brightness(.5); opacity: 1; animation-timing-function: linear; }
+	62.1% { transform: scaleY(-.92); filter: brightness(.72); opacity: 1; animation-timing-function: linear; }
+	76.5% { transform: scaleY(-.6); filter: brightness(.55); opacity: .7; animation-timing-function: cubic-bezier(0, .15, .45, 1); }
+	100% { transform: scaleY(-.2); filter: brightness(.4); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	#sfh-prong { transition: none; }
+	#sfh-device :is(.sfh-flap, .sfh-straps) { animation: none !important; }
 }
 
 /* ---------------------------------------------------------------- the Vambrace's bracer */

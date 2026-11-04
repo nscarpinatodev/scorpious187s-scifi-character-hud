@@ -9,16 +9,13 @@ so existing installs keep working). Its fonts are all Latin woff2, and its style
 What is left, in order:
 
 1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch (the fonts
-   changed). With sequences on: the Vambrace's arcane bolts; the Journal and the Vambrace in the
-   sidebar, chat, player list and carousel (paper, and dark glass); typing experience and level;
+   changed). With sequences on: the Journal coming out of its satchel and its writing fading in,
+   and going back in; the Vambrace's arcane bolts; the Journal and the Vambrace in the sidebar,
+   chat, player list and carousel (paper, and dark glass); typing experience and level;
    right-clicking experience, hero points and an item; dragging an item into a container and onto
-   the macro bar; PF2e's resistances and the damage formulas on the strikes.
-2. **Decide on the Journal's mock-ups** (`tools/harness-device.html?mockup`, served by
-   `node tools/serve-harness.mjs`): the satchel (straps, clasps, flap, the book rising out of it)
-   and the Marauder's Map fade-in. Either is built into the module on a yes: the satchel's back
-   has to be drawn inside the projection, behind the book (see the mock-up's `satchelBack`), and
-   its art allowed past the top of its frame.
-3. **Release.** `module.json` is at 0.2.0 with its manifest and download URLs pointing at the
+   the macro bar; PF2e's resistances and the damage formulas on the strikes. The satchel's flap
+   turns up above the art's frame: check nothing in Foundry's interface cuts it off.
+2. **Release.** `module.json` is at 0.2.0 with its manifest and download URLs pointing at the
    GitHub release, and CHANGELOG.md's 0.2.0 section is the release notes. The repo has no remote
    yet.
 
@@ -67,13 +64,15 @@ Both work in 5e, PF2e and SF2e. `design/fantasy-mockup.html` was the first, stat
 before either was built; the live mock-ups are now in the harness (`?mockup`), on the real
 projection, and new work is tried there.
 
-- [x] **Adventurer's Journal** — the open book, its strap, its sequence and its paper palette.
+- [x] **Adventurer's Journal** — the open book, its satchel, its sequence and its paper palette.
 - [x] **Runic Vambrace** — the bracer, its runes and gem, the sigil sequence with its arcane
       bolts, dark glass panels and rune-stone tabs.
 - [x] **The fantasy fonts as woff2**, and **each device's own words** in `lang/en.json`.
 - [x] **Their interface** — the sidebar, chat, player list, controls and carousel as paper (the
       Journal) and dark glass (the Vambrace), as the static mock-up drew them.
-- [ ] **The Journal's satchel and fade-in ink** — mocked up; see Start here, 2.
+- [x] **The Journal's satchel and fade-in ink** — the book comes out of a satchel whose straps
+      pull free and whose flap turns away, and its writing fades in from the spine like the
+      Marauder's Map's. Built from the mock-ups, which have left the harness.
 - [ ] **More fantasy looks** — the Reliquary, Runeforge and Witchfire over the Vambrace and the
       Grove over the Journal are mocked up (`?mockup`, Fantasy look) as palettes over the built
       devices. Building one means its palette as a device, its own art (the mock-up recolors the

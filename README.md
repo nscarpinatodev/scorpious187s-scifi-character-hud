@@ -50,8 +50,9 @@ one character and have none assigned, it shows that one.
 - **Seven devices.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON, and for fantasy
   games the Adventurer's Journal and the Runic Vambrace. Every device works with every system.
   The GM sets the world default; each player can pick their own in the module settings.
-- **The Adventurer's Journal.** The sheet is a leather journal: it rises closed from a strap at the
-  foot of the screen, swings open on its spine and is written in as you watch. The main body is
+- **The Adventurer's Journal.** The sheet is a leather journal kept in a satchel at the foot of
+  the screen: the straps pull free, the flap turns back, and the book slides out, swings open on
+  its spine and its writing fades in as you watch. The main body is
   on the left page, everything else kept as notes on the right, with index tabs cut into the
   pages and the interface around it in ink on paper.
 - **The Runic Vambrace.** An engraved bracer whose runes kindle one after another; a sigil turns

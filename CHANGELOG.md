@@ -48,8 +48,14 @@ device, and the character sheet is a projection it raises over the canvas.
   Cinzel and Alegreya ship with the module for it.
 - The rich-text editor's toolbar stays on one row: on a narrow page its buttons are smaller,
   and shrink further until they fit.
-- The Journal is written in spilled ink: once the cover is open, a ragged front of wet ink
-  runs across both pages from the fore-edge, and the words dry out of the stain behind it.
+- The Journal is kept in a satchel at the foot of the screen, its flap buckled down by two straps
+  through brass clasps; the left clasp opens it. The straps pull free, the flap turns over and
+  falls away behind the bag, and the book slides up out of it and swings open. Closing, the book
+  goes back in and the flap comes over and is buckled shut after it.
+- The Journal's writing fades in as the Marauder's Map's does: touched at the spine, ink blooms
+  out across both pages, soaking up through the paper unevenly and settling sharp.
+- A projection switched off and straight back on no longer has its sequence cut short, or is
+  put away once it is back up.
 - Renamed "Scorpious187's HUD UI for 5e and PF2e/SF2e". The module's id is unchanged, so an
   existing install updates in place.
 - Experience is typed in both systems, like hit points, and the level too in PF2e and SF2e.
@@ -73,9 +79,9 @@ device, and the character sheet is a projection it raises over the canvas.
 - The Adventurer's Journal, the first fantasy device, for 5e, PF2e and SF2e alike. The sheet
   is a leather journal opened across the table: the main body on the left page, everything
   else kept as notes on the right, the readout on a card taped into the page, and index tabs
-  standing out of the left page's edge. It rises closed out of the strap at the foot of the
-  screen, swings open on its spine, and is written in line by line. The macro bar is a row of
-  paper tags on that strap, and the interface around it is ink on paper. IM Fell English,
+  standing out of the left page's edge. It comes out of a satchel at the foot of the screen and
+  swings open on its spine. The macro bar is a row of paper tags on the satchel, and the
+  interface around it is ink on paper. IM Fell English,
   EB Garamond and Caveat ship with the module for it.
 - Drops onto the projection: an item, spell, effect, condition or folder dragged from the
   sidebar, a compendium or another sheet lands on the character as on its own sheet, and a
