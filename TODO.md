@@ -8,13 +8,23 @@ The module is now "Scorpious187's HUD UI for 5e and PF2e/SF2e" (the title; its i
 so existing installs keep working). Its fonts are all Latin woff2, and its stylesheets load once.
 What is left, in order:
 
-1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch (the fonts
-   changed). With sequences on: the Journal coming out of its satchel and its writing fading in,
-   and going back in; the Vambrace's arcane bolts; the Journal and the Vambrace in the sidebar,
-   chat, player list and carousel (paper, and dark glass); typing experience and level;
-   right-clicking experience, hero points and an item; dragging an item into a container and onto
-   the macro bar; PF2e's resistances and the damage formulas on the strikes. The satchel's flap
-   turns up above the art's frame: check nothing in Foundry's interface cuts it off.
+1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch first (a
+   stylesheet was added). Seen in Foundry already, and fixed from what was seen: the Journal's
+   satchel and what else is in it, the experience and level fields, the identity strip, dropping
+   an item from another character's sheet (PF2e), and the scene bar's preview. Not seen yet:
+   - **The four looks** — the Reliquary, Runeforge and Witchfire over the Vambrace, the Grove over
+     the Journal: their art, panels, bolts, and the interface around them.
+   - **The Journal's interface in the dark** (a setting) — the harness has only the scene list,
+     chat cards and player list, so Foundry's own sidebar tabs, the controls and the turn order
+     are the ones to look at.
+   - **The scene bar's preview since the fix** — under the scene, beneath the pointer, and closing
+     as soon as the pointer leaves; in the drawer most of all.
+   - **The satchel's clutter since the fix** — up only once the flap has gone.
+   - **The rest from the last batch** — the Vambrace's arcane bolts; right-clicking experience,
+     hero points and an item; dragging an item into a container and onto the macro bar; PF2e's
+     resistances and the damage formulas on the strikes; and the carousel in each fantasy device.
+   - **The satchel's flap** turns up above the art's frame: check nothing in Foundry's interface
+     cuts it off.
 2. **Release.** `module.json` is at 0.2.0 with its manifest and download URLs pointing at the
    GitHub release, and CHANGELOG.md's 0.2.0 section is the release notes. The repo has no remote
    yet.
@@ -30,7 +40,9 @@ system's own sheet, which the book button opens.
 
 - [x] **Spell slots (5e)** — spend and regain from the Spells tab.
 - [x] **Dropping onto the projection** — items, spells, effects, conditions and folders land
-      as they would on the system's sheet, and into a container dropped on, in every system.
+      as they would on the system's sheet, and into a container dropped on, in every system. An
+      item from another character's inventory moves in PF2e and SF2e; in 5e it is copied unless
+      Shift is held, as on 5e's own sheet.
 - [x] **Dragging out of the projection** — an item's or effect's name can be picked up, with the
       drag data the system's sheet gives: into a container, onto another sheet or the macro bar.
 - [x] **Experience and level** — experience typed in both systems; the level too in PF2e and
@@ -78,14 +90,21 @@ projection, and new work is tried there.
       keeps its base's layout, board, sequence and words, and brings its own palette and marks
       (`styles/looks.css`) and its own art, drawn from the base's with its own metal or leather,
       stone and glyphs (`scripts/device/art.mjs`). The Vambrace's bolts take the look's colors.
-- [ ] **See the looks in Foundry** — none has been seen outside the harness.
+      Not seen in Foundry yet (Start here, 1).
+- [x] **The Journal's interface in the dark** — a setting: the sidebar, chat, player list,
+      controls, scene bar and turn order in dark leather with pale ink, the Grove's in dark green;
+      the book stays paper.
+- [x] **Odds and ends in the satchel** — a map, pages, a sealed letter, a quill and a vial, packed
+      out of sight while the flap is shut and up beside the book once it has gone.
+- [ ] **The looks' own words** — a look keeps its device's panel names, so the Reliquary's
+      effects are "Wards & Hexes" like the Vambrace's. A cleric's might want their own.
 
 ## Sci-fi devices
 
 `design/theme-ideas.md` has the research and seven proposals: a Holoprojector, Datapad and
 Beskar vambrace for Star Wars games (SW5e may already run on the dnd5e system), a Comm unit for
 Starfinder, an Esper core for Esper Genesis, a Retro terminal for horror in space and a Cyberdeck.
-Decide the naming question there before any of them ships.
+Decide the naming question there before any of them ships: it is still open.
 
 - [x] **Mock-ups** — all seven, on the real projection in the harness (`?mockup`, Look, Sci-fi),
       each dressed over the device it is closest to, with its own art, palette and, for the
