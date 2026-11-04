@@ -538,13 +538,14 @@ export class Projection {
 			<div class="scanfx"></div></section>`;
 
 		// the wrist unit's panels sit inside its case rather than flush to the board edge
-		const inset = device === 'wrist';
-		stage.innerHTML = `<div class="ornlayer">${ornBack(device, c)}</div>
+		// so do the Retro terminal's, inside the screen of its thick monitor case
+		const inset = device === 'wrist' || look === 'retro';
+		stage.innerHTML = `<div class="ornlayer">${ornBack(device, c, look)}</div>
 		<div class="foldwrap">
 			<div class="ornlayer">${ornDev(device)}</div>
 			<div class="sweep"></div><div class="flare"></div>
 			${inset ? '<div class="sfh-inset">' : ''}
-			${eva ? evaReadouts(c) : ''}
+			${eva ? evaReadouts(c, look) : ''}
 			${panel('identity', L.identity, renderIdentity(c, device), 'ident')}
 			${panel('vitals', L.vitals, renderVitals(c))}
 			${panel('defenses', L.defenses, renderDefenses(c, device), eva ? '' : 'pad')}

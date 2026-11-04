@@ -300,6 +300,41 @@ const notice = await page.evaluate(async () => {
 });
 results.push(...notice);
 
+// the Retro terminal: its own monitor case, the panels inside its screen, and its glass on the screen alone
+const retro = await page.evaluate(async () => {
+	const out = [];
+	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const { DeviceChrome: hud, store } = SFH;
+	store.sequences = false;
+	if (hud.power) hud.setPower(false, { silent: true });
+	await game.settings.set(null, 'device', 'retro');
+	await wait(250);
+	hud.setPower(true, { silent: true });
+	await wait(450);
+	const stage = document.querySelector('#sfh-projection .sfh-stage');
+	const glass = stage.querySelector('.ornlayer rect[fill="url(#sfh-rt-glass)"]');
+	check("Retro terminal: its own monitor case, not the EVA's bezel", glass && !stage.querySelector('.ornlayer > div[style*="border:14px"]'));
+	const g = glass.getBoundingClientRect();
+	const outside = [...stage.querySelectorAll('.slot, .navb')].filter((e) => e.offsetWidth).filter((e) => {
+		const r = e.getBoundingClientRect();
+		return r.left < g.left - 0.5 || r.right > g.right + 0.5 || r.top < g.top - 0.5 || r.bottom > g.bottom + 0.5;
+	});
+	check('every panel inside its screen', outside.length === 0, outside.map((e) => e.dataset.slot ?? e.textContent.trim()));
+	// the glass, in board units, is the screen's box: the scanlines and the glare do not reach the case
+	const k = stage.getBoundingClientRect().width / stage.offsetWidth;
+	const after = getComputedStyle(stage, '::after');
+	const box = [parseFloat(after.left), parseFloat(after.top), parseFloat(after.width), parseFloat(after.height)].map((n) => n * k);
+	const s = stage.getBoundingClientRect();
+	const same = Math.abs(s.left + box[0] - g.left) < 1.5 && Math.abs(s.top + box[1] - g.top) < 1.5 && Math.abs(box[2] - g.width) < 1.5 && Math.abs(box[3] - g.height) < 1.5;
+	check('its glass and scanlines lie on the screen, not the case', same && /repeating-linear-gradient/.test(after.backgroundImage), { box, glass: [g.left - s.left, g.top - s.top, g.width, g.height] });
+	check("no scanlines of the EVA's across the whole board", !stage.querySelector('.scanfx') || getComputedStyle(stage.querySelector('.scanfx')).display === 'none');
+	check('it calls itself a terminal', /TERMINAL/.test(stage.querySelector('[data-slot="identity"]').textContent) && !/EVA Link/.test(stage.textContent));
+	hud.setPower(false, { silent: true });
+	return out;
+});
+results.push(...retro);
+
 await browser.close();
 for (const r of results) if (!r.ok) console.log(`FAIL ${r.name} ${r.detail}`);
 const failed = results.filter((r) => !r.ok).length + errors.length;

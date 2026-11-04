@@ -68,8 +68,8 @@ one character and have none assigned, it shows that one.
 - **Seven sci-fi looks.** The Holoprojector (a disc emitter and a flickering blue hologram), the
   Armored gauntlet (hammered steel and a red display) and the Comm unit (a teal and orange wrist
   slab) over the omni-tool; the Datapad (amber on a worn handheld) over the wrist computer; the
-  Crystal core (white ceramic and frosted glass) over the Vambrace; the Retro terminal (green
-  phosphor in a beige monitor, typing itself out) over the EVA; and the Cyberdeck (neon magenta
+  Crystal core (white ceramic and frosted glass) over the Vambrace; the Retro terminal (an old
+  green terminal in a chunky steel monitor, typing itself out) over the EVA; and the Cyberdeck (neon magenta
   and cyan, glitching open) over TRON.
 - **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
   drop, paging and keybinds all work as they always do.

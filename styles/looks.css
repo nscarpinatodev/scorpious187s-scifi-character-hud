@@ -468,24 +468,55 @@ body[data-sfh-device][data-sfh-look="crystal"] {
 	--sfh-socket-line: #9fb4c6; --sfh-socket-a: #ffffff; --sfh-socket-b: #dde7ef; --sfh-socket-lit: #4fd8ff;
 }
 
-/* ---------------- the Retro terminal: green phosphor in an old beige monitor, typed out on opening */
+/* ---------------- the Retro terminal: an old green terminal in a chunky steel monitor, typed out on opening */
+/*
+ * Its housing is its own (ornaments.mjs, retroTerminal): a thick case around a rounded screen, the
+ * panels scaled into the screen inside it. The screen is a terminal's: bright green on near-black,
+ * no panel fills, thin rules, and whatever is pointed at or chosen lit up inverted, green with dark
+ * letters. Its glass is laid over the screen alone: the scanlines, the dark at its curved edges, a
+ * glare, and a band of brightness rolling slowly down it, none of it on the case.
+ */
 #sfh-projection .sfh-stage[data-device][data-look="retro"] {
-	--scan: rgba(0, 0, 0, .35); --pnl: #020a03; --pnl2: rgba(51, 255, 102, .04);
-	--line: rgba(51, 255, 102, .4); --line2: rgba(51, 255, 102, .14); --text: #39ff6a; --bright: #b8ffc8; --dim: #1fa844;
-	--hot: #39ff6a; --hotbg: rgba(51, 255, 102, .16); --hover: rgba(51, 255, 102, .1); --glow: rgba(51, 255, 102, .6);
-	--acc: #9dffb4; --accbg: rgba(157, 255, 180, .12); --bad: #b8ffc8; --good: #39ff6a;
+	--scan: transparent; --pnl: transparent; --pnl2: rgba(77, 255, 136, .05);
+	--line: rgba(77, 255, 136, .45); --line2: rgba(77, 255, 136, .18); --text: #4dff88; --bright: #c8ffd9; --dim: #2aa859;
+	--hot: #4dff88; --hotbg: rgba(77, 255, 136, .16); --hover: rgba(77, 255, 136, .1); --glow: rgba(77, 255, 136, .55);
+	--acc: #a8ffc4; --accbg: rgba(168, 255, 196, .12); --bad: #e8ffef; --good: #4dff88;
 	--font: VT323, monospace; --display: VT323, monospace; --mono: VT323, monospace; --fs: 18px;
-	--pshadow: none;
+	--r: 0px; --clip: none; --pshadow: none;
 }
-#sfh-projection .sfh-stage[data-device][data-look="retro"] * { text-shadow: 0 0 5px rgba(51, 255, 102, .7); }
-#sfh-projection .sfh-stage[data-device][data-look="retro"] .pnl { border-style: dashed; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .sfh-inset { transform: scale(.9); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] * { text-shadow: 0 0 6px rgba(77, 255, 136, .6); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .pnl { background: transparent !important; border: 1px solid var(--line2) !important; box-shadow: none; }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.lbl, .cap, .proj-t) { letter-spacing: .1em; font-size: 1.15em; }
-#sfh-projection .sfh-stage[data-device][data-look="retro"] .cap { background: none; border-bottom-style: dashed; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .cap { background: none; border-bottom: 1px solid var(--line); }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after { content: '▌'; margin-left: .3em; animation: sfh-look-blink 1.06s steps(1) infinite; }
-#sfh-projection .sfh-stage[data-device][data-look="retro"] .ornlayer > div[style*="border:14px"] { border-color: #cfc4a2 !important; box-shadow: inset 0 0 0 2px #8a8068, inset 0 0 0 4px #000, inset 0 0 40px rgba(0, 0, 0, .5) !important; border-radius: 22px; }
-#sfh-projection .sfh-stage[data-device][data-look="retro"] .ornlayer > span { background: radial-gradient(circle at 35% 35%, #efe8d2, #9a9076) !important; }
-#sfh-projection .sfh-stage[data-device][data-look="retro"]::after { content: ''; position: absolute; inset: 14px; border-radius: 18px; pointer-events: none; z-index: 50;
-	background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(0, 0, 0, .6) 100%); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .scanfx { display: none; }
+/* what can be chosen is plain text, lit up inverted when pointed at or chosen, as a terminal's selection is */
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.b, .navb, button.cell) { background: transparent; border-color: var(--line2); border-radius: 0; box-shadow: none; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.b, .navb, button.cell):is(:hover, :focus-visible, .on) { background: var(--hot) !important; border-color: var(--hot) !important; color: #03140a !important; text-shadow: none; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.b, .navb, button.cell):is(:hover, :focus-visible, .on) * { color: #03140a !important; text-shadow: none; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .sfh-in { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .sfh-in:focus { background: var(--hotbg); outline: none; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.sfh-iwr, .chip) { border-radius: 0; }
+/* the glass, over the screen and nowhere else */
+#sfh-projection .sfh-stage[data-device][data-look="retro"]::before, #sfh-projection .sfh-stage[data-device][data-look="retro"]::after {
+	content: ''; position: absolute; left: 46px; top: 34px; width: 1188px; height: 792px; border-radius: 44px; pointer-events: none;
+}
+#sfh-projection .sfh-stage[data-device][data-look="retro"]::after {
+	z-index: 50;
+	background:
+		linear-gradient(160deg, rgba(220, 255, 230, .07), transparent 26%),
+		radial-gradient(ellipse at 50% 50%, transparent 56%, rgba(0, 0, 0, .55) 100%),
+		repeating-linear-gradient(0deg, rgba(0, 0, 0, .32) 0 var(--scanline, 1px), transparent var(--scanline, 1px) var(--scanpitch, 3px));
+	animation: sfh-look-retro-flicker 6s infinite;
+}
+#sfh-projection .sfh-stage[data-device][data-look="retro"]::before {
+	z-index: 49;
+	background: linear-gradient(transparent, rgba(120, 255, 160, .05) 40%, rgba(150, 255, 180, .09) 50%, transparent) 0 -170px / 100% 170px no-repeat;
+	animation: sfh-look-retro-roll 8s linear infinite;
+}
+@keyframes sfh-look-retro-roll { from { background-position: 0 -170px; } to { background-position: 0 962px; } }
+@keyframes sfh-look-retro-flicker { 0%, 100% { opacity: 1; } 49% { opacity: 1; } 50% { opacity: .9; } 52% { opacity: 1; } 78% { opacity: .96; } }
 #sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-type .8s steps(16) backwards; animation-delay: calc(320ms + var(--d, 0ms) * 2.5); }
 @keyframes sfh-look-type { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes sfh-look-blink { 50% { opacity: 0; } }
@@ -535,6 +566,8 @@ body[data-sfh-device][data-sfh-look="cyberdeck"] {
 
 @media (prefers-reduced-motion: reduce) {
 	#sfh-projection .sfh-stage[data-device]:is([data-look="holoprojector"], [data-look="retro"], [data-look="cyberdeck"]) :is(.slot, .navb, .pnl, .pnl::before) { animation: none !important; }
-	#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after { animation: none !important; }
+	#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after,
+	#sfh-projection .sfh-stage[data-device][data-look="retro"]::before,
+	#sfh-projection .sfh-stage[data-device][data-look="retro"]::after { animation: none !important; }
 	body[data-sfh-look="holoprojector"] :is(#sfh-beam, #sfh-device #sfh-band) { animation: none !important; }
 }

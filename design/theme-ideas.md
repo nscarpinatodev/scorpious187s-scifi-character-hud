@@ -57,7 +57,7 @@ it is closest to, keeping that device's layout and words; three of them open the
 | Armored gauntlet | omni-tool | A hammered steel gauntlet with rivets, plate seams, two red lights and a small red display for the switch; gunmetal panels with silver edges and red readings. |
 | Comm unit | omni-tool | A slate wrist slab with teal light strips, orange signals and a hexagonal emitter; cut-cornered panels and hexagonal tabs over a teal hex grid. |
 | Crystal core | Runic Vambrace | A white ceramic band with a cut crystal for the switch; frosted white glass panels in navy and cyan, the sigil's rings in white without its runes, and cyan bolts. |
-| Retro terminal | EVA (GDI) | Green phosphor in an old beige monitor: VT323 throughout, glowing text, a dark vignette, a blinking cursor after each heading. Opens its own way: every panel typed out top to bottom. |
+| Retro terminal | EVA (GDI) | An old green terminal in a chunky monitor case of painted olive steel, with its own housing in place of the EVA's bezel: a rounded screen of dark green glass, the panels inside it, bright green VT323 with no panel fills, and whatever is pointed at or chosen lit up inverted. Its scanlines, glare and rolling band are on the glass alone, never the case. Opens its own way: every panel typed out top to bottom. |
 | Cyberdeck | TRON | A neon slab with rows of little keys and a glitched logo for the switch; magenta and cyan. Opens its own way: every panel glitches in, in torn slices. |
 
 What they borrow is also what they keep: the Crystal core says "Wards & Hexes" and "Lore" (the

@@ -46,8 +46,53 @@ function vambraceSigil() {
 			${letters}</g></g></svg>`;
 }
 
-/** Behind the panels, and outside the fold: housing that stays put. */
-export function ornBack(device, c) {
+/**
+ * The Retro terminal's housing, in place of the EVA's bezel: a chunky monitor case in painted
+ * olive steel, worn at the edges, screwed together at the corners and with a blank maker's plate
+ * under the screen; a deep recess; and in it a rounded screen of dark green glass, brightest in
+ * the middle where the phosphor glows. The panels sit inside the screen (the stage's .sfh-inset),
+ * and the glass, its scanlines and its glare are laid over them there (styles/looks.css), so none
+ * of that crosses the case.
+ */
+const RETRO_SCREEN = { x: 46, y: 34, w: 1188, h: 792, r: 44 };
+function retroTerminal() {
+	const s = RETRO_SCREEN;
+	const screw = (x, y) => `<g transform="translate(${x} ${y})"><circle r="6.5" fill="url(#sfh-rt-screw)" stroke="#1d1c15" stroke-width="1"/><path d="M-4 -1.2 L 4 1.2" stroke="#2a2920" stroke-width="1.6"/></g>`;
+	return `<svg width="1280" height="860" viewBox="0 0 1280 860" style="position:absolute;inset:0" aria-hidden="true">
+		<defs>
+			<linearGradient id="sfh-rt-case" x1="0" y1="0" x2="0" y2="1">
+				<stop offset="0" stop-color="#7d7a5e"/><stop offset=".08" stop-color="#6a6750"/><stop offset=".55" stop-color="#55533f"/><stop offset="1" stop-color="#3a3929"/>
+			</linearGradient>
+			<filter id="sfh-rt-paint" x="0" y="0" width="100%" height="100%">
+				<feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/>
+				<feColorMatrix in="n" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0" result="grain"/>
+				<feComposite in="grain" in2="SourceGraphic" operator="in" result="g"/>
+				<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="g"/></feMerge>
+			</filter>
+			<radialGradient id="sfh-rt-glass" cx=".5" cy=".46" r=".7">
+				<stop offset="0" stop-color="#0d2b16"/><stop offset=".55" stop-color="#071a0d"/><stop offset="1" stop-color="#020703"/>
+			</radialGradient>
+			<radialGradient id="sfh-rt-screw" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#b8b39a"/><stop offset="1" stop-color="#55523f"/></radialGradient>
+			<linearGradient id="sfh-rt-plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9b496"/><stop offset="1" stop-color="#7d785e"/></linearGradient>
+		</defs>
+		<rect width="1280" height="860" rx="34" fill="url(#sfh-rt-case)" filter="url(#sfh-rt-paint)"/>
+		<rect x="4" y="4" width="1272" height="852" rx="31" fill="none" stroke="#a9a487" stroke-opacity=".45" stroke-width="2"/>
+		<rect x="1.5" y="1.5" width="1277" height="857" rx="33" fill="none" stroke="#14130d" stroke-width="3"/>
+		<rect x="${s.x - 16}" y="${s.y - 14}" width="${s.w + 32}" height="${s.h + 28}" rx="${s.r + 12}" fill="#1b1a13" stroke="#0c0b07" stroke-width="2"/>
+		<rect x="${s.x - 16}" y="${s.y - 14}" width="${s.w + 32}" height="${s.h + 28}" rx="${s.r + 12}" fill="none" stroke="#8d8869" stroke-opacity=".35" stroke-width="1.5" transform="translate(0 2)"/>
+		<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="${s.r}" fill="url(#sfh-rt-glass)"/>
+		<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="${s.r}" fill="none" stroke="#000" stroke-width="6" stroke-opacity=".7"/>
+		${screw(16, 16)}${screw(1264, 16)}${screw(16, 844)}${screw(1264, 844)}
+		<g transform="translate(640 843)">
+			<rect x="-74" y="-6.5" width="148" height="13" rx="2" fill="url(#sfh-rt-plate)" stroke="#3a3828" stroke-width="1"/>
+			<path d="M-62 -1.5 H 22 M-62 2.5 H -8 M34 -2 h 26 v4 h -26 z" stroke="#4a4734" stroke-width="1.1" fill="none"/>
+		</g>
+	</svg>`;
+}
+
+/** Behind the panels, and outside the fold: housing that stays put. A look may bring its own. */
+export function ornBack(device, c, look = null) {
+	if (look === 'retro') return retroTerminal();
 	if (device === 'journal') return journalBook(c);
 	if (device === 'vambrace') return vambraceSigil();
 	if (device === 'omni') {
@@ -84,7 +129,7 @@ export function ornBack(device, c) {
  * hit-point ladder. They are part of the picture, so they live inside the fold and open
  * with everything else.
  */
-export function evaReadouts(c) {
+export function evaReadouts(c, look = null) {
 	const hp = pct(c.hp.value, c.hp.max);
 	const segments = 24;
 	const lit = Math.round((segments * hp) / 100);
@@ -98,7 +143,7 @@ export function evaReadouts(c) {
 	const status = hp < 35 ? 'CRITICAL' : hp < 70 ? 'DAMAGED' : 'OPERATIONAL';
 
 	return `<div class="slot pnl" style="left:26px;top:86px;width:262px;height:160px">
-			<div class="cap">EVA Link</div>
+			<div class="cap">${look === 'retro' ? 'Link' : 'EVA Link'}</div>
 			<svg viewBox="0 0 260 134" width="260" height="134" aria-hidden="true">
 				<circle cx="130" cy="66" r="56" fill="none" stroke="var(--hot)" stroke-opacity=".3"/>
 				<circle cx="130" cy="66" r="44" fill="none" stroke="var(--hot)" stroke-opacity=".5" stroke-dasharray="3 5"/>

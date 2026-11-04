@@ -1,4 +1,5 @@
 import { esc, sgn, lbl, bar, actBtn, rollBtn, nameBtn, ro } from './helpers.mjs';
+import { currentLook } from '../settings.mjs';
 
 /**
  * The panels around the projection, built exactly as the mock-up builds them
@@ -57,7 +58,7 @@ export function renderIdentity(c, device) {
 			<div class="row">${rest}<span class="grow"></span>${sheet}${gear}</div>`;
 	}
 	if (device === 'gdi' || device === 'nod') {
-		return `<span class="big hot" style="font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.3em">EVA</span>
+		return `<span class="big hot" style="font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.3em">${currentLook() === 'retro' ? 'TERMINAL' : 'EVA'}</span>
 			<div class="ticker" id="sfh-ticker">&gt; ${esc(c.name)} · unit ready<i>▌</i></div>
 			<span style="font-weight:700;letter-spacing:.08em;color:var(--acc);font-size:17px;text-transform:uppercase">${esc(c.name)}</span>
 			<span class="mono hot" style="padding:3px 9px;border:1px solid var(--line)">LV ${c.level}</span>${rest}${sheet}${gear}`;
