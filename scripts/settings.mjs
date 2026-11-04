@@ -261,6 +261,11 @@ export function currentDevice() {
 	return DEVICES[id].base ?? id;
 }
 
+/** What this user chose: a look, or a device. Its sequence is the one that plays (seqMs). */
+export function currentChoice() {
+	return chosenDevice();
+}
+
 /** The look this user chose over their device, or null for the device as it is. */
 export function currentLook() {
 	const id = chosenDevice();

@@ -1,5 +1,5 @@
 import { MOD, S, EL, KEYS, seqMs } from './constants.mjs';
-import { registerSettings, currentDevice } from './settings.mjs';
+import { registerSettings, currentDevice, currentChoice } from './settings.mjs';
 import { DeviceChrome } from './device/chrome.mjs';
 import { Projection } from './projection/projection.mjs';
 import { getAdapter } from './adapters/index.mjs';
@@ -147,7 +147,7 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	DeviceChrome.playSequence('off');
 	Projection.playSequence('off');
 	// switched back on before it was put away: it stays up
-	setTimeout(() => DeviceChrome.power || Projection.close(), seqMs('off', currentDevice()));
+	setTimeout(() => DeviceChrome.power || Projection.close(), seqMs('off', currentChoice()));
 });
 
 /* The projection shows live data, so it follows the actor. */

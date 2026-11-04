@@ -32,47 +32,44 @@ sheet over the table.
 2. **Datapad** (also Star Wars, for the scoundrel's side): a battered handheld with an amber or
    green segmented readout, chunky buttons and scuffed plating. Low-tech next to the
    holoprojector.
-3. **Beskar vambrace** (Star Wars, bounty hunters): the Runic Vambrace's art and layout, in
-   hammered steel with a small inset display and red status lights. Mostly a palette and new art
-   on a device already built.
+3. **Armored gauntlet** (Star Wars, bounty hunters; proposed as the "Beskar vambrace"): hammered
+   steel with a small inset display and red status lights. Mostly a palette and new art on a
+   device already built.
 4. **Comm unit** (Starfinder): a Pact Worlds wrist unit in teal and orange, hexagonal panels and
    a holographic emitter. A natural default for SF2e games, which today get the omni-tool.
-5. **Esper core** (Esper Genesis and clean science fantasy): crystalline white and cyan, soft
-   light, panels like cut glass.
+5. **Crystal core** (Esper Genesis and clean science fantasy; proposed as the "Esper core"):
+   crystalline white and cyan, soft light, panels like cut glass.
 6. **Retro terminal** (horror in space: Voidrunner's Codex, Dark Matter): a green-on-black CRT
    with a blinking cursor and boot text, the sheet typed out line by line as it opens.
 7. **Cyberdeck** (Neon Odyssey, Carbon 2025): neon magenta and cyan, glitching on open and close;
    different enough from the synthwave wrist computer to stand on its own.
 
-## The mock-ups
+## Built, as looks
 
-All seven are mocked up on the real projection in the device harness: run
-`node tools/serve-harness.mjs`, open `http://localhost:8187/tools/harness-device.html?mockup`
-and pick one under Look, Sci-fi. Each is dressed over the built device it is closest to, so it
-borrows that device's layout and, unless it says otherwise, its way of opening:
+All seven are built, as looks picked like a device (`DEVICES` in `scripts/constants.mjs`; their
+styles in `styles/looks.css`, their art in `scripts/device/art.mjs`). Each dresses the built device
+it is closest to, keeping that device's layout and words; three of them open their own way.
 
-| Proposal | Over | What the mock-up shows |
+| Look | Over | What it is |
 | --- | --- | --- |
-| Holoprojector | omni-tool | A disc emitter on a low pedestal; translucent blue panels with heavy scanlines, an interference band rolling down them and an idle flicker; they flicker and jitter in as they open. |
+| Holoprojector | omni-tool | A disc emitter on a low pedestal; translucent blue panels with heavy scanlines, an interference band rolling down them and an idle flicker. Opens its own way: the panels flicker and jitter into being. |
 | Datapad | wrist computer | The wrist unit's case worn to grey plastic around a dark olive screen; amber VT323 on an LCD grid, chunky keys. |
-| Beskar vambrace | omni-tool | A hammered steel gauntlet with rivets, plate seams, two red lights and a small red display for the switch; gunmetal panels with silver edges and red readings. |
+| Armored gauntlet | omni-tool | A hammered steel gauntlet with rivets, plate seams, two red lights and a small red display for the switch; gunmetal panels with silver edges and red readings. |
 | Comm unit | omni-tool | A slate wrist slab with teal light strips, orange signals and a hexagonal emitter; cut-cornered panels and hexagonal tabs over a teal hex grid. |
-| Esper core | Runic Vambrace | A white ceramic band with a cut crystal for the switch; frosted white glass panels in navy and cyan, the sigil's rings in white without its runes. The Vambrace's bolts stay, and suit it. |
-| Retro terminal | EVA (GDI) | Green phosphor in an old beige monitor: VT323 throughout, glowing text, a dark vignette, a blinking cursor after each heading, and every panel typed out top to bottom as it opens. |
-| Cyberdeck | TRON | A neon slab with rows of little keys and a glitched logo for the switch; magenta and cyan, and every panel glitches open in torn slices. |
+| Crystal core | Runic Vambrace | A white ceramic band with a cut crystal for the switch; frosted white glass panels in navy and cyan, the sigil's rings in white without its runes, and cyan bolts. |
+| Retro terminal | EVA (GDI) | Green phosphor in an old beige monitor: VT323 throughout, glowing text, a dark vignette, a blinking cursor after each heading. Opens its own way: every panel typed out top to bottom. |
+| Cyberdeck | TRON | A neon slab with rows of little keys and a glitched logo for the switch; magenta and cyan. Opens its own way: every panel glitches in, in torn slices. |
 
-What they borrow is also what they would not keep: the Esper core still says "Wards & Hexes"
-and "Lore" (the Vambrace's words), and the Retro terminal is the EVA's console, with its link
-dish and unit card. A device built from one of these has its own words and layout where it needs
-them.
+What they borrow is also what they keep: the Crystal core says "Wards & Hexes" and "Lore" (the
+Vambrace's words), and the Retro terminal is the EVA's console, with its link dish and unit card.
 
 ## Names
 
-Trademarked names (Star Wars, Mandalorian, Starfinder, Esper Genesis) belong in descriptions at
-most, never in device names or art; the devices should be named for what they are
-("Holoprojector", "Comm unit"). The module already names some of its devices for the works they
-come from (the omni-tool, TRON, EVA), so this is worth deciding once for all of them before
-publishing.
+Decided: a device or a look is named for what it is, never for the game it suits. Trademarked
+names (Star Wars, Mandalorian, Starfinder, Esper Genesis) belong in descriptions at most, never in
+names or art. So the Beskar vambrace was built as the **Armored gauntlet**, and the Esper core as
+the **Crystal core**. The omni-tool, TRON and EVA are still named for the works they come from;
+whether to rename those is open.
 
 ## Sources
 

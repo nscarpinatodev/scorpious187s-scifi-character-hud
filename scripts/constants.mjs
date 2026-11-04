@@ -16,9 +16,10 @@ export const MOD = 'scorpious187s-scifi-character-hud';
  *               than matching the plate's width.
  *  - `base`     makes the device a look: another device dressed in its own palette and art.
  *               Everything but the colors and the art is the base device's — its layout, its
- *               board, its sequence and its words — so the code asks for the base
- *               (currentDevice) and the look's own styles key off `data-sfh-look`
- *               (styles/looks.css).
+ *               board and its words — so the code asks for the base (currentDevice) and the
+ *               look's own styles key off `data-sfh-look` (styles/looks.css). A look can open
+ *               its own way: its animations are in styles/looks.css, and a `sequence` of its own
+ *               names how long they run (SEQ_LONG).
  */
 export const DEVICES = {
 	omni: { id: 'omni', label: 'SFH.Device.Omni', hint: 'SFH.Device.OmniHint', art: 'arm', sequence: 'rise', switch: 'band' },
@@ -33,6 +34,14 @@ export const DEVICES = {
 	runeforge: { id: 'runeforge', label: 'SFH.Device.Runeforge', hint: 'SFH.Device.RuneforgeHint', base: 'vambrace', art: 'runeforge', sequence: 'sigil', switch: 'band' },
 	witchfire: { id: 'witchfire', label: 'SFH.Device.Witchfire', hint: 'SFH.Device.WitchfireHint', base: 'vambrace', art: 'witchfire', sequence: 'sigil', switch: 'band' },
 	grove: { id: 'grove', label: 'SFH.Device.Grove', hint: 'SFH.Device.GroveHint', base: 'journal', art: 'grove', sequence: 'book', switch: 'band', projects: false },
+	// looks for science fiction, each over the device it is closest to
+	holoprojector: { id: 'holoprojector', label: 'SFH.Device.Holoprojector', hint: 'SFH.Device.HoloprojectorHint', base: 'omni', art: 'holoprojector', sequence: 'flicker', switch: 'band' },
+	datapad: { id: 'datapad', label: 'SFH.Device.Datapad', hint: 'SFH.Device.DatapadHint', base: 'wrist', art: null, sequence: 'fold', switch: 'bar' },
+	gauntlet: { id: 'gauntlet', label: 'SFH.Device.Gauntlet', hint: 'SFH.Device.GauntletHint', base: 'omni', art: 'gauntlet', sequence: 'rise', switch: 'band' },
+	comm: { id: 'comm', label: 'SFH.Device.Comm', hint: 'SFH.Device.CommHint', base: 'omni', art: 'comm', sequence: 'rise', switch: 'band' },
+	crystal: { id: 'crystal', label: 'SFH.Device.Crystal', hint: 'SFH.Device.CrystalHint', base: 'vambrace', art: 'crystal', sequence: 'sigil', switch: 'band' },
+	retro: { id: 'retro', label: 'SFH.Device.Retro', hint: 'SFH.Device.RetroHint', base: 'gdi', art: null, sequence: 'type', switch: 'bar' },
+	cyberdeck: { id: 'cyberdeck', label: 'SFH.Device.Cyberdeck', hint: 'SFH.Device.CyberdeckHint', base: 'tron', art: 'cyberdeck', sequence: 'glitch', switch: 'band' },
 };
 
 export const DEFAULT_DEVICE = 'omni';
@@ -79,9 +88,14 @@ export const SEQ = { on: 940, off: 780 };
  * longer than light coming on. Closing, the Journal goes back in and the satchel is buckled shut
  * after it. Keep in step with design/1-head.html and styles/device.css.
  */
-export const SEQ_LONG = { book: { on: 6000, off: 2700 }, sigil: { on: 1500, off: 950 } };
+export const SEQ_LONG = {
+	book: { on: 6000, off: 2700 }, sigil: { on: 1500, off: 950 },
+	// the sci-fi looks' own openings (styles/looks.css): a hologram flickering in, a terminal
+	// typing its panels out, and a deck glitching open, each longer than the light coming on
+	flicker: { on: 1450, off: 780 }, type: { on: 2250, off: 780 }, glitch: { on: 1200, off: 780 },
+};
 
-/** How long a device's sequence runs, in ms. */
+/** How long a device's or a look's sequence runs, in ms. */
 export function seqMs(kind, deviceId) {
 	return SEQ_LONG[DEVICES[deviceId]?.sequence]?.[kind] ?? SEQ[kind];
 }

@@ -58,6 +58,12 @@ device, and the character sheet is a projection it raises over the canvas.
   out across both pages, soaking up through the paper unevenly and settling sharp.
 - A projection switched off and straight back on no longer has its sequence cut short, or is
   put away once it is back up.
+- Seven looks for science fiction, picked like a device: the Holoprojector, a disc emitter
+  whose sheet is a flickering blue hologram that wavers into being; the Armored gauntlet, hammered
+  steel with a red display; the Comm unit, a teal and orange wrist slab with a hexagonal emitter;
+  the Datapad, amber on a battered handheld; the Crystal core, a white band set with a crystal and
+  frosted glass panels; the Retro terminal, green phosphor in a beige monitor that types its panels
+  out; and the Cyberdeck, neon magenta and cyan, glitching open. A look can now open its own way.
 - The Journal's interface in the dark, a setting: with the Journal or the Grove, the sidebar,
   chat, player list, controls, scene bar and turn order are dark leather with pale ink instead
   of paper, while the journal itself stays paper.

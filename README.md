@@ -47,11 +47,12 @@ one character and have none assigned, it shows that one.
 
 ## What you get
 
-- **Seven devices, and four looks.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON,
-  and for fantasy games the Adventurer's Journal and the Runic Vambrace, with the Reliquary,
-  Runeforge and Witchfire as looks over the Vambrace and the Grove over the Journal. Every device
-  works with every system. The GM sets the world default; each player can pick their own in the
-  module settings.
+- **Seven devices, and eleven looks.** Omni-tool, wrist computer, EVA (GDI), EVA (Nod) and TRON,
+  and for fantasy games the Adventurer's Journal and the Runic Vambrace. Over them, four fantasy
+  looks (the Reliquary, Runeforge and Witchfire over the Vambrace, the Grove over the Journal)
+  and seven for science fiction (the Holoprojector, Armored gauntlet, Comm unit, Datapad, Crystal
+  core, Retro terminal and Cyberdeck). Every device and look works with every system. The GM sets
+  the world default; each player can pick their own in the module settings.
 - **The Adventurer's Journal.** The sheet is a leather journal kept in a satchel at the foot of
   the screen: the straps pull free, the flap turns back, a traveler's odds and ends come up out
   of the bag, and the book slides out, swings open on its spine and its writing fades in as you
@@ -64,6 +65,12 @@ one character and have none assigned, it shows that one.
   Runeforge (stone and brass, runes like coals) and Witchfire (bone and a green witch-fire) dress
   the Vambrace; the Grove binds the Journal in green leather with leaves pressed in its pages.
   Each has its own art, colors and bolts, and otherwise works as the device it dresses.
+- **Seven sci-fi looks.** The Holoprojector (a disc emitter and a flickering blue hologram), the
+  Armored gauntlet (hammered steel and a red display) and the Comm unit (a teal and orange wrist
+  slab) over the omni-tool; the Datapad (amber on a worn handheld) over the wrist computer; the
+  Crystal core (white ceramic and frosted glass) over the Vambrace; the Retro terminal (green
+  phosphor in a beige monitor, typing itself out) over the EVA; and the Cyberdeck (neon magenta
+  and cyan, glitching open) over TRON.
 - **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
   drop, paging and keybinds all work as they always do.
 - **The projection.** Identity, vitals, defenses, effects and a tabbed main panel, laid out

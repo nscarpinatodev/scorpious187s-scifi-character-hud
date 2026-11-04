@@ -341,7 +341,178 @@ export const WITCHFIRE = bracer({
 	gem: FLAME,
 });
 
-const ART = { arm: ARM, disc: DISC, satchel: SATCHEL, grove: GROVE, bracer: BRACER, reliquary: RELIQUARY, runeforge: RUNEFORGE, witchfire: WITCHFIRE };
+/* ---------------------------------------------------------------- the sci-fi looks' art */
+
+const POWER = 'role="button" tabindex="0" aria-label="SFH.Power.Toggle"';
+
+/** The Holoprojector: a palm-sized disc emitter on a low pedestal; the light comes off the disc. */
+export const HOLOPROJECTOR = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-holo-base" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#2c333d"/><stop offset=".4" stop-color="#151a21"/><stop offset="1" stop-color="#07090c"/>
+		</linearGradient>
+		<radialGradient id="sfh-holo-disc" cx=".5" cy=".45" r=".6">
+			<stop offset="0" stop-color="#e8f8ff"/><stop offset=".3" stop-color="#6fc8ff"/><stop offset=".75" stop-color="#1d4f7a"/><stop offset="1" stop-color="#0a1a2a"/>
+		</radialGradient>
+		<filter id="sfh-holo-glow" x="-60%" y="-120%" width="220%" height="340%"><feGaussianBlur stdDeviation="9"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M298 778 Q 302 768 316 768 H 964 Q 978 768 982 778 L 1000 860 H 280 Z"
+		fill="url(#sfh-holo-base)" stroke="#3e4856" stroke-width="1.5"/>
+	<path d="M318 782 H 962" stroke="#6fc8ff" stroke-opacity=".35" stroke-dasharray="2 9"/>
+	<path d="M420 770 L 412 860 M860 770 L 868 860" stroke="#05070a" stroke-width="2.5"/>
+	<ellipse cx="640" cy="762" rx="104" ry="26" fill="#6fc8ff" fill-opacity=".4" filter="url(#sfh-holo-glow)"/>
+	<g id="sfh-band" ${POWER}>
+		<path d="M556 772 Q 556 750 640 750 Q 724 750 724 772 V 790 Q 724 806 640 806 Q 556 806 556 790 Z" fill="#0e141b" stroke="#5c6a7c" stroke-width="2"/>
+		<ellipse cx="640" cy="768" rx="70" ry="15" fill="url(#sfh-holo-disc)" stroke="#a6dfff" stroke-width="1.5"/>
+		<ellipse cx="640" cy="767" rx="46" ry="9" fill="none" stroke="#e8f8ff" stroke-opacity=".75" stroke-dasharray="7 4"/>
+		<ellipse cx="640" cy="766" rx="11" ry="3" fill="#f2fbff"/>
+		<path d="M572 788 h18 M690 788 h18" stroke="#6fc8ff" stroke-width="3" stroke-linecap="round"/>
+	</g>`,
+};
+
+/** The Armored gauntlet: hammered steel lit by its own dents, rivets and seams, two red lights, and a little display. */
+export const GAUNTLET = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-gnt-steel" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#a7b0bb"/><stop offset=".35" stop-color="#66707b"/><stop offset="1" stop-color="#262b31"/>
+		</linearGradient>
+		<filter id="sfh-gnt-hammer" x="0" y="0" width="100%" height="100%">
+			<feTurbulence type="fractalNoise" baseFrequency=".085" numOctaves="2" seed="4" result="n"/>
+			<feDiffuseLighting in="n" surfaceScale="1.8" diffuseConstant="1.2" lighting-color="#ffffff" result="l"><feDistantLight azimuth="235" elevation="55"/></feDiffuseLighting>
+			<feComposite in="l" in2="SourceGraphic" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="m"/>
+			<feComposite in="m" in2="SourceAlpha" operator="in"/>
+		</filter>
+		<filter id="sfh-gnt-led" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="3.5"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M298 760 C 470 748 810 748 982 760 L 1002 860 H 278 Z" fill="url(#sfh-gnt-steel)" filter="url(#sfh-gnt-hammer)"/>
+	<path d="M298 760 C 470 748 810 748 982 760 L 1002 860 H 278 Z" fill="none" stroke="#d6dde5" stroke-width="1.5"/>
+	<path d="M312 772 C 470 761 810 761 968 772" fill="none" stroke="#e6ebf0" stroke-opacity=".55"/>
+	<path d="M430 754 L 420 860 M850 754 L 860 860" stroke="#16191d" stroke-width="2.5"/>
+	<path d="M432 754 L 422 860 M852 754 L 862 860" stroke="#c9d1da" stroke-opacity=".35"/>
+	<g fill="#d3dae2" stroke="#3a4048" stroke-width=".8">
+		<circle cx="322" cy="782" r="3.2"/><circle cx="958" cy="782" r="3.2"/><circle cx="446" cy="772" r="3"/><circle cx="834" cy="772" r="3"/>
+		<circle cx="316" cy="840" r="3.2"/><circle cx="964" cy="840" r="3.2"/>
+	</g>
+	<g>
+		<circle cx="486" cy="776" r="7" fill="#ff3b2f" fill-opacity=".7" filter="url(#sfh-gnt-led)"/><circle cx="486" cy="776" r="3.6" fill="#ff5a4a" stroke="#4a0c08"/>
+		<circle cx="794" cy="776" r="7" fill="#ff3b2f" fill-opacity=".7" filter="url(#sfh-gnt-led)"/><circle cx="794" cy="776" r="3.6" fill="#ff5a4a" stroke="#4a0c08"/>
+	</g>
+	<g id="sfh-band" ${POWER}>
+		<rect x="566" y="746" width="148" height="50" rx="5" fill="#2a2f35" stroke="#c9d1da" stroke-width="2"/>
+		<rect x="574" y="752" width="132" height="38" rx="2" fill="#140504" stroke="#000"/>
+		<path d="M584 762 h44 M584 771 h74 M584 780 h30" stroke="#ff3b2f" stroke-width="2" stroke-linecap="round"/>
+		<path d="M680 760 l12 10 -12 10 -12 -10 Z" fill="none" stroke="#ff3b2f" stroke-width="1.6"/>
+		<circle cx="680" cy="770" r="2" fill="#ff8a7a"/>
+	</g>`,
+};
+
+/** The Comm unit: a slate wrist slab, teal light strips, orange indicators, and a hexagonal emitter. */
+const hex = (r, cx = 640, cy = 770) => Array.from({ length: 6 }, (_, i) => {
+	const a = (Math.PI / 3) * i;
+	return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+}).join(' ');
+export const COMM = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-comm-slab" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#2c3f4a"/><stop offset=".4" stop-color="#16232b"/><stop offset="1" stop-color="#080e12"/>
+		</linearGradient>
+		<radialGradient id="sfh-comm-core"><stop offset="0" stop-color="#ffe0b8"/><stop offset=".35" stop-color="#ff8a2a"/><stop offset="1" stop-color="#5a2406"/></radialGradient>
+		<filter id="sfh-comm-glow" x="-30%" y="-300%" width="160%" height="700%"><feGaussianBlur stdDeviation="2.5"/></filter>
+		<filter id="sfh-comm-halo" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="8"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M300 768 L 318 754 H 962 L 980 768 L 998 860 H 282 Z" fill="url(#sfh-comm-slab)" stroke="#2fd3c6" stroke-opacity=".7" stroke-width="1.5"/>
+	<path d="M322 766 H 586 M694 766 H 958" stroke="#2fd3c6" stroke-width="3" filter="url(#sfh-comm-glow)"/>
+	<path d="M322 766 H 586 M694 766 H 958" stroke="#c9fff9" stroke-width="1"/>
+	<path d="M336 778 l 10 -6 h 60 M944 778 l -10 -6 h -60" fill="none" stroke="#2fd3c6" stroke-opacity=".5"/>
+	<g fill="#ff8a2a"><rect x="318" y="782" width="14" height="5" rx="1"/><rect x="948" y="782" width="14" height="5" rx="1"/><rect x="338" y="782" width="6" height="5" rx="1" opacity=".5"/><rect x="936" y="782" width="6" height="5" rx="1" opacity=".5"/></g>
+	<polygon points="${hex(44)}" fill="#2fd3c6" fill-opacity=".35" filter="url(#sfh-comm-halo)"/>
+	<g id="sfh-band" ${POWER}>
+		<polygon points="${hex(38)}" fill="#0b151a" stroke="#2fd3c6" stroke-width="3"/>
+		<polygon points="${hex(27)}" fill="none" stroke="#2fd3c6" stroke-opacity=".5" stroke-dasharray="5 4"/>
+		<polygon points="${hex(15)}" fill="url(#sfh-comm-core)" stroke="#ffd2a0" stroke-width="1.2"/>
+		<circle cx="640" cy="770" r="3.5" fill="#fff4e6"/>
+	</g>`,
+};
+
+/** The Crystal core: a white ceramic band, a cyan seam of light along it, and a cut crystal set in it. */
+export const CRYSTAL = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-crys-shell" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#dde7f0"/><stop offset="1" stop-color="#93a4b6"/>
+		</linearGradient>
+		<linearGradient id="sfh-crys-crystal" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#f4feff"/><stop offset=".4" stop-color="#7fe8ff"/><stop offset="1" stop-color="#1689b2"/>
+		</linearGradient>
+		<filter id="sfh-crys-seam" x="-5%" y="-400%" width="110%" height="900%"><feGaussianBlur stdDeviation="2.5"/></filter>
+		<filter id="sfh-crys-halo" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="9"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M300 760 C 470 748 810 748 980 760 L 1000 860 L 280 860 Z" fill="url(#sfh-crys-shell)" stroke="#b9c8d6" stroke-width="1.5"/>
+	<path d="M314 778 C 470 767 810 767 966 778" fill="none" stroke="#4fd8ff" stroke-width="3" filter="url(#sfh-crys-seam)"/>
+	<path d="M314 778 C 470 767 810 767 966 778" fill="none" stroke="#c8f6ff" stroke-width="1"/>
+	<path d="M308 800 C 470 789 810 789 972 800" fill="none" stroke="#a9b8c7" stroke-width="1"/>
+	<circle class="sfh-gem-glow" cx="640" cy="768" r="32" fill="#7fe8ff" filter="url(#sfh-crys-halo)"/>
+	<g id="sfh-band" ${POWER}>
+		<path d="M596 768 L 612 756 H 668 L 684 768 L 668 780 H 612 Z" fill="#eef4f9" stroke="#a9b8c7" stroke-width="1.5"/>
+		<path d="M640 736 L 668 768 L 640 804 L 612 768 Z" fill="url(#sfh-crys-crystal)" stroke="#ffffff" stroke-width="1.6"/>
+		<path d="M640 736 L 640 804 M612 768 H 668 M626 752 L 654 786 M654 752 L 626 786" stroke="#ffffff" stroke-opacity=".55" stroke-width=".9"/>
+		<path d="M640 742 L 652 760 L 640 768 Z" fill="#ffffff" fill-opacity=".55"/>
+	</g>`,
+};
+
+/** The Cyberdeck: a slab with a neon edge, rows of little keys either side, and a glitched logo for the switch. */
+const keys = [];
+for (const [x0, x1] of [[322, 556], [724, 958]]) {
+	for (let r = 0; r < 2; r++) {
+		for (let x = x0, i = 0; x + 10 <= x1; x += 14, i++) {
+			const lit = (i * 7 + r * 3 + x0) % 11 === 0;
+			keys.push(`<rect x="${x}" y="${764 + r * 11}" width="10" height="7" rx="1.5" fill="${lit ? '#19f0ff' : '#24142f'}" fill-opacity="${lit ? 0.85 : 1}" stroke="#ff2bd6" stroke-opacity=".45" stroke-width=".7"/>`);
+		}
+	}
+}
+export const CYBERDECK = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-cy-body" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#21122d"/><stop offset=".4" stop-color="#110817"/><stop offset="1" stop-color="#050208"/>
+		</linearGradient>
+		<filter id="sfh-cy-neon" x="-5%" y="-400%" width="110%" height="900%"><feGaussianBlur stdDeviation="3"/></filter>
+	</defs>
+	<path id="sfh-arm" d="M292 768 L 312 754 H 968 L 988 768 L 1004 860 H 276 Z" fill="url(#sfh-cy-body)" stroke="#ff2bd6" stroke-width="1.5"/>
+	<path d="M312 754 H 968" stroke="#ff2bd6" stroke-width="4" filter="url(#sfh-cy-neon)"/>
+	<path d="M312 754 H 968" stroke="#ffd6f6" stroke-width="1"/>
+	<path d="M300 792 H 540 l 8 6 M980 792 H 740 l -8 6" fill="none" stroke="#19f0ff" stroke-width="1.6"/>
+	<path d="M300 792 H 540 M980 792 H 740" stroke="#19f0ff" stroke-width="3" filter="url(#sfh-cy-neon)" opacity=".7"/>
+	${keys.join('')}
+	<g id="sfh-band" ${POWER}>
+		<rect x="584" y="752" width="112" height="44" rx="4" fill="#0b0612" stroke="#19f0ff" stroke-width="2"/>
+		<g font-family="Audiowide, sans-serif" font-size="22" text-anchor="middle">
+			<text x="638" y="782" fill="#19f0ff" opacity=".8">J4CK</text>
+			<text x="642" y="781" fill="#ff2bd6" opacity=".8">J4CK</text>
+			<text x="640" y="781" fill="#fff0fb">J4CK</text>
+		</g>
+		<rect x="590" y="768" width="100" height="3" fill="#0b0612"/>
+		<rect x="604" y="774" width="70" height="2" fill="#19f0ff" opacity=".6"/>
+	</g>`,
+};
+
+const ART = {
+	arm: ARM, disc: DISC, satchel: SATCHEL, grove: GROVE, bracer: BRACER, reliquary: RELIQUARY, runeforge: RUNEFORGE, witchfire: WITCHFIRE,
+	holoprojector: HOLOPROJECTOR, gauntlet: GAUNTLET, comm: COMM, crystal: CRYSTAL, cyberdeck: CYBERDECK,
+};
 
 /** The art layer for a device, or null when it draws nothing at the foot of the screen. */
 export function deviceArt(id) {

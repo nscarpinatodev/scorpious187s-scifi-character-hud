@@ -1,5 +1,5 @@
 import { EL, MOD, S, DEVICES, seqMs } from '../constants.mjs';
-import { currentDevice, currentLook, setting } from '../settings.mjs';
+import { currentDevice, currentLook, currentChoice, setting } from '../settings.mjs';
 import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav, renderLatest } from './panels.mjs';
@@ -681,7 +681,7 @@ export class Projection {
 		void stage.offsetWidth; // restart the animations
 		stage.classList.add(kind === 'on' ? 'sfh-seq-on' : 'sfh-seq-off');
 		clearTimeout(this.#seqTimer);
-		this.#seqTimer = setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), seqMs(kind, currentDevice()));
+		this.#seqTimer = setTimeout(() => stage.classList.remove('sfh-seq-on', 'sfh-seq-off'), seqMs(kind, currentChoice()));
 		// the Vambrace's side panels are each set off by a bolt from the sigil, drawn here
 		stopBolts(stage);
 		if (kind === 'on' && currentDevice() === 'vambrace') arcaneBolts(stage);

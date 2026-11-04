@@ -1,5 +1,5 @@
 import { EL, DEVICES, S, MOD, KEYS, seqMs } from '../constants.mjs';
-import { currentDevice, currentLook, setting } from '../settings.mjs';
+import { currentDevice, currentLook, currentChoice, setting } from '../settings.mjs';
 import { deviceArt, buildArt } from './art.mjs';
 
 /**
@@ -294,7 +294,7 @@ export class DeviceChrome {
 		}
 		this.#seqTimer = setTimeout(() => {
 			for (const el of targets) el.classList.remove('sfh-seq-on', 'sfh-seq-off');
-		}, seqMs(kind, currentDevice()));
+		}, seqMs(kind, currentChoice()));
 	}
 
 	/* -------------------------------------------- */

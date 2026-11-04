@@ -271,7 +271,7 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	if (!sequence) return Projection.close();
 	DeviceChrome.playSequence('off');
 	Projection.playSequence('off');
-	setTimeout(() => DeviceChrome.power || Projection.close(), seqMs('off', store.device)); // as module.mjs does
+	setTimeout(() => DeviceChrome.power || Projection.close(), seqMs('off', store.device)); // as module.mjs does (the setting is the choice)
 });
 
 Hooks.on('sfhHidden', (hidden) => {

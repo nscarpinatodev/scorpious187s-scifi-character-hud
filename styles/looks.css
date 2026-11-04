@@ -273,3 +273,246 @@ body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle
 	opacity: .7;
 	filter: sepia(.6);
 }
+
+/* ========================================================== the sci-fi looks */
+/*
+ * Seven looks for science fiction, each over the device it is closest to, built from the
+ * mock-ups (design/theme-ideas.md): the Holoprojector, the Armored gauntlet and the Comm unit over
+ * the omni-tool, the Datapad over the wrist computer, the Crystal core over the Vambrace, the Retro
+ * terminal over the EVA (GDI) and the Cyberdeck over TRON. Their names are what they are, never the
+ * games they suit. The Holoprojector, the Retro terminal and the Cyberdeck open their own way:
+ * their animations are here, and how long they run is their `sequence` (SEQ_LONG).
+ */
+
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"].sfh-seq-on .sweep { background: linear-gradient(0deg, rgba(111, 200, 255, 0) 0%, rgba(111, 200, 255, .35) 55%, rgba(232, 248, 255, .9) 78%, rgba(111, 200, 255, 0) 100%); }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"]:is(.sfh-seq-on, .sfh-seq-off) .flare { background: radial-gradient(ellipse at 50% 60%, rgba(232, 248, 255, .95), rgba(111, 200, 255, .35) 45%, transparent 72%); }
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"].sfh-seq-on .sweep { background: linear-gradient(0deg, rgba(255, 59, 47, 0) 0%, rgba(255, 59, 47, .35) 55%, rgba(255, 210, 200, .9) 78%, rgba(255, 59, 47, 0) 100%); }
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"]:is(.sfh-seq-on, .sfh-seq-off) .flare { background: radial-gradient(ellipse at 50% 60%, rgba(255, 210, 200, .95), rgba(255, 59, 47, .35) 45%, transparent 72%); }
+#sfh-projection .sfh-stage[data-device][data-look="comm"].sfh-seq-on .sweep { background: linear-gradient(0deg, rgba(47, 211, 198, 0) 0%, rgba(47, 211, 198, .35) 55%, rgba(255, 224, 190, .9) 78%, rgba(47, 211, 198, 0) 100%); }
+#sfh-projection .sfh-stage[data-device][data-look="comm"]:is(.sfh-seq-on, .sfh-seq-off) .flare { background: radial-gradient(ellipse at 50% 60%, rgba(255, 224, 190, .95), rgba(47, 211, 198, .35) 45%, transparent 72%); }
+/* ---------------- the Holoprojector: a hologram, translucent, flickering, with interference */
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] {
+	--scan: rgba(150, 215, 255, .11); --pnl: rgba(30, 90, 150, .2); --pnl2: rgba(111, 200, 255, .06);
+	--line: rgba(111, 200, 255, .6); --line2: rgba(111, 200, 255, .2); --text: #bfe6ff; --bright: #eaf8ff; --dim: #6fa9d4;
+	--hot: #6fc8ff; --hotbg: rgba(111, 200, 255, .2); --hover: rgba(111, 200, 255, .14); --glow: rgba(111, 200, 255, .75);
+	--acc: #a8f0ff; --accbg: rgba(168, 240, 255, .14); --bad: #ff8a7a; --good: #9fffe0;
+	--font: Rajdhani, 'Arial Narrow', sans-serif; --display: Orbitron, Rajdhani, sans-serif; --mono: 'Share Tech Mono', monospace;
+	--r: 2px; --clip: inset(0); --pshadow: 0 0 18px rgba(111, 200, 255, .22), inset 0 0 22px rgba(111, 200, 255, .1);
+}
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .hexbg { display: none; }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] :is(.pnl, .big, .proj-t) { text-shadow: 0 0 6px rgba(111, 200, 255, .7); }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .pnl { animation: sfh-look-holo-idle 7s infinite; }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .pnl::before { content: ''; position: absolute; left: 0; right: 0; top: -24px; height: 22px; z-index: 4; pointer-events: none;
+	background: linear-gradient(transparent, rgba(170, 225, 255, .16), transparent); animation: sfh-look-holo-band 5.5s linear infinite; }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .navb { background: rgba(10, 30, 50, .5); border-color: var(--line); }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .navb.on { background: var(--hotbg); border-color: var(--hot); box-shadow: 0 0 16px var(--glow); }
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-holo-in .95s linear backwards; animation-delay: var(--d, 0ms); }
+@keyframes sfh-look-holo-idle { 0%, 46%, 50%, 80%, 84%, 100% { opacity: .95; } 47% { opacity: .62; } 48% { opacity: .9; } 49% { opacity: .7; } 82% { opacity: .85; } }
+@keyframes sfh-look-holo-band { from { top: -24px; } to { top: 105%; } }
+@keyframes sfh-look-holo-in {
+	0% { opacity: 0; transform: scaleY(.02); filter: brightness(3); }
+	16% { opacity: .85; transform: scaleY(1) translateX(-7px) skewX(-6deg); }
+	22% { opacity: .1; transform: translateX(6px); }
+	32% { opacity: .9; transform: translateX(-3px) skewX(3deg); }
+	40% { opacity: .25; transform: none; }
+	52% { opacity: 1; filter: brightness(1.7); }
+	60% { opacity: .55; }
+	to { opacity: 1; transform: none; filter: none; }
+}
+body[data-sfh-device][data-sfh-look="holoprojector"] {
+	--sfh-bg-rgb: 6 16 26; --sfh-hot: #6fc8ff; --sfh-glow: rgb(111 200 255 / 70%); --sfh-bright: #eaf8ff; --sfh-text: #bfe6ff; --sfh-dim: #6fa9d4;
+	--sfh-line: rgb(111 200 255 / 55%); --sfh-line-2: rgb(111 200 255 / 18%); --sfh-hover: rgb(111 200 255 / 14%);
+	--sfh-panel: rgb(8 22 38 / 82%); --sfh-cell: rgb(6 16 28 / 70%); --sfh-acc: #a8f0ff; --sfh-bad: #ff8a7a;
+	--sfh-face: Rajdhani, sans-serif; --sfh-display: Orbitron, Rajdhani, sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 2px;
+}
+
+/* ---------------- the Datapad: a battered handheld, amber on a dark LCD */
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] {
+	--scan: rgba(0, 0, 0, .22); --pnl: rgba(30, 26, 12, .96); --pnl2: rgba(255, 176, 0, .05);
+	--line: rgba(255, 176, 0, .45); --line2: rgba(255, 176, 0, .16); --text: #ffbe3a; --bright: #ffd27a; --dim: #a8781c;
+	--hot: #ffb000; --hotbg: rgba(255, 176, 0, .18); --hover: rgba(255, 176, 0, .12); --glow: rgba(255, 176, 0, .55);
+	--acc: #ffe08a; --accbg: rgba(255, 224, 138, .12); --bad: #ff6a3a; --good: #d8ff7a;
+	--font: VT323, monospace; --display: VT323, monospace; --mono: VT323, monospace; --fs: 18px;
+	--r: 3px; --clip: none; --pshadow: inset 0 0 0 1px #000, inset 0 0 26px rgba(0, 0, 0, .7);
+}
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .pnl::after {
+	background:
+		repeating-linear-gradient(0deg, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3px),
+		repeating-linear-gradient(90deg, rgba(0, 0, 0, .14) 0 1px, transparent 1px 3px);
+}
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] :is(.pnl, .big) { text-shadow: 0 0 4px rgba(255, 176, 0, .55); }
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] :is(.lbl, .cap, .proj-t) { letter-spacing: .08em; font-size: 1.15em; }
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .big { letter-spacing: .06em; }
+/* the wrist unit's case and screen, worn to grey plastic around a dark olive glass */
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .foldwrap > .ornlayer > svg { filter: grayscale(1) sepia(.25) brightness(2.4) contrast(.85); }
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .foldwrap > .ornlayer > div {
+	background: radial-gradient(ellipse at 50% 40%, #2a2612, #0e0c05 80%) !important;
+	box-shadow: inset 0 0 50px rgba(0, 0, 0, .8), 0 0 0 1px #8a877a !important; border-color: #14130f !important;
+}
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .ident .nm { color: var(--bright); text-shadow: 0 0 8px var(--glow); }
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .navb { border: 1px solid #5a5446; border-radius: 6px; background: linear-gradient(180deg, #4a463c, #23211b); color: var(--dim); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .1), 0 3px 0 #0a0905; }
+#sfh-projection .sfh-stage[data-device][data-look="datapad"] .navb.on { color: #1a1406; background: linear-gradient(180deg, #ffcc4a, #e09a00); border-color: #ffe0a0; box-shadow: 0 0 12px var(--glow); }
+body[data-sfh-device][data-sfh-look="datapad"] {
+	--sfh-bg-rgb: 22 19 9; --sfh-hot: #ffb000; --sfh-glow: rgb(255 176 0 / 55%); --sfh-bright: #ffd27a; --sfh-text: #ffbe3a; --sfh-dim: #a8781c;
+	--sfh-line: rgb(255 176 0 / 45%); --sfh-line-2: rgb(255 176 0 / 15%); --sfh-hover: rgb(255 176 0 / 12%);
+	--sfh-panel: rgb(30 26 12 / 94%); --sfh-cell: rgb(18 15 7 / 85%); --sfh-acc: #ffe08a; --sfh-bad: #ff6a3a;
+	--sfh-face: VT323, monospace; --sfh-display: VT323, monospace; --sfh-mono: VT323, monospace; --sfh-radius: 3px;
+}
+
+/* ---------------- the Armored gauntlet: gunmetal, silver edges, a red readout */
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] {
+	--scan: transparent; --pnl: rgba(36, 40, 46, .92); --pnl2: rgba(200, 210, 220, .05);
+	--line: rgba(201, 209, 218, .55); --line2: rgba(201, 209, 218, .16); --text: #dfe4ea; --bright: #f6f8fa; --dim: #8c96a2;
+	--hot: #ff3b2f; --hotbg: rgba(255, 59, 47, .18); --hover: rgba(255, 59, 47, .1); --glow: rgba(255, 59, 47, .5);
+	--acc: #c9d1da; --accbg: rgba(201, 209, 218, .12); --bad: #ffb02e; --good: #9fe0a8;
+	--font: Oxanium, sans-serif; --display: Oxanium, sans-serif; --mono: 'Share Tech Mono', monospace;
+	--r: 2px; --clip: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+	--pshadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 -12px 24px rgba(0, 0, 0, .35);
+}
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] .hexbg { display: none; }
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] .pnl {
+	background:
+		repeating-linear-gradient(100deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 5px),
+		linear-gradient(170deg, rgba(70, 76, 84, .95), var(--pnl) 45%, rgba(22, 25, 29, .95));
+}
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] :is(.proj-t, .cap) { text-transform: uppercase; letter-spacing: .24em; }
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] .big { color: var(--hot); text-shadow: 0 0 8px var(--glow); }
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] .navb { background: rgba(30, 34, 40, .9); border-color: var(--line); border-radius: 4px; }
+#sfh-projection .sfh-stage[data-device][data-look="gauntlet"] .navb.on { background: var(--hotbg); border-color: var(--hot); box-shadow: 0 0 12px var(--glow); }
+body[data-sfh-device][data-sfh-look="gauntlet"] {
+	--sfh-bg-rgb: 24 27 31; --sfh-hot: #ff3b2f; --sfh-glow: rgb(255 59 47 / 45%); --sfh-bright: #f6f8fa; --sfh-text: #dfe4ea; --sfh-dim: #8c96a2;
+	--sfh-line: rgb(201 209 218 / 50%); --sfh-line-2: rgb(201 209 218 / 15%); --sfh-hover: rgb(255 59 47 / 10%);
+	--sfh-panel: rgb(30 34 39 / 94%); --sfh-cell: rgb(20 23 27 / 85%); --sfh-acc: #c9d1da; --sfh-bad: #ffb02e;
+	--sfh-face: Oxanium, sans-serif; --sfh-display: Oxanium, sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 2px;
+}
+
+/* ---------------- the Comm unit: teal light and orange signals, cut-cornered panels, a hex grid */
+#sfh-projection .sfh-stage[data-device][data-look="comm"] {
+	--scan: rgba(47, 211, 198, .04); --pnl: rgba(12, 28, 34, .88); --pnl2: rgba(47, 211, 198, .05);
+	--line: rgba(47, 211, 198, .6); --line2: rgba(47, 211, 198, .18); --text: #c8f4ef; --bright: #effffd; --dim: #6fb3ac;
+	--hot: #ff8a2a; --hotbg: rgba(255, 138, 42, .2); --hover: rgba(47, 211, 198, .14); --glow: rgba(255, 138, 42, .55);
+	--acc: #2fd3c6; --accbg: rgba(47, 211, 198, .14); --bad: #ff5a4a; --good: #8dffb0;
+	--font: 'Chakra Petch', sans-serif; --display: Michroma, 'Chakra Petch', sans-serif; --mono: 'Share Tech Mono', monospace;
+	--r: 0px; --clip: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+	--pshadow: inset 0 0 22px rgba(47, 211, 198, .12);
+}
+#sfh-projection .sfh-stage[data-device][data-look="comm"] .hexbg { filter: hue-rotate(150deg) saturate(1.4); opacity: 1.6; }
+#sfh-projection .sfh-stage[data-device][data-look="comm"] .cap { background: linear-gradient(90deg, rgba(255, 138, 42, .25), transparent); }
+#sfh-projection .sfh-stage[data-device][data-look="comm"] .navb { background: rgba(10, 24, 30, .9); border-color: var(--line); border-radius: 0;
+	clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); border: 0; box-shadow: inset 0 0 0 2px rgba(47, 211, 198, .6); }
+#sfh-projection .sfh-stage[data-device][data-look="comm"] .navb.on { background: var(--hotbg); box-shadow: inset 0 0 0 2px var(--hot); color: #fff; }
+body[data-sfh-device][data-sfh-look="comm"] {
+	--sfh-bg-rgb: 9 22 27; --sfh-hot: #ff8a2a; --sfh-glow: rgb(255 138 42 / 50%); --sfh-bright: #effffd; --sfh-text: #c8f4ef; --sfh-dim: #6fb3ac;
+	--sfh-line: rgb(47 211 198 / 55%); --sfh-line-2: rgb(47 211 198 / 16%); --sfh-hover: rgb(47 211 198 / 14%);
+	--sfh-panel: rgb(10 24 30 / 90%); --sfh-cell: rgb(6 16 20 / 82%); --sfh-acc: #2fd3c6; --sfh-bad: #ff5a4a;
+	--sfh-face: 'Chakra Petch', sans-serif; --sfh-display: Michroma, 'Chakra Petch', sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 0px;
+}
+
+/* ---------------- the Crystal core: frosted glass, navy ink, cyan light, a crystal's rings behind */
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] {
+	--pnl: rgba(240, 247, 252, .8); --pnl2: rgba(79, 216, 255, .08);
+	--line: rgba(22, 150, 196, .55); --line2: rgba(22, 150, 196, .18); --text: #183650; --bright: #0b2238; --dim: #5a7690;
+	--hot: #0a9cc8; --hotbg: rgba(10, 156, 200, .14); --hover: rgba(10, 156, 200, .1); --glow: rgba(79, 216, 255, .5);
+	--acc: #6a5cff; --accbg: rgba(106, 92, 255, .12); --bad: #d8342a; --good: #138a5a;
+	--font: Rajdhani, sans-serif; --display: Rajdhani, sans-serif; --mono: 'Share Tech Mono', monospace; --fs: 15px;
+	--pshadow: 0 0 26px rgba(79, 216, 255, .28), 0 12px 28px rgba(0, 20, 40, .35);
+	--edge: linear-gradient(140deg, rgba(255, 255, 255, .95), rgba(79, 216, 255, .7) 40%, rgba(255, 255, 255, .5) 70%, rgba(79, 216, 255, .9));
+	--corner: '◇ ◇'; --mote: #4fd8ff; --mote2: #9a8cff; --sigil: #bff4ff;
+	--bolt: #4fd8ff; --bolt-core: #ffffff; --bolt-fork: #bff4ff; --bolt-ring: #9feaff;
+}
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .pnl {
+	background: linear-gradient(var(--pnl), var(--pnl)) padding-box,
+		linear-gradient(140deg, rgba(255, 255, 255, .95), rgba(79, 216, 255, .7) 40%, rgba(255, 255, 255, .5) 70%, rgba(79, 216, 255, .9)) border-box;
+	backdrop-filter: blur(8px) saturate(1.2);
+}
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .pnl::before { content: '◇ ◇'; color: #4fd8ff; text-shadow: 0 0 6px rgba(79, 216, 255, .8); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .pnl::after { background: radial-gradient(1.5px 1.5px at 20% 80%, #4fd8ff, transparent), radial-gradient(1px 1px at 60% 70%, #9a8cff, transparent), radial-gradient(1.5px 1.5px at 85% 90%, #4fd8ff, transparent); background-size: 100% 200px; opacity: .7; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.lbl, .proj-t) { color: var(--hot); text-shadow: none; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .cell .lbl { color: var(--dim); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .big { text-shadow: 0 0 10px rgba(79, 216, 255, .5); }
+/* only the name and the main heading in the wide face; the small buttons stay narrow */
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.proj-t, .ident .nm) { font-family: Michroma, Rajdhani, sans-serif; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.lbl, .cap) { font-weight: 700; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .navb { background: radial-gradient(circle at 40% 35%, #ffffff, #d6e4ef 70%); border-color: rgba(22, 150, 196, .5); color: #3e6886; box-shadow: 0 6px 14px rgba(0, 20, 40, .35); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .navb.on { color: #ffffff; background: radial-gradient(circle at 40% 35%, #8ff0ff, #0a9cc8 75%); border-color: #ffffff; box-shadow: 0 0 18px rgba(79, 216, 255, .7); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .vb-sigil :is(circle, path) { stroke: #bff4ff; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .vb-sigil text { display: none; }
+body[data-sfh-device][data-sfh-look="crystal"] #sfh-deck #action-bar .slot {
+	border-color: #9fb4c6; background: radial-gradient(circle at 50% 30%, #ffffff, #dde7ef); box-shadow: inset 0 2px 5px rgb(0 30 60 / 25%);
+}
+body[data-sfh-device][data-sfh-look="crystal"][data-sfh-power="on"] #sfh-deck #action-bar .slot { border-color: #4fd8ff; box-shadow: inset 0 2px 5px rgb(0 30 60 / 25%), 0 0 8px rgb(79 216 255 / 45%); }
+body[data-sfh-device][data-sfh-look="crystal"] #sfh-deck #action-bar .slot .key { color: #5a7690; }
+body[data-sfh-device][data-sfh-look="crystal"] {
+	--sfh-bg-rgb: 232 241 248; --sfh-hot: #0a9cc8; --sfh-glow: rgb(79 216 255 / 45%); --sfh-bright: #0b2238; --sfh-text: #183650; --sfh-dim: #5a7690;
+	/* a light look's hover and lit fills have to be light themselves: over the dark canvas a faint tint reads as dark */
+	--sfh-line: rgb(22 150 196 / 50%); --sfh-line-2: rgb(22 150 196 / 16%); --sfh-hover: rgb(198 236 250 / 94%);
+	--sfh-panel: rgb(236 244 250 / 90%); --sfh-cell: rgb(255 255 255 / 70%); --sfh-acc: #6a5cff; --sfh-bad: #d8342a;
+	--sfh-face: Rajdhani, sans-serif; --sfh-display: Michroma, Rajdhani, sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 4px;
+	--sfh-edge: linear-gradient(140deg, rgb(255 255 255 / 95%), rgb(79 216 255 / 70%) 40%, rgb(255 255 255 / 50%) 70%, rgb(79 216 255 / 90%));
+	--sfh-socket-line: #9fb4c6; --sfh-socket-a: #ffffff; --sfh-socket-b: #dde7ef; --sfh-socket-lit: #4fd8ff;
+}
+
+/* ---------------- the Retro terminal: green phosphor in an old beige monitor, typed out on opening */
+#sfh-projection .sfh-stage[data-device][data-look="retro"] {
+	--scan: rgba(0, 0, 0, .35); --pnl: #020a03; --pnl2: rgba(51, 255, 102, .04);
+	--line: rgba(51, 255, 102, .4); --line2: rgba(51, 255, 102, .14); --text: #39ff6a; --bright: #b8ffc8; --dim: #1fa844;
+	--hot: #39ff6a; --hotbg: rgba(51, 255, 102, .16); --hover: rgba(51, 255, 102, .1); --glow: rgba(51, 255, 102, .6);
+	--acc: #9dffb4; --accbg: rgba(157, 255, 180, .12); --bad: #b8ffc8; --good: #39ff6a;
+	--font: VT323, monospace; --display: VT323, monospace; --mono: VT323, monospace; --fs: 18px;
+	--pshadow: none;
+}
+#sfh-projection .sfh-stage[data-device][data-look="retro"] * { text-shadow: 0 0 5px rgba(51, 255, 102, .7); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .pnl { border-style: dashed; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.lbl, .cap, .proj-t) { letter-spacing: .1em; font-size: 1.15em; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .cap { background: none; border-bottom-style: dashed; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after { content: '▌'; margin-left: .3em; animation: sfh-look-blink 1.06s steps(1) infinite; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .ornlayer > div[style*="border:14px"] { border-color: #cfc4a2 !important; box-shadow: inset 0 0 0 2px #8a8068, inset 0 0 0 4px #000, inset 0 0 40px rgba(0, 0, 0, .5) !important; border-radius: 22px; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .ornlayer > span { background: radial-gradient(circle at 35% 35%, #efe8d2, #9a9076) !important; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"]::after { content: ''; position: absolute; inset: 14px; border-radius: 18px; pointer-events: none; z-index: 50;
+	background: radial-gradient(ellipse at 50% 50%, transparent 58%, rgba(0, 0, 0, .6) 100%); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-type .8s steps(16) backwards; animation-delay: calc(320ms + var(--d, 0ms) * 2.5); }
+@keyframes sfh-look-type { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes sfh-look-blink { 50% { opacity: 0; } }
+body[data-sfh-device][data-sfh-look="retro"] {
+	--sfh-bg-rgb: 2 10 3; --sfh-hot: #39ff6a; --sfh-glow: rgb(51 255 102 / 55%); --sfh-bright: #b8ffc8; --sfh-text: #39ff6a; --sfh-dim: #1fa844;
+	--sfh-line: rgb(51 255 102 / 40%); --sfh-line-2: rgb(51 255 102 / 14%); --sfh-hover: rgb(51 255 102 / 10%);
+	--sfh-panel: rgb(2 10 3 / 96%); --sfh-cell: rgb(0 0 0 / 80%); --sfh-acc: #9dffb4; --sfh-bad: #b8ffc8;
+	--sfh-face: VT323, monospace; --sfh-display: VT323, monospace; --sfh-mono: VT323, monospace; --sfh-radius: 0px;
+}
+
+/* ---------------- the Cyberdeck: neon magenta and cyan, glitching open */
+#sfh-projection .sfh-stage[data-device][data-look="cyberdeck"] {
+	--scan: rgba(255, 43, 214, .05); --pnl: rgba(16, 6, 24, .9); --pnl2: rgba(25, 240, 255, .05);
+	--line: rgba(255, 43, 214, .65); --line2: rgba(255, 43, 214, .2); --text: #f6d8ff; --bright: #ffffff; --dim: #b07ac8;
+	--hot: #19f0ff; --hotbg: rgba(25, 240, 255, .16); --hover: rgba(255, 43, 214, .14); --glow: rgba(25, 240, 255, .6);
+	--acc: #ff2bd6; --accbg: rgba(255, 43, 214, .16); --bad: #ffe04a; --good: #7dffb8;
+	--font: 'Chakra Petch', sans-serif; --display: Audiowide, 'Chakra Petch', sans-serif; --mono: 'Share Tech Mono', monospace;
+	--r: 0px; --clip: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+	--pshadow: 0 0 16px rgba(255, 43, 214, .28), inset 0 0 18px rgba(25, 240, 255, .07);
+}
+#sfh-projection .sfh-stage[data-device][data-look="cyberdeck"] .hexbg { filter: hue-rotate(120deg) saturate(1.5); }
+#sfh-projection .sfh-stage[data-device][data-look="cyberdeck"] :is(.proj-t, .big) { text-shadow: 2px 0 rgba(255, 43, 214, .75), -2px 0 rgba(25, 240, 255, .75); }
+#sfh-projection .sfh-stage[data-device][data-look="cyberdeck"] .cap { background: linear-gradient(90deg, rgba(255, 43, 214, .3), rgba(25, 240, 255, .1)); }
+#sfh-projection .sfh-stage[data-device][data-look="cyberdeck"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-glitch .7s backwards; animation-delay: var(--d, 0ms); }
+@keyframes sfh-look-glitch {
+	0% { opacity: 0; clip-path: inset(0 0 100% 0); animation-timing-function: steps(1); }
+	10% { opacity: 1; clip-path: inset(12% 0 60% 0); transform: translateX(-16px); filter: drop-shadow(4px 0 #ff2bd6) drop-shadow(-4px 0 #19f0ff); animation-timing-function: steps(1); }
+	20% { clip-path: inset(52% 0 18% 0); transform: translateX(12px); animation-timing-function: steps(1); }
+	30% { clip-path: inset(0 0 72% 0); transform: translateX(-7px); animation-timing-function: steps(1); }
+	40% { clip-path: inset(28% 0 34% 0); transform: translateX(9px); animation-timing-function: steps(1); }
+	52% { clip-path: inset(0); transform: translateX(-4px); filter: drop-shadow(2px 0 #ff2bd6) drop-shadow(-2px 0 #19f0ff); animation-timing-function: steps(1); }
+	66% { transform: translateX(3px); animation-timing-function: steps(1); }
+	80% { transform: none; filter: drop-shadow(1px 0 #ff2bd6); animation-timing-function: steps(1); }
+	to { opacity: 1; clip-path: var(--clip); transform: none; filter: none; }
+}
+body[data-sfh-device][data-sfh-look="cyberdeck"] {
+	--sfh-bg-rgb: 14 5 20; --sfh-hot: #19f0ff; --sfh-glow: rgb(25 240 255 / 55%); --sfh-bright: #ffffff; --sfh-text: #f6d8ff; --sfh-dim: #b07ac8;
+	--sfh-line: rgb(255 43 214 / 60%); --sfh-line-2: rgb(255 43 214 / 18%); --sfh-hover: rgb(255 43 214 / 14%);
+	--sfh-panel: rgb(16 6 24 / 92%); --sfh-cell: rgb(10 4 16 / 85%); --sfh-acc: #ff2bd6; --sfh-bad: #ffe04a;
+	--sfh-face: 'Chakra Petch', sans-serif; --sfh-display: Audiowide, 'Chakra Petch', sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 0px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#sfh-projection .sfh-stage[data-device]:is([data-look="holoprojector"], [data-look="retro"], [data-look="cyberdeck"]) :is(.slot, .navb, .pnl, .pnl::before) { animation: none !important; }
+	#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after { animation: none !important; }
+}

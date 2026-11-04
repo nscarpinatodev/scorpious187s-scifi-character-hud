@@ -14,6 +14,9 @@ What is left, in order:
    the Journal's satchel and what else is in it, the experience and level fields, the identity
    strip, and dropping an item from another character's sheet (PF2e). Not seen yet:
    - **The satchel's clutter since the fix** — up only once the flap has gone.
+   - **The seven sci-fi looks** — their art, colors and interface, and the Holoprojector's,
+     Retro terminal's and Cyberdeck's own openings.
+   - **The Actions tab's three kinds and the dossier's shields, credits and omni-gel.**
    - **The rest from the last batch** — the Vambrace's arcane bolts; right-clicking experience,
      hero points and an item; dragging an item into a container and onto the macro bar; PF2e's
      resistances and the damage formulas on the strikes; and the carousel in each fantasy device.
@@ -92,23 +95,24 @@ projection, and new work is tried there.
 - [x] **Odds and ends in the satchel** — a map, pages, a sealed letter, a quill and a vial, packed
       out of sight while the flap is shut and up beside the book once it has gone.
 - [ ] **The looks' own words** — a look keeps its device's panel names, so the Reliquary's
-      effects are "Wards & Hexes" like the Vambrace's. A cleric's might want their own.
+      effects are "Wards & Hexes" like the Vambrace's. A cleric's might want their own (and see
+      Sci-fi devices).
 
 ## Sci-fi devices
 
-`design/theme-ideas.md` has the research and seven proposals: a Holoprojector, Datapad and
-Beskar vambrace for Star Wars games (SW5e may already run on the dnd5e system), a Comm unit for
-Starfinder, an Esper core for Esper Genesis, a Retro terminal for horror in space and a Cyberdeck.
-Decide the naming question there before any of them ships: it is still open.
+`design/theme-ideas.md` has the research, the seven proposals and the naming decision: a device or
+a look is named for what it is, never for the game it suits.
 
-- [x] **Mock-ups** — all seven, on the real projection in the harness (`?mockup`, Look, Sci-fi),
-      each dressed over the device it is closest to, with its own art, palette and, for the
-      Holoprojector, Retro terminal and Cyberdeck, its own opening (`tools/mockup-scifi.mjs`).
-- [ ] **Pick the first** — the Holoprojector is the closest to what the module already does.
-      Most of them could be built as looks, as the fantasy ones are (a `base` in `DEVICES`, a
-      palette and marks in `styles/looks.css`, art in `scripts/device/art.mjs`); the three with an
-      opening of their own (the Holoprojector, Retro terminal and Cyberdeck) also need it written
-      for the look, which the look mechanism does not cover yet.
+- [x] **The seven, built as looks** — the Holoprojector, Armored gauntlet and Comm unit over the
+      omni-tool, the Datapad over the wrist computer, the Crystal core over the Vambrace, the Retro
+      terminal over the EVA (GDI) and the Cyberdeck over TRON. The Holoprojector, Retro terminal
+      and Cyberdeck open their own way: a look can now carry its own opening (its animations in
+      `styles/looks.css`, its length a `sequence` of its own in `SEQ_LONG`). Not seen in Foundry
+      yet.
+- [ ] **The omni-tool, TRON and EVA's names** — still named for the works they come from; decide
+      whether to rename them, as the new looks are named for what they are.
+- [ ] **Their own words** — like the fantasy looks, a sci-fi look keeps its device's panel names
+      (the Crystal core says "Wards & Hexes").
 
 ## Sidebar panels, one at a time
 

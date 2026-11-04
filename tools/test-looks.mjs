@@ -3,7 +3,8 @@
  * the page, the device layer and the stage are marked with both the device and the look, so the
  * device's layout, board and sequence are kept while its colors, art and bolts are the look's; a
  * satchel look draws its own leather behind the book; and going back to the device itself takes
- * every trace of the look away. Then the Journal's interface in the dark: the interface around the
+ * every trace of the look away. A look with an opening of its own plays it, for as long as its own
+ * sequence says, and not with reduced motion. Then the Journal's interface in the dark: the interface around the
  * book goes dark, the Journal and the Grove each in their own leather, and the book stays paper.
  */
 import { createRequire } from 'module';
@@ -31,7 +32,7 @@ const results = await page.evaluate(async () => {
 	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
 	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 	const { DeviceChrome: hud, store } = SFH;
-	const { DEVICES, seqMs } = await import('../scripts/constants.mjs');
+	const { DEVICES, seqMs, SEQ_LONG } = await import('../scripts/constants.mjs');
 	const { currentDevice, currentLook } = await import('../scripts/settings.mjs');
 	store.sequences = false;
 
@@ -54,7 +55,7 @@ const results = await page.evaluate(async () => {
 	});
 
 	const looks = Object.values(DEVICES).filter((d) => d.base);
-	check('there are four looks', looks.length === 4, looks.map((d) => d.id));
+	check('four fantasy looks and seven for science fiction', looks.length === 11, looks.map((d) => d.id));
 	const bases = {};
 	for (const base of new Set(looks.map((d) => d.base))) {
 		await wear(base);
@@ -71,15 +72,24 @@ const results = await page.evaluate(async () => {
 		check(`${tag}: the page is the device, wearing the look`, document.body.dataset.sfhDevice === look.base && document.body.dataset.sfhLook === look.id);
 		check(`${tag}: so are the device layer and the stage`, document.getElementById('sfh-device').dataset.look === look.id
 			&& stage().dataset.device === look.base && stage().dataset.look === look.id);
-		check(`${tag}: its sequence is its device's`, seqMs('on', look.id) === seqMs('on', look.base) && seqMs('off', look.id) === seqMs('off', look.base));
+		// a look opens as its device does, or its own way for as long as its own sequence says
+		const own = look.sequence !== DEVICES[look.base].sequence;
+		check(own ? `${tag}: its own opening runs its own length` : `${tag}: its sequence is its device's`,
+			own ? SEQ_LONG[look.sequence] && seqMs('on', look.id) === SEQ_LONG[look.sequence].on : seqMs('on', look.id) === seqMs('on', look.base) && seqMs('off', look.id) === seqMs('off', look.base),
+			[look.sequence, seqMs('on', look.id)]);
 		check(`${tag}: on its device's board`, now.board === base.board, [now.board, base.board]);
-		check(`${tag}: its own art`, now.art === look.art && art().querySelector('#sfh-arm') && art().querySelector('#sfh-band'), now.art);
+		check(look.art ? `${tag}: its own art` : `${tag}: no art, as its device has none`,
+			look.art ? now.art === look.art && art().querySelector('#sfh-arm') && art().querySelector('#sfh-band') : !art(), now.art);
 		check(`${tag}: its own interface colors`, now.hot && now.hot !== base.hot, [now.hot, base.hot]);
 		check(`${tag}: its own projection colors`, now.stageHot && now.stageHot !== base.stageHot, [now.stageHot, base.stageHot]);
 		if (look.base === 'vambrace') {
-			check(`${tag}: its own edge, runes and corner marks`, now.edge !== base.edge && now.rune !== base.rune && now.corner !== base.corner, [now.corner, now.rune]);
+			check(`${tag}: its own edge and corner marks`, now.edge !== base.edge && now.corner !== base.corner, [now.corner, now.edge]);
 			check(`${tag}: its bolts strike in its own color`, now.bolt && now.bolt !== base.bolt, [now.bolt, base.bolt]);
-			check(`${tag}: its stone is the gem the stylesheet lights`, art().querySelector('#sfh-band .sfh-gem') && art().querySelector('#sfh-gem-lit'));
+			// a bracer of runes lights its runes and its stone; the Crystal core is a band, not a bracer
+			if (art().querySelector('.sfh-rune')) {
+				check(`${tag}: its own runes`, now.rune !== base.rune, now.rune);
+				check(`${tag}: its stone is the gem the stylesheet lights`, art().querySelector('#sfh-band .sfh-gem') && art().querySelector('#sfh-gem-lit'));
+			}
 		}
 		if (look.base === 'journal') {
 			check(`${tag}: its own leather and paper`, now.paper !== base.paper, [now.paper, base.paper]);
@@ -101,6 +111,45 @@ const results = await page.evaluate(async () => {
 	hud.setPower(false, { silent: true });
 	return out;
 });
+
+// a look with an opening of its own plays it, for as long as its sequence says, and not with reduced motion
+const openings = async (reduced) => page.evaluate(async (reduced) => {
+	const out = [];
+	const check = (name, ok, detail = '') => out.push({ name, ok: !!ok, detail: JSON.stringify(detail) });
+	const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+	const { DeviceChrome: hud, store } = SFH;
+	const { DEVICES, seqMs } = await import('../scripts/constants.mjs');
+	const stage = () => document.querySelector('#sfh-projection .sfh-stage');
+	const tag = reduced ? ', with reduced motion' : '';
+	for (const look of Object.values(DEVICES).filter((d) => d.base && d.sequence !== DEVICES[d.base].sequence)) {
+		store.sequences = false;
+		if (hud.power) hud.setPower(false, { silent: true });
+		await game.settings.set(null, 'device', look.id);
+		await wait(300);
+		store.sequences = true;
+		hud.toggle();
+		const t0 = performance.now();
+		for (let i = 0; i < 40 && !stage()?.classList.contains('sfh-seq-on'); i++) await wait(20);
+		await wait(120);
+		const slot = stage().querySelector('[data-slot="projection"]');
+		const name = getComputedStyle(slot).animationName;
+		if (reduced) check(`${look.id}${tag}: no opening plays`, name === 'none', name);
+		else check(`${look.id}: plays its own opening`, /^sfh-look-/.test(name), name);
+		const ms = seqMs('on', look.id);
+		await wait(Math.max(0, ms - (performance.now() - t0) - 200));
+		check(`${look.id}${tag}: still opening just before its sequence ends`, stage().classList.contains('sfh-seq-on'), [Math.round(performance.now() - t0), ms]);
+		await wait(450);
+		check(`${look.id}${tag}: done once it has`, !stage().classList.contains('sfh-seq-on'), Math.round(performance.now() - t0));
+		hud.setPower(false, { silent: true });
+		store.sequences = false;
+		await wait(200);
+	}
+	return out;
+}, reduced);
+results.push(...await openings(false));
+await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+results.push(...await openings(true));
+await page.emulateMediaFeatures([]);
 
 // the bolts take the look's colors when they fly
 const bolts = await page.evaluate(async () => {
