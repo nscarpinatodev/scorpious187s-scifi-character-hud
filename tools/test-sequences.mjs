@@ -160,6 +160,7 @@ const journal = () => page.evaluate(async () => {
 
 	await wait(700); // 0.9s: the flap is turning over, the book still in the bag
 	check(`${tag}the flap turns over on its hinge`, scale(flap()) < 0.6, getComputedStyle(flap()).transform);
+	check(`${tag}what else is in the bag waits for the flap to be gone, not coming up behind it`, packed(BEHIND), [clutterTop(BEHIND), mouth(), getComputedStyle(flap()).opacity]);
 	await wait(900); // 1.8s: out of the bag and rising, still small and shut
 	check(`${tag}out of the mouth by 1.8s`, lift(book()) < 400 && scale(book()) < 0.8, getComputedStyle(book()).transform);
 	check(`${tag}no longer cut off once out`, getComputedStyle(layer).clipPath === 'none');

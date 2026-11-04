@@ -550,8 +550,8 @@ body[data-sfh-power="on"] #sfh-device .sfh-satchel-back,
 
 /*
  * The things kept in the satchel with the book stay packed down inside it, out of sight, while the
- * flap is shut. They come up into view once the flap has turned away, and are packed down again
- * before it closes. While the book is out they are in the projection's copy of the bag's back,
+ * flap is shut. They come up into view once the flap has turned away and gone, and are packed
+ * down again before it comes back. While the book is out they are in the projection's copy of the bag's back,
  * which plays the projection's sequence.
  */
 .sfh-clutter {
@@ -563,7 +563,8 @@ body[data-sfh-power="on"] .sfh-clutter {
 }
 
 #sfh-projection.sfh-seq-on .sfh-clutter {
-	animation: sfh-clutter-up 600ms cubic-bezier(.3, .6, .4, 1) 450ms backwards;
+	/* not until the flap has gone (it turns from 280ms to 980ms), or it would come up behind it */
+	animation: sfh-clutter-up 500ms cubic-bezier(.3, .6, .4, 1) 980ms backwards;
 }
 
 #sfh-projection.sfh-seq-off .sfh-clutter {
