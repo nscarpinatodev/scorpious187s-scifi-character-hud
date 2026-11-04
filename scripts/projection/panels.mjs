@@ -21,11 +21,14 @@ const word = (device, key) => game.i18n.localize(WORDS[device]?.[key] ?? WORDS.a
 /* -------------------------------------------- */
 
 export function renderIdentity(c, device) {
-	// experience is typed, like hit points; right-click it for the level as well
-	const xpDigits = Math.max(1, String(c.xp.value).length);
+	// experience is typed, like hit points; right-click it for the level as well. A field is as wide
+	// as its digits plus its own padding and border (14px): the experience as many as its maximum
+	// has, so typing up to the next level fits too
+	const fits = (digits) => `calc(${digits + 0.4}ch + 14px)`;
+	const xpDigits = Math.max(3, String(Math.round(c.xp.value)).length, String(Math.round(c.xp.max ?? 0)).length);
 	const xp = `<div class="sfh-xp" data-menu="xp" style="display:flex;flex-direction:column;gap:4px;width:170px;flex:none">${lbl(game.i18n.localize('SFH.Projection.Experience'))}
 		<span class="mono" style="font-size:13px"><input class="sfh-in mono sfh-in-xp" type="number" inputmode="numeric" min="0" value="${c.xp.value}"
-			style="width:${xpDigits + 1.2}ch" data-commit="xp" aria-label="${esc(game.i18n.localize('SFH.Projection.Experience'))}"> / ${c.xp.max.toLocaleString()}</span>
+			style="width:${fits(xpDigits)}" data-commit="xp" aria-label="${esc(game.i18n.localize('SFH.Projection.Experience'))}"> / ${c.xp.max.toLocaleString()}</span>
 		${bar(c.xp.value, c.xp.max)}</div>`;
 	const rest = c.system === 'dnd5e'
 		? `${actBtn('Short rest', 'rest', 'short', { cls: 'sm ghost', extra: 'sfh-rest' })}${actBtn('Long rest', 'rest', 'long', { cls: 'sm ghost', extra: 'sfh-rest' })}`
@@ -36,7 +39,7 @@ export function renderIdentity(c, device) {
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h11"/></svg></button>`;
 	// a level the system keeps as a number is typed; one made of class levels is the sheet's to change
 	const levelValue = c.levelEditable
-		? `<input class="sfh-in mono big sfh-in-lvl" type="number" inputmode="numeric" min="1" value="${c.level}" style="width:${String(c.level).length + 1.2}ch;font-size:21px"
+		? `<input class="sfh-in mono big sfh-in-lvl" type="number" inputmode="numeric" min="1" value="${c.level}" style="width:${fits(Math.max(2, String(c.level).length))};font-size:21px"
 			data-commit="level" aria-label="${esc(game.i18n.localize('SFH.Projection.Level'))}">`
 		: `<span class="big" style="font-size:21px">${c.level}</span>`;
 	const level = `<div class="lvl" data-menu="xp">${lbl(game.i18n.localize('SFH.Projection.Level'))}${levelValue}</div>`;
