@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.1 — 2026-11-05
 
 - The macro bar stays on the device when another module moves it. PF2e HUD puts the bar back at
   the foot of the screen whenever its persistent HUD closes, even with that HUD switched off, and
