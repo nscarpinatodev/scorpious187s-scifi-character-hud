@@ -22,6 +22,9 @@ What is left, in order:
      resistances and the damage formulas on the strikes; and the carousel in each fantasy device.
    - **The satchel's flap** turns up above the art's frame: check nothing in Foundry's interface
      cuts it off.
+   - **The sidebar** — the directories (with a colored folder and some placeholder art), the
+     Compendium, Settings, the chat's message modes, and a tab popped out, on a page (the
+     Journal, the Grove, the Crystal core) and on glass.
 2. **Release.** `module.json` is at 0.2.0 with its manifest and download URLs pointing at the
    GitHub release, and CHANGELOG.md's 0.2.0 section is the release notes. The repo has no remote
    yet.
@@ -108,10 +111,12 @@ a look is named for what it is, never for the game it suits.
       yet.
 - [x] **The omni-tool, TRON and EVA's names** — decided: they keep their names.
 
-## Sidebar panels, one at a time
+## Sidebar panels
 
-`styles/interface.css` gives the interface the device's colors, edges and glow. Each panel still
-needs its own pass — that gets the colors right, not the shape.
+`styles/interface.css` gives the interface the device's colors, edges and glow, and each panel
+has had its own pass. `tools/harness-sidebar.html` is Foundry 14's sidebar, every tab, in its own
+markup and stylesheet, and `tools/test-sidebar.mjs` checks it under every device and look. Only
+the chat's roll results are left.
 
 - [ ] **Chat** — message frames, whispers, dice totals, 5e's cards and the chat input are in the
       device's colors, and the fantasy devices have their own (paper cards; dark glass edged in
@@ -128,7 +133,7 @@ needs its own pass — that gets the colors right, not the shape.
       and build info are in the palette. Nothing more was needed.
 - [x] **Sidebar tab strip** — checked under every device and look; the palette was enough.
 - [x] **Popped-out sidebar tabs** — themed: the same panel and palette, framed on every side
-      under a header in the device's colors. `tools/test-sidebar.mjs` covers all of it.
+      under a header in the device's colors.
 
 ## After that
 
