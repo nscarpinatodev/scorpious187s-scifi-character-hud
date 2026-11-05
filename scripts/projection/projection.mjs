@@ -509,7 +509,7 @@ export class Projection {
 		if (typeof quantity === 'number' && !(item.contents?.size > 0)) {
 			rows.push({ label: 'SFH.Projection.Menu.Quantity', value: quantity, attrs: `data-item-field="system.quantity" data-k="${esc(key)}"` });
 		}
-		return { host: target.closest('.li, .row, .cell') ?? target.parentElement, rows };
+		return { host: target.closest('.li, .row, .cell') ?? target.parentElement, rows, remove: key };
 	}
 
 	/**
@@ -542,6 +542,22 @@ export class Projection {
 				: Math.max(edge, stage.offsetHeight - edge - height);
 		menu.style.left = `${Math.round(left)}px`;
 		menu.style.top = `${Math.round(top)}px`;
+	}
+
+	/** A blank item of a kind the system has and the adapter offers, named as Foundry names a new one, opened on its sheet. */
+	static async #createItem(adapter, actor, type) {
+		if (!actor?.isOwner || !adapter.creatable?.(adapter.CREATABLE ?? []).includes(type)) return null;
+		const label = game.i18n.localize(`TYPES.Item.${type}`);
+		const name = CONFIG.Item?.documentClass?.defaultName?.({ type, parent: actor }) ?? game.i18n.format('DOCUMENT.New', { type: label });
+		try {
+			const [item] = await actor.createEmbeddedDocuments('Item', [{ name, type }]);
+			item?.sheet?.render(true);
+			return item;
+		} catch (err) {
+			console.error(`${MOD} | could not create a ${type}`, err);
+			ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action: 'create' }));
+			return null;
+		}
 	}
 
 	/** Save what is being typed, as leaving the field or pressing the editor's save would. */
@@ -898,6 +914,19 @@ export class Projection {
 			if (action === 'read') return this.#show(key);
 			if (action === 'sheet') return this.actor()?.sheet?.render(true);
 			if (action === 'menu-close') return target.closest('.sfh-menu')?.remove();
+			// delete one of the character's things, behind Foundry's own are-you-sure
+			if (action === 'menu-delete') {
+				target.closest('.sfh-menu')?.remove();
+				const doc = this.#ownDoc(key);
+				if (!doc?.isOwner) return;
+				try {
+					await (doc.deleteDialog ? doc.deleteDialog() : doc.delete());
+				} catch (err) {
+					console.error(`${MOD} | could not delete ${doc.name}`, err);
+					ui.notifications.error(game.i18n.format('SFH.ActionFailed', { action: 'delete' }));
+				}
+				return;
+			}
 			if (action === 'settings') return game.settings.sheet.render(true);
 			if (action === 'chatLog') {
 				ui.chat?.activate?.();
@@ -958,6 +987,13 @@ export class Projection {
 			// a picker hands its choice to the adapter; the new chip arrives with the actor's update
 			const pick = event.target.closest('[data-pick]');
 			if (pick) {
+				// a blank item of the kind picked, opened on its sheet, as the sheet's create buttons do
+				if (pick.dataset.pick === 'create') {
+					const type = pick.value;
+					pick.value = '';
+					if (type) await this.#createItem(adapter, actor, type);
+					return;
+				}
 				const action = { condition: 'addCondition', rank: 'setRank', carry: 'setCarry', give: 'giveItem', aux: 'aux', ammo: 'linkAmmo', initiative: 'setInitiative', suboption: 'suboption' }[pick.dataset.pick];
 				// choosing "none" is a choice only where the picker says so
 				if (!action || (!pick.value && !pick.dataset.allowEmpty)) return;
@@ -1041,6 +1077,7 @@ export class Projection {
 			menu.innerHTML = fields.rows.map(({ label, attrs, value, text }) =>
 				`<label>${word(label)}<input class="sfh-in${text ? '' : ' mono'}" type="${text ? 'text' : 'number'}" value="${esc(value)}" ${attrs}
 					${text ? 'style="width:12em"' : ''}></label>`).join('')
+				+ (fields.remove ? `<button type="button" class="b sm sfh-menu-delete" data-act="menu-delete" data-k="${esc(fields.remove)}">${word('SFH.Projection.Menu.Delete')}</button>` : '')
 				+ `<button type="button" class="b sm" data-act="menu-close" data-k="">${word('SFH.Projection.Menu.Close')}</button>`;
 			this.#placeMenu(menu, host);
 			menu.querySelector('input')?.focus();

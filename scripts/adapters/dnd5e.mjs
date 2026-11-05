@@ -354,6 +354,24 @@ function itemRow(actor, item, others, depth = 0) {
 }
 
 /** Who an item could go to: the other characters, as far as this user can see them. */
+/** What the Inventory tab can make blank, as the sheet's own create buttons do, in its order. */
+export const CREATABLE = ['weapon', 'equipment', 'consumable', 'tool', 'container', 'loot'];
+
+/** The kinds the system really has: a type it does not know is never offered. */
+export const creatable = (types) => {
+	const known = game.documentTypes?.Item ?? Object.keys(CONFIG.Item?.dataModels ?? {});
+	return known?.length ? types.filter((type) => known.includes(type)) : types;
+};
+
+/** A blank item of a kind, as the sheet's create buttons make one: picked here, opened on its sheet. */
+function createPicker() {
+	const types = creatable(CREATABLE);
+	if (!types.length) return '';
+	return `<select class="sel sfh-create" data-pick="create" aria-label="${esc(loc('SFH.Projection.NewItemHint'))}"
+		data-tooltip="${esc(loc('SFH.Projection.NewItemHint'))}"><option value="">${esc(loc('SFH.Projection.NewItem'))}</option>${
+		types.map((type) => `<option value="${type}">${esc(loc(`TYPES.Item.${type}`))}</option>`).join('')}</select>`;
+}
+
 function tradePartners(actor) {
 	const reachable = (a) => game.user.isGM || a.hasPlayerOwner || a.visible;
 	return (game.actors?.filter((a) => a.type === 'character' && a.id !== actor.id && reachable(a)) ?? [])
@@ -378,7 +396,7 @@ function inventory(actor) {
 
 	const search = `<div class="row sfh-browse">
 		<input class="sfh-in grow" type="search" data-browse="1" placeholder="Quick search: type to find equipment" aria-label="Quick search for equipment">
-		${actBtn('Browse', 'browseEquipment', '', { cls: 'sm ghost', title: 'Open the Compendium Browser' })}</div>
+		${actBtn('Browse', 'browseEquipment', '', { cls: 'sm ghost', title: 'Open the Compendium Browser' })}${createPicker()}</div>
 		<div class="sfh-results" aria-live="polite"></div>`;
 	const editable = actor.isOwner ? '' : ' disabled';
 	const coins = Object.keys(CONFIG.DND5E?.currencies ?? sys.currency ?? {}).map((k) => `<label class="sfh-bio">${lbl(k)}
@@ -672,6 +690,8 @@ export function readoutEntry(actor, key) {
 		name: kind === 'skill' ? loc(CONFIG.DND5E?.skills?.[id]?.label ?? id) : traitLabel(id, 'tool'),
 		kind: kind === 'skill' ? 'Skill' : 'Tool',
 		meta,
+		// a skill or tool can be a favorite too, as on the sheet
+		actions: favoriteButton(actor, kind, id),
 	};
 }
 
@@ -708,10 +728,26 @@ export function readoutActions(doc, actor) {
 	if (!actor.system?.hasFavorite) return '';
 	const type = doc.documentName === 'ActiveEffect' ? 'effect' : 'item';
 	if (type === 'item' && doc.parent !== actor) return '';
-	const id = foundry.utils.buildRelativeUuid(doc, actor);
+	const own = favoriteButton(actor, type, foundry.utils.buildRelativeUuid(doc, actor));
+	// an item that can do more than one thing: each of them can be a favorite of its own, as on the sheet
+	const activities = type === 'item' ? activitiesOf(doc) : [];
+	if (activities.length < 2) return own;
+	const each = activities.map((activity) => favoriteButton(actor, 'activity', activity.relativeUUID ?? `.Item.${doc.id}.Activity.${activity.id}`,
+		activity.name || loc(CONFIG.DND5E?.activityTypes?.[activity.type]?.label ?? activity.type))).join('');
+	return `<div class="row" style="gap:4px;flex-wrap:wrap">${own}${each}</div>`;
+}
+
+/**
+ * Mark something as a favorite, or take it off: an item, an effect, one of an item's activities,
+ * a skill or a tool, each by the id the sheet keeps it under. `label` names an activity, so its
+ * button says which; the others say Favorite as the sheet does.
+ */
+function favoriteButton(actor, type, id, label = '') {
+	if (!actor.system?.hasFavorite) return '';
 	const on = actor.system.hasFavorite(id);
-	const label = loc(on ? 'DND5E.FavoriteRemove' : 'DND5E.Favorite');
-	return `<button type="button" class="b sm ghost sfh-fav ${on ? 'on' : ''}" data-act="favorite" data-k="${esc(type)}|${esc(id)}" aria-pressed="${on}"><i class="fa-solid fa-bookmark" inert></i> ${esc(label)}</button>`;
+	const text = label || loc(on ? 'DND5E.FavoriteRemove' : 'DND5E.Favorite');
+	return `<button type="button" class="b sm ghost sfh-fav ${on ? 'on' : ''}" data-act="favorite" data-k="${esc(type)}|${esc(id)}" aria-pressed="${on}"
+		${label ? `data-tooltip="${esc(loc(on ? 'DND5E.FavoriteRemove' : 'DND5E.Favorite'))}"` : ''}><i class="fa-solid fa-bookmark" inert></i> ${esc(text)}</button>`;
 }
 
 /* -------------------------------------------- */

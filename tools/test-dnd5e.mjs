@@ -492,6 +492,32 @@ const results = await page.evaluate(async () => {
 	over(row('Acrobatics'));
 	await wait(200);
 	check('the rules text is read once', fetched() === firstFetch && /Stay on your feet/.test(readout().textContent), [firstFetch, fetched()]);
+
+	/* ---- a skill, a tool or an activity can be a favorite, as on the sheet ---- */
+	const fav = () => readout().querySelectorAll('[data-act="favorite"]');
+	check('a favorite skill says so in the readout', fav().length === 1 && fav()[0].dataset.k === 'skill|acr' && fav()[0].getAttribute('aria-pressed') === 'true', [...fav()].map((b) => b.dataset.k));
+	fav()[0].click();
+	await wait(60);
+	check('and comes off from there', JSON.stringify(last()) === JSON.stringify(['removeFavorite', 'acr']), last());
+	over(row('Herb'));
+	await wait(200);
+	check('a tool can be marked', fav()[0]?.dataset.k === 'tool|herb' && fav()[0].getAttribute('aria-pressed') === 'false');
+	fav()[0].click();
+	await wait(60);
+	check('and is, as the sheet marks one', JSON.stringify(last()) === JSON.stringify(['addFavorite', { type: 'tool', id: 'herb' }]), last());
+	await tab('features');
+	const mixed = actor.items.get('mixed');
+	mixed.system.activities.forEach((a, i) => Object.assign(a, { id: `a${i}`, name: ['Strike', 'Feint'][i], relativeUUID: `.Item.mixed.Activity.a${i}` }));
+	over(row('Mixed Power'));
+	await wait(200);
+	const marks = [...fav()].map((b) => [b.dataset.k, b.textContent.trim()]);
+	check('an item that does more than one thing offers each of them too', marks.length === 3 && marks[1][0] === 'activity|.Item.mixed.Activity.a0' && marks[1][1] === 'Strike' && marks[2][1] === 'Feint', marks);
+	fav()[2].click();
+	await wait(60);
+	check('and marks one alone', JSON.stringify(last()) === JSON.stringify(['addFavorite', { type: 'activity', id: '.Item.mixed.Activity.a1' }]), last());
+	over(row('Wild Shape'));
+	await wait(200);
+	check('an item that does one thing offers only itself', fav().length === 1 && fav()[0].dataset.k.startsWith('item|'));
 	await tab('actions');
 	const favSkill = [...body().querySelectorAll('.sfh-action')].find((r) => /Acrobatics/.test(r.textContent));
 	over(favSkill);

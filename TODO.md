@@ -11,6 +11,9 @@ and 1.0.2 (sharing the screen with PF2e HUD) and 1.1.0 (the GM's projection foll
 token, NPCs included). It needs Scorpious187's Module Library, the family's shared base, whose
 update board carries the HUD (`scorpious187s-scifi-character-hud-update.json` in
 scorpious187-updates). Verified since against PF2e 8.7.0 and SF2e 1.7.0, both out on 2026-11-05.
+Then 1.1.1 and 1.1.2, 1.2.0 (devices by category, scenes viewed on a click, everyone's volume) and
+1.3.0 (PF2e skill readouts, 5e favorites for skills, tools and activities, and making and deleting
+items), all on 2026-11-05.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -150,11 +153,10 @@ in Foundry and good. Nothing is left here.
 
 ## Loose ends
 
-- [ ] **PF2e skill descriptions** — 5e skills and tools show their rules text in the readout;
-      PF2e and SF2e skills show only their name.
-- [ ] **The rest of 5e's Favorites** — items, spells and features can be favorited; the sheet
-      also favorites skills, tools and activities.
-- [ ] **Creating and deleting items** — the projection adds items from the quick search but has
-      no blank create, and no delete.
+- [x] **PF2e skill descriptions** — PF2e ships no skill rules text, so the readout shows the
+      skill's numbers and breakdown, its actions to take, and their rules text.
+- [x] **The rest of 5e's Favorites** — skills, tools and activities too, from the readout.
+- [x] **Creating and deleting items** — a New item picker on the Inventory tab, and Delete in the
+      right-click editor.
 - [ ] **Calendaria's dome** — the sky above its HUD is drawn by Calendaria in its own colors and
       is not in the device's.

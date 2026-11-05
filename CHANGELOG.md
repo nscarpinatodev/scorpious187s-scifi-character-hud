@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0 — 2026-11-05
+
+- PF2e and SF2e: a skill in the readout shows its modifier, training, attribute and the sheet's
+  breakdown of every bonus in it, a button for each of the system's actions that use it (Balance,
+  Tumble Through, Grapple and the rest, one for each way of doing those with several), which takes
+  the action through the system, and those actions' rules text.
+- D&D 5e: skills, tools and an item's activities can be marked as favorites from the readout, as
+  on the sheet, as items and effects already could.
+- A blank item of any kind the system has, from a New item picker beside the Inventory tab's quick
+  search: made, named as Foundry names a new one, and opened on its sheet to fill in.
+- Delete in a thing's right-click editor, behind Foundry's own are-you-sure.
+
 ## 1.2.0 — 2026-11-05
 
 - Default device and My device are chosen in two menus: a category, science fiction or fantasy

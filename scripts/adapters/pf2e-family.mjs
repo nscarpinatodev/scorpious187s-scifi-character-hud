@@ -402,6 +402,21 @@ function actions(actor) {
 		<div class="sec">Actions</div><div class="grid2 sfh-actions">${acts || none}</div>`;
 }
 
+/** A blank item of a kind, as the sheet's create buttons make one: picked here, opened on its sheet. */
+function createPicker() {
+	const types = creatable(CREATABLE);
+	if (!types.length) return '';
+	return `<select class="sel sfh-create" data-pick="create" aria-label="${esc(game.i18n.localize('SFH.Projection.NewItemHint'))}"
+		data-tooltip="${esc(game.i18n.localize('SFH.Projection.NewItemHint'))}"><option value="">${esc(game.i18n.localize('SFH.Projection.NewItem'))}</option>${
+		types.map((type) => `<option value="${type}">${esc(game.i18n.localize(`TYPES.Item.${type}`))}</option>`).join('')}</select>`;
+}
+
+/** The kinds the system really has: a type it does not know is never offered. */
+export const creatable = (types) => {
+	const known = game.documentTypes?.Item ?? Object.keys(CONFIG.Item?.dataModels ?? {});
+	return known?.length ? types.filter((type) => known.includes(type)) : types;
+};
+
 /** The held shield, with the sheet's hit points and its Raise a Shield. Nothing without one. */
 function shieldRow(actor) {
 	const shield = actor.system?.attributes?.shield;
@@ -484,6 +499,9 @@ function strikeRow(strike, index) {
 		${hands ? auxRow(strike, index) : ''}</div>`;
 }
 
+/** What the Inventory tab can make blank, as the sheet's own create buttons do, in its order. */
+export const CREATABLE = ['weapon', 'shield', 'armor', 'equipment', 'consumable', 'ammo', 'treasure', 'backpack'];
+
 /** The sheet's sections, in its order, with the item types each holds (CharacterSheetPF2e#prepareInventory). */
 const SECTIONS = [
 	['PF2E.Actor.Inventory.Section.WeaponsAndShields', ['weapon', 'shield']],
@@ -516,7 +534,7 @@ function inventory(actor) {
 	// a quick search that adds from its results, and the system's own Compendium Browser for more
 	const search = `<div class="row sfh-browse">
 		<input class="sfh-in grow" type="search" data-browse="1" placeholder="Quick search: type to find equipment" aria-label="Quick search for equipment">
-		${actBtn('Browse', 'browseEquipment', '', { cls: 'sm ghost', title: 'Open the Compendium Browser' })}</div>
+		${actBtn('Browse', 'browseEquipment', '', { cls: 'sm ghost', title: 'Open the Compendium Browser' })}${createPicker()}</div>
 		<div class="sfh-results" aria-live="polite"></div>`;
 	// the sheet's + and −: the system's own dialog, in whichever denominations it uses
 	const money = `<div class="row sp">${lbl('Currency')}<span class="row" style="gap:6px">
@@ -975,6 +993,7 @@ export async function act(actor, action, key, event) {
 		case 'delete': return actor.items.get(key)?.delete();
 		case 'cond': return setCondition(actor, a, Number(b));
 		case 'effectStep': return stepEffect(actor, a, Number(b));
+		case 'skillAction': return skillAction(actor, a, b, event);
 		case 'rollOption': return toggleOption(actor, key);
 		case 'suboption': return toggleOption(actor, a, String(key).slice(a.length + 1));
 		case 'setInitiative': return key === 'perception' || actor.skills?.[key] ? actor.update({ 'system.initiative.statistic': key }) : null;
@@ -1353,6 +1372,85 @@ async function damage(actor, amount) {
 }
 
 /** What the readout lists about an item: its limited uses, which the sheet shows as "1 / 2 per day". */
+/* -------------------------------------------- */
+/*  A skill in the readout                       */
+/* -------------------------------------------- */
+
+const ACTION_GLYPH = { 1: '◆', 2: '◆◆', 3: '◆◆◆', reaction: '⟲', free: '◇' };
+
+/**
+ * The system's skill actions that use a skill (Balance and Tumble Through for Acrobatics,
+ * Grapple and Shove for Athletics), as `game.pf2e.actions` keeps them, which SF2e shares.
+ */
+function skillActions(slug) {
+	const all = [...(game.pf2e?.actions?.values?.() ?? [])];
+	return all.filter((action) => [].concat(action.statistic ?? []).includes(slug));
+}
+
+const variantsOf = (action) => [...(action.variants?.values?.() ?? [])];
+
+/**
+ * A skill in the readout, as the sheet shows it: its modifier, the character's training in it,
+ * its attribute and every bonus and penalty that make up the modifier, the sheet's breakdown.
+ * Under them, each of the system's actions that use it, to take from here; their rules text
+ * follows, from describeEntry.
+ */
+export function readoutEntry(actor, key) {
+	const [kind, slug] = String(key).split(':');
+	if (kind !== 'skill') return null;
+	const skill = actor.skills?.[slug];
+	if (!skill) return null;
+	const loc = (k) => game.i18n.localize(k ?? '');
+	const npc = actor.type === 'npc';
+	const parts = [...(skill.check?.modifiers ?? skill.modifiers ?? [])].filter((m) => m.enabled !== false && !m.ignored && m.modifier);
+	const meta = [
+		['Modifier', sgn(skill.mod ?? 0)],
+		!npc && skill.rank != null ? ['Training', RANK_NAME[skill.rank] ?? ''] : null,
+		skill.attribute ? ['Attribute', loc(CONFIG.PF2E?.abilities?.[skill.attribute] ?? skill.attribute)] : null,
+		...parts.map((m) => [loc(m.label ?? m.slug), sgn(m.modifier)]),
+	].filter(Boolean);
+	const buttons = skillActions(slug).flatMap((action) => {
+		const variants = variantsOf(action);
+		const glyph = ACTION_GLYPH[action.cost] ?? '';
+		if (variants.length > 1) {
+			return variants.map((v) => actBtn(`${loc(action.name)}: ${loc(v.name ?? v.slug)}`, 'skillAction', `${action.slug}:${v.slug}`, { cls: 'sm ghost', title: glyph }));
+		}
+		return [actBtn(`${loc(action.name)}${glyph ? ` ${glyph}` : ''}`, 'skillAction', action.slug, { cls: 'sm ghost' })];
+	});
+	return {
+		name: loc(skill.label ?? slug),
+		kind: skill.lore ? 'Lore' : 'Skill',
+		meta,
+		actions: `<div class="row sfh-skill-acts" style="gap:4px;flex-wrap:wrap">${rollBtn(sgn(skill.mod ?? 0), 'skill', slug)}${buttons.join('')}</div>`,
+	};
+}
+
+/** The actions' rules text, once read: the system's own words, which do not change in a session. */
+const actionTexts = new Map();
+
+/** What can be done with a skill: each of its actions, with the system's rules text for it. */
+export async function describeEntry(actor, key) {
+	const [kind, slug] = String(key).split(':');
+	if (kind !== 'skill' || !actor.skills?.[slug]) return '';
+	const loc = (k) => game.i18n.localize(k ?? '');
+	const texts = await Promise.all(skillActions(slug).map(async (action) => {
+		if (!actionTexts.has(action.slug)) {
+			const body = await foundry.applications.ux.TextEditor.implementation.enrichHTML(loc(action.description), { secrets: false });
+			actionTexts.set(action.slug, body);
+		}
+		const glyph = ACTION_GLYPH[action.cost] ?? '';
+		return `<h4>${esc(loc(action.name))}${glyph ? ` <span class="cost">${glyph}</span>` : ''}</h4>${actionTexts.get(action.slug)}`;
+	}));
+	return texts.join('');
+}
+
+/** Take one of a skill's actions, as the system's own action macros do. */
+function skillAction(actor, slug, variant, event) {
+	const action = game.pf2e?.actions?.get?.(slug);
+	if (!action?.use || ![].concat(action.statistic ?? []).length) return null;
+	return action.use({ actors: [actor], event, ...(variant ? { variant } : {}) });
+}
+
 export function readoutMeta(item) {
 	const uses = item.system?.frequency;
 	if (!uses?.max) return [];
