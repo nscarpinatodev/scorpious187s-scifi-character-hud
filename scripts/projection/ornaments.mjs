@@ -129,7 +129,7 @@ export function ornBack(device, c, look = null) {
  * hit-point ladder. They are part of the picture, so they live inside the fold and open
  * with everything else.
  */
-export function evaReadouts(c, look = null) {
+export function evaReadouts(c) {
 	const hp = pct(c.hp.value, c.hp.max);
 	const segments = 24;
 	const lit = Math.round((segments * hp) / 100);
@@ -143,7 +143,7 @@ export function evaReadouts(c, look = null) {
 	const status = hp < 35 ? 'CRITICAL' : hp < 70 ? 'DAMAGED' : 'OPERATIONAL';
 
 	return `<div class="slot pnl" style="left:26px;top:86px;width:262px;height:160px">
-			<div class="cap">${look === 'retro' ? 'Link' : 'EVA Link'}</div>
+			<div class="cap">EVA Link</div>
 			<svg viewBox="0 0 260 134" width="260" height="134" aria-hidden="true">
 				<circle cx="130" cy="66" r="56" fill="none" stroke="var(--hot)" stroke-opacity=".3"/>
 				<circle cx="130" cy="66" r="44" fill="none" stroke="var(--hot)" stroke-opacity=".5" stroke-dasharray="3 5"/>
@@ -170,8 +170,9 @@ export function evaReadouts(c, look = null) {
  * The wrist unit's case hinges at its base and takes the whole display with it, so it is
  * drawn inside the fold — with every panel inside the case, not floating over it.
  */
-export function ornDev(device) {
-	if (device !== 'wrist') return '';
+export function ornDev(device, look = null) {
+	// the Retro terminal keeps the wrist unit's layout but stands in its own monitor case (retroTerminal)
+	if (device !== 'wrist' || look === 'retro') return '';
 	/*
 	 * The mock-up's case, expanded rather than redrawn: the same double edge, the same pink
 	 * indicator on the top rail, the same cyan lamp and the same two feet — only the shell is

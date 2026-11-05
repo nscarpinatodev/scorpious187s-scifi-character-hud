@@ -329,7 +329,8 @@ const retro = await page.evaluate(async () => {
 	const same = Math.abs(s.left + box[0] - g.left) < 1.5 && Math.abs(s.top + box[1] - g.top) < 1.5 && Math.abs(box[2] - g.width) < 1.5 && Math.abs(box[3] - g.height) < 1.5;
 	check('its glass and scanlines lie on the screen, not the case', same && /repeating-linear-gradient/.test(after.backgroundImage), { box, glass: [g.left - s.left, g.top - s.top, g.width, g.height] });
 	check("no scanlines of the EVA's across the whole board", !stage.querySelector('.scanfx') || getComputedStyle(stage.querySelector('.scanfx')).display === 'none');
-	check('it calls itself a terminal', /TERMINAL/.test(stage.querySelector('[data-slot="identity"]').textContent) && !/EVA Link/.test(stage.textContent));
+	check('it is laid out as the wrist computer, nothing of the EVA', stage.dataset.device === 'wrist' && !/EVA/.test(stage.textContent));
+	check("and in its own case, not the wrist unit's", !stage.querySelector('#sfh-case'));
 	hud.setPower(false, { silent: true });
 	return out;
 });

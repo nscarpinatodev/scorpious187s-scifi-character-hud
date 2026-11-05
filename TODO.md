@@ -104,8 +104,8 @@ projection, and new work is tried there.
 a look is named for what it is, never for the game it suits.
 
 - [x] **The seven, built as looks** — the Holoprojector, Armored gauntlet and Comm unit over the
-      omni-tool, the Datapad over the wrist computer, the Crystal core over the Vambrace, the Retro
-      terminal over the EVA (GDI) and the Cyberdeck over TRON. The Holoprojector, Retro terminal
+      omni-tool, the Datapad and the Retro terminal over the wrist computer, the Crystal core over
+      the Vambrace and the Cyberdeck over TRON. The Holoprojector, Retro terminal
       and Cyberdeck open their own way: a look can now carry its own opening (its animations in
       `styles/looks.css`, its length a `sequence` of its own in `SEQ_LONG`). Not seen in Foundry
       yet.

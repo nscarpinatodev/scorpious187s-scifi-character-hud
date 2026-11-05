@@ -278,8 +278,8 @@ body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle
 /*
  * Seven looks for science fiction, each over the device it is closest to, built from the
  * mock-ups (design/theme-ideas.md): the Holoprojector, the Armored gauntlet and the Comm unit over
- * the omni-tool, the Datapad over the wrist computer, the Crystal core over the Vambrace, the Retro
- * terminal over the EVA (GDI) and the Cyberdeck over TRON. Their names are what they are, never the
+ * the omni-tool, the Datapad and the Retro terminal over the wrist computer, the Crystal core over
+ * the Vambrace and the Cyberdeck over TRON. Their names are what they are, never the
  * games they suit. The Holoprojector, the Retro terminal and the Cyberdeck open their own way:
  * their animations are here, and how long they run is their `sequence` (SEQ_LONG).
  */
@@ -470,8 +470,11 @@ body[data-sfh-device][data-sfh-look="crystal"] {
 
 /* ---------------- the Retro terminal: an old green terminal in a chunky steel monitor, typed out on opening */
 /*
- * Its housing is its own (ornaments.mjs, retroTerminal): a thick case around a rounded screen, the
- * panels scaled into the screen inside it. The screen is a terminal's: bright green on near-black,
+ * It has the wrist computer's layout and nothing of its look: its housing is its own
+ * (ornaments.mjs, retroTerminal), a thick case around a rounded screen, in place of the wrist
+ * unit's case, with the panels scaled into the screen inside it. It opens as a CRT does, from a
+ * bright line across the middle of the screen, and then types its panels out; it closes back to
+ * the line. The screen is a terminal's: bright green on near-black,
  * no panel fills, thin rules, and whatever is pointed at or chosen lit up inverted, green with dark
  * letters. Its glass is laid over the screen alone: the scanlines, the dark at its curved edges, a
  * glare, and a band of brightness rolling slowly down it, none of it on the case.
@@ -491,8 +494,12 @@ body[data-sfh-device][data-sfh-look="crystal"] {
 #sfh-projection .sfh-stage[data-device][data-look="retro"] .cap { background: none; border-bottom: 1px solid var(--line); }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after { content: '▌'; margin-left: .3em; animation: sfh-look-blink 1.06s steps(1) infinite; }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] .scanfx { display: none; }
+/* square, as a terminal's characters are, where the wrist unit is rounded and pink */
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .ident .nm { color: var(--bright); text-shadow: 0 0 8px var(--glow); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.tile, .seg, .pip, .dot) { border-radius: 0; }
 /* what can be chosen is plain text, lit up inverted when pointed at or chosen, as a terminal's selection is */
 #sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.b, .navb, button.cell) { background: transparent; border-color: var(--line2); border-radius: 0; box-shadow: none; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"] .navb { color: var(--text); border-color: var(--line); }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.b, .navb, button.cell):is(:hover, :focus-visible, .on) { background: var(--hot) !important; border-color: var(--hot) !important; color: #03140a !important; text-shadow: none; }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.b, .navb, button.cell):is(:hover, :focus-visible, .on) * { color: #03140a !important; text-shadow: none; }
 #sfh-projection .sfh-stage[data-device][data-look="retro"] .sfh-in { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; }
@@ -517,7 +524,14 @@ body[data-sfh-device][data-sfh-look="crystal"] {
 }
 @keyframes sfh-look-retro-roll { from { background-position: 0 -170px; } to { background-position: 0 962px; } }
 @keyframes sfh-look-retro-flicker { 0%, 100% { opacity: 1; } 49% { opacity: 1; } 50% { opacity: .9; } 52% { opacity: 1; } 78% { opacity: .96; } }
-#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-type .8s steps(16) backwards; animation-delay: calc(320ms + var(--d, 0ms) * 2.5); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-on :is(.slot, .navb, .navlbl) { animation: sfh-look-type .8s steps(16) backwards; animation-delay: calc(320ms + var(--d, 0ms) * 2.5); }
+/* the screen comes on as a CRT's does, from a bright line, and goes back to it: not the wrist unit's fold */
+#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-on .foldwrap { animation: sfh-crtOpen .52s cubic-bezier(.2, .9, .25, 1) .2s backwards; transform-origin: 50% 50%; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-off .foldwrap { animation: sfh-crtShut .3s ease-in .16s forwards; transform-origin: 50% 50%; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"]:is(.sfh-seq-on, .sfh-seq-off) .sweep { top: 0; bottom: 0; height: auto; display: flex; align-items: center; justify-content: center; z-index: 20; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"]:is(.sfh-seq-on, .sfh-seq-off) .sweep::after { content: ''; display: block; width: 88%; height: 3px; background: var(--hot); box-shadow: 0 0 26px 6px var(--glow); }
+#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-on .sweep::after { animation: sfh-crtOn .62s ease-out forwards; }
+#sfh-projection .sfh-stage[data-device][data-look="retro"].sfh-seq-off .sweep::after { animation: sfh-crtOff .34s ease-in .44s forwards; }
 @keyframes sfh-look-type { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes sfh-look-blink { 50% { opacity: 0; } }
 body[data-sfh-device][data-sfh-look="retro"] {
@@ -565,9 +579,13 @@ body[data-sfh-device][data-sfh-look="cyberdeck"] {
 #sfh-projection .sfh-stage[data-device]:is([data-look="datapad"], [data-look="retro"]) .cell .lbl { font-size: 13px; letter-spacing: .03em; }
 
 @media (prefers-reduced-motion: reduce) {
-	#sfh-projection .sfh-stage[data-device]:is([data-look="holoprojector"], [data-look="retro"], [data-look="cyberdeck"]) :is(.slot, .navb, .pnl, .pnl::before) { animation: none !important; }
+	#sfh-projection .sfh-stage[data-device]:is([data-look="holoprojector"], [data-look="retro"], [data-look="cyberdeck"]) :is(.slot, .navb, .pnl),
+	#sfh-projection .sfh-stage[data-device]:is([data-look="holoprojector"], [data-look="retro"], [data-look="cyberdeck"]) .pnl::before { animation: none !important; }
 	#sfh-projection .sfh-stage[data-device][data-look="retro"] :is(.cap, .proj-t)::after,
 	#sfh-projection .sfh-stage[data-device][data-look="retro"]::before,
-	#sfh-projection .sfh-stage[data-device][data-look="retro"]::after { animation: none !important; }
+	#sfh-projection .sfh-stage[data-device][data-look="retro"]::after,
+	#sfh-projection .sfh-stage[data-device][data-look="retro"] .foldwrap,
+	#sfh-projection .sfh-stage[data-device][data-look="retro"] .sweep::after { animation: none !important; }
+	#sfh-projection .sfh-stage[data-device][data-look="retro"] .sweep { display: none !important; }
 	body[data-sfh-look="holoprojector"] :is(#sfh-beam, #sfh-device #sfh-band) { animation: none !important; }
 }

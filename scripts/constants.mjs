@@ -40,7 +40,7 @@ export const DEVICES = {
 	gauntlet: { id: 'gauntlet', label: 'SFH.Device.Gauntlet', hint: 'SFH.Device.GauntletHint', base: 'omni', art: 'gauntlet', sequence: 'rise', switch: 'band' },
 	comm: { id: 'comm', label: 'SFH.Device.Comm', hint: 'SFH.Device.CommHint', base: 'omni', art: 'comm', sequence: 'rise', switch: 'band' },
 	crystal: { id: 'crystal', label: 'SFH.Device.Crystal', hint: 'SFH.Device.CrystalHint', base: 'vambrace', art: 'crystal', sequence: 'sigil', switch: 'band' },
-	retro: { id: 'retro', label: 'SFH.Device.Retro', hint: 'SFH.Device.RetroHint', base: 'gdi', art: null, sequence: 'type', switch: 'bar' },
+	retro: { id: 'retro', label: 'SFH.Device.Retro', hint: 'SFH.Device.RetroHint', base: 'wrist', art: null, sequence: 'type', switch: 'bar' },
 	cyberdeck: { id: 'cyberdeck', label: 'SFH.Device.Cyberdeck', hint: 'SFH.Device.CyberdeckHint', base: 'tron', art: 'cyberdeck', sequence: 'glitch', switch: 'band' },
 };
 

@@ -542,10 +542,10 @@ export class Projection {
 		const inset = device === 'wrist' || look === 'retro';
 		stage.innerHTML = `<div class="ornlayer">${ornBack(device, c, look)}</div>
 		<div class="foldwrap">
-			<div class="ornlayer">${ornDev(device)}</div>
+			<div class="ornlayer">${ornDev(device, look)}</div>
 			<div class="sweep"></div><div class="flare"></div>
 			${inset ? '<div class="sfh-inset">' : ''}
-			${eva ? evaReadouts(c, look) : ''}
+			${eva ? evaReadouts(c) : ''}
 			${panel('identity', L.identity, renderIdentity(c, device), 'ident')}
 			${panel('vitals', L.vitals, renderVitals(c))}
 			${panel('defenses', L.defenses, renderDefenses(c, device), eva ? '' : 'pad')}

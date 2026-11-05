@@ -47,6 +47,10 @@ for (const file of manifest.styles) {
 	const open = (css.match(/\{/g) ?? []).length;
 	const close = (css.match(/\}/g) ?? []).length;
 	if (open !== close) fail(`${file}: unbalanced braces (${open} open, ${close} close)`);
+	// a pseudo-element inside :is(), :where() or :not() makes the whole rule invalid, silently
+	for (const m of css.matchAll(/:(?:is|where|not)\([^)]*::/g)) {
+		fail(`${file}: a pseudo-element inside ${m[0].split('(')[0]}() drops the whole rule (line ${css.slice(0, m.index).split('\n').length})`);
+	}
 }
 
 /* ---- every font a stylesheet points at is there, and every font has its license beside it ---- */
