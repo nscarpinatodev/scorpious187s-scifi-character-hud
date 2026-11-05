@@ -2,7 +2,26 @@
 
 ## 1.0.0 — unreleased
 
-The first release. Rebuilt as a UI theme. The HUD is no longer a character sheet; the interface itself is the
+The first release. The Foundry interface becomes the device your character wears, and its switch
+raises the character sheet as a projection over the canvas. Every roll and button is still the
+game system's own.
+
+### Highlights
+
+- **Seven devices:** the omni-tool, wrist computer, EVA (GDI and Nod) and TRON for science
+  fiction; the Adventurer's Journal and the Runic Vambrace for fantasy.
+- **Eleven looks** over them, from a flickering hologram and an old green terminal to a stone
+  Runeforge and a Journal bound in green leather.
+- **The projection:** vitals, defenses, effects, a readout and tabbed pages, with hit points,
+  experience, conditions, spells, inventory and the biography changed in place.
+- **PF2e, SF2e and D&D 5e,** each through the system's own calls.
+- **The whole interface in the device's colors:** sidebar, chat, a scene bar with previews,
+  controls, the player list, and an optional carousel turn order.
+- **A Mass Effect dossier** with the conversion's shields and Paragon/Renegade.
+
+### Everything in 1.0.0
+
+Rebuilt as a UI theme. The HUD is no longer a character sheet; the interface itself is the
 device, and the character sheet is a projection it raises over the canvas.
 
 - The device at the foot of the screen, with Foundry's own macro bar mounted on it: the
