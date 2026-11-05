@@ -42,8 +42,13 @@ with the device's switch:
 - **TRON** — click the identity disc on the deck.
 - **Wrist computer and EVA** — the power key at the left end of the macro bar.
 
-The projection shows your assigned character (set it in the player list). If you own exactly
-one character and have none assigned, it shows that one.
+A player's projection shows their assigned character (set it in the player list), or, if they own
+exactly one character and have none assigned, that one. It never shows anyone else.
+
+The GM's projection follows the canvas: select a character's or an NPC's token and it shows that
+sheet, and stays on it until another is selected. An NPC is drawn as its own sheet has it — in
+PF2e and SF2e its traits, its own tabs and its notes; in D&D 5e its creature type, challenge rating
+and legendary actions and resistance.
 
 ## What you get
 

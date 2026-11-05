@@ -649,6 +649,36 @@ const results = await page.evaluate(async () => {
 	await tab('inventory');
 	check('and so are the coins', body().querySelector('[data-field="currency.gp"]').disabled);
 	actor.isOwner = true;
+
+	/* ---- an NPC, as a GM brings one up by selecting its token ---- */
+	const sys = actor.system;
+	const kept = { type: actor.type, details: sys.details, hd: sys.attributes.hd, inspiration: sys.attributes.inspiration };
+	actor.type = 'npc';
+	sys.details = { ...sys.details, cr: 0.5, type: { label: 'Humanoid (Goblinoid)' }, xp: { value: 100 } };
+	sys.attributes.hd = { max: 4, spent: 1 };
+	delete sys.attributes.inspiration;
+	sys.resources = { legact: { max: 3, spent: 1 }, legres: { max: 2, spent: 0 } };
+	game.settings.set(null, 'device', 'omni');
+	await wait(250);
+	const q = (sel) => document.querySelector(`#sfh-projection ${sel}`);
+	const vitals = () => q('[data-slot="vitals"]');
+	check('an NPC: its creature type under its name', /Humanoid \(Goblinoid\)/.test(q('.st')?.textContent ?? ''), q('.st')?.textContent);
+	check('its challenge rating where a level would be, as 5e writes it', /CR/.test(q('.lvl')?.textContent ?? '') && /1\/2/.test(q('.lvl')?.textContent ?? ''), q('.lvl')?.textContent.replace(/\s+/g, ' '));
+	check('no experience to earn', !q('[data-commit="xp"]'));
+	check('no inspiration', !vitals().querySelector('[data-act="insp"]'));
+	check('hit dice from its hit point formula, less those spent', /3\/4/.test(vitals().querySelector('[data-act="hd"]')?.textContent ?? ''), vitals().querySelector('[data-act="hd"]')?.textContent);
+	const legact = () => [...vitals().querySelectorAll('[data-act="legact"]')];
+	check('legendary actions as a track of what is left', legact().length === 3 && legact().filter((s) => s.classList.contains('on')).length === 2);
+	check('and legendary resistance', vitals().querySelectorAll('[data-act="legres"]').length === 2);
+	legact()[2].click();
+	await wait(60);
+	check('a segment sets what is left by what is spent', JSON.stringify(last()) === JSON.stringify(['actor.update', { 'system.resources.legact.spent': 0 }]), last());
+	check('death saves still there', !!vitals().querySelector('[data-act="deathMark"]'));
+	actor.type = kept.type;
+	sys.details = kept.details;
+	sys.attributes.hd = kept.hd;
+	sys.attributes.inspiration = kept.inspiration;
+	delete sys.resources;
 	return out;
 });
 

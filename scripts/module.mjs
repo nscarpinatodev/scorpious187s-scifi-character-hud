@@ -150,6 +150,17 @@ Hooks.on('sfhPower', async (on, { sequence } = {}) => {
 	setTimeout(() => DeviceChrome.power || Projection.close(), seqMs('off', currentChoice()));
 });
 
+/*
+ * The GM's projection follows the token selected on the canvas. Selecting a token lets go of the
+ * last one first, so the change is taken once the canvas has settled.
+ */
+let following = null;
+Hooks.on('controlToken', () => {
+	if (!game.user.isGM) return;
+	clearTimeout(following);
+	following = setTimeout(() => Projection.follow(), 0);
+});
+
 /* The projection shows live data, so it follows the actor. */
 for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'createActiveEffect', 'updateActiveEffect', 'deleteActiveEffect']) {
 	Hooks.on(hook, (doc) => Projection.refreshFor(doc));

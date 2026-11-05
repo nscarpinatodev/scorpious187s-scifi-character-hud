@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 — 2026-11-05
+
+- The GM's projection follows the token selected on the canvas, a character's or an NPC's, and
+  stays on it until another is selected. A player's is only ever their own character.
+- NPCs on the projection, as their own sheets have them. PF2e and SF2e: their rarity and traits
+  under their name, the NPC sheet's tabs with its public and private notes, only the skills they
+  have, and no experience, hero points or rest. D&D 5e: creature type and challenge rating, hit
+  dice from the hit point formula, and legendary actions and resistance as tracks.
+
 ## 1.0.2 — 2026-11-05
 
 - PF2e HUD's party portraits keep their width. Its persistent panel takes its width from the

@@ -25,14 +25,16 @@ export function renderIdentity(c, device) {
 	// as its digits plus its own padding and border (14px): the experience as many as its maximum
 	// has, so typing up to the next level fits too
 	const fits = (digits) => `calc(${digits + 0.4}ch + 14px)`;
-	const xpDigits = Math.max(3, String(Math.round(c.xp.value)).length, String(Math.round(c.xp.max ?? 0)).length);
-	const xp = `<div class="sfh-xp" data-menu="xp" style="display:flex;flex-direction:column;width:170px;flex:none">${lbl(game.i18n.localize('SFH.Projection.Experience'))}
+	// an NPC has no experience to earn, and rests as its GM decides, not from its sheet
+	const xpDigits = c.xp ? Math.max(3, String(Math.round(c.xp.value)).length, String(Math.round(c.xp.max ?? 0)).length) : 0;
+	const xp = c.xp ? `<div class="sfh-xp" data-menu="xp" style="display:flex;flex-direction:column;width:170px;flex:none">${lbl(game.i18n.localize('SFH.Projection.Experience'))}
 		<span class="mono" style="font-size:13px"><input class="sfh-in mono sfh-in-xp" type="number" inputmode="numeric" min="0" value="${c.xp.value}"
 			style="width:${fits(xpDigits)}" data-commit="xp" aria-label="${esc(game.i18n.localize('SFH.Projection.Experience'))}"> / ${c.xp.max.toLocaleString()}</span>
-		${bar(c.xp.value, c.xp.max)}</div>`;
-	const rest = c.system === 'dnd5e'
-		? `${actBtn('Short rest', 'rest', 'short', { cls: 'sm ghost', extra: 'sfh-rest' })}${actBtn('Long rest', 'rest', 'long', { cls: 'sm ghost', extra: 'sfh-rest' })}`
-		: actBtn('Rest', 'rest', 'night', { cls: 'sm ghost', extra: 'sfh-rest' });
+		${bar(c.xp.value, c.xp.max)}</div>` : '';
+	const rest = c.rest === false ? ''
+		: c.system === 'dnd5e'
+			? `${actBtn('Short rest', 'rest', 'short', { cls: 'sm ghost', extra: 'sfh-rest' })}${actBtn('Long rest', 'rest', 'long', { cls: 'sm ghost', extra: 'sfh-rest' })}`
+			: actBtn('Rest', 'rest', 'night', { cls: 'sm ghost', extra: 'sfh-rest' });
 	const gear = `<button type="button" class="b ic" data-act="settings" data-k="" data-tooltip="Device settings" aria-label="Device settings">
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a3 3 0 1 0 6 0a3 3 0 1 0-6 0M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></button>`;
 	const sheet = `<button type="button" class="b ic" data-act="sheet" data-k="" data-tooltip="Open the system sheet" aria-label="Open the system sheet">
@@ -42,7 +44,8 @@ export function renderIdentity(c, device) {
 		? `<input class="sfh-in mono big sfh-in-lvl" type="number" inputmode="numeric" min="1" value="${c.level}" style="width:${fits(Math.max(2, String(c.level).length))};font-size:21px"
 			data-commit="level" aria-label="${esc(game.i18n.localize('SFH.Projection.Level'))}">`
 		: `<span class="big" style="font-size:21px">${c.level}</span>`;
-	const level = `<div class="lvl" data-menu="xp">${lbl(game.i18n.localize('SFH.Projection.Level'))}${levelValue}</div>`;
+	const levelName = c.levelLabel ?? game.i18n.localize('SFH.Projection.Level');
+	const level = `<div class="lvl"${c.xp ? ' data-menu="xp"' : ''}>${lbl(levelName)}${levelValue}</div>`;
 
 	if (device === 'journal') {
 		// the page's heading: whose journal this is, and beside it the level, experience and the rests
@@ -52,15 +55,15 @@ export function renderIdentity(c, device) {
 	}
 	if (device === 'wrist') {
 		return `<div class="lbl">Operator</div><div class="nm">${esc(c.name)}</div><div class="st">${esc(c.sub)}</div>
-			<div class="row" style="margin-top:auto"><div class="grow">${bar(c.xp.value, c.xp.max)}</div>
-			<span class="mono" style="font-size:17px">LV ${c.level}</span></div>
+			<div class="row" style="margin-top:auto"><div class="grow">${c.xp ? bar(c.xp.value, c.xp.max) : ''}</div>
+			<span class="mono" style="font-size:17px">${c.levelLabel ? esc(c.levelLabel.toUpperCase()) : 'LV'} ${esc(c.level)}</span></div>
 			<div class="row">${rest}<span class="grow"></span>${sheet}${gear}</div>`;
 	}
 	if (device === 'gdi' || device === 'nod') {
 		return `<span class="big hot" style="font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:.3em">EVA</span>
 			<div class="ticker" id="sfh-ticker">&gt; ${esc(c.name)} · unit ready<i>▌</i></div>
 			<span style="font-weight:700;letter-spacing:.08em;color:var(--acc);font-size:17px;text-transform:uppercase">${esc(c.name)}</span>
-			<span class="mono hot" style="padding:3px 9px;border:1px solid var(--line)">LV ${c.level}</span>${rest}${sheet}${gear}`;
+			<span class="mono hot" style="padding:3px 9px;border:1px solid var(--line)">${c.levelLabel ? esc(c.levelLabel.toUpperCase()) : 'LV'} ${esc(c.level)}</span>${rest}${sheet}${gear}`;
 	}
 	return `<div style="display:flex;flex-direction:column;flex:1 1 auto;min-width:0">
 		<div class="nm">${esc(c.name)}</div><div class="st">${esc(c.sub)}</div></div>${xp}${level}${rest}${sheet}${gear}`;
@@ -102,7 +105,7 @@ export function renderVitals(c) {
 		const pools = v.resources ?? [];
 		const stamina = pools.filter((r) => r.key === 'sp' || r.key === 'resolve');
 		cells = `${stamina.map(pool).join('')}
-			${track('Hero Points', v.hero, 'hero', { menu: 'hero' })}
+			${v.hero ? track('Hero Points', v.hero, 'hero', { menu: 'hero' }) : ''}
 			${track('Dying', v.dying, 'dying', { bad: true, locked: v.doomed, extra: recover })}
 			${counter('Wounded', v.wounded, 'wounded', 'warn')}
 			${counter('Doomed', v.doomed, 'doomed', 'bad')}
@@ -112,8 +115,12 @@ export function renderVitals(c) {
 		const death = (key, count, cls) => Array.from({ length: 3 }, (_, i) =>
 			`<button type="button" class="seg ${cls} ${i < count ? 'on' : ''}" data-act="deathMark" data-k="${key}:${i + 1}" aria-label="Death save ${key} ${i + 1}"></button>`).join('');
 		const saves = `Death saves: ${v.death.success} succeeded, ${v.death.failure} failed`;
-		cells = `<button type="button" class="cell" data-act="hd" data-k="">${lbl('Hit Dice')}<span class="v">${v.hd.value}/${v.hd.max}</span></button>
-			<button type="button" class="cell" data-act="insp" data-k="" aria-pressed="${v.inspiration}">${lbl('Inspiration')}<span class="v ${v.inspiration ? 'hot' : 'dimc'}">${v.inspiration ? '●' : '○'}</span></button>
+		// an NPC has no inspiration, hit dice only if its hit points are rolled from them, and
+		// legendary actions and resistances if it is a legend
+		cells = `${v.hd ? `<button type="button" class="cell" data-act="hd" data-k="">${lbl('Hit Dice')}<span class="v">${v.hd.value}/${v.hd.max}</span></button>` : ''}
+			${v.legendary ? track('Legendary Actions', v.legendary, 'legact') : ''}
+			${v.legres ? track('Legendary Resistance', v.legres, 'legres') : ''}
+			${v.inspiration != null ? `<button type="button" class="cell" data-act="insp" data-k="" aria-pressed="${v.inspiration}">${lbl('Inspiration')}<span class="v ${v.inspiration ? 'hot' : 'dimc'}">${v.inspiration ? '●' : '○'}</span></button>` : ''}
 			<div class="cell trk ${v.death.failure > 0 ? 'alert' : ''}" data-tooltip="${saves}" aria-label="${saves}"><div class="trk-h">${lbl('Death Saves')}${actBtn('Roll', 'deathRoll', '', { cls: 'sm trk-roll', title: 'Roll a death save' })}</div>
 				<div class="segs">${death('success', v.death.success, '')}<span class="segsep"></span>${death('failure', v.death.failure, 'bad')}</div></div>
 			${track('Exhaustion', v.exhaustion, 'exhaustion', { bad: true })}`;
@@ -316,6 +323,7 @@ const ICON = {
 	features: 'M7 14a5 5 0 1 0 10 0a5 5 0 1 0-10 0M8 3l4 6 4-6',
 	effects: 'M8 12a4 4 0 1 0 8 0a4 4 0 1 0-8 0M3 12a9 9 0 0 1 9-9M21 12a9 9 0 0 1-9 9',
 	biography: 'M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h11',
+	notes: 'M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7',
 };
 
 const svgIcon = (id) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ICON[id] ?? ICON.character}"/></svg>`;

@@ -26,6 +26,17 @@ export const TABS = [
 	{ id: 'biography', label: 'Biography' },
 ];
 
+/** An NPC's tabs, as its own sheet has them: no feats or biography, and its notes instead. */
+export const NPC_TABS = [
+	{ id: 'character', label: 'Creature' },
+	{ id: 'actions', label: 'Actions' },
+	{ id: 'inventory', label: 'Inventory' },
+	{ id: 'spellcasting', label: 'Spells' },
+	{ id: 'skills', label: 'Skills' },
+	{ id: 'effects', label: 'Effects' },
+	{ id: 'notes', label: 'Notes' },
+];
+
 /* -------------------------------------------- */
 /*  Reading                                      */
 /* -------------------------------------------- */
@@ -37,15 +48,19 @@ export function read(actor) {
 	const heritage = actor.heritage?.name ?? actor.ancestry?.name ?? '';
 	const cls = actor.class?.name ?? '';
 	const background = actor.background?.name ?? '';
+	// an NPC is its traits, and has no experience, hero points or rest of its own
+	const npc = actor.type === 'npc';
 
 	return {
 		system: 'pf2e',
 		id: actor.id,
 		name: actor.name,
-		sub: [heritage, background, cls].filter(Boolean).join(' · '),
+		npc,
+		sub: npc ? creatureLine(actor) : [heritage, background, cls].filter(Boolean).join(' · '),
 		level,
 		levelEditable: true,
-		xp: { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 1000 },
+		xp: npc ? null : { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 1000 },
+		rest: !npc,
 		hp: { value: hp.value ?? 0, max: hp.max ?? 0, temp: hp.temp ?? 0 },
 		ac: sys.attributes?.ac?.value ?? 10,
 		speed: landSpeed(actor),
@@ -53,7 +68,7 @@ export function read(actor) {
 		iwr: iwr(actor),
 		vitals: {
 			kind: 'pf2e',
-			hero: { value: actor.heroPoints?.value ?? 0, max: actor.heroPoints?.max ?? 3 },
+			hero: npc ? null : { value: actor.heroPoints?.value ?? 0, max: actor.heroPoints?.max ?? 3 },
 			dying: { value: sys.attributes?.dying?.value ?? 0, max: sys.attributes?.dying?.max ?? 4 },
 			wounded: sys.attributes?.wounded?.value ?? 0,
 			doomed: sys.attributes?.doomed?.value ?? 0,
@@ -74,8 +89,16 @@ export function read(actor) {
 			locked: !!c.isLocked,
 		})),
 		conditionChoices: conditionChoices(actor),
-		tabs: TABS,
+		tabs: npc ? NPC_TABS : TABS,
 	};
+}
+
+/** An NPC's rarity, when it is not common, and its traits, as its sheet's header shows them. */
+function creatureLine(actor) {
+	const traits = actor.system?.traits ?? {};
+	const rarity = traits.rarity && traits.rarity !== 'common' ? game.i18n.localize(CONFIG.PF2E?.rarityTraits?.[traits.rarity] ?? traits.rarity) : '';
+	const kinds = (traits.value ?? []).map((t) => game.i18n.localize(CONFIG.PF2E?.creatureTraits?.[t] ?? t));
+	return [rarity, ...kinds].filter(Boolean).join(' · ');
 }
 
 /** The vitals panel owns these; the picker leaves them to it. */
@@ -262,6 +285,7 @@ export function tabBody(actor, tab) {
 		case 'skills': return skills(actor);
 		case 'effects': return effects(actor);
 		case 'biography': return biography(actor);
+		case 'notes': return notes(actor);
 		default: return '<p class="dimc">Nothing here.</p>';
 	}
 }
@@ -273,13 +297,19 @@ function character(actor) {
 		.map(([key, a]) => `<button type="button" class="cell" data-act="ability" data-k="${key}">${lbl(key)}<span class="v">${sgn(a.mod ?? 0)}</span></button>`)
 		.join('');
 	const size = sys.traits?.size?.value;
-	const ident = [
+	const sizeName = size ? game.i18n.localize(CONFIG.PF2E?.actorSizes?.[size] ?? size) : '—';
+	const reach = `${sys.attributes?.reach?.base ?? 5} ft`;
+	// an NPC has no ancestry, class or background: its rarity and traits are in its header
+	const ident = actor.type === 'npc' ? [
+		['Size', sizeName],
+		['Reach', reach],
+	] : [
 		['Ancestry', actor.ancestry?.name ?? '—'],
 		['Heritage', actor.heritage?.name ?? '—'],
 		['Class', actor.class?.name ?? '—'],
 		['Background', actor.background?.name ?? '—'],
-		['Size', size ? game.i18n.localize(CONFIG.PF2E?.actorSizes?.[size] ?? size) : '—'],
-		['Reach', `${sys.attributes?.reach?.base ?? 5} ft`],
+		['Size', sizeName],
+		['Reach', reach],
 	];
 	const wide = (k, v) => `<div class="kv" style="grid-column:1/-1">${lbl(k)}<b>${esc(v)}</b></div>`;
 	return `<div class="grid3">${ident.map(([k, v]) => kv(k, v)).join('')}${initiativePick(actor)}</div>
@@ -727,6 +757,7 @@ function feats(actor) {
 }
 
 function skills(actor) {
+	if (actor.type === 'npc') return npcSkills(actor);
 	const rows = Object.entries(actor.skills ?? {}).map(([key, s]) => {
 		const rank = RANK[s.rank ?? 0] ?? 'U';
 		// as on the system's sheet, a lore can only be changed through its own item
@@ -741,6 +772,19 @@ function skills(actor) {
 	}).join('');
 	return `<div class="row sp">${lbl('Skills')}<span class="dimc" style="font-size:12px">U untrained · T trained · E expert · M master · L legendary</span></div>
 		<div class="grid2">${rows}</div>`;
+}
+
+/**
+ * An NPC's skills, as its sheet lists them: only those it has, each a modifier with no training
+ * rank to change. The rest are still rolled from the readout's search of the sheet, if ever.
+ */
+function npcSkills(actor) {
+	const rows = Object.entries(actor.skills ?? {}).filter(([, s]) => s.proficient !== false)
+		.sort(([, a], [, b]) => game.i18n.localize(a.label ?? '').localeCompare(game.i18n.localize(b.label ?? ''), game.i18n.lang))
+		.map(([key, s]) => `<div class="li flat">
+			<span class="grow">${nameBtn(game.i18n.localize(s.label ?? key), `skill:${key}`)}</span>
+			${rollBtn(sgn(s.mod ?? 0), 'skill', key)}</div>`).join('');
+	return `<div class="sec">Skills</div>${rows ? `<div class="grid2">${rows}</div>` : '<p class="dimc">None.</p>'}`;
 }
 
 function effects(actor) {
@@ -819,8 +863,29 @@ async function biography(actor) {
 	return parts.join('') || '<p class="dimc">Nothing here has been shared.</p>';
 }
 
-/** A field of the Biography tab, typed or saved from its editor. A line of a list is `edicts.2`. */
+/** Where an NPC's notes are kept: what players may be shown, and the GM's own. */
+const NOTE_FIELDS = { publicNotes: 'system.details.publicNotes', privateNotes: 'system.details.privateNotes' };
+
+/** An NPC's Notes tab, as its sheet has it: its public notes, and the private ones for its owners. */
+async function notes(actor) {
+	const details = actor.system?.details ?? {};
+	const owner = !!actor.isOwner;
+	const rollData = actor.getRollData?.();
+	const rich = async (field, label) => {
+		const raw = details[field] ?? '';
+		const shown = await foundry.applications.ux.TextEditor.implementation.enrichHTML(raw, { rollData, secrets: owner });
+		const body = owner
+			? `<prose-mirror class="sfh-rich ro-text content-sized" name="${NOTE_FIELDS[field]}" data-field="${field}" data-document-uuid="${esc(actor.uuid ?? '')}" value="${esc(raw)}" toggled>${shown}</prose-mirror>`
+			: `<div class="sfh-rich ro-text">${shown}</div>`;
+		return `<div class="sec">${esc(game.i18n.localize(label))}</div><div class="sfh-bio">${body}</div>`;
+	};
+	return `${details.blurb ? `<p class="dimc">${esc(details.blurb)}</p>` : ''}
+		${await rich('publicNotes', 'PF2E.NPC.PublicNotes')}${owner ? await rich('privateNotes', 'PF2E.NPC.PrivateNotes') : ''}`;
+}
+
+/** A field of the Biography or Notes tab, typed or saved from its editor. A line of a list is `edicts.2`. */
 export function setField(actor, field, value) {
+	if (NOTE_FIELDS[field]) return actor.update({ [NOTE_FIELDS[field]]: value });
 	const [name, index] = field.split('.');
 	if (BIO_LISTS.includes(name)) {
 		const lines = [...actor._source.system.details.biography[name]];

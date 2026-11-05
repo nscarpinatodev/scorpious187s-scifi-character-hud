@@ -44,14 +44,19 @@ export function read(actor) {
 	const classes = Object.values(actor.classes ?? {}).map((c) => `${c.name} ${c.system?.levels ?? ''}`.trim());
 	// each is an item once the character has one, and the old free text before that
 	const named = (value) => (typeof value === 'string' ? value : value?.name);
+	// an NPC is its creature type and challenge rating, and has no experience to earn
+	const npc = actor.type === 'npc';
+	const cr = sys.details?.cr;
 
 	return {
 		system: 'dnd5e',
 		id: actor.id,
 		name: actor.name,
-		sub: [named(sys.details?.race), named(sys.details?.background), classes.join(' / ')].filter(Boolean).join(' · '),
-		level: sys.details?.level ?? 1,
-		xp: { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 300 },
+		npc,
+		sub: npc ? (sys.details?.type?.label ?? '') : [named(sys.details?.race), named(sys.details?.background), classes.join(' / ')].filter(Boolean).join(' · '),
+		level: npc ? challenge(cr) : sys.details?.level ?? 1,
+		levelLabel: npc ? 'CR' : undefined,
+		xp: npc ? null : { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 300 },
 		hp: { value: hp.value ?? 0, max: hp.effectiveMax ?? hp.max ?? 0, temp: hp.temp ?? 0 },
 		ac: sys.attributes?.ac?.value ?? 10,
 		speed: sys.attributes?.movement?.walk ?? 30,
@@ -59,9 +64,11 @@ export function read(actor) {
 		iwr: iwr(actor),
 		vitals: {
 			kind: 'dnd5e',
-			hd: { value: sys.attributes?.hd?.value ?? 0, max: sys.attributes?.hd?.max ?? sys.details?.level ?? 0 },
+			hd: npc ? npcHitDice(sys) : { value: sys.attributes?.hd?.value ?? 0, max: sys.attributes?.hd?.max ?? sys.details?.level ?? 0 },
+			legendary: npc ? pool(sys.resources?.legact) : null,
+			legres: npc ? pool(sys.resources?.legres) : null,
 			death: { success: sys.attributes?.death?.success ?? 0, failure: sys.attributes?.death?.failure ?? 0 },
-			inspiration: !!sys.attributes?.inspiration,
+			inspiration: npc ? null : !!sys.attributes?.inspiration,
 			exhaustion: { value: sys.attributes?.exhaustion ?? 0, max: CONFIG.DND5E?.conditionTypes?.exhaustion?.levels ?? 6 },
 		},
 		// a status effect is a condition, and is listed once, as one
@@ -79,6 +86,27 @@ export function read(actor) {
 		conditionChoices: conditionChoices(actor),
 		tabs: TABS,
 	};
+}
+
+/** A challenge rating as 5e writes it: ½, ¼ and ⅛ as fractions. */
+function challenge(cr) {
+	if (cr == null) return '—';
+	const formatted = game.dnd5e?.utils?.formatCR?.(cr);
+	if (formatted) return formatted;
+	return { 0.125: '1/8', 0.25: '1/4', 0.5: '1/2' }[cr] ?? String(cr);
+}
+
+/** An NPC's hit dice: as many as its hit point formula rolls, less those it has spent. */
+function npcHitDice(sys) {
+	const hd = sys.attributes?.hd;
+	if (!hd?.max) return null;
+	return { value: hd.value ?? Math.max(0, hd.max - (hd.spent ?? 0)), max: hd.max };
+}
+
+/** Legendary actions or resistances, as what is left of them, when the NPC has any. */
+function pool(resource) {
+	if (!resource?.max) return null;
+	return { value: Math.max(0, resource.max - (resource.spent ?? 0)), max: resource.max };
 }
 
 /**
@@ -867,6 +895,13 @@ export async function act(actor, action, key, event) {
 		case 'deathRoll': return actor.rollDeathSave?.({ event, legacy: false });
 		case 'deathMark': return setDeathSave(actor, a, Number(b));
 		case 'insp': return actor.update({ 'system.attributes.inspiration': !actor.system.attributes.inspiration });
+		// a track is set by what is left; the system keeps what is spent
+		case 'legact':
+		case 'legres': {
+			const res = actor.system?.resources?.[action];
+			if (!res?.max) return null;
+			return actor.update({ [`system.resources.${action}.spent`]: Math.max(0, Math.min(res.max, res.max - Number(key))) });
+		}
 		case 'exhaustion': return actor.update({ 'system.attributes.exhaustion': Math.max(0, Number(key)) });
 		case 'rest': return key === 'short' ? actor.shortRest?.() : actor.longRest?.();
 		case 'equip': return actor.items.get(key)?.update({ 'system.equipped': !actor.items.get(key).system.equipped });

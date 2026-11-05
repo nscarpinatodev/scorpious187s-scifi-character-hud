@@ -9,6 +9,9 @@ import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 import { arcaneBolts, stopBolts } from './bolts.mjs';
 import { deviceArt } from '../device/art.mjs';
 
+/** The kinds of actor the projection draws a sheet for. */
+const SHEETS = ['character', 'npc'];
+
 /**
  * The drop effect to answer a drag with: the one the sheet chose, if the drag allows it, or else
  * the first the drag allows of copy, move and link. The effect only tells the browser the drop is
@@ -300,18 +303,52 @@ export class Projection {
 
 	/** The character this user's projection shows. */
 	static actor() {
+		// a player's is only ever their own character, whatever was shown before
+		if (!game.user.isGM) return this.#assigned();
 		if (this.#actor?.id && game.actors.get(this.#actor.id)) return this.#actor;
+		return this.#selected() ?? this.#assigned();
+	}
+
+	/** The character assigned to this user, or the one character they own if none is. */
+	static #assigned() {
 		const assigned = game.user.character;
 		if (assigned) return assigned;
 		const owned = game.actors.filter((a) => a.type === 'character' && a.isOwner && a.hasPlayerOwner);
 		return owned.length === 1 ? owned[0] : null;
 	}
 
+	/**
+	 * For the GM, the character or NPC selected on the canvas: of the tokens selected, the last
+	 * one whose actor has a sheet the projection draws. Anything else that can be selected (a
+	 * familiar, a hazard, a vehicle, loot) is passed over. A player's projection is only ever
+	 * their own character, so it never follows the selection.
+	 */
+	static #selected() {
+		if (!game.user.isGM) return null;
+		const actors = (globalThis.canvas?.tokens?.controlled ?? []).map((t) => t.actor).filter((a) => SHEETS.includes(a?.type));
+		return actors.at(-1) ?? null;
+	}
+
+	/**
+	 * Follow the selection. A newly selected token's actor takes over the projection; letting go
+	 * of every token keeps the last one, so clicking from one token to the next never flickers
+	 * in between.
+	 */
+	static follow() {
+		const next = this.#selected();
+		if (!next || next === this.#actor) return;
+		this.#finishEditing();
+		this.#actor = next;
+		if (!this.#open) return;
+		this.render();
+		this.fit();
+	}
+
 	static async open(actor = null) {
 		this.#finishEditing();
-		const target = actor ?? this.actor();
+		const target = actor ?? this.#selected() ?? this.actor();
 		if (!target) {
-			ui.notifications.warn(game.i18n.localize('SFH.NoCharacter'));
+			ui.notifications.warn(game.i18n.localize(game.user.isGM ? 'SFH.NoCharacterGM' : 'SFH.NoCharacter'));
 			return false;
 		}
 		if (!getAdapter()) {
@@ -347,9 +384,10 @@ export class Projection {
 		if (!this.#open) return;
 		const actor = this.actor();
 		if (!actor) return;
-		// whose it is, however deep: an effect on an item, or a magazine loaded in a weapon
+		// whose it is, however deep: an effect on an item, or a magazine loaded in a weapon. The
+		// walk stops at the first actor, since a selected token's own actor sits under its scene
 		let owner = doc;
-		while (owner?.parent) owner = owner.parent;
+		while (owner?.parent && owner.documentName !== 'Actor') owner = owner.parent;
 		const id = owner?.id;
 		if (id && id !== actor.id) return;
 		this.render();
@@ -443,7 +481,7 @@ export class Projection {
 		if (kind === 'hp') {
 			return { host, rows: [num('SFH.Projection.Menu.HitPoints', 'hp', c.hp.value), num('SFH.Projection.Menu.Maximum', 'max', c.hp.max), num('SFH.Projection.Menu.Temporary', 'temp', c.hp.temp)] };
 		}
-		if (kind === 'xp') {
+		if (kind === 'xp' && c.xp) {
 			return { host, rows: [num('SFH.Projection.Experience', 'xp', c.xp.value), ...(c.levelEditable ? [num('SFH.Projection.Level', 'level', c.level)] : [])] };
 		}
 		if (kind === 'hero' && c.vitals?.hero) return { host, rows: [num('SFH.Projection.Menu.HeroPoints', 'hero', c.vitals.hero.value)] };
