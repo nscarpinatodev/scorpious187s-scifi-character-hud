@@ -25,12 +25,35 @@ const actor = {
 			hp: { value: 71, max: 84, temp: 22 },
 			ac: { value: 25 },
 			speed: { value: 25 },
+			reach: { base: 5 },
 			dying: { value: 0, max: 4 },
 			wounded: { value: 0 },
 			doomed: { value: 0 },
 		},
-		details: { level: { value: 6 }, xp: { value: 640, max: 1000 }, languages: { value: ['Common', 'Thessian'] }, biography: {} },
-		traits: { size: { value: 'Medium' } },
+		details: { level: { value: 6 }, xp: { value: 640, max: 1000 }, languages: { value: ['common', 'thessian'] }, biography: {} },
+		traits: { size: { value: 'med' } },
+		// as the system keeps them: speeds under movement, senses under perception, the initiative's statistic
+		movement: { speeds: { land: { value: 25 }, swim: { value: 15 } } },
+		perception: { senses: [{ type: 'low-light-vision', label: 'Low-Light Vision' }] },
+		initiative: { statistic: 'perception', totalModifier: 11 },
+		resources: {},
+	},
+	// the roll options a feat lets the character switch, by domain then option, as the system keeps them
+	synthetics: {
+		toggles: {
+			all: {
+				'biotic-momentum': { label: 'Biotic Momentum', domain: 'all', option: 'biotic-momentum', itemId: 'a1', placement: 'actions', checked: false, enabled: true, alwaysActive: false, suboptions: [] },
+			},
+		},
+		resources: {},
+	},
+	async toggleRollOption(domain, option, itemId, checked, suboption) {
+		const t = actor.synthetics.toggles[domain]?.[option];
+		if (!t) return null;
+		t.checked = checked;
+		for (const o of t.suboptions ?? []) o.selected = o.value === suboption;
+		actor.lastToggle = { domain, option, itemId, checked, suboption };
+		return checked;
 	},
 	heroPoints: { value: 2, max: 3 },
 	classDC: { value: 22 },
@@ -64,7 +87,15 @@ const actor = {
 	],
 	effects: [],
 	itemTypes: {
-		effect: [{ id: 'e1', name: 'Biotic Barrier', system: { duration: { value: 1, unit: 'minute' } } }],
+		effect: [
+			{ id: 'e1', name: 'Biotic Barrier', system: { duration: { value: 1, unit: 'minute' } } },
+			// an effect with a counter, raised and lowered by its own increase() and decrease()
+			{
+				id: 'e2', name: 'Overcharge', type: 'effect', system: { duration: { unit: 'unlimited' }, badge: { type: 'counter', value: 2, min: 1, max: 3 } },
+				async increase() { this.system.badge.value = Math.min(this.system.badge.max, this.system.badge.value + 1); },
+				async decrease() { this.system.badge.value -= 1; },
+			},
+		],
 		action: [
 			{ id: 'a1', name: 'Biotic Charge', system: { actionType: { value: 'action' }, actions: { value: 2 }, traits: { value: ['biotic', 'manipulate'] } } },
 			{ id: 'a2', name: 'Nova', system: { actionType: { value: 'action' }, actions: { value: 1 }, traits: { value: ['biotic'] } } },
@@ -87,7 +118,7 @@ const actor = {
 		],
 	},
 	items: {
-		get: () => null,
+		get: (id) => actor.itemTypes.effect.find((e) => e.id === id) ?? null,
 		find: () => null,
 		filter: () => [],
 	},
@@ -187,6 +218,11 @@ const PF2E_WORDS = {
 	'PF2E.Item.Consumable.Plural': 'Consumables', 'TYPES.Item.ammo': 'Ammunition', 'TYPES.Item.treasure': 'Treasure',
 	'PF2E.Item.Container.Plural': 'Containers', 'PF2E.OpenItemTitle': 'Toggle Container Contents', 'PF2E.CapacityBarLabel': 'Capacity',
 	'COMBAT.Begin': 'Start Combat', 'COMBAT.NotStarted': 'Not Started', 'COMBAT.TurnEnd': 'End Turn',
+	'PF2E.ActorSizeMedium': 'Medium', 'PF2E.ActorSizeSmall': 'Small', 'PF2E.ActorSizeLarge': 'Large', 'PF2E.ActorSizeTiny': 'Tiny',
+	'PF2E.Actor.Creature.Language.common': 'Common', 'PF2E.PerceptionLabel': 'Perception',
+	'PF2E.Actor.Speed.Type.Land': 'Land', 'PF2E.Actor.Speed.Type.Swim': 'Swim', 'PF2E.Actor.Speed.Type.Climb': 'Climb',
+	'PF2E.Actor.Speed.Type.Fly': 'Fly', 'PF2E.Actor.Speed.Type.Burrow': 'Burrow',
+	'PF2E.StaminaPointsHeader': 'Stamina', 'PF2E.Actor.Resource.Resolve': 'Resolve',
 	'COMBAT.TurnNext': 'Next Turn', 'COMBAT.TurnPrev': 'Previous Turn', 'COMBAT.InitiativeRoll': 'Roll Initiative',
 };
 
@@ -234,6 +270,8 @@ globalThis.game = {
 // a slice of PF2e's condition list, in its own shape: slug to label key
 globalThis.CONFIG = {
 	PF2E: {
+		actorSizes: { tiny: 'PF2E.ActorSizeTiny', sm: 'PF2E.ActorSizeSmall', med: 'PF2E.ActorSizeMedium', lg: 'PF2E.ActorSizeLarge' },
+		languages: { common: 'PF2E.Actor.Creature.Language.common', thessian: 'Thessian' },
 		conditionTypes: {
 			blinded: 'Blinded', clumsy: 'Clumsy', dazzled: 'Dazzled', doomed: 'Doomed', dying: 'Dying',
 			frightened: 'Frightened', grabbed: 'Grabbed', 'off-guard': 'Off-Guard', prone: 'Prone',

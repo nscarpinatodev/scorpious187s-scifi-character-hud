@@ -98,10 +98,15 @@ export function renderVitals(c) {
 		// the system has already taken doomed off dying's maximum; those points show as locked
 		// the recovery check is only there to roll while dying
 		const recover = v.dying.value > 0 ? actBtn('Roll', 'recovery', '', { cls: 'sm trk-roll', title: 'Recovery check' }) : '';
-		cells = `${track('Hero Points', v.hero, 'hero', { menu: 'hero' })}
+		// Stamina and Resolve sit with hit points; dying stays in sight above any other pool
+		const pools = v.resources ?? [];
+		const stamina = pools.filter((r) => r.key === 'sp' || r.key === 'resolve');
+		cells = `${stamina.map(pool).join('')}
+			${track('Hero Points', v.hero, 'hero', { menu: 'hero' })}
 			${track('Dying', v.dying, 'dying', { bad: true, locked: v.doomed, extra: recover })}
 			${counter('Wounded', v.wounded, 'wounded', 'warn')}
-			${counter('Doomed', v.doomed, 'doomed', 'bad')}`;
+			${counter('Doomed', v.doomed, 'doomed', 'bad')}
+			${pools.filter((r) => !stamina.includes(r)).map(pool).join('')}`;
 	} else {
 		// one track: three successes, a divider, three failures
 		const death = (key, count, cls) => Array.from({ length: 3 }, (_, i) =>
@@ -115,6 +120,11 @@ export function renderVitals(c) {
 	}
 	return `<div class="cells scroll">${hp}${cells}</div>`;
 }
+
+/** A pool kept beside hit points (Stamina, Resolve, a special resource), typed against its maximum. */
+const pool = (r) => `<div class="cell sfh-pool" data-tooltip="${esc(`${r.label}: ${r.value} / ${r.max}`)}">${lbl(r.label)}<span class="row" style="gap:2px;justify-content:center;align-items:baseline">
+	<input class="sfh-in mono" type="number" inputmode="numeric" min="0" max="${r.max}" value="${r.value}" data-commit="resource" data-k="${esc(r.key)}"
+		style="width:calc(${Math.max(1, String(r.max).length) + 0.4}ch + 8px)" aria-label="${esc(r.label)}"><span class="mono dimc">/ ${r.max}</span></span></div>`;
 
 /** A count with − and +. `lit` is how the number shows while it is above zero. */
 const counter = (label, value, key, lit = '') => `<div class="cell">${lbl(label)}<div class="row">
@@ -178,8 +188,12 @@ export function renderEffectsSlot(c, device) {
 		`<button type="button" data-act="cond" data-k="${esc(`${x.slug}:${delta}`)}" aria-label="${label} ${esc(x.name)}">${delta < 0 ? '−' : '+'}</button>`;
 	const dnd = c.system === 'dnd5e';
 
-	const effects = c.effects.map((e) => chip(e.name, e.duration ? ` · ${esc(e.duration)}` : '', `item:${e.id}`,
-		[dnd ? 'deleteEffect' : 'delete', e.id])).join('');
+	// an effect with a counter is raised and lowered from its chip, as a valued condition is
+	const tally = (e, delta, label) => `<button type="button" data-act="effectStep" data-k="${esc(`${e.id}:${delta}`)}" aria-label="${label} ${esc(e.name)}">${delta < 0 ? '−' : '+'}</button>`;
+	const effects = c.effects.map((e) => {
+		const count = e.counter ? ` ${tally(e, -1, 'Lower')}${esc(e.counter.label)}${tally(e, 1, 'Raise')}` : '';
+		return chip(e.name, `${count}${e.duration ? ` · ${esc(e.duration)}` : ''}`, `item:${e.id}`, [dnd ? 'deleteEffect' : 'delete', e.id]);
+	}).join('');
 
 	// PF2e raises, lowers and removes a condition by its slug, through the system's own calls.
 	// A locked one was granted by something else, so it shows its value and nothing more.

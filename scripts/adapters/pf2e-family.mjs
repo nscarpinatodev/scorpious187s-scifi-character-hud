@@ -57,11 +57,13 @@ export function read(actor) {
 			dying: { value: sys.attributes?.dying?.value ?? 0, max: sys.attributes?.dying?.max ?? 4 },
 			wounded: sys.attributes?.wounded?.value ?? 0,
 			doomed: sys.attributes?.doomed?.value ?? 0,
+			resources: resources(actor),
 		},
 		effects: (actor.itemTypes?.effect ?? []).map((e) => ({
 			id: e.id,
 			name: e.name,
 			duration: durationLabel(e),
+			counter: counterOf(e),
 		})),
 		conditions: [...(actor.conditions ?? [])].map((c) => ({
 			id: c.id,
@@ -92,6 +94,97 @@ function conditionChoices(actor) {
 		.sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang));
 }
 
+/**
+ * An effect's counter, as the sheet shows it: its label for the value if it has one, else the
+ * number. Raising and lowering are the effect's own increase() and decrease(), which also loop
+ * it round and take it off below its least, as on the sheet.
+ */
+function counterOf(effect) {
+	const badge = effect.system?.badge ?? effect.badge;
+	if (badge?.type !== 'counter' || effect.isExpired) return null;
+	const label = badge.labels?.[badge.value - (badge.min ?? 1)] ?? badge.label;
+	return { value: badge.value, label: label ? game.i18n.localize(label) : String(badge.value) };
+}
+
+/**
+ * The pools beyond hit points that the sheet keeps beside them: Stamina and Resolve when the
+ * Stamina variant is on, and the special resources feats and rules add (mythic points among
+ * them). Each is typed, as the sheet has it.
+ */
+function resources(actor) {
+	const sys = actor.system ?? {};
+	const out = [];
+	if (game.pf2e?.settings?.variants?.stamina) {
+		const sp = sys.attributes?.hp?.sp;
+		if (sp) out.push({ key: 'sp', label: game.i18n.localize('PF2E.StaminaPointsHeader'), value: sp.value ?? 0, max: sp.max ?? 0 });
+		const resolve = sys.resources?.resolve;
+		if (resolve) out.push({ key: 'resolve', label: game.i18n.localize('PF2E.Actor.Resource.Resolve'), value: resolve.value ?? 0, max: resolve.max ?? 0 });
+	}
+	const special = Object.values(actor.synthetics?.resources ?? {});
+	const mythic = actor.getResource?.('mythic-points');
+	if (mythic?.max && !special.some((r) => r.slug === mythic.slug)) special.unshift(mythic);
+	for (const r of special) {
+		if (r?.slug) out.push({ key: `res-${r.slug}`, label: game.i18n.localize(r.label ?? r.slug), value: r.value ?? 0, max: r.max ?? 0 });
+	}
+	return out;
+}
+
+/** A pool from `resources`, set through the call the sheet uses for it. */
+function setResource(actor, key, value) {
+	const n = Math.max(0, Math.round(Number(value)));
+	if (!Number.isFinite(n)) return null;
+	if (key === 'sp') return actor.update({ 'system.attributes.hp.sp.value': Math.min(n, actor.system?.attributes?.hp?.sp?.max ?? n) });
+	if (key === 'resolve') return actor.update({ 'system.resources.resolve.value': Math.min(n, actor.system?.resources?.resolve?.max ?? n) });
+	if (key.startsWith('res-')) {
+		const slug = key.slice(4);
+		const max = actor.getResource?.(slug)?.max ?? n;
+		return actor.updateResource?.(slug, Math.min(n, max));
+	}
+	return null;
+}
+
+/**
+ * The roll options feats, features and effects let a character switch on and off (a rage, a
+ * stance's benefit, a hunted prey), as the sheet lists them: one list for the whole actor, of
+ * which the Spells tab shows those placed with spellcasting and the Actions tab the rest. A
+ * toggle is pressed by its place in the list; it is drawn and pressed against the same actor.
+ */
+const allToggles = (actor) => Object.values(actor.synthetics?.toggles ?? {}).flatMap((domain) => Object.values(domain ?? {}));
+
+function togglesRow(actor, spells) {
+	const shown = allToggles(actor).map((t, i) => ({ t, i })).filter(({ t }) => (t.placement === 'spellcasting') === spells);
+	if (!shown.length) return '';
+	const items = shown.map(({ t, i }) => {
+		const label = game.i18n.localize(t.label ?? t.option);
+		const fixed = t.alwaysActive || t.enabled === false;
+		const button = `<button type="button" class="b sm ghost sfh-toggle ${t.checked ? 'on' : ''}" data-act="rollOption" data-k="${i}"
+			aria-pressed="${!!t.checked}"${fixed ? ' disabled' : ''}>${esc(label)}</button>`;
+		const subs = t.suboptions ?? [];
+		const pick = subs.length > 1
+			? `<select class="sel" data-pick="suboption" data-k="${i}" aria-label="${esc(label)}">${subs.map((o) =>
+				`<option value="${esc(o.value)}"${o.selected ? ' selected' : ''}>${esc(game.i18n.localize(o.label))}</option>`).join('')}</select>`
+			: '';
+		return `<span class="row" style="gap:4px">${button}${pick}</span>`;
+	}).join('');
+	return `<div class="sec">${esc(game.i18n.localize('SFH.Projection.Options'))}</div><div class="row sfh-toggles" style="gap:6px;flex-wrap:wrap">${items}</div>`;
+}
+
+/** Turn a toggle on or off, or change its choice, by the system's own call. */
+function toggleOption(actor, index, suboption) {
+	const t = allToggles(actor)[Number(index)];
+	if (!t || t.alwaysActive || t.enabled === false) return null;
+	const checked = suboption === undefined ? !t.checked : true;
+	const selected = suboption ?? t.suboptions?.find((o) => o.selected)?.value ?? null;
+	return actor.toggleRollOption?.(t.domain, t.option, t.itemId ?? null, checked, selected);
+}
+
+/** An effect's counter up or down. */
+function stepEffect(actor, id, delta) {
+	const effect = actor.items.get(id);
+	if (!effect) return null;
+	return delta > 0 ? effect.increase?.() : effect.decrease?.();
+}
+
 /** The system keeps speed under movement, and deletes the old attribute as it prepares an actor. */
 const landSpeed = (actor) => actor.system?.movement?.speeds?.land?.value ?? actor.system?.attributes?.speed?.value ?? 25;
 
@@ -107,7 +200,11 @@ function defenses(actor) {
 	const perception = actor.perception ?? sys.attributes?.perception;
 	if (perception) out.push({ label: 'Perception', value: sgn(perception.mod ?? perception.value ?? 0), act: 'perception', k: '' });
 	out.push({ label: 'Speed', value: `${landSpeed(actor)} ft` });
-	if (perception) out.push({ label: 'Initiative', value: sgn(perception.mod ?? 0), act: 'initiative', k: '' });
+	// initiative is rolled with whatever the character has chosen, Perception unless they say otherwise
+	const init = sys.initiative;
+	const chosen = init?.statistic && init.statistic !== 'perception' ? actor.skills?.[init.statistic]?.mod : null;
+	const initMod = init?.totalModifier ?? actor.initiative?.mod ?? chosen ?? perception?.mod;
+	if (initMod != null) out.push({ label: 'Initiative', value: sgn(initMod), act: 'initiative', k: '' });
 	return out;
 }
 
@@ -175,16 +272,57 @@ function character(actor) {
 	const attrs = Object.entries(actor.abilities ?? {})
 		.map(([key, a]) => `<button type="button" class="cell" data-act="ability" data-k="${key}">${lbl(key)}<span class="v">${sgn(a.mod ?? 0)}</span></button>`)
 		.join('');
+	const size = sys.traits?.size?.value;
 	const ident = [
 		['Ancestry', actor.ancestry?.name ?? '—'],
 		['Heritage', actor.heritage?.name ?? '—'],
 		['Class', actor.class?.name ?? '—'],
 		['Background', actor.background?.name ?? '—'],
-		['Size', sys.traits?.size?.value ?? '—'],
-		['Languages', (sys.details?.languages?.value ?? []).join(', ') || '—'],
+		['Size', size ? game.i18n.localize(CONFIG.PF2E?.actorSizes?.[size] ?? size) : '—'],
+		['Reach', `${sys.attributes?.reach?.base ?? 5} ft`],
 	];
-	return `<div class="grid3">${ident.map(([k, v]) => kv(k, v)).join('')}</div>
+	const wide = (k, v) => `<div class="kv" style="grid-column:1/-1">${lbl(k)}<b>${esc(v)}</b></div>`;
+	return `<div class="grid3">${ident.map(([k, v]) => kv(k, v)).join('')}${initiativePick(actor)}</div>
+		<div class="grid3 sfh-more" style="margin-top:6px">${wide('Speeds', speedNames(actor) || '—')}${wide('Senses', senseNames(actor) || '—')}${wide('Languages', languageNames(actor) || '—')}</div>
 		<div class="sec">Attribute Modifiers</div><div class="grid6">${attrs}</div>`;
+}
+
+/** Languages by their names, with Common named for the campaign's common tongue, as the sheet has it. */
+function languageNames(actor) {
+	const slugs = actor.system?.details?.languages?.value ?? [];
+	const common = game.pf2e?.settings?.campaign?.languages?.commonLanguage;
+	const name = (slug) => game.i18n.localize(CONFIG.PF2E?.languages?.[slug] ?? slug);
+	return slugs.flatMap((slug) => {
+		if (slug === common && slugs.includes('common')) return [];
+		if (slug === 'common' && common) return [game.i18n.format('PF2E.Actor.Creature.Language.CommonLanguage', { language: name(common) })];
+		return [name(slug)];
+	}).sort((a, b) => a.localeCompare(b, game.i18n.lang)).join(', ');
+}
+
+/** Every speed the character has, land first, as the sheet lists them. */
+function speedNames(actor) {
+	const speeds = actor.system?.movement?.speeds ?? {};
+	return ['land', 'swim', 'climb', 'fly', 'burrow'].map((type) => {
+		const value = type === 'land' ? landSpeed(actor) : speeds[type]?.value;
+		if (!value) return '';
+		return `${game.i18n.localize(`PF2E.Actor.Speed.Type.${type[0].toUpperCase()}${type.slice(1)}`)} ${value} ft`;
+	}).filter(Boolean).join(' · ');
+}
+
+/** Darkvision, low-light vision and the rest, by the labels the system gives them. */
+function senseNames(actor) {
+	const senses = actor.system?.perception?.senses ?? actor.perception?.senses ?? [];
+	return [...senses].map((s) => s.label ?? s.type ?? '').filter(Boolean).join(', ');
+}
+
+/** What initiative is rolled with: Perception or a skill, chosen here as on the sheet. */
+function initiativePick(actor) {
+	const chosen = actor.system?.initiative?.statistic ?? 'perception';
+	const skills = Object.entries(actor.skills ?? {}).map(([key, s]) => ({ value: s.slug ?? key, label: game.i18n.localize(s.label ?? key) }))
+		.sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang));
+	const options = [{ value: 'perception', label: game.i18n.localize('PF2E.PerceptionLabel') }, ...skills];
+	return `<div class="kv">${lbl('Initiative')}<select class="sel" data-pick="initiative" aria-label="Initiative statistic">${options.map((o) =>
+		`<option value="${esc(o.value)}"${o.value === chosen ? ' selected' : ''}>${esc(o.label)}</option>`).join('')}</select></div>`;
 }
 
 /*
@@ -230,7 +368,7 @@ function actions(actor) {
 	const acts = usable.map(row).join('');
 	const none = '<p class="dimc">None.</p>';
 	if (shown !== 'encounter') return `${filter}<div class="grid2 sfh-actions">${acts || none}</div>`;
-	return `${filter}${shieldRow(actor)}<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
+	return `${filter}${togglesRow(actor, false)}${shieldRow(actor)}<div class="sec">Strikes</div>${strikes || '<p class="dimc">No strikes.</p>'}
 		<div class="sec">Actions</div><div class="grid2 sfh-actions">${acts || none}</div>`;
 }
 
@@ -280,7 +418,10 @@ function ammoRow(strike, index) {
 		const choose = selected || ammo.loaded.length < 2
 			? `<span class="${selected ? 'hot' : ''}">${esc(a.name)}</span>`
 			: actBtn(a.name, 'selectAmmo', `${index}:${a.id}`, { cls: 'sm ghost', title: 'Fire this next' });
-		return `<span class="row" style="gap:4px">${choose}<span class="mono dimc">${a.quantity} / ${a.max}</span>
+		// what is left in it is typed, as on the sheet: rounds in a magazine, or how many are loaded
+		const left = `<span class="row" style="gap:2px"><input class="sfh-in mono" type="number" inputmode="numeric" min="0" max="${a.max}" value="${a.quantity}"
+			data-commit="ammoQty" data-k="${index}:${esc(a.id)}" style="width:calc(${String(a.max ?? a.quantity).length + 0.4}ch + 8px)" aria-label="${esc(`${a.name} left`)}"><span class="mono dimc">/ ${a.max}</span></span>`;
+		return `<span class="row" style="gap:4px">${choose}${left}
 			${actBtn('Unload', 'unload', `${index}:${a.id}`, { cls: 'sm ghost' })}</span>`;
 	}).join('');
 	const reload = ammo.remaining ? actBtn('Reload', 'reload', String(index), { cls: 'sm ghost', title: ammo.capacity > 1 ? `${ammo.remaining} empty` : 'Empty' }) : '';
@@ -493,7 +634,7 @@ async function spellcasting(actor) {
 			: 'This character has no spellcasting.'}<div style="margin-top:12px">${actBtn('Open the system sheet', 'sheet', '', { cls: 'sm ghost' })}</div></div>`;
 	}
 	const entries = await Promise.all(collections.map((c) => c.entry.getSheetData({ spells: c })));
-	return entries.sort((a, b) => a.sort - b.sort).map((entry) => spellEntry(entry, actor)).join('');
+	return togglesRow(actor, true) + entries.sort((a, b) => a.sort - b.sort).map((entry) => spellEntry(entry, actor)).join('');
 }
 
 const SPELL_COST = { 1: '1', 2: '2', 3: '3', reaction: 'R', free: 'F' };
@@ -768,6 +909,12 @@ export async function act(actor, action, key, event) {
 		case 'qty': return changeQuantity(actor, a, Number(b));
 		case 'delete': return actor.items.get(key)?.delete();
 		case 'cond': return setCondition(actor, a, Number(b));
+		case 'effectStep': return stepEffect(actor, a, Number(b));
+		case 'rollOption': return toggleOption(actor, key);
+		case 'suboption': return toggleOption(actor, a, String(key).slice(a.length + 1));
+		case 'setInitiative': return key === 'perception' || actor.skills?.[key] ? actor.update({ 'system.initiative.statistic': key }) : null;
+		case 'setResource': return setResource(actor, a, b);
+		case 'setAmmoQty': return setAmmoQuantity(actor, a, b, c);
 		// persistent damage opens the system's own dialog for the damage type and formula
 		case 'addCondition': return actor.increaseCondition?.(key);
 		case 'heal': return heal(actor, Number(key));
@@ -797,6 +944,20 @@ function attackFrom(actor, index, alt) {
 }
 
 const strikeItem = (actor, index) => actor.system?.actions?.[Number(index)]?.item;
+
+/**
+ * What is left in a loaded magazine or how much ammunition is loaded, typed, as the sheet's
+ * field takes it: a magazine keeps its uses, anything else its quantity, and nothing left takes
+ * it out of the weapon unless it is a magazine that is kept when empty.
+ */
+function setAmmoQuantity(actor, index, id, value) {
+	const sub = strikeItem(actor, index)?.subitems?.get(id);
+	const n = Math.max(0, Math.round(Number(value)));
+	if (!sub || !Number.isFinite(n)) return null;
+	const magazine = sub.type === 'ammo' && sub.isMagazine;
+	if (n === 0 && !(magazine && !sub.system?.uses?.autoDestroy)) return sub.delete();
+	return magazine ? sub.update({ 'system.uses.value': n }) : sub.update({ 'system.quantity': n });
+}
 
 async function consumeItem(actor, id) {
 	const item = actor.inventory?.get?.(id) ?? actor.items.get(id);

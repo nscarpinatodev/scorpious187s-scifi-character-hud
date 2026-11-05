@@ -756,7 +756,9 @@ const results = await page.evaluate(async () => {
 		await wait(60);
 		check('a choice passes its selection', JSON.stringify(auxCalls.at(-1)) === JSON.stringify(['grip', { selection: 'two' }]), auxCalls);
 
-		check('loaded ammunition shows its count', /Magazine/.test(row('Drawn Pistol').textContent) && /8 \/ 10/.test(row('Drawn Pistol').textContent));
+		// the count is typed, as on the sheet (tools/test-sheet-review.mjs types it)
+		check('loaded ammunition shows its count', /Magazine/.test(row('Drawn Pistol').textContent)
+			&& within('Drawn Pistol', '[data-commit="ammoQty"]')?.value === '8' && /\/ 10/.test(row('Drawn Pistol').textContent));
 		within('Drawn Pistol', '[data-act="unload"]').click();
 		await wait(30);
 		check('Unload detaches it', subitemCalls.at(-1)?.[0] === 'detach', subitemCalls);

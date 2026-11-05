@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.2.0 — unreleased
+## 1.0.0 — unreleased
 
-Rebuilt as a UI theme. The HUD is no longer a character sheet; the interface itself is the
+The first release. Rebuilt as a UI theme. The HUD is no longer a character sheet; the interface itself is the
 device, and the character sheet is a projection it raises over the canvas.
 
 - The device at the foot of the screen, with Foundry's own macro bar mounted on it: the
@@ -171,6 +171,13 @@ device, and the character sheet is a projection it raises over the canvas.
   face. On a page (the Journal, the Grove, the Crystal core) Foundry's white placeholder art gets
   an ink tile, a folder the GM colored keeps light lettering, and pack names stay light on their
   banners. Tabs popped out of the sidebar, chat included, are themed as the sidebar is.
+- PF2e and SF2e, what the sheet had that the projection did not: the roll options feats and
+  effects let a character switch (a rage, a stance's benefit) on the Actions tab, or the Spells
+  tab for spellcasting's, with their choices; an effect's counter raised and lowered on its chip;
+  Stamina and Resolve with the Stamina variant, and special resources such as mythic points,
+  typed beside hit points; initiative rolled with the statistic chosen on the Character tab, and
+  the Initiative box showing it; size and languages by their names, with every speed, the senses
+  and the reach; and a loaded magazine's rounds typed in place.
 - The HUD clears off the canvas while a spell's area or a weapon's burst is being placed, and
   comes back when it is done.
 - A fifth device, TRON: an identity disc on a deck of light lines at the foot of the screen,
@@ -190,7 +197,7 @@ device, and the character sheet is a projection it raises over the canvas.
 
 ## 0.1.0 — not released
 
-Superseded by 0.2.0 before release. First build: PF2e and SF2e character sheets.
+Superseded by 1.0.0 before release. First build: PF2e and SF2e character sheets.
 
 - Sci-Fi HUD registered as a character sheet option (never a default).
 - Four devices: Mass Effect omni-tool, wrist computer, EVA (GDI), EVA (Nod), with a world

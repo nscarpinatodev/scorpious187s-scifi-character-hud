@@ -347,7 +347,10 @@ export class Projection {
 		if (!this.#open) return;
 		const actor = this.actor();
 		if (!actor) return;
-		const id = doc?.parent?.id ?? doc?.id;
+		// whose it is, however deep: an effect on an item, or a magazine loaded in a weapon
+		let owner = doc;
+		while (owner?.parent) owner = owner.parent;
+		const id = owner?.id;
 		if (id && id !== actor.id) return;
 		this.render();
 	}
@@ -870,7 +873,7 @@ export class Projection {
 			// a picker hands its choice to the adapter; the new chip arrives with the actor's update
 			const pick = event.target.closest('[data-pick]');
 			if (pick) {
-				const action = { condition: 'addCondition', rank: 'setRank', carry: 'setCarry', give: 'giveItem', aux: 'aux', ammo: 'linkAmmo' }[pick.dataset.pick];
+				const action = { condition: 'addCondition', rank: 'setRank', carry: 'setCarry', give: 'giveItem', aux: 'aux', ammo: 'linkAmmo', initiative: 'setInitiative', suboption: 'suboption' }[pick.dataset.pick];
 				// choosing "none" is a choice only where the picker says so
 				if (!action || (!pick.value && !pick.dataset.allowEmpty)) return;
 				// a picker on one thing of many says which, as a button does
@@ -916,10 +919,12 @@ export class Projection {
 			if (!field) return;
 			const value = Number(field.value);
 			if (!Number.isFinite(value)) return this.render();
-			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax', shieldHp: 'setShieldHp', xp: 'setXp', level: 'setLevel', hero: 'setHero' }[field.dataset.commit];
+			const action = { hp: 'setHp', temp: 'setTemp', max: 'setMax', shieldHp: 'setShieldHp', xp: 'setXp', level: 'setLevel', hero: 'setHero',
+				resource: 'setResource', ammoQty: 'setAmmoQty' }[field.dataset.commit];
 			if (!action) return;
 			try {
-				await adapter.act(actor, action, value, event);
+				// a field on one thing of many says which, as a button does
+				await adapter.act(actor, action, field.dataset.k ? `${field.dataset.k}:${value}` : value, event);
 			} catch (err) {
 				console.error(`${MOD} | "${action}" failed`, err);
 				this.render();

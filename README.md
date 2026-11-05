@@ -87,8 +87,18 @@ one character and have none assigned, it shows that one.
     action items, and Use counts down limited uses as the sheet does.
   - **Dying** (PF2e and SF2e) offers the recovery check, consumables have a Use button, and focus
     points are set from the Spells tab.
+  - **Roll options** (PF2e and SF2e) — the toggles feats and effects add, such as a rage or a
+    stance's benefit — are buttons at the head of the Actions tab (the Spells tab for
+    spellcasting's), with their choices beside them.
+  - **Stamina and Resolve** (with PF2e's Stamina variant) and special resources such as mythic
+    points are typed beside hit points.
+  - **Initiative** (PF2e and SF2e) is rolled with the statistic chosen on the Character tab —
+    Perception or a skill, such as Stealth — and the Initiative box shows its modifier. The
+    Character tab also has every speed, the senses and the reach.
+  - **Magazines** (SF2e, and PF2e's loaded ammunition): the rounds left are typed in place.
   - **Conditions** are added from the effects panel's picker — the system's own list — and
-    removed from their chips. PF2e's valued conditions are raised and lowered on the chip.
+    removed from their chips. PF2e's valued conditions, and effects with a counter, are raised and
+    lowered on the chip.
   - **Spells** are cast from the Spells tab through the system, which spends the slot, focus
     point or use. PF2e's prepared, spontaneous, focus and innate entries all show as the
     system's own sheet lays them out.
@@ -123,8 +133,8 @@ one character and have none assigned, it shows that one.
   [Mass Effect conversion](https://github.com/nscarpinatodev/mass-effect-sf2e-conversion) or
   the shield automation module is active: shields and the Paragon/Renegade tracks. It reads
   those modules' data and never edits it.
-- **The whole interface in the device's colors** — sidebar, chat, scene bar, controls and
-  player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
+- **The whole interface in the device's colors** — sidebar (directories, Compendium, Settings and
+  tabs popped out of it), chat, scene bar, controls and player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
   icons; each control still does exactly what it did.
 - **Headings that fit.** The sidebar's headings scale to fit its width in whatever face is
   showing, and take the device's main color or one you choose.

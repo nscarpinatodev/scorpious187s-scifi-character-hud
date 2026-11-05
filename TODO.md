@@ -2,11 +2,13 @@
 
 Work that is known, wanted and not done yet. Ordered roughly by when it should happen.
 
-## Start here: getting 0.2.0 ready
+## Start here: releasing 1.0.0
 
-The module is now "Scorpious187's HUD UI for 5e and PF2e/SF2e" (the title; its id is unchanged,
-so existing installs keep working). Its fonts are all Latin woff2, and its stylesheets load once.
-What is left, in order:
+The first release is 1.0.0. `module.json` is at 1.0.0, verified against Foundry 14, PF2e 8.6.1,
+SF2e 1.6.1 and D&D 5e 6.0.6 (the versions installed here), and CHANGELOG.md's 1.0.0 section is the
+release notes. The module is "Scorpious187's HUD UI for 5e and PF2e/SF2e" (the title; its id is
+unchanged, so existing installs keep working). It still needs Scorpious187's Module Library, the
+family's shared base, for its update notifier. What is left, in order:
 
 1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch first (a
    stylesheet was added). Seen in Foundry and good: the four looks, the Journal's interface in
@@ -22,9 +24,17 @@ What is left, in order:
      resistances and the damage formulas on the strikes; and the carousel in each fantasy device.
    - **The satchel's flap** turns up above the art's frame: check nothing in Foundry's interface
      cuts it off.
-2. **Release.** `module.json` is at 0.2.0 with its manifest and download URLs pointing at the
-   GitHub release, and CHANGELOG.md's 0.2.0 section is the release notes. The repo has no remote
-   yet.
+   - **What the sheet had that the projection did not (PF2e and SF2e)** — the roll-option
+     toggles on the Actions and Spells tabs; an effect's counter on its chip; Stamina and Resolve
+     (turn on the Stamina variant) and a special resource such as mythic points in the vitals;
+     the initiative statistic chosen on the Character tab, with the Initiative box following
+     it; size, languages, speeds, senses and reach on the Character tab; and typing a loaded
+     magazine's rounds (SF2e). Tested in the harness (`tools/test-sheet-review.mjs`) only.
+2. **Release.** The repo has no remote yet. Create the GitHub repository
+   `nscarpinatodev/scorpious187s-scifi-character-hud` (the URLs in `module.json` point there), add
+   it as `origin`, push `main` and `master`, then tag and push `v1.0.0`:
+   `.github/workflows/release.yml` stamps `module.json` from the tag, builds `module.zip` and
+   publishes both on the release. `./build.ps1` builds the same zip locally to look at first.
 
 Everything after this section is wanted, not needed for the release.
 
@@ -53,11 +63,11 @@ system's own sheet, which the book button opens.
 ## Next
 
 - [ ] **Remaining tab bodies** — PF2e crafting, 5e bastion and special traits.
-- [ ] **PF2e and SF2e, from the review against the sheet** — toggles for roll options, and
+- [x] **PF2e and SF2e, from the review against the sheet** — toggles for roll options, and
       counters on effects; special resources, stamina and resolve; real names for size and
       languages, senses, other speeds and reach; the initiative box following the statistic
-      actually rolled; typing a loaded magazine's count. (Immunities, weaknesses and resistances
-      are done, in the defenses panel, and 5e's too.)
+      actually rolled; typing a loaded magazine's count. Immunities, weaknesses and resistances
+      were done before, in the defenses panel, and 5e's too. Not seen in Foundry yet.
 - [x] **What the mock-up has that the build does not** — the Actions tab's encounter /
       exploration / downtime filter (PF2e and SF2e); the dossier's shield controls (−5, and the
       recharge), credits and omni-gel; each strike's damage formula on its Damage and Critical

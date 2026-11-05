@@ -175,6 +175,11 @@
 #sfh-projection .sfh-ammo .sel, #sfh-projection .sel.sfh-aux{height:24px;min-height:0;padding:0 4px;font-size:11.5px;max-width:190px}
 #sfh-projection .sfh-ammo .sel option, #sfh-projection .sel.sfh-aux option{background:#0a0b0e;color:#eee}
 #sfh-projection .sfh-shield .sfh-in{width:3.2em;height:24px;min-height:0;flex:none}
+/* typed counts: a magazine's rounds, and the pools beside hit points */
+#sfh-projection .sfh-ammo .sfh-in, #sfh-projection .sfh-pool .sfh-in{height:24px;min-height:0;flex:none;text-align:center;padding:0 3px}
+/* the roll options a character can switch, each one name on one line */
+#sfh-projection .sfh-toggles .sfh-toggle{white-space:nowrap}
+#sfh-projection .sfh-toggles .sel{height:24px;min-height:0;padding:0 4px;font-size:11.5px;max-width:160px}
 /* how an item is carried, and its gem: fixed widths, so the columns line up down the tab */
 #sfh-projection .li>.carry, #sfh-projection .li>.give, #sfh-projection .li>.invest, #sfh-projection .li>.invest-gap{flex:none}
 #sfh-projection .sel.give{width:72px;height:24px;min-height:0;padding:0 4px;font-size:11.5px;color:var(--dim)}
