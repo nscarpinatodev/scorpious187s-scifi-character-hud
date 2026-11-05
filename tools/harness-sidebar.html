@@ -28,6 +28,11 @@
 	#sidebar { height: 100%; display: flex; align-items: flex-start; pointer-events: none; }
 	#sidebar-content { pointer-events: all; height: 100%; }
 	#sidebar-tabs > menu { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+	/* PF2e's own rules for its party rows in the Actors tab (styles/pf2e.css) */
+	.actors-sidebar ol.parties > li header { gap: 4px; }
+	.actors-sidebar ol.parties > li header.active { background: #5e0000; }
+	.actors-sidebar ol.parties > li header button.inline-control { --button-text-color: var(--color-light-2); }
+	.actors-sidebar ol.parties > li ol.subdirectory { border-left-color: #5e0000; }
 	#rig { position: fixed; left: 16px; top: 16px; z-index: 100; display: flex; flex-direction: column; gap: 6px; padding: 10px;
 		background: #1b1e24; border: 1px solid #445; border-radius: 6px; font: 13px system-ui; color: #ccd; }
 </style>
@@ -190,6 +195,23 @@ const directory = (d) => {
 		<ol class="directory-list plain">${folders}${d.loose.map((e) => entry(d, e, n++)).join('')}</ol></section>`;
 };
 document.getElementById('directory').outerHTML = DIRECTORIES.map(directory).join('');
+
+/* ---- PF2e's party at the head of the Actors tab, from its templates/sidebar/party-document-partial.hbs ---- */
+document.querySelector('#actors .directory-list').insertAdjacentHTML('beforebegin', `<ol class="plain parties">
+	<li class="directory-item folder flexcol expanded" data-party data-entry-id="party1">
+		<header class="folder-header active" data-action="togglePartyFolder"><i class="fa-solid fa-folder-open fa-fw" inert></i>
+			<button type="button" class="inline-control icon fa-solid fa-file" data-action="openPartySheet"></button>
+			<span class="folder-name ellipsis">The Motley Crew</span>
+			<button type="button" class="create-button create-entry icon icon-plus fa-solid fa-user" data-action="createMember"></button></header>
+		<ol class="subdirectory plain"><li class="directory-item entry document actor flexrow" data-entry-id="pm1">
+			<img class="thumbnail" src="${ICONS}/mystery-man.svg" alt=""><a class="entry-name ellipsis">Asha Rourke</a></li></ol></li></ol>`);
+
+/* ---- the Playlists tab's own volume controls, from templates/sidebar/tabs/playlist/controls.hbs ---- */
+document.querySelector('#playlists .directory-list').insertAdjacentHTML('beforebegin', `<div class="global-volume global-control expanded">
+	<header class="playlist-header" data-action="volumeExpand"><i class="expand fa-solid fa-angle-up" inert></i><strong>Volume Controls</strong></header>
+	<div class="expandable"><div class="wrapper"><ol class="plain">${['Music', 'Environment', 'Interface'].map((label) => `<li class="flexrow">
+		<label>${label}</label><i class="volume-icon fa-fw fa-solid fa-volume-high" inert></i>
+		<input type="range" class="global-volume-slider" min="0" max="1" step="0.05" value="0.5"></li>`).join('')}</ol></div></div></div>`);
 
 /* ---- the tab strip, from templates/sidebar/tabs.hbs ---- */
 const TABS = [['chat', 'fa-solid fa-comments'], ['combat', 'fa-solid fa-swords'], ['scenes', 'fa-solid fa-map'], ['actors', 'fa-solid fa-user'],

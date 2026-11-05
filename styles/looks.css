@@ -304,8 +304,14 @@ body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] :is(.pnl, .big, .proj-t) { text-shadow: 0 0 6px rgba(111, 200, 255, .7); }
 /* the idle flicker only while nothing is opening or closing, or it would stand in for the closing */
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"]:not(.sfh-seq-on, .sfh-seq-off) .pnl { animation: sfh-look-holo-idle 7s infinite; }
-#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .pnl::before { content: ''; position: absolute; left: 0; right: 0; top: -24px; height: 22px; z-index: 4; pointer-events: none;
-	background: linear-gradient(transparent, rgba(170, 225, 255, .16), transparent); animation: sfh-look-holo-band 5.5s linear infinite; }
+/*
+ * The bright band that runs down each panel. Its box fills the panel and stays put; only the band
+ * painted in it moves, from above the top edge to below the bottom. A box that itself ran past the
+ * bottom was part of the panel's contents, and gave a panel that scrolls a scroll bar to reach it.
+ */
+#sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .pnl::before { content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+	background: linear-gradient(transparent, rgba(170, 225, 255, .16), transparent) no-repeat; background-size: 100% 22px; background-position: 0 -24px;
+	animation: sfh-look-holo-band 5.5s linear infinite; }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .navb { background: rgba(10, 30, 50, .5); border-color: var(--line); }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"] .navb.on { background: var(--hotbg); border-color: var(--hot); box-shadow: 0 0 16px var(--glow); }
 #sfh-projection .sfh-stage[data-device][data-look="holoprojector"].sfh-seq-on :is(.slot, .navb) { animation: sfh-look-holo-in .95s linear backwards; animation-delay: var(--d, 0ms); }
@@ -325,7 +331,7 @@ body[data-sfh-look="holoprojector"]:has(#sfh-projection .sfh-seq-off) #sfh-beam 
 body[data-sfh-look="holoprojector"] #sfh-device.sfh-seq-off #sfh-band { animation: sfh-look-holo-emitter-out .76s linear forwards; }
 @keyframes sfh-look-holo-emitter-out { 0% { filter: brightness(1.5); } 30%, 82% { filter: brightness(1); } to { filter: brightness(.6); } }
 @keyframes sfh-look-holo-idle { 0%, 46%, 50%, 80%, 84%, 100% { opacity: .95; } 47% { opacity: .62; } 48% { opacity: .9; } 49% { opacity: .7; } 82% { opacity: .85; } }
-@keyframes sfh-look-holo-band { from { top: -24px; } to { top: 105%; } }
+@keyframes sfh-look-holo-band { from { background-position: 0 -24px; } to { background-position: 0 calc(100% + 24px); } }
 @keyframes sfh-look-holo-in {
 	0% { opacity: 0; transform: scaleY(.02); filter: brightness(3); }
 	16% { opacity: .85; transform: scaleY(1) translateX(-7px) skewX(-6deg); }

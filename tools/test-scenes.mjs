@@ -151,7 +151,14 @@ const results = await page.evaluate(async () => {
 	await hover(chip('bridge'));
 	check('hovering a scene previews it', card()?.classList.contains('show') && /Normandy Bridge/.test(card().querySelector('h3').textContent));
 	check('with its folder', /Act I: The Reach \/ Shipboard/.test(card().textContent));
-	check('and what is on there', /Global light on/.test(card().textContent) && /Token vision on/.test(card().textContent) && /Playing: Galaxy Map/.test(card().textContent) && /Gamemaster, Asha/.test(card().textContent), card().querySelector('.sfh-facts')?.textContent);
+	check('and what is on there', /Global light on/.test(card().textContent) && /Token vision on/.test(card().textContent) && /Playing: Galaxy Map/.test(card().textContent), card().querySelector('.sfh-facts')?.textContent);
+	const factLines = [...card().querySelectorAll('.sfh-facts > span')];
+	check("the scene's state, one fact to a line", factLines.length === 3 && new Set(factLines.map((f) => Math.round(f.getBoundingClientRect().top))).size === 3, factLines.map((f) => f.textContent));
+	const who = [...card().querySelectorAll('.sfh-here-who > span')].map((s) => s.textContent);
+	check('who is here in a section of its own, a name each', who.join() === 'Gamemaster,Asha' && !card().querySelector('.sfh-facts .sfh-here'), who);
+	const buttons = [...card().querySelectorAll('.sfh-acts .sfh-sb')];
+	const over = buttons.filter((b) => b.scrollWidth > b.clientWidth + 1 || b.scrollHeight > b.clientHeight + 1).map((b) => b.textContent.trim());
+	check("every button's words fit inside it", !over.length, over);
 	check('the active scene cannot be activated again', card().querySelector('[data-sact="activate"]').disabled);
 	const cbox = card().getBoundingClientRect();
 	check('the preview stays clear of Calendaria', cbox.right <= hud.left || cbox.top >= hud.bottom, cbox);

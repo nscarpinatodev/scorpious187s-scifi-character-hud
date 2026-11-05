@@ -8,6 +8,9 @@ import { applyFonts, onFontChange, reportMissingFonts, suggestFonts } from './in
 import { watchPlacement } from './interface/placement.mjs';
 import { Carousel } from './interface/carousel.mjs';
 import { SceneBar } from './interface/scenes.mjs';
+import { viewScenesOnClick } from './interface/scene-directory.mjs';
+import { addVolumeCheck, onVolumeMessage } from './interface/volumes.mjs';
+import { splitDevicePicker } from './interface/device-picker.mjs';
 import { refreshObstacles } from './interface/obstacles.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
@@ -85,6 +88,7 @@ Hooks.once('init', () => {
 	applyFonts();
 	applyHeadingColor();
 	watchPlacement();
+	viewScenesOnClick();
 
 	// rebindable in Configure Controls
 	game.keybindings.register(MOD, KEYS.hide, {
@@ -102,6 +106,7 @@ Hooks.once('ready', () => {
 	ensureStyles();
 	game.socket?.on(`module.${MOD}`, (data) => {
 		if (data?.type === 'give') getAdapter()?.onGiveRequest?.(data);
+		else onVolumeMessage(data);
 	});
 	// by now Foundry has loaded the fonts added in its own settings, so they can be told apart
 	reportMissingFonts();
@@ -215,8 +220,14 @@ Hooks.on('getSceneControlButtons', restyleControls);
 /* Foundry can draw the sidebar afresh, which leaves the watcher on the old element. */
 Hooks.on('renderSidebar', () => watchHeadings());
 
+/* The GM can see everyone's volume from the Playlists tab, popped out or not. */
+Hooks.on('renderPlaylistDirectory', (app, html) => addVolumeCheck(html));
+
 /* The font settings are typed; the settings window suggests the fonts there are. */
 Hooks.on('renderSettingsConfig', suggestFonts);
+
+/* The devices and looks are chosen by category first, then look. */
+Hooks.on('renderSettingsConfig', splitDevicePicker);
 
 /* The free area changes whenever Foundry's own furniture does. */
 for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {

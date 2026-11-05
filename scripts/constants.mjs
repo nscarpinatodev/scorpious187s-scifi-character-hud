@@ -22,26 +22,26 @@ export const MOD = 'scorpious187s-scifi-character-hud';
  *               names how long they run (SEQ_LONG).
  */
 export const DEVICES = {
-	omni: { id: 'omni', label: 'SFH.Device.Omni', hint: 'SFH.Device.OmniHint', art: 'arm', sequence: 'rise', switch: 'band' },
-	wrist: { id: 'wrist', label: 'SFH.Device.Wrist', hint: 'SFH.Device.WristHint', art: null, sequence: 'fold', switch: 'bar' },
-	gdi: { id: 'gdi', label: 'SFH.Device.Gdi', hint: 'SFH.Device.GdiHint', art: null, sequence: 'crt', switch: 'bar' },
-	nod: { id: 'nod', label: 'SFH.Device.Nod', hint: 'SFH.Device.NodHint', art: null, sequence: 'crt', switch: 'bar' },
-	tron: { id: 'tron', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
-	vambrace: { id: 'vambrace', label: 'SFH.Device.Vambrace', hint: 'SFH.Device.VambraceHint', art: 'bracer', sequence: 'sigil', switch: 'band' },
-	journal: { id: 'journal', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'satchel', sequence: 'book', switch: 'band', projects: false },
+	omni: { id: 'omni', genre: 'scifi', label: 'SFH.Device.Omni', hint: 'SFH.Device.OmniHint', art: 'arm', sequence: 'rise', switch: 'band' },
+	wrist: { id: 'wrist', genre: 'scifi', label: 'SFH.Device.Wrist', hint: 'SFH.Device.WristHint', art: null, sequence: 'fold', switch: 'bar' },
+	gdi: { id: 'gdi', genre: 'scifi', label: 'SFH.Device.Gdi', hint: 'SFH.Device.GdiHint', art: null, sequence: 'crt', switch: 'bar' },
+	nod: { id: 'nod', genre: 'scifi', label: 'SFH.Device.Nod', hint: 'SFH.Device.NodHint', art: null, sequence: 'crt', switch: 'bar' },
+	tron: { id: 'tron', genre: 'scifi', label: 'SFH.Device.Tron', hint: 'SFH.Device.TronHint', art: 'disc', sequence: 'rez', switch: 'band' },
+	vambrace: { id: 'vambrace', genre: 'fantasy', label: 'SFH.Device.Vambrace', hint: 'SFH.Device.VambraceHint', art: 'bracer', sequence: 'sigil', switch: 'band' },
+	journal: { id: 'journal', genre: 'fantasy', label: 'SFH.Device.Journal', hint: 'SFH.Device.JournalHint', art: 'satchel', sequence: 'book', switch: 'band', projects: false },
 	// looks over the Vambrace and the Journal
-	reliquary: { id: 'reliquary', label: 'SFH.Device.Reliquary', hint: 'SFH.Device.ReliquaryHint', base: 'vambrace', art: 'reliquary', sequence: 'sigil', switch: 'band' },
-	runeforge: { id: 'runeforge', label: 'SFH.Device.Runeforge', hint: 'SFH.Device.RuneforgeHint', base: 'vambrace', art: 'runeforge', sequence: 'sigil', switch: 'band' },
-	witchfire: { id: 'witchfire', label: 'SFH.Device.Witchfire', hint: 'SFH.Device.WitchfireHint', base: 'vambrace', art: 'witchfire', sequence: 'sigil', switch: 'band' },
-	grove: { id: 'grove', label: 'SFH.Device.Grove', hint: 'SFH.Device.GroveHint', base: 'journal', art: 'grove', sequence: 'book', switch: 'band', projects: false },
+	reliquary: { id: 'reliquary', genre: 'fantasy', label: 'SFH.Device.Reliquary', hint: 'SFH.Device.ReliquaryHint', base: 'vambrace', art: 'reliquary', sequence: 'sigil', switch: 'band' },
+	runeforge: { id: 'runeforge', genre: 'fantasy', label: 'SFH.Device.Runeforge', hint: 'SFH.Device.RuneforgeHint', base: 'vambrace', art: 'runeforge', sequence: 'sigil', switch: 'band' },
+	witchfire: { id: 'witchfire', genre: 'fantasy', label: 'SFH.Device.Witchfire', hint: 'SFH.Device.WitchfireHint', base: 'vambrace', art: 'witchfire', sequence: 'sigil', switch: 'band' },
+	grove: { id: 'grove', genre: 'fantasy', label: 'SFH.Device.Grove', hint: 'SFH.Device.GroveHint', base: 'journal', art: 'grove', sequence: 'book', switch: 'band', projects: false },
 	// looks for science fiction, each over the device it is closest to
-	holoprojector: { id: 'holoprojector', label: 'SFH.Device.Holoprojector', hint: 'SFH.Device.HoloprojectorHint', base: 'omni', art: 'holoprojector', sequence: 'flicker', switch: 'band' },
-	datapad: { id: 'datapad', label: 'SFH.Device.Datapad', hint: 'SFH.Device.DatapadHint', base: 'wrist', art: null, sequence: 'fold', switch: 'bar' },
-	gauntlet: { id: 'gauntlet', label: 'SFH.Device.Gauntlet', hint: 'SFH.Device.GauntletHint', base: 'omni', art: 'gauntlet', sequence: 'rise', switch: 'band' },
-	comm: { id: 'comm', label: 'SFH.Device.Comm', hint: 'SFH.Device.CommHint', base: 'omni', art: 'comm', sequence: 'rise', switch: 'band' },
-	crystal: { id: 'crystal', label: 'SFH.Device.Crystal', hint: 'SFH.Device.CrystalHint', base: 'vambrace', art: 'crystal', sequence: 'sigil', switch: 'band' },
-	retro: { id: 'retro', label: 'SFH.Device.Retro', hint: 'SFH.Device.RetroHint', base: 'wrist', art: null, sequence: 'type', switch: 'bar' },
-	cyberdeck: { id: 'cyberdeck', label: 'SFH.Device.Cyberdeck', hint: 'SFH.Device.CyberdeckHint', base: 'tron', art: 'cyberdeck', sequence: 'glitch', switch: 'band' },
+	holoprojector: { id: 'holoprojector', genre: 'scifi', label: 'SFH.Device.Holoprojector', hint: 'SFH.Device.HoloprojectorHint', base: 'omni', art: 'holoprojector', sequence: 'flicker', switch: 'band' },
+	datapad: { id: 'datapad', genre: 'scifi', label: 'SFH.Device.Datapad', hint: 'SFH.Device.DatapadHint', base: 'wrist', art: null, sequence: 'fold', switch: 'bar' },
+	gauntlet: { id: 'gauntlet', genre: 'scifi', label: 'SFH.Device.Gauntlet', hint: 'SFH.Device.GauntletHint', base: 'omni', art: 'gauntlet', sequence: 'rise', switch: 'band' },
+	comm: { id: 'comm', genre: 'scifi', label: 'SFH.Device.Comm', hint: 'SFH.Device.CommHint', base: 'omni', art: 'comm', sequence: 'rise', switch: 'band' },
+	crystal: { id: 'crystal', genre: 'scifi', label: 'SFH.Device.Crystal', hint: 'SFH.Device.CrystalHint', base: 'vambrace', art: 'crystal', sequence: 'sigil', switch: 'band' },
+	retro: { id: 'retro', genre: 'scifi', label: 'SFH.Device.Retro', hint: 'SFH.Device.RetroHint', base: 'wrist', art: null, sequence: 'type', switch: 'bar' },
+	cyberdeck: { id: 'cyberdeck', genre: 'scifi', label: 'SFH.Device.Cyberdeck', hint: 'SFH.Device.CyberdeckHint', base: 'tron', art: 'cyberdeck', sequence: 'glitch', switch: 'band' },
 };
 
 export const DEFAULT_DEVICE = 'omni';
@@ -65,6 +65,7 @@ export const S = {
 	sceneBarStartCollapsed: 'sceneBarStartCollapsed', // client — collapsed each time Foundry loads
 	sceneBarCombat: 'sceneBarCombat', // client — collapsed while an encounter runs
 	sceneBarHover: 'sceneBarHover', // client — collapsed, it opens under the pointer
+	sceneClick: 'sceneClick',       // client — a click in the Scenes tab: 'view' the scene | 'configure' it
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
 	headingColor: 'headingColor', // client — the player's own color for the interface's headings
 	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names

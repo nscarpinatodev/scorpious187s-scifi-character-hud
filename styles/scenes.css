@@ -434,10 +434,11 @@ body[data-sfh-device="omni"] :is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, 
 	font: 12px var(--sfh-mono);
 }
 
+/* the scene's state, one to a line */
 #sfh-scenes-preview .sfh-facts {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 4px 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 	font-size: 13px;
 }
 
@@ -467,15 +468,65 @@ body[data-sfh-device="omni"] :is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, 
 	box-shadow: none;
 }
 
+/* who is on the scene, set apart under its state: the names wrap, one whole name at a time */
+#sfh-scenes-preview .sfh-here {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding-top: 6px;
+	border-top: 1px solid var(--sfh-line);
+	font-size: 13px;
+}
+
+#sfh-scenes-preview .sfh-here-h {
+	color: var(--sfh-dim);
+	font: 600 11px var(--sfh-face);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+#sfh-scenes-preview .sfh-here.off > span:last-child {
+	color: var(--sfh-dim);
+}
+
+#sfh-scenes-preview .sfh-here-who {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+}
+
+#sfh-scenes-preview .sfh-here-who span {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}
+
+#sfh-scenes-preview .sfh-here-who .sfh-dot {
+	background: var(--pip);
+	box-shadow: 0 0 5px var(--pip);
+}
+
 #sfh-scenes-preview .sfh-acts {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 4px;
 }
 
+/* a button's words stay inside it: a long one wraps onto a second line rather than run over */
 #sfh-scenes-preview .sfh-acts .sfh-sb {
 	width: 100%;
-	padding: 0 4px;
+	height: auto;
+	min-height: 30px;
+	padding: 4px;
+	white-space: normal;
+	line-height: 1.1;
+	text-align: center;
+}
+
+/* showing or hiding a scene from the players takes two columns: its words are the longest */
+#sfh-scenes-preview .sfh-acts [data-sact="nav"] {
+	grid-column: span 2;
 }
 
 #sfh-scenes-preview .sfh-preload .sfh-fill {

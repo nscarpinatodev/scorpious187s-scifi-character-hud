@@ -71,7 +71,7 @@ const results = await page.evaluate(async () => {
 
 		const tab = document.getElementById('actors');
 		const panel = over(css(tab, 'backgroundColor'), '#10141a'); // over the map
-		const [plain, colored] = tab.querySelectorAll('.folder > .folder-header');
+		const [plain, colored] = tab.querySelectorAll('.directory-list > .folder > .folder-header');
 		const plainBg = over(css(plain, 'backgroundColor'), over(panel, '#10141a'));
 		const coloredBg = colored.style.backgroundColor;
 
@@ -85,6 +85,14 @@ const results = await page.evaluate(async () => {
 		if (!same(css(badge, 'backgroundColor', '::after'), token('--sfh-hot'))) note("the folders' plus badge is the device's color", label, css(badge, 'backgroundColor', '::after'));
 		if (contrast(css(badge, 'color', '::after'), css(badge, 'backgroundColor', '::after')) < 3) note('the plus reads on its badge', label);
 
+		// PF2e's party row, in the system's own dark red
+		const party = tab.querySelector('ol.parties header.active');
+		const partyBg = css(party, 'backgroundColor');
+		if (contrast(css(party.querySelector('.folder-name'), 'color'), partyBg) < 4.5) note("PF2e's party row reads on its red", label, contrast(css(party.querySelector('.folder-name'), 'color'), partyBg).toFixed(2));
+		for (const b of party.querySelectorAll('button')) {
+			if (contrast(css(b, 'color'), partyBg) < 3 || rgba(css(b, 'backgroundColor'))[3] > 10) note("its buttons are its lettering, not boxes", label, [css(b, 'color'), css(b, 'backgroundColor')]);
+		}
+
 		const thumb = tab.querySelector('img.thumbnail');
 		const tile = css(thumb, 'backgroundColor');
 		const page = lum(panel) > 0.4;
@@ -93,6 +101,12 @@ const results = await page.evaluate(async () => {
 
 		const name = tab.querySelector('.directory-item.entry .entry-name');
 		if (contrast(css(name, 'color'), panel) < 4.5) note('entry names read on the panel', label, contrast(css(name, 'color'), panel).toFixed(2));
+
+		SFH.show('playlists');
+		await wait(50);
+		const volumes = document.querySelector('#playlists .global-control > header');
+		const band = over(css(volumes, 'backgroundColor'), over(css(document.getElementById('playlists'), 'backgroundColor'), '#10141a'));
+		if (contrast(css(volumes, 'color'), band) < 4.5) note("the Playlists tab's own headers read", label, contrast(css(volumes, 'color'), band).toFixed(2));
 
 		SFH.show('compendium');
 		await wait(50);
@@ -144,6 +158,9 @@ const results = await page.evaluate(async () => {
 	every('white placeholder art has an ink tile on a page');
 	every('and nothing behind it on glass');
 	every('entry names read on the panel');
+	every("PF2e's party row reads on its red");
+	every("its buttons are its lettering, not boxes");
+	every("the Playlists tab's own headers read");
 	every("the packs' names stay light on their banners");
 	every("the Settings tab's headings fit the sidebar");
 	every('the message modes keep their size');

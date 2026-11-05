@@ -176,6 +176,17 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		default: true,
 	});
 
+	// what a click on a scene in the sidebar's Scenes tab does; Shift+click does the other
+	game.settings.register(MOD, S.sceneClick, {
+		name: 'SFH.Settings.SceneClick',
+		hint: 'SFH.Settings.SceneClickHint',
+		scope: 'client',
+		config: true,
+		type: String,
+		choices: { view: 'SFH.Settings.SceneClickView', configure: 'SFH.Settings.SceneClickConfigure' },
+		default: 'view',
+	});
+
 	// whether it is collapsed now, kept between sessions
 	game.settings.register(MOD, S.sceneBarCollapsed, {
 		scope: 'client',

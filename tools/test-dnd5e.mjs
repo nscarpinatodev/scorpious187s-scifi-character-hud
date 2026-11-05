@@ -313,6 +313,10 @@ const results = await page.evaluate(async () => {
 			async _onDrop(event) { seen.push({ into: event.target.closest('.container[data-item-id]')?.dataset.itemId ?? null, tab: this.tabGroups.primary }); },
 		};
 		const drag = (type, target) => {
+			// the drag begins on the page, as Foundry's do, writing what it carries
+			const begun = new DataTransfer();
+			begun.setData('text/plain', JSON.stringify({ type: 'Item', uuid: 'Compendium.items.rope' }));
+			document.body.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer: begun }));
 			const dataTransfer = new DataTransfer();
 			dataTransfer.setData('text/plain', JSON.stringify({ type: 'Item', uuid: 'Compendium.items.rope' }));
 			const event = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer });

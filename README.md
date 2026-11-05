@@ -182,8 +182,8 @@ un-hides it too, so a hidden HUD is never a lost one.
 
 | Setting | Scope | What it does |
 |---|---|---|
-| Default device | world | The device players get before they choose one. |
-| My device | client | The device you wear. |
+| Default device | world | The device players get before they choose one: a category (science fiction or fantasy), then a device or look from it. |
+| My device | client | The device you wear, chosen the same way, or the world's default. |
 | Power sequences | client | Play the rise/fold/scan animations. |
 | Macro key size | client | Size of the macro bar keys. The omni-tool's arm and TRON's deck follow it, and their projections follow them. |
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
@@ -192,6 +192,7 @@ un-hides it too, so a hidden HUD is never a lost one.
 | The Journal's interface in the dark | client | With the Adventurer's Journal or the Grove, the sidebar, chat, player list, controls, scene bar and turn order in dark leather with pale ink instead of paper. The journal itself stays paper. Off by default. |
 | Chat cards in the device's colors | client | Draws chat messages and rolls on the device's panels. Off keeps Foundry's parchment, if a system's or module's cards are hard to read this way. |
 | Heading font, Text font, Number font | client | Your own font in place of the device's. Type its name; the settings window suggests the fonts it finds. Empty keeps the device's. |
+| Clicking a scene in the Scenes tab | client | Views the scene (Shift+click opens its configuration), or Foundry's way round. |
 | Carousel combat tracker | client | Also shows the turn order as portraits across the top of the screen. Off by default. |
 | Carousel layout | client | The current turn on the left, or centered with who just went on its left. |
 | Carousel size | client | How large the carousel is, from 50% to 200%. |

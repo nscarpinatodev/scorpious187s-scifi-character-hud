@@ -9,6 +9,19 @@ import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 import { arcaneBolts, stopBolts } from './bolts.mjs';
 import { deviceArt } from '../device/art.mjs';
 
+/**
+ * The projection takes items, and nothing else: an item, from the sidebar, a compendium or another
+ * sheet (in PF2e and SF2e that includes spells, feats, conditions and effects), or a folder of
+ * them. An actor dragged across the HUD on its way to the map, a scene, a journal, a macro and
+ * the rest pass over it without it offering to take them.
+ */
+function sheetTakes(drag) {
+	if (drag?.type === 'Item') return true;
+	if (drag?.type !== 'Folder') return false;
+	const folder = drag.uuid ? globalThis.fromUuidSync?.(drag.uuid) : null;
+	return folder?.type === 'Item';
+}
+
 /** The kinds of actor the projection draws a sheet for. */
 const SHEETS = ['character', 'npc'];
 
@@ -40,6 +53,8 @@ export function dropEffectFor(allowed, wanted = 'none') {
 export class Projection {
 	static #open = false;
 	static #actor = null;
+	/** What the drag under way carries, read as it began: a drag's data is sealed until it is dropped. */
+	static #dragging = null;
 	static #tab = null;
 	/** The last roll each character made, for the strip over the main panel. */
 	static #latest = new Map();
@@ -495,6 +510,38 @@ export class Projection {
 			rows.push({ label: 'SFH.Projection.Menu.Quantity', value: quantity, attrs: `data-item-field="system.quantity" data-k="${esc(key)}"` });
 		}
 		return { host: target.closest('.li, .row, .cell') ?? target.parentElement, rows };
+	}
+
+	/**
+	 * Put a right-click editor on the stage, over every panel, just under what was right-clicked.
+	 * Inside its own panel it was cut off by the panel's edges wherever the panel was smaller than
+	 * it, which is most of them on some devices. It is as wide as what it edits, or wide enough
+	 * for its fields; it opens above when there is no room below, and stays inside the stage.
+	 * The stage is scaled to the screen, so everything is measured in the stage's own pixels.
+	 */
+	static #placeMenu(menu, host) {
+		const stage = this.element?.querySelector('.sfh-stage');
+		if (!stage) return host.append(menu);
+		const box = stage.getBoundingClientRect();
+		const k = box.width / stage.offsetWidth || 1;
+		const at = host.getBoundingClientRect();
+		const gap = 4;
+		const edge = 8;
+		menu.style.right = 'auto';
+		menu.style.width = 'max-content';
+		menu.style.minWidth = `${Math.round(Math.min(at.width / k, stage.offsetWidth - 2 * edge))}px`;
+		menu.style.maxWidth = `${stage.offsetWidth - 2 * edge}px`;
+		stage.append(menu);
+		const width = menu.offsetWidth;
+		const height = menu.offsetHeight;
+		const left = Math.min(Math.max(edge, (at.left - box.left) / k), stage.offsetWidth - edge - width);
+		const below = (at.bottom - box.top) / k + gap;
+		const above = (at.top - box.top) / k - gap - height;
+		const top = below + height <= stage.offsetHeight - edge ? below
+			: above >= edge ? above
+				: Math.max(edge, stage.offsetHeight - edge - height);
+		menu.style.left = `${Math.round(left)}px`;
+		menu.style.top = `${Math.round(top)}px`;
 	}
 
 	/** Save what is being typed, as leaving the field or pressing the editor's save would. */
@@ -988,7 +1035,6 @@ export class Projection {
 			event.preventDefault();
 			el.querySelector('.sfh-menu')?.remove();
 			const host = fields.host;
-			if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
 			const menu = document.createElement('div');
 			menu.className = 'sfh-menu';
 			const word = (k) => esc(game.i18n.localize(k));
@@ -996,7 +1042,7 @@ export class Projection {
 				`<label>${word(label)}<input class="sfh-in${text ? '' : ' mono'}" type="${text ? 'text' : 'number'}" value="${esc(value)}" ${attrs}
 					${text ? 'style="width:12em"' : ''}></label>`).join('')
 				+ `<button type="button" class="b sm" data-act="menu-close" data-k="">${word('SFH.Projection.Menu.Close')}</button>`;
-			host.append(menu);
+			this.#placeMenu(menu, host);
 			menu.querySelector('input')?.focus();
 		});
 
@@ -1009,6 +1055,22 @@ export class Projection {
 			event.dataTransfer.setData('text/plain', JSON.stringify(doc.toDragData()));
 			event.dataTransfer.effectAllowed = 'copyMove';
 		});
+
+		/*
+		 * What is being dragged, anywhere on the page. A drag's data can only be read as it begins
+		 * and when it is dropped, not while it passes over, so it is noted here, after whatever
+		 * started the drag has written it, and forgotten when the drag ends. A drag from outside
+		 * the page is never noted, and is judged as before.
+		 */
+		document.addEventListener('dragstart', (event) => {
+			try {
+				this.#dragging = JSON.parse(event.dataTransfer?.getData('text/plain') || 'null');
+			} catch {
+				this.#dragging = null;
+			}
+		});
+		document.addEventListener('dragend', () => { this.#dragging = null; });
+		document.addEventListener('drop', () => setTimeout(() => { this.#dragging = null; }));
 
 		// clicking away closes the editor
 		document.addEventListener('pointerdown', (event) => {
@@ -1062,6 +1124,8 @@ export class Projection {
 		const actor = this.actor();
 		if (!actor?.isOwner || !event.dataTransfer?.types.includes('text/plain')) return null;
 		if (event.target.closest?.('input, textarea, prose-mirror, [contenteditable="true"]')) return null;
+		// only what was seen to begin as an item: a drag from outside Foundry is none of the HUD's
+		if (!sheetTakes(this.#dragging)) return null;
 		return actor;
 	}
 

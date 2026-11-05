@@ -81,6 +81,8 @@ for (const [device, def] of Object.entries(DEVICES)) {
 	const block = css.split(selector)[1]?.split('}')[0] ?? '';
 	for (const prop of required) if (!block.includes(`${prop}:`)) fail(`device ${device} is missing ${prop} in ${file}`);
 	if (def.base && !DEVICES[def.base]) fail(`look ${device} dresses a device that does not exist: ${def.base}`);
+	// the settings offer a category, then the looks in it
+	if (!['scifi', 'fantasy'].includes(def.genre)) fail(`device ${device} has no category (genre: 'scifi' or 'fantasy') in scripts/constants.mjs`);
 	if (def.base && !manifest.styles.includes('styles/looks.css')) fail('module.json does not list styles/looks.css');
 }
 

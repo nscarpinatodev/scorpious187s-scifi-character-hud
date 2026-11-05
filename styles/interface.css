@@ -214,6 +214,9 @@ body[data-sfh-device] #camera-views {
 body[data-sfh-device] {
 	--sfh-thumb-bg: transparent;
 	--sfh-on-hot: rgb(var(--sfh-bg-rgb));
+	/* lettering on a dark band the device did not paint: a GM's folder color, a system's own row */
+	--sfh-on-dark: #f4f1ea;
+	--sfh-on-dark-shadow: 0 0 3px #000, 0 1px 2px #000;
 }
 
 /* the Crystal core's cyan is too light for its pale glass to read on, so it takes its navy */
@@ -254,11 +257,31 @@ body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-h
 	color: var(--sfh-hot);
 }
 
-/* a folder the GM colored keeps its color, so its name goes light over it, as Foundry has it */
+/*
+ * Rows painted dark by someone else keep their color, so their lettering goes light over them, as
+ * Foundry has it: a folder the GM colored, and PF2e's and SF2e's party rows in the Actors tab (the
+ * active party in the system's red, and the folder of the others). On a page their name would
+ * otherwise be dark ink on a dark band.
+ */
 body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"],
-body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"] > i {
-	color: #f4f1ea;
-	text-shadow: 0 0 3px #000, 0 1px 2px #000;
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"] > i,
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) ol.parties > li > header:is(.active, .party-folder),
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) ol.parties > li > header:is(.active, .party-folder) > :is(i, button) {
+	color: var(--sfh-on-dark);
+	text-shadow: var(--sfh-on-dark-shadow);
+}
+
+/* a party row's own buttons are its lettering, not pale boxes on the red */
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) ol.parties > li > header:is(.active, .party-folder) button {
+	--button-text-color: var(--sfh-on-dark);
+	--button-hover-text-color: var(--sfh-on-dark);
+	background: none;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) ol.parties > li > header:is(.active, .party-folder) button:hover {
+	border-color: currentColor;
 }
 
 body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"] {
@@ -981,4 +1004,88 @@ body[data-sfh-device]:not(.pf2e-hud-hidden-persistent) #pf2e-hud-persistent:not(
 	grid-row: bottom;
 	width: calc(10 * var(--row-2fr) + 10 * var(--panel-gap) + 24px);
 	pointer-events: none;
+}
+
+/*
+ * The Playlists tab's own headers, Volume Controls and Currently Playing: Foundry paints them in its
+ * darkest color with light lettering, which on a page is dark ink on a dark band. They are drawn
+ * as the folder rows are, in the device's highlight with its brightest ink.
+ */
+body[data-sfh-device] .playlists-sidebar .global-control > header {
+	background: var(--sfh-hover);
+	border-color: var(--sfh-line-2);
+	color: var(--sfh-bright);
+	box-shadow: inset 3px 0 0 var(--sfh-hot);
+}
+
+/* ---------------------------------------------------------------- everyone's volume */
+/*
+ * The GM's check on everyone's volume, under the Playlists tab's own sliders. It reads in
+ * Foundry's own theme as well as a device's: the device's palette reaches it through the
+ * variables mapped above.
+ */
+.global-volume .sfh-vol-check {
+	width: 100%;
+	margin-top: 6px;
+}
+
+.global-volume .sfh-volumes ol {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 6px 0 0;
+	padding: 0;
+}
+
+.global-volume .sfh-vol-who {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 5px 4px;
+	border-top: var(--sidebar-separator, 1px solid rgb(0 0 0 / 40%));
+	font-size: var(--font-size-12, 12px);
+}
+
+.global-volume .sfh-vol-name {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 600;
+}
+
+.global-volume .sfh-vol-dot {
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--pip);
+	box-shadow: 0 0 4px var(--pip);
+}
+
+.global-volume .sfh-vol-levels {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 12px;
+	padding-left: 14px;
+}
+
+.global-volume .sfh-vol-levels b {
+	font-weight: normal;
+	opacity: 0.75;
+}
+
+.global-volume .sfh-vol-note {
+	padding-left: 14px;
+}
+
+.global-volume .sfh-volumes .bad {
+	color: var(--color-level-error, #ff6b5a);
+}
+
+body[data-sfh-device] .global-volume .sfh-volumes .bad {
+	color: var(--sfh-bad);
+}
+
+.global-volume .sfh-vol-who.off .sfh-vol-name {
+	opacity: 0.7;
 }

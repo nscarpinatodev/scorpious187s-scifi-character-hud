@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.2.0 — 2026-11-05
+
+- Default device and My device are chosen in two menus: a category, science fiction or fantasy
+  (or, for My device, the world's default), then a device or look from that category alone,
+  instead of all eighteen in one list. Everyone's current choice stays as it is.
+- The Holoprojector's bright band no longer gives a panel a scroll bar as it runs past the bottom.
+- Clicking a scene in the sidebar's Scenes tab views it, instead of opening its configuration;
+  Shift+click opens the configuration. A setting puts Foundry's way back.
+- A scene's preview lists who is on it in a section of its own, a name each, however many there
+  are; the scene's lighting, vision and sound sit one to a line above it; and a long button, such
+  as Hide from players, keeps its words inside it.
+- Everyone's volume, for the GM: a button under the Playlists tab's volume sliders asks each
+  connected player's Foundry for their music, environment and interface volume, and lists them,
+  with whether they have muted Foundry or their browser is holding sound back until they click.
+- The Playlists tab's Volume Controls and Currently Playing headers can be read on the Journal's,
+  the Grove's and the Crystal core's pages.
+- The right-click editors (experience and level, hit points, hero points, an item's name and
+  quantity) open over the panels, just under what was right-clicked, instead of inside its panel,
+  where most devices cut them off and hid their Close button.
+- The projection offers to take a drop only for an item, or a folder of items. An actor dragged
+  across the HUD on its way to the map, a scene, a journal, a macro, an effect on its own and the
+  rest pass over it.
+- Lettering on rows painted dark by someone else is white: PF2e's and SF2e's party rows in the
+  Actors tab, and folders a GM has colored, which on the Journal's, the Grove's and the Crystal
+  core's pages were dark on dark. The party row's buttons are icons in the same white.
+
 ## 1.1.2 — 2026-11-05
 
 - The scene bar names a scene by its navigation name when it has one, for the GM as well as the

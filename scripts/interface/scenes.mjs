@@ -358,12 +358,17 @@ export class SceneBar {
 		const users = this.#viewers()[id] ?? [];
 		const fact = (on, onText, offText) => `<span class="${on ? '' : 'off'}"><i class="sfh-dot"></i>${esc(on ? onText : offText)}</span>`;
 		const sound = scene.playlistSound;
+		// the scene's own state, one to a line, for the GM
 		const facts = gm ? [
 			fact(scene.environment?.globalLight?.enabled, l('SFH.Scenes.LightOn'), l('SFH.Scenes.LightOff')),
 			fact(scene.tokenVision, l('SFH.Scenes.VisionOn'), l('SFH.Scenes.VisionOff')),
 			sound ? fact(sound.playing, game.i18n.format('SFH.Scenes.SoundPlaying', { name: sound.name }), game.i18n.format('SFH.Scenes.SoundSet', { name: sound.name })) : fact(false, '', l('SFH.Scenes.NoSound')),
-			fact(users.length, game.i18n.format('SFH.Scenes.Here', { names: users.map((u) => u.name).join(', ') }), l('SFH.Scenes.Nobody')),
-		].join('') : (users.length ? fact(true, game.i18n.format('SFH.Scenes.Here', { names: users.map((u) => u.name).join(', ') }), '') : '');
+		].join('') : '';
+		// who is on it: a section of its own, one name each in their own color, however many there are
+		const here = users.length
+			? `<div class="sfh-here"><span class="sfh-here-h">${esc(l('SFH.Scenes.Here'))}</span><div class="sfh-here-who">${users.map((u) =>
+				`<span style="--pip:${esc(u.color?.css ?? u.color ?? '#888')}"><i class="sfh-dot"></i>${esc(u.name)}</span>`).join('')}</div></div>`
+			: gm ? `<div class="sfh-here off"><span class="sfh-here-h">${esc(l('SFH.Scenes.Here'))}</span><span>${esc(l('SFH.Scenes.Nobody'))}</span></div>` : '';
 		const button = (act, text, hint, { disabled = false, cls = '' } = {}) => `<button type="button" class="sfh-sb ${cls}" data-sact="${act}" data-tooltip="${esc(hint)}"${disabled ? ' disabled' : ''}>${text}</button>`;
 		const preloading = this.#preloading.has(id);
 		const preloaded = this.#preloaded.has(id);
@@ -386,6 +391,7 @@ export class SceneBar {
 			<div class="sfh-card-b">
 				<div><h3>${esc(this.#name(scene))}</h3>${gm && this.#name(scene) !== scene.name ? `<div class="sfh-path">${esc(scene.name)}</div>` : ''}${gm && this.#path(scene) ? `<div class="sfh-path">${esc(this.#path(scene))}</div>` : ''}</div>
 				${facts ? `<div class="sfh-facts">${facts}</div>` : ''}
+				${here}
 				<div class="sfh-acts">${actions}</div></div>`;
 		card.dataset.sceneId = id;
 		card.classList.add('show');

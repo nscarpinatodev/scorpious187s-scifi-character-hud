@@ -55,6 +55,12 @@ const results = await page.evaluate(async () => {
 	const board = () => el().querySelector('.sfh-board');
 	const tab = async (id) => { el().querySelector(`[data-act="tab"][data-k="${id}"]`).click(); await wait(120); };
 	const drag = (type, target, data = { type: 'Item', uuid: 'Compendium.pf2e.equipment-srd.Item.rope' }, types = 'text/plain') => {
+		// a drag inside Foundry began somewhere on the page, which wrote what it carries
+		if ((type === 'dragover' || type === 'drop') && types === 'text/plain' && typeof data === 'object') {
+			const begun = new DataTransfer();
+			begun.setData('text/plain', JSON.stringify(data));
+			document.body.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer: begun }));
+		}
 		const dataTransfer = new DataTransfer();
 		if (types) dataTransfer.setData(types, typeof data === 'string' ? data : JSON.stringify(data));
 		const event = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer });
@@ -105,11 +111,13 @@ const results = await page.evaluate(async () => {
 	drag('drop', somewhere(), { type: 'Item', uuid: 'Compendium.pf2e.spells-srd.Item.heal' });
 	await wait(30);
 	check('a spell on the Spells tab is offered as a spell', drops.at(-1).tab === 'spellcasting');
+	// only items: an effect on its own, persistent damage from a chat card and a folder of who knows what are not
+	const before = drops.length;
 	drag('drop', somewhere(), { type: 'ActiveEffect', uuid: 'Item.x.ActiveEffect.y' });
 	drag('drop', somewhere(), { type: 'PersistentDamage', formula: '1d6[fire]' });
 	drag('drop', somewhere(), { type: 'Folder', uuid: 'Folder.f' });
 	await wait(30);
-	check('effects, damage and folders go the same way', drops.slice(-3).map((d) => d.data.type).join() === 'ActiveEffect,PersistentDamage,Folder', drops.slice(-3).map((d) => d.data.type));
+	check('an effect, damage or a folder not of items does not drop', drops.length === before, drops.slice(before).map((d) => d.data.type));
 	check('drops on top of each other still give the sheet its own tab back', pf2eSheet._tabs[0].active === 'character', pf2eSheet._tabs[0].active);
 
 	/* ---- an open sheet keeps its own tab ---- */
@@ -141,6 +149,52 @@ const results = await page.evaluate(async () => {
 		check('and they never reach the sheet', drops.length === count);
 	} else check('the biography has a field to drop text in', false);
 	await tab('inventory');
+	/* ---- what a character sheet never takes, noted as its drag began ---- */
+	const begin = (data) => {
+		const dataTransfer = new DataTransfer();
+		dataTransfer.setData('text/plain', JSON.stringify(data));
+		document.body.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer }));
+	};
+	const finish = () => document.body.dispatchEvent(new DragEvent('dragend', { bubbles: true }));
+	const refused = [];
+	for (const data of [{ type: 'Actor', uuid: 'Actor.geth' }, { type: 'Scene', uuid: 'Scene.bridge' }, { type: 'JournalEntry', uuid: 'JournalEntry.j1' }, { type: 'Macro', uuid: 'Macro.m1' }, { type: 'RollTable', uuid: 'RollTable.loot' }, { type: 'ActiveEffect', uuid: 'Actor.a.ActiveEffect.e' }, { type: 'Folder', uuid: 'Folder.unknown' }]) {
+		begin(data);
+		over = drag('dragover', somewhere(), data);
+		if (over.defaultPrevented || board().dataset.drop) refused.push(data.type);
+		drag('drop', somewhere(), data);
+		await wait(30);
+		if (drops.length !== count) refused.push(`${data.type} dropped`);
+		finish();
+	}
+	globalThis.fromUuidSync = (uuid) => ({ 'Folder.npcs': { type: 'Actor' }, 'Folder.gear': { type: 'Item' } }[uuid] ?? null);
+	begin({ type: 'Folder', uuid: 'Folder.npcs' });
+	over = drag('dragover', somewhere(), { type: 'Folder', uuid: 'Folder.npcs' });
+	if (over.defaultPrevented || board().dataset.drop) refused.push('Folder of actors');
+	finish();
+	check('only an item, or a folder of them, is offered a drop: an actor, scene, journal, macro, roll table, effect or other folder is not', !refused.length, refused);
+	begin({ type: 'Folder', uuid: 'Folder.gear' });
+	over = drag('dragover', somewhere(), { type: 'Folder', uuid: 'Folder.gear' });
+	check('a folder of items still drops', over.defaultPrevented && !!board().dataset.drop);
+	finish();
+	drag('dragleave', somewhere());
+	begin({ type: 'Item', uuid: 'Item.rope' });
+	over = drag('dragover', somewhere());
+	check('an item still drops', over.defaultPrevented && !!board().dataset.drop);
+	finish();
+	drag('dragleave', somewhere());
+	begin({ type: 'Actor', uuid: 'Actor.geth' });
+	finish();
+	over = drag('dragover', somewhere());
+	check('once that drag is over, the next is judged afresh', over.defaultPrevented);
+	drag('dragleave', somewhere());
+	finish();
+	const outside = new DataTransfer();
+	outside.setData('text/plain', JSON.stringify({ type: 'Item', uuid: 'Item.rope' }));
+	const stray = new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: outside });
+	somewhere().dispatchEvent(stray);
+	check('a drag that did not begin in Foundry is none of its business', !stray.defaultPrevented && !board().dataset.drop);
+	drag('dragleave', somewhere());
+	delete globalThis.fromUuidSync;
 	over = drag('dragover', somewhere(), 'plain words', 'text/uri-list');
 	check('something that is not Foundry\'s is left alone', !over.defaultPrevented);
 	actor.isOwner = false;
