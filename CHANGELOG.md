@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 — unreleased
+## 1.0.0 — 2026-11-05
 
 The first release. The Foundry interface becomes the device your character wears, and its switch
 raises the character sheet as a projection over the canvas. Every roll and button is still the
