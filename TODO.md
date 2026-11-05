@@ -2,16 +2,22 @@
 
 Work that is known, wanted and not done yet. Ordered roughly by when it should happen.
 
-## Start here: releasing 1.0.0
+## Start here: after 1.0.0
 
-The first release is 1.0.0. `module.json` is at 1.0.0, verified against Foundry 14, PF2e 8.6.1,
-SF2e 1.6.1 and D&D 5e 6.0.6 (the versions installed here), and CHANGELOG.md's 1.0.0 section is the
-release notes. The module is "Scorpious187's HUD UI for 5e and PF2e/SF2e" (the title; its id is
-unchanged, so existing installs keep working). It still needs Scorpious187's Module Library, the
-family's shared base, for its update notifier. What is left, in order:
+1.0.0 was released on 2026-11-05 from
+[nscarpinatodev/scorpious187s-scifi-character-hud](https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud),
+verified against Foundry 14, PF2e 8.6.1, SF2e 1.6.1 and D&D 5e 6.0.6. It needs Scorpious187's
+Module Library, the family's shared base, whose update board now carries the HUD
+(`scorpious187s-scifi-character-hud-update.json` in scorpious187-updates).
 
-1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Relaunch first (a
-   stylesheet was added). Seen in Foundry and good: the four looks, the Journal's interface in
+**Releasing the next version:** give it a `## x.y.z — date` section at the top of CHANGELOG.md
+(its opening is what the update board's card shows, about 1,600 characters of it), set the same
+version in `module.json`, commit on master, move main, push both, then tag `vx.y.z` and push the
+tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `module.zip` and
+publishes both; the updates repo's hourly sync picks the release up for the board.
+`./build.ps1` builds the same zip locally to look at first.
+
+1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Seen in Foundry and good: the four looks, the Journal's interface in
    the dark, the scene bar's preview under the pointer, and the sidebar's panels. Seen, and fixed from what was seen:
    the Journal's satchel and what else is in it, the experience and level fields, the identity
    strip, and dropping an item from another character's sheet (PF2e). Not seen yet:
@@ -30,13 +36,12 @@ family's shared base, for its update notifier. What is left, in order:
      the initiative statistic chosen on the Character tab, with the Initiative box following
      it; size, languages, speeds, senses and reach on the Character tab; and typing a loaded
      magazine's rounds (SF2e). Tested in the harness (`tools/test-sheet-review.mjs`) only.
-2. **Release.** The repo has no remote yet. Create the GitHub repository
-   `nscarpinatodev/scorpious187s-scifi-character-hud` (the URLs in `module.json` point there), add
-   it as `origin`, push `main` and `master`, then tag and push `v1.0.0`:
-   `.github/workflows/release.yml` stamps `module.json` from the tag, builds `module.zip` and
-   publishes both on the release. `./build.ps1` builds the same zip locally to look at first.
+2. **The release workflow's actions.** GitHub warned on the 1.0.0 build that
+   `actions/checkout@v4` and `softprops/action-gh-release@v2` target Node.js 20, which is
+   deprecated, and that `ubuntu-latest` is moving to Ubuntu 26. Move them to versions that run
+   on Node.js 24 before they stop working.
 
-Everything after this section is wanted, not needed for the release.
+Everything after this section is wanted, not urgent.
 
 ## Editing from the projection
 
