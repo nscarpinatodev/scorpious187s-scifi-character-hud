@@ -2,13 +2,24 @@
 
 Work that is known, wanted and not done yet. Ordered roughly by when it should happen.
 
-## Start here: after 1.0.0
+## Start here
 
 1.0.0 was released on 2026-11-05 from
 [nscarpinatodev/scorpious187s-scifi-character-hud](https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud),
-verified against Foundry 14, PF2e 8.6.1, SF2e 1.6.1 and D&D 5e 6.0.6. It needs Scorpious187's
-Module Library, the family's shared base, whose update board now carries the HUD
-(`scorpious187s-scifi-character-hud-update.json` in scorpious187-updates).
+verified against Foundry 14, PF2e 8.6.1, SF2e 1.6.1 and D&D 5e 6.0.6, and the same day 1.0.1
+and 1.0.2 (sharing the screen with PF2e HUD) and 1.1.0 (the GM's projection follows the selected
+token, NPCs included). It needs Scorpious187's Module Library, the family's shared base, whose
+update board carries the HUD (`scorpious187s-scifi-character-hud-update.json` in
+scorpious187-updates). Verified since against PF2e 8.7.0 and SF2e 1.7.0, both out on 2026-11-05.
+
+Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
+their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
+the Vambrace's arcane bolts; the sidebar's panels; the scene bar's preview; the Actions tab's
+three kinds; the dossier's shields, credits and omni-gel; right-clicking, dragging and dropping;
+PF2e's resistances and damage formulas; the carousel in each fantasy device; what the sheet had
+that the projection did not (toggles, effect counters, Stamina, Resolve and special resources,
+initiative, the Character tab's names, speeds, senses and reach, and magazines); PF2e HUD side by
+side; and the GM following the selected token, NPCs included.
 
 **Releasing the next version:** give it a `## x.y.z — date` section at the top of CHANGELOG.md
 (its opening is what the update board's card shows, about 1,600 characters of it), set the same
@@ -17,26 +28,7 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **Look at the newest work in Foundry, in a 5e world and a PF2e world.** Seen in Foundry and good: the four looks, the Journal's interface in
-   the dark, the scene bar's preview under the pointer, and the sidebar's panels. Seen, and fixed from what was seen:
-   the Journal's satchel and what else is in it, the experience and level fields, the identity
-   strip, and dropping an item from another character's sheet (PF2e). Not seen yet:
-   - **The satchel's clutter since the fix** — up only once the flap has gone.
-   - **The seven sci-fi looks** — their art, colors and interface, and the Holoprojector's,
-     Retro terminal's and Cyberdeck's own openings.
-   - **The Actions tab's three kinds and the dossier's shields, credits and omni-gel.**
-   - **The rest from the last batch** — the Vambrace's arcane bolts; right-clicking experience,
-     hero points and an item; dragging an item into a container and onto the macro bar; PF2e's
-     resistances and the damage formulas on the strikes; and the carousel in each fantasy device.
-   - **The satchel's flap** turns up above the art's frame: check nothing in Foundry's interface
-     cuts it off.
-   - **What the sheet had that the projection did not (PF2e and SF2e)** — the roll-option
-     toggles on the Actions and Spells tabs; an effect's counter on its chip; Stamina and Resolve
-     (turn on the Stamina variant) and a special resource such as mythic points in the vitals;
-     the initiative statistic chosen on the Character tab, with the Initiative box following
-     it; size, languages, speeds, senses and reach on the Character tab; and typing a loaded
-     magazine's rounds (SF2e). Tested in the harness (`tools/test-sheet-review.mjs`) only.
-2. **The release workflow's actions.** GitHub warned on the 1.0.0 build that
+1. **The release workflow's actions.** GitHub warned on the 1.0.0 build that
    `actions/checkout@v4` and `softprops/action-gh-release@v2` target Node.js 20, which is
    deprecated, and that `ubuntu-latest` is moving to Ubuntu 26. Move them to versions that run
    on Node.js 24 before they stop working.
@@ -72,11 +64,11 @@ system's own sheet, which the book button opens.
       counters on effects; special resources, stamina and resolve; real names for size and
       languages, senses, other speeds and reach; the initiative box following the statistic
       actually rolled; typing a loaded magazine's count. Immunities, weaknesses and resistances
-      were done before, in the defenses panel, and 5e's too. Not seen in Foundry yet.
+      were done before, in the defenses panel, and 5e's too. Seen in Foundry and good.
 - [x] **What the mock-up has that the build does not** — the Actions tab's encounter /
       exploration / downtime filter (PF2e and SF2e); the dossier's shield controls (−5, and the
       recharge), credits and omni-gel; each strike's damage formula on its Damage and Critical
-      buttons. Not seen in Foundry yet.
+      buttons. Seen in Foundry and good.
 - [ ] **Translatable strings** — every label in `projection/panels.mjs` and the adapters is
       written in English in the markup. Move them to `lang/en.json`; `tools/check.mjs` will
       then hold them to it.
@@ -119,8 +111,8 @@ a look is named for what it is, never for the game it suits.
       omni-tool, the Datapad and the Retro terminal over the wrist computer, the Crystal core over
       the Vambrace and the Cyberdeck over TRON. The Holoprojector, Retro terminal
       and Cyberdeck open their own way: a look can now carry its own opening (its animations in
-      `styles/looks.css`, its length a `sequence` of its own in `SEQ_LONG`). Not seen in Foundry
-      yet.
+      `styles/looks.css`, its length a `sequence` of its own in `SEQ_LONG`). Seen in Foundry
+      and good.
 - [x] **The omni-tool, TRON and EVA's names** — decided: they keep their names.
 
 ## Sidebar panels

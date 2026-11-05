@@ -2,7 +2,7 @@
 	"id": "scorpious187s-scifi-character-hud",
 	"title": "Scorpious187's HUD UI for 5e and PF2e/SF2e",
 	"description": "Turns the Foundry interface into the device the character is wearing: a Mass Effect omni-tool, a synthwave wrist computer, a Command & Conquer EVA console, or a TRON identity disc; or, for fantasy games, an Adventurer's Journal opened across the table or a Runic Vambrace whose runes weave the sheet in spell-light; and eleven looks over them, from a flickering hologram to an old green terminal. The macro bar rides on the device and its switch raises a projected character sheet over the canvas. Every roll, drag and tab is still the game system's own. Supports PF2e, SF2e and D&D 5e.",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"compatibility": {
 		"minimum": "13",
 		"verified": "14"
@@ -14,7 +14,7 @@
 				"type": "system",
 				"compatibility": {
 					"minimum": "7.0",
-					"verified": "8.6.1"
+					"verified": "8.7.0"
 				}
 			},
 			{
@@ -22,7 +22,7 @@
 				"type": "system",
 				"compatibility": {
 					"minimum": "1.0",
-					"verified": "1.6.1"
+					"verified": "1.7.0"
 				}
 			},
 			{
@@ -75,6 +75,6 @@
 	"bugs": "https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/issues",
 	"url": "https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud",
 	"manifest": "https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/latest/download/module.json",
-	"download": "https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/download/v1.1.0/module.zip",
+	"download": "https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/download/v1.1.1/module.zip",
 	"socket": true
 }

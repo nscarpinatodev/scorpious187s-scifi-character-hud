@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 — 2026-11-05
+
+- Verified with Pathfinder Second Edition 8.7.0 and Starfinder Second Edition 1.7.0.
+
 ## 1.1.0 — 2026-11-05
 
 - The GM's projection follows the token selected on the canvas, a character's or an NPC's, and
