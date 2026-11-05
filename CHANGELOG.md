@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 — 2026-11-05
+
+- PF2e HUD's party portraits keep their width. Its persistent panel takes its width from the
+  macro bar along its foot; with the bar on the device, the panel now keeps the bar's place
+  empty instead of closing up, so the portraits no longer narrow.
+
 ## 1.0.1 — 2026-11-05
 
 - The macro bar stays on the device when another module moves it. PF2e HUD puts the bar back at

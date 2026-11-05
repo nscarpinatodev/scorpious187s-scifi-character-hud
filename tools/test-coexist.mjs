@@ -86,6 +86,38 @@ const results = await page.evaluate(async () => {
 	await wait(80);
 	check('mounted again, it is back on the device', onDeck());
 	panel.remove();
+
+	/* ---- PF2e HUD's panel keeps its width without the bar (with its own stylesheet, when installed) ---- */
+	const sheet = 'file:///C:/Users/djsco/AppData/Local/FoundryVTT/Data/modules/pf2e-hud/styles/pf2e-hud.css';
+	const ok = await fetch(sheet).then((r) => r.ok, () => false);
+	if (ok) {
+		const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: sheet });
+		document.head.append(link);
+		await new Promise((r) => { link.onload = r; link.onerror = r; });
+		const hudPanel = Object.assign(document.createElement('div'), { id: 'pf2e-hud-persistent', className: 'pf2e-hud' });
+		hudPanel.innerHTML = `<div data-panel="menu"><div class="group"><button>☰</button></div></div>
+			<div data-panel="owned-actors">${'<div class="owned-actor"><img src="" width="40"><span>20</span></div>'.repeat(6)}</div>`;
+		bottom().append(hudPanel);
+		const card = () => hudPanel.querySelector('.owned-actor').getBoundingClientRect().width;
+		// with the bar in it, measured before the device takes it back
+		hudPanel.append(hotbar());
+		const withBar = card();
+		const panelWithBar = hudPanel.getBoundingClientRect().width;
+		await wait(60);
+		check('the device takes the bar back from the panel', onDeck());
+		const without = card();
+		check("the party's portraits keep the width they had beside the bar", Math.abs(without - withBar) < 1.5 && withBar > 80, { withBar, without });
+		check('and so does the panel', Math.abs(hudPanel.getBoundingClientRect().width - panelWithBar) < 1.5, { panelWithBar, now: hudPanel.getBoundingClientRect().width });
+		document.body.classList.add('pf2e-hud-hidden-persistent');
+		check('a panel PF2e HUD has hidden gets no placeholder', getComputedStyle(hudPanel, '::after').content === 'none');
+		document.body.classList.remove('pf2e-hud-hidden-persistent');
+		hud.unmount();
+		await wait(50);
+		check('nor does one with the device down', getComputedStyle(hudPanel, '::after').content === 'none');
+		hud.mount();
+		hudPanel.remove();
+		link.remove();
+	}
 	return out;
 });
 

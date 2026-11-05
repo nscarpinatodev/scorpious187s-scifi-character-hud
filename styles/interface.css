@@ -966,3 +966,19 @@ body[data-sfh-device][data-sfh-calendaria="on"] .calendaria-hud .bar-wrapper.tra
 body[data-sfh-device="wrist"][data-sfh-calendaria="on"] .calendaria-hud .time {
 	font-size-adjust: 0.52;
 }
+
+/* ---------------------------------------------------------------- pf2e hud */
+/*
+ * PF2e HUD's persistent panel lays the macro bar along its foot, and that row is what makes the
+ * panel wide: the party's portraits above it share out the same columns. With the bar on the
+ * device instead, the columns close up and every portrait narrows. So while the bar is not in
+ * the panel, an empty placeholder keeps its place, as wide as the bar was there: ten keys of
+ * the panel's own size, their gaps, and the page arrows.
+ */
+body[data-sfh-device]:not(.pf2e-hud-hidden-persistent) #pf2e-hud-persistent:not(:has(> #hotbar))::after {
+	content: '';
+	grid-column: info / full;
+	grid-row: bottom;
+	width: calc(10 * var(--row-2fr) + 10 * var(--panel-gap) + 24px);
+	pointer-events: none;
+}
