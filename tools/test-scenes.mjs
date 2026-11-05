@@ -282,6 +282,18 @@ const results = await page.evaluate(async () => {
 	await wait(40);
 	check('search finds across folders, by name or folder', ['landing', 'tower'].every((id) => tile(id)) && el().querySelectorAll('.sfh-tile').length === 2);
 	check('and keeps the cursor in the box', document.activeElement === el().querySelector('.sfh-search'));
+	// a scene with a navigation name goes by it, for the GM too; the GM can still find it by its own
+	const find = async (text) => { const box = el().querySelector('.sfh-search'); box.value = text; box.dispatchEvent(new Event('input', { bubbles: true })); await wait(40); };
+	await find('geth ambush');
+	check('the GM finds a scene by its own name', !!tile('ambush') && el().querySelectorAll('.sfh-tile').length === 1);
+	check('and it is shown by its navigation name', tile('ambush')?.querySelector('.sfh-nm')?.textContent === 'A Quiet Road', tile('ambush')?.querySelector('.sfh-nm')?.textContent);
+	await find('quiet road');
+	check('or by its navigation name', !!tile('ambush'));
+	tile('ambush').dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+	await wait(320);
+	check("the GM's preview names it by its navigation name, with its own name under it",
+		card().querySelector('h3')?.textContent === 'A Quiet Road' && [...card().querySelectorAll('.sfh-path')].some((p) => p.textContent === 'Geth Ambush'), card().textContent.replace(/\s+/g, ' ').slice(0, 80));
+	await unhover();
 	await click(el().querySelector('[data-folder="loose"]'));
 	check('a folder clears the search', !el().querySelector('.sfh-search').value && !!tile('loose'));
 	await click(more.isConnected ? el().querySelector('.sfh-more') : el().querySelector('.sfh-more'));

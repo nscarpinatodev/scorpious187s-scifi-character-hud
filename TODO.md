@@ -120,13 +120,13 @@ a look is named for what it is, never for the game it suits.
 `styles/interface.css` gives the interface the device's colors, edges and glow, and each panel
 has had its own pass. `tools/harness-sidebar.html` is Foundry 14's sidebar, every tab, in its own
 markup and stylesheet, and `tools/test-sidebar.mjs` checks it under every device and look. Seen
-in Foundry and good. Only the chat's roll results are left.
+in Foundry and good. Nothing is left here.
 
-- [ ] **Chat** — message frames, whispers, dice totals, 5e's cards and the chat input are in the
+- [x] **Chat** — message frames, whispers, dice totals, 5e's cards and the chat input are in the
       device's colors, and the fantasy devices have their own (paper cards; dark glass edged in
-      light). The message modes and the export and clear buttons are in the palette, the mode in
-      use lit (inked in on a page). Left: a shape pass so roll results read like the device's own
-      readout on the sci-fi devices.
+      light). Roll totals are in the device's number face with its glow, critical and fumble
+      set apart; the message modes and the export and clear buttons are in the palette, the mode
+      in use lit (inked in on a page). Seen in Foundry and good.
 - [x] **Actors, Items, Journal, Tables, Cards, Playlists directories** — folder rows edged in the
       device's color with the plus badge lit, a GM's folder color kept with light lettering, entry
       rows lit from the edge, an ink tile behind Foundry's white placeholder art on a page, and

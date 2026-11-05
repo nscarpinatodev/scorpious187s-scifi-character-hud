@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2 — 2026-11-05
+
+- The scene bar names a scene by its navigation name when it has one, for the GM as well as the
+  players, and by its own name when it does not. The GM can still search by either, and a scene's
+  preview shows its own name under the navigation name.
+
 ## 1.1.1 — 2026-11-05
 
 - Verified with Pathfinder Second Edition 8.7.0 and Starfinder Second Edition 1.7.0.

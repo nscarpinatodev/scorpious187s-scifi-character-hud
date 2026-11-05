@@ -79,9 +79,9 @@ export class SceneBar {
 	/*  What it shows                                */
 	/* -------------------------------------------- */
 
-	/** The name a user sees: a player sees the navigation name if the scene has one. */
+	/** The name everyone sees: the navigation name if the scene has one, and its own name if not. */
 	static #name(scene) {
-		return game.user.isGM ? scene.name : scene.navName || scene.name;
+		return scene.navName || scene.name;
 	}
 
 	/** Who is looking at each scene, as Foundry's list shows them. */
@@ -235,7 +235,8 @@ export class SceneBar {
 		let list;
 		let crumbs;
 		if (query) {
-			list = all.filter((s) => this.#name(s).toLowerCase().includes(query) || this.#path(s).toLowerCase().includes(query));
+			list = all.filter((s) => this.#name(s).toLowerCase().includes(query) || this.#path(s).toLowerCase().includes(query)
+				|| (gm && s.name.toLowerCase().includes(query)));
 			crumbs = game.i18n.format('SFH.Scenes.Found', { count: list.length, query: this.#query.trim() });
 		} else if (this.#folder === 'bar') {
 			list = this.#barScenes();
@@ -383,7 +384,7 @@ export class SceneBar {
 		].join('');
 		card.innerHTML = `<div class="sfh-thumb" style="${scene.thumb ? `background-image:url('${esc(scene.thumb)}')` : ''}"><div class="sfh-state">${state}</div></div>
 			<div class="sfh-card-b">
-				<div><h3>${esc(this.#name(scene))}</h3>${gm && this.#path(scene) ? `<div class="sfh-path">${esc(this.#path(scene))}</div>` : ''}</div>
+				<div><h3>${esc(this.#name(scene))}</h3>${gm && this.#name(scene) !== scene.name ? `<div class="sfh-path">${esc(scene.name)}</div>` : ''}${gm && this.#path(scene) ? `<div class="sfh-path">${esc(this.#path(scene))}</div>` : ''}</div>
 				${facts ? `<div class="sfh-facts">${facts}</div>` : ''}
 				<div class="sfh-acts">${actions}</div></div>`;
 		card.dataset.sceneId = id;
