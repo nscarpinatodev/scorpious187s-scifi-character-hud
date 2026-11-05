@@ -166,6 +166,11 @@ device, and the character sheet is a projection it raises over the canvas.
   Browser.
 - The sidebar's headings scale to fit its width, whatever the font, and take the device's main
   color or one chosen in the settings.
+- The sidebar's directories and Compendium in each device's dress: folders edged in the device's
+  color with its plus badge lit, rows lit from the edge on hover, and pack names in its heading
+  face. On a page (the Journal, the Grove, the Crystal core) Foundry's white placeholder art gets
+  an ink tile, a folder the GM colored keeps light lettering, and pack names stay light on their
+  banners. Tabs popped out of the sidebar, chat included, are themed as the sidebar is.
 - The HUD clears off the canvas while a spell's area or a weapon's burst is being placed, and
   comes back when it is done.
 - A fifth device, TRON: an identity disc on a deck of light lines at the foot of the screen,

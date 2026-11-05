@@ -13,7 +13,7 @@
    these win without needing more specificity.
    ========================================================================= */
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #hud, #menu, #tooltip, .locked-tooltip, #context-menu, #combat-popout) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #hud, #menu, #tooltip, .locked-tooltip, #context-menu, #combat-popout, .sidebar-popout) {
 	/* panel darks */
 	--color-cool-5: rgb(var(--sfh-bg-rgb));
 	--color-cool-5-25: rgb(var(--sfh-bg-rgb) / 25%);
@@ -52,14 +52,15 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #ui-top, #hud, #menu,
  * Foundry's theme sets these on the sidebar tabs, inputs and buttons themselves, and a value
  * set on an element beats one it would inherit. So they are set on the same elements here.
  */
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(.themed, .sidebar-tab) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, .sidebar-popout) :is(.themed, .sidebar-tab),
+body[data-sfh-device] .sidebar-popout {
 	--sidebar-background: var(--sfh-panel);
 	--sidebar-separator: 1px solid var(--sfh-line-2);
 	--sidebar-entry-hover-bg: var(--sfh-hover);
 	--sidebar-folder-color: var(--sfh-hover);
 }
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(input, select, textarea, code-mirror, formula-input, color-picker, file-picker, document-tags, string-tags) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout, .sidebar-popout) :is(input, select, textarea, code-mirror, formula-input, color-picker, file-picker, document-tags, string-tags) {
 	--input-background-color: var(--sfh-cell);
 	--input-border-color: var(--sfh-line-2);
 	--input-text-color: var(--sfh-text);
@@ -68,7 +69,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(i
 	--input-placeholder-color: var(--sfh-dim);
 }
 
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(button, a.button) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout, .sidebar-popout) :is(button, a.button) {
 	--button-background-color: var(--sfh-cell);
 	--button-border-color: var(--sfh-line);
 	--button-text-color: var(--sfh-text);
@@ -84,7 +85,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #combat-popout) :is(b
  * HUD — is a .ui-control taking its colors from these. Foundry sets them on the element
  * itself, so they have to be set there rather than inherited.
  */
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu) :is(.ui-control, .placeable-hud) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu, .sidebar-popout) :is(.ui-control, .placeable-hud) {
 	--control-bg-color: var(--sfh-panel);
 	--control-border-color: var(--sfh-line);
 	--control-icon-color: var(--sfh-text);
@@ -153,6 +154,34 @@ body[data-sfh-device] #sidebar-content .chat-sidebar.with-background {
 	box-shadow: 0 0 16px color-mix(in srgb, var(--sfh-glow) 45%, transparent);
 }
 
+/*
+ * A tab popped out of the sidebar is a window of its own, but still the sidebar: the same
+ * panel, framed on every side, under a header in the device's colors.
+ */
+body[data-sfh-device] .sidebar-popout {
+	--background: var(--sfh-panel);
+	--color-header-background: color-mix(in srgb, var(--sfh-hot) 16%, rgb(var(--sfh-bg-rgb)));
+	--color-border: var(--sfh-line);
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 16px color-mix(in srgb, var(--sfh-glow) 45%, transparent), 0 6px 20px rgb(0 0 0 / 45%);
+	color: var(--sfh-text);
+}
+
+body[data-sfh-device] .sidebar-popout > .window-header {
+	border-bottom: 1px solid var(--sfh-line-2);
+	color: var(--sfh-bright);
+}
+
+body[data-sfh-device] .sidebar-popout > .window-header .header-control {
+	color: var(--sfh-dim);
+}
+
+body[data-sfh-device] .sidebar-popout > .window-header .header-control:hover {
+	color: var(--sfh-hot);
+}
+
 body[data-sfh-device] #players {
 	--background-color: var(--sfh-panel);
 	--border-color: var(--sfh-line);
@@ -175,10 +204,133 @@ body[data-sfh-device] #camera-views {
 	box-shadow: 0 0 14px color-mix(in srgb, var(--sfh-glow) 45%, transparent);
 }
 
-/* folder rows and entries in the directories */
-body[data-sfh-device] #sidebar-content .folder > .folder-header {
+/* ---------------------------------------------------------------- directories */
+/*
+ * Actors, Items, Journal, Tables, Cards, Playlists and the Compendium list. Foundry draws these
+ * for a dark sidebar: its placeholder art is white, a folder's own color is meant to sit under
+ * light text, and its pack banners are photographs. On a page (the Journal, the Grove, the
+ * Crystal core) each of those needs its own answer.
+ */
+body[data-sfh-device] {
+	--sfh-thumb-bg: transparent;
+	--sfh-on-hot: rgb(var(--sfh-bg-rgb));
+}
+
+/* the Crystal core's cyan is too light for its pale glass to read on, so it takes its navy */
+body[data-sfh-device][data-sfh-look="crystal"] {
+	--sfh-on-hot: var(--sfh-bright);
+}
+
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"]),
+body[data-sfh-device][data-sfh-look="crystal"] {
+	--sfh-thumb-bg: color-mix(in srgb, var(--sfh-text) 88%, transparent);
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-header search input:focus {
+	border-color: var(--sfh-hot);
+	box-shadow: 0 0 8px color-mix(in srgb, var(--sfh-glow) 60%, transparent);
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-header .inline-control {
+	color: var(--sfh-dim);
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-header .inline-control:hover,
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-header .inline-control.active {
+	color: var(--sfh-hot);
+	text-shadow: 0 0 6px var(--sfh-glow);
+}
+
+/* folder rows: the device's color down the edge, and the name in its brightest ink */
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header {
 	color: var(--sfh-bright);
 	border-color: var(--sfh-line-2);
+	box-shadow: inset 3px 0 0 var(--sfh-hot);
+	text-shadow: none;
+	font-weight: 600;
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header > i {
+	color: var(--sfh-hot);
+}
+
+/* a folder the GM colored keeps its color, so its name goes light over it, as Foundry has it */
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"],
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"] > i {
+	color: #f4f1ea;
+	text-shadow: 0 0 3px #000, 0 1px 2px #000;
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header[style*="background-color"] {
+	box-shadow: inset 3px 0 0 color-mix(in srgb, #fff 55%, transparent);
+}
+
+/* the row's own buttons are its ink, not boxes: a filled box hid them on a colored folder */
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header .create-button {
+	background: none;
+	border-color: transparent;
+	box-shadow: none;
+	color: inherit;
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header .create-button:hover {
+	border-color: currentColor;
+}
+
+/* Foundry's plus badge is black on every sidebar; here it is lit in the device's color */
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .folder > .folder-header .create-button.icon-plus::after {
+	background: var(--sfh-hot);
+	color: var(--sfh-on-hot);
+	text-shadow: none;
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .subdirectory:not([style*="border-left-color"]) {
+	border-left-color: var(--sfh-line);
+}
+
+/* entries: the art framed, and the row lit from its edge when the pointer is on it */
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-item img.thumbnail {
+	background: var(--sfh-thumb-bg);
+	border-right: 1px solid var(--sfh-line-2);
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-item.entry:hover {
+	box-shadow: inset 3px 0 0 var(--sfh-hot);
+}
+
+body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-item.entry:hover .entry-name {
+	color: var(--sfh-bright);
+}
+
+/* the Compendium's packs sit on their banners, whatever the page under them, so they stay light */
+body[data-sfh-device] .compendium-sidebar .compendium {
+	color: #f2efe8;
+}
+
+body[data-sfh-device] .compendium-sidebar .compendium.locked {
+	color: #d9d4ca;
+}
+
+body[data-sfh-device] .compendium-sidebar .compendium .compendium-name strong {
+	font-family: var(--sfh-display);
+	letter-spacing: 0.03em;
+	text-shadow: 0 0 4px #000, 1px 1px 3px #000;
+}
+
+body[data-sfh-device] .compendium-sidebar .compendium .compendium-footer {
+	background: rgb(0 0 0 / 70%);
+	color: #e8e4dc;
+	border-top: 1px solid var(--sfh-line);
+	border-right: 1px solid var(--sfh-line);
+}
+
+body[data-sfh-device] .compendium-sidebar .compendium:hover {
+	color: #fff;
+	box-shadow: inset 0 0 0 1px var(--sfh-hot), inset 0 0 14px var(--sfh-glow);
+}
+
+body[data-sfh-device] .compendium-sidebar .compendium:hover .compendium-name i {
+	color: var(--sfh-hot);
 }
 
 /* menus and tooltips */
@@ -204,7 +356,7 @@ body[data-sfh-device] :is(#tooltip, .locked-tooltip) {
 }
 
 /* headings and labels take the device's display face */
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .window-title, legend) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, .sidebar-popout) :is(h1, h2, h3, h4, .window-title, legend) {
 	font-family: var(--sfh-display);
 	letter-spacing: 0.04em;
 }
@@ -213,7 +365,7 @@ body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .
  * ...and its heading color, outside the chat log: a card's headings belong to the card, and
  * may be on parchment. scripts/interface/headings.mjs sizes these to fit the sidebar.
  */
-body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle) :is(h1, h2, h3, h4, .window-title, legend):not(.chat-log *) {
+body[data-sfh-device] :is(#ui-left, #ui-right, #ui-middle, .sidebar-popout) :is(h1, h2, h3, h4, .window-title, legend):not(.chat-log *) {
 	color: var(--sfh-heading);
 }
 
@@ -641,6 +793,7 @@ body[data-sfh-device="journal"][data-sfh-dark="on"] {
 
 body[data-sfh-device="journal"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
 body[data-sfh-device="journal"] #sidebar-content .chat-sidebar.with-background,
+body[data-sfh-device="journal"] .sidebar-popout,
 body[data-sfh-device="journal"] #players :is(#players-active, #players-inactive) {
 	background: var(--sfh-grain), var(--sfh-panel);
 	box-shadow: inset 8px 0 18px -10px rgb(60 40 20 / 50%), 0 4px 14px rgb(0 0 0 / 35%);
@@ -705,6 +858,7 @@ body[data-sfh-device="journal"] #chat-message:focus {
 /* the Vambrace: dark glass over the map */
 body[data-sfh-device="vambrace"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
 body[data-sfh-device="vambrace"] #sidebar-content .chat-sidebar.with-background,
+body[data-sfh-device="vambrace"] .sidebar-popout,
 body[data-sfh-device="vambrace"] #players :is(#players-active, #players-inactive),
 body[data-sfh-device="vambrace"][data-sfh-chat="on"] .chat-message {
 	backdrop-filter: blur(6px);

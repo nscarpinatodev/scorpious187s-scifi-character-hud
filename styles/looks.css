@@ -128,6 +128,7 @@ body[data-sfh-device][data-sfh-look="runeforge"] {
 /* stone, not glass: the sidebar and chat are dressed stone too */
 body[data-sfh-device][data-sfh-look="runeforge"] #sidebar-content .sidebar-tab:not(.chat-sidebar),
 body[data-sfh-device][data-sfh-look="runeforge"] #sidebar-content .chat-sidebar.with-background,
+body[data-sfh-device][data-sfh-look="runeforge"] .sidebar-popout,
 body[data-sfh-device][data-sfh-look="runeforge"] #players :is(#players-active, #players-inactive) {
 	background: var(--sfh-stone), var(--sfh-panel);
 	backdrop-filter: none;

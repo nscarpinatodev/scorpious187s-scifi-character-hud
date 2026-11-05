@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sidebar harness</title>
+<!--
+	Foundry 14's sidebar, every tab, in Foundry's own markup (templates/sidebar in the install) and
+	under Foundry's own stylesheet, with the module's over it: the directories, the compendium list,
+	the settings tab and the chat with its message modes. Pick a device or look and a tab; the
+	sidebar tests drive the same functions (SFH.wear, SFH.show, SFH.popout).
+-->
+<!-- as Foundry's main layout loads them: Font Awesome in the variables layer, or its icon width beats the controls' -->
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/css/foundry2.css">
+<style>@import "file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/fonts/fontawesome/css/all.min.css" layer(variables);</style>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/device.css">
+<link rel="stylesheet" href="../styles/interface.css">
+<link rel="stylesheet" href="../styles/looks.css">
+<style>
+	html, body { height: 100%; margin: 0; }
+	body.game {
+		background: radial-gradient(ellipse at 40% 40%, #2a3340 0%, #10141a 70%);
+		color: #ddd;
+	}
+	#interface { display: flex; position: relative; height: 100%; }
+	#ui-middle { flex: 1; }
+	#ui-right { display: flex; align-items: flex-start; gap: 16px; padding: 16px 16px 14px; pointer-events: none; height: 100%; box-sizing: border-box; }
+	#sidebar { height: 100%; display: flex; align-items: flex-start; pointer-events: none; }
+	#sidebar-content { pointer-events: all; height: 100%; }
+	#sidebar-tabs > menu { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+	#rig { position: fixed; left: 16px; top: 16px; z-index: 100; display: flex; flex-direction: column; gap: 6px; padding: 10px;
+		background: #1b1e24; border: 1px solid #445; border-radius: 6px; font: 13px system-ui; color: #ccd; }
+</style>
+</head>
+<body class="vtt game system-pf2e theme-dark" data-sfh-chat="on" data-sfh-dark="off">
+<div id="rig">
+	<label>Device <select id="rigDevice"></select></label>
+	<label><input type="checkbox" id="rigDark"> The Journal's interface in the dark</label>
+</div>
+<div id="interface" class="themed theme-dark">
+	<div id="ui-middle"></div>
+	<div id="ui-right">
+		<div id="ui-right-column-1" class="flexcol"></div>
+		<aside id="sidebar" class="sidebar">
+			<div id="sidebar-content" class="flexcol expanded">
+
+				<section id="chat" class="tab sidebar-tab chat-sidebar flexcol themed theme-dark" data-tab="chat">
+					<div class="chat-scroll"><ol class="chat-log plain themed theme-light">
+						<li class="chat-message message flexcol"><header class="message-header flexrow"><h4 class="message-sender">Vex Kaori</h4><span class="message-metadata"><time>2m ago</time></span></header>
+							<div class="message-content"><span class="flavor-text">Laser Pistol vs AC</span>
+							<div class="dice-roll"><div class="dice-result"><div class="dice-formula">1d20 + 11</div><h4 class="dice-total">21</h4></div></div></div></li>
+						<li class="chat-message message flexcol whisper"><header class="message-header flexrow"><h4 class="message-sender">GM</h4><span class="whisper-to">To: Vex</span></header>
+							<div class="message-content">The drone banks around the cargo stack.</div></li>
+					</ol></div>
+					<form class="chat-form">
+						<div id="chat-controls">
+							<div id="message-modes" class="split-button">
+								<button type="button" class="ui-control icon fa-solid fa-globe" data-action="messageMode" data-mode="publicroll" aria-pressed="true" aria-label="Public Roll"></button>
+								<button type="button" class="ui-control icon fa-solid fa-user-secret" data-action="messageMode" data-mode="gmroll" aria-pressed="false" aria-label="Private GM Roll"></button>
+								<button type="button" class="ui-control icon fa-solid fa-eye-slash" data-action="messageMode" data-mode="blindroll" aria-pressed="false" aria-label="Blind GM Roll"></button>
+								<button type="button" class="ui-control icon fa-solid fa-user" data-action="messageMode" data-mode="selfroll" aria-pressed="false" aria-label="Self Roll"></button>
+							</div>
+							<div class="control-buttons">
+								<button type="button" class="ui-control icon fa-solid fa-floppy-disk" data-action="export" aria-label="Export Chat Log"></button>
+								<button type="button" class="ui-control icon fa-solid fa-trash" data-action="flush" aria-label="Clear Chat Log"></button>
+							</div>
+						</div>
+						<prose-mirror id="chat-message" class="chat-input" name="message" aria-label="Chat" style="--chat-message-placeholder: 'Enter a message';"></prose-mirror>
+					</form>
+				</section>
+
+				<template id="directory"><!-- one per document directory; filled from DIRECTORIES below --></template>
+
+				<section id="compendium" class="tab sidebar-tab compendium-sidebar directory flexcol themed theme-dark" data-tab="compendium">
+					<header class="directory-header flexcol">
+						<div class="header-actions action-buttons flexrow">
+							<button type="button" class="create-entry" data-action="createEntry"><i class="fa-solid fa-book-atlas" inert></i><span>Create Compendium</span></button>
+							<button type="button" class="create-folder" data-action="createFolder"><i class="fa-solid fa-folder" inert></i><span>Create Folder</span></button>
+						</div>
+						<search>
+							<button type="button" class="inline-control filter icon fa-solid fa-filter" data-action="filter" aria-label="Filter"></button>
+							<input type="search" name="search" autocomplete="off" placeholder="Search Compendiums" aria-label="Search Compendiums">
+							<button type="button" class="inline-control toggle-sort icon fa-solid fa-arrow-down-a-z" data-action="toggleSort" aria-label="Sort"></button>
+							<button type="button" class="inline-control collapse-all icon fa-duotone fa-folder-tree" data-action="collapseFolders" aria-label="Collapse All Folders"></button>
+						</search>
+					</header>
+					<ol class="directory-list plain">
+						<li class="directory-item folder flexcol expanded" data-folder-depth="1">
+							<header class="folder-header"><i class="fa-solid fa-folder-open fa-fw" inert></i><span class="folder-name ellipsis">Mass Effect</span>
+								<button type="button" class="create-button create-folder icon icon-plus fa-solid fa-folder" aria-label="Create Folder"></button></header>
+							<ol class="subdirectory plain">
+								<li class="directory-item entry compendium actor" data-pack="me.armors">
+									<img class="compendium-banner" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/ui/banners/actor-banner.webp" alt="ME Armors" loading="lazy">
+									<a class="entry-name compendium-name" data-action="activateEntry"><i class="fa-solid fa-suitcase" inert></i><strong>ME Armors</strong></a>
+									<ul class="status-icons plain flexrow"></ul>
+									<footer class="compendium-footer"><i class="fa-solid fa-cube" inert></i><span class="source">mass-effect-sf2e-conversion</span></footer>
+								</li>
+								<li class="directory-item entry compendium item locked" data-pack="me.weapons">
+									<img class="compendium-banner" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/ui/banners/item-banner.webp" alt="ME Weapons" loading="lazy">
+									<a class="entry-name compendium-name" data-action="activateEntry"><i class="fa-solid fa-suitcase" inert></i><strong>ME Weapons</strong></a>
+									<ul class="status-icons plain flexrow"><i class="fa-solid fa-lock" aria-label="Locked"></i></ul>
+									<footer class="compendium-footer"><i class="fa-solid fa-cube" inert></i><span class="source">mass-effect-sf2e-conversion</span></footer>
+								</li>
+							</ol>
+						</li>
+						<li class="directory-item entry compendium journal" data-pack="core.rules">
+							<img class="compendium-banner" src="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/ui/banners/journalentry-banner.webp" alt="Rules" loading="lazy">
+							<a class="entry-name compendium-name" data-action="activateEntry"><i class="fa-solid fa-book-open" inert></i><strong>Starfinder Rules</strong></a>
+							<ul class="status-icons plain flexrow"><i class="fa-solid fa-eye" aria-label="Ownership"></i><i class="fa-solid fa-lock" aria-label="Locked"></i></ul>
+							<footer class="compendium-footer"><i class="fa-solid fa-atom" inert></i><span class="source">sf2e</span></footer>
+						</li>
+					</ol>
+				</section>
+
+				<section id="settings" class="tab sidebar-tab settings-sidebar flexcol themed theme-dark" data-tab="settings">
+					<section class="info flexcol">
+						<h1 class="title">Foundry Virtual Tabletop</h1>
+						<p class="subtitle version">Version 14 Stable</p>
+						<div class="build"><span class="label">Build</span><span class="value">369</span></div>
+						<div class="system"><span class="label">Starfinder Second Edition</span><span class="value">1.6.1</span></div>
+						<div class="modules"><span class="label">Modules</span><span class="value">37</span></div>
+					</section>
+					<section class="settings flexcol">
+						<h4 class="divider">Game Settings</h4>
+						<button type="button" data-action="openApp" data-app="configure"><i class="fa-solid fa-gears" inert></i> Configure Settings</button>
+						<button type="button" data-action="openApp" data-app="controls"><i class="fa-solid fa-gamepad" inert></i> Configure Controls</button>
+						<button type="button" data-action="openApp" data-app="modules"><i class="fa-solid fa-cube" inert></i> Manage Modules</button>
+						<button type="button" data-action="openApp" data-app="world"><i class="fa-solid fa-globe" inert></i> Edit World</button>
+						<button type="button" data-action="openApp" data-app="players"><i class="fa-solid fa-users" inert></i> User Management</button>
+						<button type="button" data-action="openApp" data-app="tours"><i class="fa-solid fa-person-hiking" inert></i> Tours</button>
+					</section>
+					<section class="documentation flexcol" data-help-docs>
+						<h4 class="divider">Help and Documentation</h4>
+						<button type="button" data-action="openApp" data-app="support"><i class="fa-solid fa-handshake-angle" inert></i> Support &amp; Issues</button>
+						<a class="button" href="#"><i class="fa-solid fa-book" inert></i> Documentation</a>
+						<a class="button" href="#"><i class="fa-solid fa-landmark" inert></i> Community Wiki</a>
+					</section>
+					<section class="access flexcol">
+						<h4 class="divider">Game Access</h4>
+						<button type="button" data-action="openApp" data-app="invitations"><i class="fa-solid fa-wifi" inert></i> Invitation Links</button>
+						<button type="button" data-action="openApp" data-app="logout"><i class="fa-solid fa-door-closed" inert></i> Log Out</button>
+						<button type="button" data-action="openApp" data-app="setup"><i class="fa-solid fa-house" inert></i> Return to Setup</button>
+					</section>
+				</section>
+			</div>
+			<nav id="sidebar-tabs" class="tabs faded-ui" role="tablist" data-tooltip-direction="LEFT"><menu class="flexcol"></menu></nav>
+		</aside>
+	</div>
+</div>
+<script type="module">
+const ICONS = 'file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/icons/svg';
+const { DEVICES } = await import('../scripts/constants.mjs');
+const { fitHeadings } = await import('../scripts/interface/headings.mjs');
+
+/* ---- the document directories, from templates/sidebar/directory and its partials ---- */
+const DIRECTORIES = [
+	{ id: 'actors', cls: 'actor', icon: 'fa-solid fa-user', name: 'Actor', folders: [['Crew', null, ['Asha Rourke', 'Vex Kaori', 'Blee']], ['Opposition', '#5a2a2a', ['Geth Trooper', 'Krogan Mercenary']]], loose: ['Ambassador Udina'] },
+	{ id: 'items', cls: 'item', icon: 'fa-solid fa-suitcase', name: 'Item', folders: [['Weapons', null, ['M-23 Eviscerator', 'M-11 Suppressor']]], loose: ['Medi-Gel', 'Omni-Gel'] },
+	{ id: 'journal', cls: 'journalentry', icon: 'fa-solid fa-book-open', name: 'JournalEntry', folders: [['Act I', '#2a3f5a', ['Arrival on Omega', 'The Afterlife Club']]], loose: ['House Rules'] },
+	{ id: 'tables', cls: 'rolltable', icon: 'fa-solid fa-table-list', name: 'RollTable', folders: [], loose: ['Random Encounters', 'Loot: Common'] },
+	{ id: 'cards', cls: 'cards', icon: 'fa-solid fa-cards', name: 'Cards', folders: [], loose: ['Tarot Deck', 'Hand: Vex'] },
+	{ id: 'playlists', cls: 'playlist', icon: 'fa-solid fa-music', name: 'Playlist', folders: [], loose: ['Combat Themes', 'Ambience'] },
+];
+const THUMBS = ['mystery-man.svg', 'cowled.svg', 'skull.svg', 'book.svg', 'chest.svg', 'coins.svg'];
+const entry = (d, name, i) => `<li class="directory-item entry document ${d.cls} flexrow" data-entry-id="${d.id}${i}">
+	${d.id === 'playlists' ? '' : `<img class="thumbnail" src="${ICONS}/${THUMBS[i % THUMBS.length]}" alt="${name}" loading="lazy">`}
+	<a class="entry-name ellipsis" data-action="activateEntry">${name}</a></li>`;
+const directory = (d) => {
+	let n = 0;
+	const folders = d.folders.map(([name, color, entries]) => `<li class="directory-item folder flexcol expanded" data-folder-depth="1">
+		<header class="folder-header"${color ? ` style="background-color: ${color};"` : ''} data-action="toggleFolder">
+			<i class="fa-solid fa-folder-open fa-fw" inert></i><span class="folder-name ellipsis">${name}</span>
+			<button type="button" class="create-button create-folder icon icon-plus fa-solid fa-folder" aria-label="Create Folder"></button>
+			<button type="button" class="create-button create-entry icon icon-plus ${d.icon}" aria-label="Create ${d.name}"></button>
+		</header>
+		<ol class="subdirectory plain"${color ? ` style="border-left-color: ${color};"` : ''}>${entries.map((e) => entry(d, e, n++)).join('')}</ol></li>`).join('');
+	return `<section id="${d.id}" class="tab sidebar-tab ${d.id}-sidebar directory flexcol themed theme-dark" data-tab="${d.id}">
+		<header class="directory-header flexcol">
+			<div class="header-actions action-buttons flexrow">
+				<button type="button" class="create-entry" data-action="createEntry"><i class="${d.icon}" inert></i><span>Create ${d.name.replace('JournalEntry', 'Journal Entry').replace('RollTable', 'Table')}</span></button>
+				<button type="button" class="create-folder" data-action="createFolder"><i class="fa-solid fa-folder" inert></i><span>Create Folder</span></button>
+			</div>
+			<search>
+				<button type="button" class="inline-control toggle-search-mode icon fa-solid fa-magnifying-glass" data-action="toggleSearch" aria-label="Search Names"></button>
+				<input type="search" name="search" autocomplete="off" placeholder="Search ${d.id[0].toUpperCase()}${d.id.slice(1)}" aria-label="Search">
+				<button type="button" class="inline-control toggle-sort icon fa-solid fa-arrow-down-a-z" data-action="toggleSort" aria-label="Sort Alphabetically"></button>
+				<button type="button" class="inline-control collapse-all icon fa-duotone fa-folder-tree" data-action="collapseFolders" aria-label="Collapse All Folders"></button>
+			</search>
+		</header>
+		<ol class="directory-list plain">${folders}${d.loose.map((e) => entry(d, e, n++)).join('')}</ol></section>`;
+};
+document.getElementById('directory').outerHTML = DIRECTORIES.map(directory).join('');
+
+/* ---- the tab strip, from templates/sidebar/tabs.hbs ---- */
+const TABS = [['chat', 'fa-solid fa-comments'], ['combat', 'fa-solid fa-swords'], ['scenes', 'fa-solid fa-map'], ['actors', 'fa-solid fa-user'],
+	['items', 'fa-solid fa-suitcase'], ['journal', 'fa-solid fa-book-open'], ['tables', 'fa-solid fa-table-list'], ['cards', 'fa-solid fa-cards'],
+	['macros', 'fa-solid fa-code'], ['playlists', 'fa-solid fa-music'], ['compendium', 'fa-solid fa-book-atlas'], ['settings', 'fa-solid fa-gears']];
+document.querySelector('#sidebar-tabs menu').innerHTML = TABS.map(([id, icon]) => `<li>
+	<button type="button" class="ui-control plain icon ${icon}" data-action="tab" data-tab="${id}" role="tab" aria-pressed="false" data-group="primary" aria-label="${id}"></button>
+	<div class="notification-pip"></div></li>`).join('') + `<li><button type="button" class="collapse ui-control plain icon fas fa-caret-left" aria-label="Collapse" data-action="toggleState"></button></li>`;
+
+/* ---- a tab popped out of the sidebar: SidebarTab#renderPopout, an application window of its own ---- */
+function popout(tab) {
+	document.querySelector('.sidebar-popout')?.remove();
+	const src = document.getElementById(tab);
+	if (!src) return;
+	const win = document.createElement('div');
+	win.id = `${tab}-popout`;
+	win.className = `application ${src.className.replace(/(tab|active)/g, '').trim()} sidebar-popout`;
+	win.style.cssText = 'position: fixed; left: 320px; top: 120px; width: 300px; height: 460px; z-index: 50;';
+	win.innerHTML = `<header class="window-header"><i class="window-icon fa-fw ${document.querySelector(`#sidebar-tabs [data-tab="${tab}"]`).className.match(/fa-solid fa-[a-z-]+/)[0]}" inert></i>
+		<h1 class="window-title">${tab[0].toUpperCase()}${tab.slice(1)}</h1>
+		<button type="button" class="header-control icon fa-solid fa-xmark" data-action="close" aria-label="Close"></button></header>
+		<section class="window-content">${src.innerHTML}</section>`;
+	document.body.append(win);
+}
+
+/* ---- what the module's chrome sets on the page ---- */
+function wear(id) {
+	const d = DEVICES[id] ?? DEVICES.omni;
+	document.body.dataset.sfhDevice = d.base ?? d.id;
+	if (d.base) document.body.dataset.sfhLook = d.id;
+	else delete document.body.dataset.sfhLook;
+	document.getElementById('rigDevice').value = d.id;
+	fitHeadings();
+}
+function show(tab) {
+	for (const el of document.querySelectorAll('#sidebar-content > .tab')) el.classList.toggle('active', el.dataset.tab === tab);
+	for (const b of document.querySelectorAll('#sidebar-tabs [data-action="tab"]')) b.setAttribute('aria-pressed', String(b.dataset.tab === tab));
+	document.getElementById('sidebar-content').classList.toggle('active-chat', tab === 'chat');
+	fitHeadings();
+}
+function dark(on) {
+	document.body.dataset.sfhDark = on ? 'on' : 'off';
+	document.getElementById('rigDark').checked = !!on;
+}
+const pick = document.getElementById('rigDevice');
+pick.innerHTML = Object.values(DEVICES).map((d) => `<option value="${d.id}">${d.id}${d.base ? ` (over ${d.base})` : ''}</option>`).join('');
+pick.addEventListener('change', () => wear(pick.value));
+document.getElementById('rigDark').addEventListener('change', (e) => dark(e.target.checked));
+document.getElementById('sidebar-tabs').addEventListener('click', (e) => {
+	const b = e.target.closest('[data-action="tab"]');
+	if (b && document.getElementById(b.dataset.tab)) show(b.dataset.tab);
+});
+wear('omni');
+show('actors');
+await document.fonts.ready;
+fitHeadings();
+globalThis.SFH = { wear, show, dark, popout, fit: fitHeadings, ready: true };
+</script>
+</body>
+</html>

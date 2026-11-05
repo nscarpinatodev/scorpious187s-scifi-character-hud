@@ -94,9 +94,6 @@ projection, and new work is tried there.
       the book stays paper. Seen in Foundry and good.
 - [x] **Odds and ends in the satchel** — a map, pages, a sealed letter, a quill and a vial, packed
       out of sight while the flap is shut and up beside the book once it has gone.
-- [ ] **The looks' own words** — a look keeps its device's panel names, so the Reliquary's
-      effects are "Wards & Hexes" like the Vambrace's. A cleric's might want their own (and see
-      Sci-fi devices).
 
 ## Sci-fi devices
 
@@ -109,10 +106,7 @@ a look is named for what it is, never for the game it suits.
       and Cyberdeck open their own way: a look can now carry its own opening (its animations in
       `styles/looks.css`, its length a `sequence` of its own in `SEQ_LONG`). Not seen in Foundry
       yet.
-- [ ] **The omni-tool, TRON and EVA's names** — still named for the works they come from; decide
-      whether to rename them, as the new looks are named for what they are.
-- [ ] **Their own words** — like the fantasy looks, a sci-fi look keeps its device's panel names
-      (the Crystal core says "Wards & Hexes").
+- [x] **The omni-tool, TRON and EVA's names** — decided: they keep their names.
 
 ## Sidebar panels, one at a time
 
@@ -121,15 +115,20 @@ needs its own pass — that gets the colors right, not the shape.
 
 - [ ] **Chat** — message frames, whispers, dice totals, 5e's cards and the chat input are in the
       device's colors, and the fantasy devices have their own (paper cards; dark glass edged in
-      light). Left: the roll-mode picker and the controls around the input, and a shape pass so
-      roll results read like the device's own readout on the sci-fi devices.
-- [ ] **Actors, Items, Journal, Tables, Cards, Playlists directories** — folder rows, entry rows,
-      the search box and the create buttons.
-- [ ] **Compendium** — pack rows and the pack browser.
-- [ ] **Settings tab** — the module and game settings lists.
-- [ ] **Sidebar tab strip** — the icons themselves, not just their active state.
-- [ ] **Popped-out sidebar tabs** — they render outside the interface regions, so the palette
-      scoping does not reach them. Decide whether they should be themed too.
+      light). The message modes and the export and clear buttons are in the palette, the mode in
+      use lit (inked in on a page). Left: a shape pass so roll results read like the device's own
+      readout on the sci-fi devices.
+- [x] **Actors, Items, Journal, Tables, Cards, Playlists directories** — folder rows edged in the
+      device's color with the plus badge lit, a GM's folder color kept with light lettering, entry
+      rows lit from the edge, an ink tile behind Foundry's white placeholder art on a page, and
+      the search box and its controls.
+- [x] **Compendium** — pack rows: names stay light on their banners, in the device's heading
+      face, and lit on hover. The pack browser is a window, not the sidebar, and keeps Foundry's.
+- [x] **Settings tab** — its headings fit and take the device's color, and its buttons, dividers
+      and build info are in the palette. Nothing more was needed.
+- [x] **Sidebar tab strip** — checked under every device and look; the palette was enough.
+- [x] **Popped-out sidebar tabs** — themed: the same panel and palette, framed on every side
+      under a header in the device's colors. `tools/test-sidebar.mjs` covers all of it.
 
 ## After that
 
