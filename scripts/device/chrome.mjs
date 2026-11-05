@@ -77,6 +77,7 @@ export class DeviceChrome {
 			deck.id = EL.deck;
 			layer.append(deck);
 			bottom.append(layer);
+			this.#keepHotbar(deck);
 		}
 		layer.dataset.device = id;
 		if (look) layer.dataset.look = look;
@@ -108,6 +109,32 @@ export class DeviceChrome {
 		this.#bind();
 		this.fit();
 		return true;
+	}
+
+	/**
+	 * Other modules move the macro bar too, and not only when Foundry draws it. PF2e HUD's
+	 * persistent HUD puts `#hotbar` back into `#ui-bottom` whenever it closes, which it does at
+	 * load and whenever its settings change, even with that HUD switched off, and pulls it into
+	 * its own panel each time it draws when it is on. So while the device is up, the bar is put
+	 * straight back whenever something takes it off the deck. Taking the device down or
+	 * rebuilding it moves the bar on purpose, and removes or replaces this deck first, so
+	 * those are left alone.
+	 */
+	static #keepHotbar(deck) {
+		if (!globalThis.MutationObserver) return;
+		let warned = false;
+		new MutationObserver((records) => {
+			const hotbar = document.getElementById('hotbar');
+			if (!hotbar || hotbar.parentElement === deck) return;
+			if (!records.some((r) => [...r.removedNodes].includes(hotbar))) return;
+			// a deck no longer on the page belongs to a device that was taken down or rebuilt
+			if (!deck.isConnected || document.getElementById(EL.deck) !== deck) return;
+			if (!warned) {
+				warned = true;
+				console.info(`${MOD} | the macro bar was moved off the device by another module; putting it back`);
+			}
+			this.mount();
+		}).observe(deck, { childList: true });
 	}
 
 	/**

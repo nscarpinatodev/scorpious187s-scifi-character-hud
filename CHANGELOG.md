@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- The macro bar stays on the device when another module moves it. PF2e HUD puts the bar back at
+  the foot of the screen whenever its persistent HUD closes, even with that HUD switched off, and
+  the device now takes it straight back.
+
 ## 1.0.0 — 2026-11-05
 
 The first release. The Foundry interface becomes the device your character wears, and its switch
