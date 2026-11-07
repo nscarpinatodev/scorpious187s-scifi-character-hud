@@ -7,7 +7,9 @@ import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
  * hardware. The world setting only decides what a user gets before they have chosen.
  */
 export function registerSettings(onDeviceChange, onControlIconsChange, onFontChange, onHeadingColorChange, onCarouselChange, onScenesChange) {
-	const deviceChoices = Object.fromEntries(Object.values(DEVICES).map((d) => [d.id, d.label]));
+	// a look made for one system is offered nowhere else; in a world of that system it is all there is
+	const deviceChoices = Object.fromEntries(Object.values(DEVICES).filter(offered).map((d) => [d.id, d.label]));
+	const choosable = !lockedDevice();
 
 	// Both device settings repaint immediately: a player following the world default has to
 	// see the GM's change without reloading.
@@ -15,7 +17,7 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		name: 'SFH.Settings.WorldDevice',
 		hint: 'SFH.Settings.WorldDeviceHint',
 		scope: 'world',
-		config: true,
+		config: choosable,
 		type: String,
 		choices: deviceChoices,
 		default: DEFAULT_DEVICE,
@@ -36,7 +38,7 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		name: 'SFH.Settings.Device',
 		hint: 'SFH.Settings.DeviceHint',
 		scope: 'client',
-		config: true,
+		config: choosable,
 		type: String,
 		choices: { '': 'SFH.Settings.DeviceWorld', ...deviceChoices },
 		default: '',
@@ -266,11 +268,23 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 	});
 }
 
+/** Whether a device or look can be worn in this world: one made for a system only in that system. */
+function offered(device) {
+	return !device.system || device.system === game.system?.id;
+}
+
+/** The look made for this world's system, which everyone wears there, or null. */
+export function lockedDevice() {
+	return Object.values(DEVICES).find((d) => d.system && d.system === game.system?.id)?.id ?? null;
+}
+
 /** The device or look this user chose, falling back to the world's choice. */
 function chosenDevice() {
+	const locked = lockedDevice();
+	if (locked) return locked;
 	const mine = game.settings.get(MOD, S.device);
 	const id = mine || game.settings.get(MOD, S.worldDevice);
-	return DEVICES[id] ? id : DEFAULT_DEVICE;
+	return DEVICES[id] && offered(DEVICES[id]) ? id : DEFAULT_DEVICE;
 }
 
 /**

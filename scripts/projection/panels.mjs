@@ -273,7 +273,10 @@ export function renderLatest(roll, device) {
 	const follow = roll.damage
 		? `${actBtn('Damage', 'latestDamage', `${roll.messageId}:damage`, { cls: 'sm ghost' })}${actBtn('Critical', 'latestDamage', `${roll.messageId}:critical`, { cls: 'sm ghost' })}`
 		: '';
-	return `<b class="l-t">${esc(word(device, 'latest'))}</b>
+	const mode = roll.mode
+		? `<span class="l-m sfh-mode-${esc(roll.mode.kind)}" data-tooltip="${esc(roll.mode.label)}" aria-label="${esc(roll.mode.label)}"><i class="fa-solid ${esc(roll.mode.icon)}" inert></i></span>`
+		: '';
+	return `<b class="l-t">${esc(word(device, 'latest'))}</b>${mode}
 		<span class="l-n" title="${esc(roll.name)}">${esc(roll.name)}</span>
 		<span class="l-f mono" title="${esc(roll.formula)}">${esc(roll.formula)}</span>
 		<span class="l-v mono">${esc(roll.total)}</span>

@@ -596,3 +596,28 @@ body[data-sfh-device][data-sfh-look="cyberdeck"] {
 	#sfh-projection .sfh-stage[data-device][data-look="retro"] .sweep { display: none !important; }
 	body[data-sfh-look="holoprojector"] :is(#sfh-beam, #sfh-device #sfh-band) { animation: none !important; }
 }
+
+/* ---------------- the Pip-Boy Lonestar Edition: Fallout 2d20 only, phosphor green on olive */
+/*
+ * The interface in the Pip-Boy's own light: phosphor green on near-black, amber for what is lit,
+ * in its screen's face. Fallout has no projection, but the stage is dressed too, for completeness.
+ */
+body[data-sfh-device][data-sfh-look="lonestar"] {
+	--sfh-bg-rgb: 6 14 8; --sfh-hot: #35ff7b; --sfh-glow: rgb(53 255 123 / 45%); --sfh-bright: #d8ffe2; --sfh-text: #9ff0b5; --sfh-dim: #4f9a64;
+	--sfh-line: rgb(53 255 123 / 42%); --sfh-line-2: rgb(53 255 123 / 14%); --sfh-hover: rgb(53 255 123 / 11%);
+	--sfh-panel: rgb(8 16 10 / 94%); --sfh-cell: rgb(4 10 6 / 85%); --sfh-acc: #ffb43c; --sfh-bad: #ff5f57;
+	--sfh-face: Monofonto, 'Share Tech Mono', monospace; --sfh-display: Rajdhani, sans-serif; --sfh-mono: Monofonto, 'Share Tech Mono', monospace; --sfh-radius: 2px;
+}
+#sfh-projection .sfh-stage[data-device][data-look="lonestar"] {
+	--scan: rgba(53, 255, 123, .04); --pnl: rgba(8, 16, 10, .9); --pnl2: rgba(53, 255, 123, .05);
+	--line: rgba(53, 255, 123, .45); --line2: rgba(53, 255, 123, .16); --text: #9ff0b5; --bright: #d8ffe2; --dim: #4f9a64;
+	--hot: #35ff7b; --hotbg: rgba(53, 255, 123, .16); --hover: rgba(53, 255, 123, .1); --glow: rgba(53, 255, 123, .55);
+	--acc: #ffb43c; --accbg: rgba(255, 180, 60, .14); --bad: #ff5f57; --good: #35ff7b;
+	--font: Monofonto, 'Share Tech Mono', monospace; --display: Rajdhani, sans-serif; --mono: Monofonto, 'Share Tech Mono', monospace;
+	--r: 2px;
+}
+/* the POWER lamp is lit while the device is on; the band does not dim, the lamp says it */
+body[data-sfh-look="lonestar"] #sfh-device .sfh-ls-halo { opacity: 0; transition: opacity .3s; }
+body[data-sfh-power="on"][data-sfh-look="lonestar"] #sfh-device .sfh-ls-halo { opacity: .75; }
+body[data-sfh-power="on"][data-sfh-look="lonestar"] #sfh-device .sfh-ls-bulb { fill: url(#sfh-ls-lamp-on); }
+body[data-sfh-power="off"][data-sfh-look="lonestar"] #sfh-band { filter: none; }

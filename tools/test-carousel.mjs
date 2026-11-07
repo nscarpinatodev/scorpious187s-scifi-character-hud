@@ -97,6 +97,14 @@ const results = await page.evaluate(async () => {
 	check('hit points show on what they own', card('c1').querySelector('.sfh-bar'));
 	check('but not on anyone else', !card('c2').querySelector('.sfh-bar') && !card('c5').querySelector('.sfh-bar'));
 	check('low hit points are marked', card('c6').querySelector('.sfh-bar').classList.contains('low'));
+	// Fallout 2d20 keeps them in system.health
+	const asha = combat.turns.find((t) => t.id === 'c6').actor;
+	const kept = asha.system;
+	asha.system = { health: { value: 5, max: 20 } };
+	await draw();
+	check("Fallout's health is read as hit points", /5 of 20/.test(card('c6').querySelector('.sfh-bar')?.getAttribute('aria-label') ?? ''), card('c6').querySelector('.sfh-bar')?.outerHTML);
+	asha.system = kept;
+	await draw();
 	check('effects shown as the tracker shows them', card('c1').querySelectorAll('.sfh-effects img').length === 1, card('c1').querySelectorAll('.sfh-effects img').length);
 	check('the current turn is marked', card('c2').classList.contains('active') && !card('c1').classList.contains('active'));
 	check('defeated is marked', card('c4').classList.contains('defeated'));

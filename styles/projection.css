@@ -121,6 +121,9 @@
 #sfh-projection .sfh-latest{flex-direction:row;align-items:center;gap:12px;padding:0 14px;border-color:var(--hot);font-size:13px;color:var(--text);--clip:none;box-shadow:0 0 10px var(--glow)}
 #sfh-projection .sfh-latest>*{flex:none}
 #sfh-projection .sfh-latest .l-t{color:var(--hot);font-family:var(--display);font-size:12px}
+#sfh-projection .sfh-latest .l-m{flex:none;display:inline-grid;place-items:center;width:20px;height:20px;border:1px solid #9a6bff;border-radius:3px;background:color-mix(in srgb,#9a6bff 25%,transparent);color:var(--bright);font-size:11px}
+#sfh-projection .sfh-latest .l-m.sfh-mode-blind{border-color:#ff5a7a;background:color-mix(in srgb,#ff5a7a 25%,transparent)}
+#sfh-projection .sfh-latest .l-m.sfh-mode-self{border-color:#4aa3ff;background:color-mix(in srgb,#4aa3ff 25%,transparent)}
 #sfh-projection .sfh-latest .l-n{flex:0 1 auto;min-width:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--bright)}
 #sfh-projection .sfh-latest .l-f{flex:0 2 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dim);font-size:11.5px}
 #sfh-projection .sfh-latest .l-v{font-size:22px;line-height:1;color:var(--bright);text-shadow:0 0 8px var(--glow)}

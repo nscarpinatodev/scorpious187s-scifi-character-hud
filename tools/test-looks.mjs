@@ -54,8 +54,11 @@ const results = await page.evaluate(async () => {
 		art: art()?.dataset.art,
 	});
 
-	const looks = Object.values(DEVICES).filter((d) => d.base);
+	// a look made for one system is checked in a world of that system, below
+	const looks = Object.values(DEVICES).filter((d) => d.base && !d.system);
 	check('four fantasy looks and seven for science fiction', looks.length === 11, looks.map((d) => d.id));
+	const systemLooks = Object.values(DEVICES).filter((d) => d.system);
+	check('and one for Fallout 2d20', systemLooks.length === 1 && systemLooks[0].system === 'fallout', systemLooks.map((d) => d.id));
 	const bases = {};
 	for (const base of new Set(looks.map((d) => d.base))) {
 		await wear(base);
@@ -98,6 +101,37 @@ const results = await page.evaluate(async () => {
 			check(`${tag}: drawn in its own leather`, behind?.innerHTML.includes('#34501f'));
 		}
 		check(`${tag}: its name and hint are in the language file`, game.i18n.localize(look.label) !== look.label && game.i18n.localize(look.hint) !== look.hint);
+	}
+
+	// a look made for one system: offered nowhere else, and all there is in a world of that system
+	const { lockedDevice } = await import('../scripts/settings.mjs');
+	for (const look of systemLooks) {
+		const tag = `${look.id} (${look.system} only)`;
+		await wear(look.id);
+		check(`${tag}: not worn in any other system, even when chosen`, currentLook() !== look.id && lockedDevice() === null, [currentLook(), lockedDevice()]);
+		const sys = game.system.id;
+		game.system.id = look.system;
+		await wear('vambrace');
+		const base = bases[look.base];
+		check(`${tag}: in its own system, worn whatever is chosen`, lockedDevice() === look.id && currentLook() === look.id && currentDevice() === look.base, [currentLook(), currentDevice()]);
+		await game.settings.set(null, 'worldDevice', 'journal');
+		await wait(300);
+		check(`${tag}: whatever the world chooses too`, currentLook() === look.id && document.body.dataset.sfhLook === look.id);
+		check(`${tag}: the page and the device layer wear it`, document.body.dataset.sfhDevice === look.base && document.getElementById('sfh-device').dataset.look === look.id);
+		check(`${tag}: its own art, with the plate and the switch`, art()?.dataset.art === look.art && art().querySelector('#sfh-arm') && art().querySelector('#sfh-band'), art()?.dataset.art);
+		check(`${tag}: its own interface colors`, ui('--sfh-hot') && ui('--sfh-hot') !== base.hot, [ui('--sfh-hot'), base.hot]);
+		// the switch's lamp says whether the device is on
+		const bulb = () => getComputedStyle(art().querySelector('.sfh-ls-bulb')).fill;
+		hud.setPower(false, { silent: true });
+		await wait(100);
+		const unlit = bulb();
+		document.body.dataset.sfhPower = 'on';
+		const lit = bulb();
+		document.body.dataset.sfhPower = 'off';
+		check(`${tag}: its POWER lamp lights when the device is on`, unlit !== lit && lit.includes('lamp-on'), [unlit, lit]);
+		check(`${tag}: its name and hint are in the language file`, game.i18n.localize(look.label) !== look.label && game.i18n.localize(look.hint) !== look.hint);
+		await game.settings.set(null, 'worldDevice', 'omni');
+		game.system.id = sys;
 	}
 
 	// back to a device as it is: nothing of the look is left

@@ -81,13 +81,16 @@ export class Carousel {
 			parent.append(el);
 			this.#bind(el);
 		}
-		const positions = this.#positions(el);
+		const positions = this.#measure(el);
 		const scrolled = el.querySelector('.sfh-cards')?.scrollLeft ?? 0;
 		const turnKey = `${combat.id}:${combat.round}:${combat.turn}`;
 		const sameTurn = el.dataset.turn === turnKey;
 		el.dataset.turn = turnKey;
-		el.style.setProperty('--cs', String((game.settings.get(MOD, S.carouselScale) ?? 100) / 100));
-		el.innerHTML = `<ol class="sfh-cards plain">${cards.join('')}</ol>${this.#controls(combat, started)}`;
+		// a new size for the carousel is put on at once: every card at a new size is not a turn
+		const size = String((game.settings.get(MOD, S.carouselScale) ?? 100) / 100);
+		const resized = !isNew && el.style.getPropertyValue('--cs') !== size;
+		el.style.setProperty('--cs', size);
+		this.#update(el, cards.join(''), this.#controls(combat, started));
 		this.#fitWidth(el);
 		this.#dropBelow(el);
 		if (!this.#watching) {
@@ -95,11 +98,17 @@ export class Carousel {
 			watchObstacles(() => this.schedule());
 		}
 		const cardsRow = el.querySelector('.sfh-cards');
+		// the row is kept from one drawing to the next, so centering's padding has to go when it stops
 		if (anchorId) this.#balance(cardsRow, anchorId);
+		else {
+			cardsRow.style.removeProperty('padding-left');
+			cardsRow.style.removeProperty('padding-right');
+		}
 		// a new turn starts with the current one in view; anything else leaves the row where it was
 		if (sameTurn) cardsRow.scrollLeft = scrolled;
 		else if (anchorId) cardsRow.scrollLeft = (cardsRow.scrollWidth - cardsRow.clientWidth) / 2;
-		this.#slide(el, positions);
+		else cardsRow.scrollLeft = 0;
+		if (!resized) this.#slide(el, positions);
 		Hooks.callAll('sfhCarousel', true);
 	}
 
@@ -136,7 +145,9 @@ export class Carousel {
 		const img = await ui.combat?._getCombatantThumbnail?.(combatant) ?? combatant.img ?? CONST.DEFAULT_TOKEN;
 		const css = ['combatant', 'sfh-card', active && 'active', combatant.hidden && 'hide', defeated && 'defeated', !seesName && 'unnamed'].filter(Boolean).join(' ');
 
-		const hp = owner || game.user.isGM ? combatant.actor?.system?.attributes?.hp : null;
+		// hit points where the system keeps them: attributes.hp, or Fallout 2d20's health
+		const system = combatant.actor?.system;
+		const hp = owner || game.user.isGM ? system?.attributes?.hp ?? system?.health : null;
 		const bar = hp?.max
 			? `<span class="sfh-bar ${hp.value / hp.max <= 0.35 ? 'low' : ''}" role="img" aria-label="${esc(`${hp.value} of ${hp.max} hit points`)}"><i style="width:${Math.max(0, Math.min(100, (hp.value / hp.max) * 100))}%"></i></span>`
 			: '';
@@ -155,7 +166,7 @@ export class Carousel {
 				? `<button type="button" class="sfh-init sfh-roll" data-cact="roll" aria-label="${esc(game.i18n.localize('COMBAT.InitiativeRoll'))}" data-tooltip="${esc(game.i18n.localize('COMBAT.InitiativeRoll'))}"><i class="fa-solid fa-dice-d20" inert></i></button>`
 				: '<span class="sfh-init sfh-unrolled">–</span>';
 
-		return `<li class="${css}" data-combatant-id="${esc(combatant.id)}"${seesName ? ` data-tooltip="${esc(name)}"` : ''}>
+		return `<li class="${css}" data-key="${esc(combatant.id)}" data-combatant-id="${esc(combatant.id)}"${seesName ? ` data-tooltip="${esc(name)}"` : ''}>
 			<span class="sfh-portrait"><img src="${esc(img)}" alt="${esc(name)}">${icons ? `<span class="sfh-effects">${icons}</span>` : ''}${this.#targetedBy(combatant)}</span>
 			${initiative}${bar}
 			<strong class="sfh-name">${esc(name)}</strong>
@@ -243,42 +254,153 @@ export class Carousel {
 		const at = row.findIndex((c, i) => c === visible.at(-1) && row[i + 1] === visible[0]);
 		if (at < 0) return;
 		const round = at < before ? combat.round : combat.round + 1;
-		cards.splice(at + 1, 0, `<li class="sfh-next-round" aria-hidden="true">${esc(game.i18n.format('COMBAT.Round', { round }))}</li>`);
+		cards.splice(at + 1, 0, `<li class="sfh-next-round" data-key="round" aria-hidden="true">${esc(game.i18n.format('COMBAT.Round', { round }))}</li>`);
 	}
 
 	/**
 	 * Put one card at the very middle of the row. The row is centered, so it only needs what is
 	 * either side of that card to take up the same width: the shorter side gets the difference.
-	 * The interface can be scaled, which rectangles see and a style's pixels do not.
+	 * It goes by where the cards' places are, not where they are seen: part way through a slide
+	 * they are somewhere else, and centering on that would shift the row and start the slide over.
 	 */
 	static #balance(row, anchorId) {
 		const anchor = row.querySelector(`[data-combatant-id="${CSS.escape(anchorId)}"]`);
 		if (!anchor) return;
 		row.style.removeProperty('padding-left');
 		row.style.removeProperty('padding-right');
-		const scale = row.getBoundingClientRect().width / (row.offsetWidth || 1) || 1;
-		const box = anchor.getBoundingClientRect();
-		const left = box.left - row.firstElementChild.getBoundingClientRect().left;
-		const right = row.lastElementChild.getBoundingClientRect().right - box.right;
-		const difference = (right - left) / scale;
+		const first = row.firstElementChild;
+		const last = row.lastElementChild;
+		const left = anchor.offsetLeft - first.offsetLeft;
+		const right = (last.offsetLeft + last.offsetWidth) - (anchor.offsetLeft + anchor.offsetWidth);
+		const difference = right - left;
 		const base = parseFloat(getComputedStyle(row).paddingLeft) || 0;
 		if (difference > 0) row.style.paddingLeft = `${base + difference}px`;
 		else if (difference < 0) row.style.paddingRight = `${base - difference}px`;
 	}
 
-	/** Where each card is now, to slide it from there to wherever the new order puts it. */
-	static #positions(el) {
-		return new Map([...el.querySelectorAll('.sfh-card')].map((card) => [card.dataset.combatantId, card.getBoundingClientRect().left]));
+	/**
+	 * Draw the row without starting it again. A card that has not changed is the same element as
+	 * before, so its portrait does not load again and a slide it is in the middle of runs on; one
+	 * that has changed keeps its portrait's image. The cards are put in their new order by moving
+	 * them, and the turn controls are replaced only when they change.
+	 */
+	static #update(el, cardsHtml, controlsHtml) {
+		let row = el.querySelector(':scope > .sfh-cards');
+		if (!row) {
+			el.innerHTML = '<ol class="sfh-cards plain"></ol>';
+			row = el.firstElementChild;
+		}
+		const old = new Map([...row.children].map((li) => [li.dataset.key, li]));
+		const fresh = document.createElement('template');
+		fresh.innerHTML = cardsHtml;
+		const next = [...fresh.content.children].map((li) => {
+			const markup = li.outerHTML;
+			const was = old.get(li.dataset.key);
+			if (was?._sfhHtml === markup) {
+				old.delete(li.dataset.key);
+				return was;
+			}
+			li._sfhHtml = markup;
+			const img = li.querySelector('.sfh-portrait > img');
+			const keep = was?.querySelector('.sfh-portrait > img');
+			if (img && keep && keep.getAttribute('src') === img.getAttribute('src')) {
+				keep.alt = img.alt;
+				img.replaceWith(keep);
+			}
+			return li;
+		});
+		next.forEach((node, i) => {
+			if (row.children[i] !== node) row.insertBefore(node, row.children[i] ?? null);
+		});
+		while (row.children.length > next.length) row.lastElementChild.remove();
+
+		const turns = el.querySelector(':scope > .sfh-turns');
+		if (turns?._sfhHtml === controlsHtml) return;
+		const box = document.createElement('template');
+		box.innerHTML = controlsHtml;
+		const made = box.content.firstElementChild;
+		made._sfhHtml = controlsHtml;
+		if (turns) turns.replaceWith(made);
+		else el.append(made);
 	}
 
+	/** How much the interface is scaled: rectangles see it, a style's pixels do not. */
+	static #uiScale(el) {
+		const row = el.querySelector('.sfh-cards') ?? el;
+		return row.getBoundingClientRect().width / (row.offsetWidth || 1) || 1;
+	}
+
+	/** How far a card's slide still has to go, in screen pixels. */
+	static #shift(card, ui) {
+		const transform = getComputedStyle(card).transform;
+		if (!transform || transform === 'none') return 0;
+		return new DOMMatrixReadOnly(transform).m41 * ui;
+	}
+
+	/**
+	 * Where each card is on the screen now, part way through a slide or not, and where its place
+	 * in the row is: what a slide starts from, and whether it has a new place to go to at all.
+	 */
+	static #measure(el) {
+		const out = new Map();
+		const ui = this.#uiScale(el);
+		for (const card of el.querySelectorAll('.sfh-cards > [data-key]')) {
+			const rect = card.getBoundingClientRect();
+			out.set(card.dataset.key, { seen: rect.left, place: rect.left - this.#shift(card, ui), width: rect.width / ui });
+		}
+		return out;
+	}
+
+	/**
+	 * Slide each card from where it was seen to its new place, growing or shrinking as it goes when
+	 * its turn starts or ends. One whose place and size have not changed is left alone, so another
+	 * drawing part way through a turn's slide does not start it over. The order goes around, so on
+	 * a new turn the card that wraps from one end to the other does not cross the whole row: it
+	 * carries on off its edge with the rest, and comes in at the other.
+	 */
 	static #slide(el, before) {
 		if (!before.size || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-		for (const card of el.querySelectorAll('.sfh-card')) {
-			const was = before.get(card.dataset.combatantId);
-			if (was === undefined) continue;
-			const by = was - card.getBoundingClientRect().left;
-			if (Math.abs(by) < 1) continue;
-			card.animate([{ transform: `translateX(${by}px)` }, { transform: 'none' }], { duration: 280, easing: 'cubic-bezier(.2,.8,.2,1)' });
+		const ui = this.#uiScale(el);
+		const moves = [];
+		for (const card of el.querySelectorAll('.sfh-cards > [data-key]')) {
+			const was = before.get(card.dataset.key);
+			const rect = card.getBoundingClientRect();
+			const place = rect.left - this.#shift(card, ui);
+			if (!was) {
+				card.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: 'ease-out' });
+				continue;
+			}
+			const width = card.offsetWidth || 1;
+			const grow = was.width / width;
+			const resized = card.getAnimations().some((a) => a.id === 'sfh-slide') ? false : Math.abs(grow - 1) > 0.01;
+			if (Math.abs(place - was.place) < 1 && !resized) continue;
+			for (const running of card.getAnimations()) if (running.id === 'sfh-slide') running.cancel();
+			moves.push({ card, by: (was.seen - place) / ui, step: (place - was.place) / ui, width, grow });
+		}
+		if (!moves.length) return;
+
+		// which way the order turned: most cards move one place that way
+		const lean = Math.sign(moves.reduce((sum, m) => sum + Math.sign(m.step), 0));
+		const sizes = moves.filter((m) => Math.sign(m.step) === lean).map((m) => Math.abs(m.step)).sort((a, b) => a - b);
+		const usual = sizes[Math.floor(sizes.length / 2)] ?? 0;
+		for (const { card, by, step, width, grow } of moves) {
+			const wraps = lean && Math.sign(step) === -lean && Math.abs(step) > usual * 1.5;
+			const slide = { duration: 280, easing: 'cubic-bezier(.2,.8,.2,1)', id: 'sfh-slide' };
+			// the cards line up along their tops, so a card grows from its top left corner
+			const size = Math.abs(grow - 1) > 0.01 ? ` scale(${grow})` : '';
+			const origin = { transformOrigin: 'left top' };
+			if (!wraps) {
+				card.animate([{ transform: `translateX(${by}px)${size}`, ...origin }, { transform: 'none', ...origin }], slide);
+				continue;
+			}
+			// off one edge, in at the other, moving the way the rest are
+			const off = lean * Math.max(usual, width);
+			card.animate([
+				{ transform: `translateX(${by}px)${size}`, opacity: 1, ...origin },
+				{ transform: `translateX(${by + off}px)${size}`, opacity: 0, offset: 0.45, ...origin },
+				{ transform: `translateX(${-off}px)`, opacity: 0, offset: 0.55, ...origin },
+				{ transform: 'none', opacity: 1, ...origin },
+			], { ...slide, duration: 380, easing: 'ease-in-out' });
 		}
 	}
 

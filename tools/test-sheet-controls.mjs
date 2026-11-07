@@ -38,6 +38,7 @@ const results = await page.evaluate(async () => {
 		sc3: { id: 'sc3', uuid: 'Actor.asha.Item.sc3', update: async (d) => record('entry.update', d) },
 		s1: { id: 's1', system: { location: { uses: { value: 0, max: 1 } } }, update: async (d) => record('spell.update', d) },
 		lore1: { id: 'lore1', update: async (d) => record('lore.update', d) },
+		sh: { id: 'sh', type: 'shield', update: async (d) => record('shield.update', d) },
 	};
 	actor.items.get = (id) => items[id] ?? null;
 	actor.update = async (d) => record('actor.update', d);
@@ -892,11 +893,51 @@ const results = await page.evaluate(async () => {
 		hpBox.value = '9';
 		hpBox.dispatchEvent(new Event('change', { bubbles: true }));
 		await wait(40);
-		check('shield hit points are typed', last()?.[1]?.['system.attributes.shield.hp.value'] === 9, last());
+		check("shield hit points are typed, into the shield, as the sheet saves them", last()?.[0] === 'shield.update' && last()[1]?.['system.hp.value'] === 9, last());
 		actor.system.attributes.shield.raised = true;
 		Projection.render();
 		await wait(100);
 		check('a raised shield says so', shieldRowEl().querySelector('[data-act="raiseShield"]').textContent === 'Raised');
+
+		/* SF2e's Solar Shield: an effect standing in for a shield, with a Raise a Shield action of its own */
+		items.solar = { id: 'solar', type: 'effect' };
+		actor.system.attributes.shield = { itemId: 'solar', name: 'SF2E.SpecificRule.Solarian.SolarShield.Label', ac: 1, hardness: 2, hp: { value: 13, max: 13 }, raised: false, broken: false, destroyed: false };
+		const localizeWas = game.i18n.localize;
+		game.i18n.localize = (k) => (k === 'SF2E.SpecificRule.Solarian.SolarShield.Label' ? 'Solar Shield' : localizeWas(k));
+		const made = [];
+		const createWas = actor.createEmbeddedDocuments;
+		actor.createEmbeddedDocuments = async (type, data) => { made.push([type, data]); return data; };
+		const actionsWas = actor.itemTypes.action;
+		const posted = [];
+		actor.itemTypes.action = [...(actionsWas ?? []), { id: 'ras', slug: 'raise-a-shield', name: 'Raise a Shield',
+			system: { selfEffect: { uuid: 'Compendium.sf2e.equipment-effects.Item.2YgXoHvJfrDHucMr' } }, toMessage: async () => posted.push('ras') }];
+		const fromUuidWas = globalThis.fromUuid;
+		globalThis.fromUuid = async (uuid) => (uuid.endsWith('2YgXoHvJfrDHucMr') ? { toObject: () => ({ name: 'Effect: Raise a Shield', type: 'effect' }) } : fromUuidWas?.(uuid));
+		raised.length = 0;
+		Projection.render();
+		await wait(100);
+		check('the Solar Shield is shown by its name, not the word the system keeps it under', /Solar Shield/.test(shieldRowEl().textContent) && !/SF2E\./.test(shieldRowEl().textContent), shieldRowEl().textContent.replace(/\s+/g, ' '));
+		check('its hit points are shown, not typed: the system works them out afresh', !shieldRowEl().querySelector('[data-commit="shieldHp"]') && /13\s*\/\s*13/.test(shieldRowEl().textContent));
+		await press('[data-act="raiseShield"]');
+		check("Raise puts on its Raise a Shield action's effect", made.length === 1 && made[0][0] === 'Item' && made[0][1][0].name === 'Effect: Raise a Shield', made);
+		check('and says so in the chat', posted.length === 1);
+		check("not the system's call, which raises only a shield that is an item", raised.length === 0, raised);
+		actor.system.attributes.shield.raised = true;
+		Projection.render();
+		await wait(100);
+		await press('[data-act="raiseShield"]');
+		check("raised, it is lowered by the system's call, which takes the effect off", raised.length === 1 && made.length === 1, [raised, made.length]);
+		actor.system.attributes.shield.raised = false;
+		actor.system.attributes.shield.broken = true;
+		Projection.render();
+		await wait(100);
+		await press('[data-act="raiseShield"]');
+		check('a broken one is not raised', made.length === 1);
+		game.i18n.localize = localizeWas;
+		actor.createEmbeddedDocuments = createWas;
+		actor.itemTypes.action = actionsWas;
+		globalThis.fromUuid = fromUuidWas;
+		delete items.solar;
 		delete actor.system.attributes.shield;
 
 		/* ---- speed ---- */

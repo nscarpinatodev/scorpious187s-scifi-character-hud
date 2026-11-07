@@ -13,7 +13,9 @@ update board carries the HUD (`scorpious187s-scifi-character-hud-update.json` in
 scorpious187-updates). Verified since against PF2e 8.7.0 and SF2e 1.7.0, both out on 2026-11-05.
 Then 1.1.1 and 1.1.2, 1.2.0 (devices by category, scenes viewed on a click, everyone's volume) and
 1.3.0 (PF2e skill readouts, 5e favorites for skills, tools and activities, and making and deleting
-items), all on 2026-11-05.
+items), all on 2026-11-05. Then 1.4.0 on 2026-11-06: Fallout 2d20 with Scorpious187's Pip-Boy (the
+Lonestar armband, the system's AP tracker on it, its chat cards readable), the carousel's
+turning, labels on private messages, and the PF2e/SF2e fixes from the 2026-11-05 session.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -35,6 +37,26 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    `actions/checkout@v4` and `softprops/action-gh-release@v2` target Node.js 20, which is
    deprecated, and that `ubuntu-latest` is moving to Ubuntu 26. Move them to versions that run
    on Node.js 24 before they stop working.
+2. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
+   the labels on private messages, the Solar Shield's name and Raise, Stellar Attunement's
+   choice, and the speed of a creature with no land speed. Checked against PF2e 8.7.0 and SF2e
+   1.7.0's code and changelog.
+   - [ ] **Special attacks** — "a number of the buttons for certain special attacks don't seem
+         to work". Which ones is not known yet: area fire and automatic fire, a weapon's extra
+         actions and the Solarian's toggles all go through the system's own calls as the sheet's
+         do. Find out which buttons, on which character.
+
+3. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
+   brings up the Pip-Boy in place of a projection (`scripts/interface/pipboy.mjs`). Seen in
+   Foundry and good: the handoff, the Lonestar armband, the AP tracker on it, and the roll cards.
+   - [x] **The Lonestar armband** — a look of its own (`lonestar`, `system: 'fallout'`), always
+         worn in a Fallout world and not offered anywhere else, drawn from the Pip-Boy module's
+         Lonestar Edition casing.
+   - [x] **AP on the armband** — the system's own AP tracker (`fallout.APTrackerV2`) rides on the
+         deck (`scripts/interface/ap-tracker.mjs`), Overseer AP left of the bar and Party AP right.
+         Left loose in the page, it had pushed the sidebar in.
+   - [ ] **The Fallout system's other cards and windows** under the HUD's theming: the roll card
+         is checked; item, condition, salvage and d6 damage cards each have a template of their own.
 
 Everything after this section is wanted, not urgent.
 

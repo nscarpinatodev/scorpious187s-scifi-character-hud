@@ -1,6 +1,7 @@
 import { EL, DEVICES, S, MOD, KEYS, seqMs } from '../constants.mjs';
 import { currentDevice, currentLook, currentChoice, setting } from '../settings.mjs';
 import { deviceArt, buildArt } from './art.mjs';
+import { holdApTracker, releaseApTracker, apTrackerWidth } from '../interface/ap-tracker.mjs';
 
 /**
  * The device at the foot of the interface.
@@ -99,6 +100,8 @@ export class DeviceChrome {
 		// the real macro bar rides on the device
 		const deck = layer.querySelector(`#${EL.deck}`);
 		if (hotbar.parentElement !== deck) deck.append(hotbar);
+		// Fallout 2d20's AP tracker rides beside it
+		holdApTracker(deck);
 		hotbar.style.setProperty('--hotbar-size', `${setting(S.deckSize)}px`);
 		// the bar fades out with the rest of Foundry's furniture; on a device it should not
 		hotbar.classList.remove('faded-ui');
@@ -152,8 +155,9 @@ export class DeviceChrome {
 		const share = Number(getComputedStyle(layer).getPropertyValue('--sfh-deck-width').replace('%', '')) / 100 || 0.74;
 		// the bar's own width, not the deck's: the deck is sized from the art, so measuring it
 		// would just feed the art's width back into itself
-		const bar = document.getElementById('hotbar')?.scrollWidth;
-		if (!bar) return;
+		const hotbar = document.getElementById('hotbar')?.scrollWidth;
+		if (!hotbar) return;
+		const bar = hotbar + apTrackerWidth(deck);
 		layer.style.width = `${Math.round(Math.min(1180, Math.max(420, bar / share)))}px`;
 	}
 
@@ -166,6 +170,7 @@ export class DeviceChrome {
 			hotbar.classList.add('faded-ui');
 			bottom.append(hotbar);
 		}
+		releaseApTracker();
 		document.getElementById(EL.device)?.remove();
 		for (const k of ['sfhDevice', 'sfhLook', 'sfhDark', 'sfhGrid', 'sfhChat', 'sfhPower', 'sfhHidden', 'sfhSuspended']) delete document.body.dataset[k];
 	}
@@ -177,6 +182,7 @@ export class DeviceChrome {
 		// the art belongs to one device, so drop it and let mount() draw the right one
 		if (layer && hotbar) {
 			document.getElementById('ui-bottom')?.append(hotbar);
+			releaseApTracker();
 			layer.remove();
 		}
 		this.mount();

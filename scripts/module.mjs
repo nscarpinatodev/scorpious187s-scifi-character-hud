@@ -11,6 +11,9 @@ import { SceneBar } from './interface/scenes.mjs';
 import { viewScenesOnClick } from './interface/scene-directory.mjs';
 import { addVolumeCheck, onVolumeMessage } from './interface/volumes.mjs';
 import { splitDevicePicker } from './interface/device-picker.mjs';
+import { markMessage } from './interface/chat-modes.mjs';
+import { PipBoy } from './interface/pipboy.mjs';
+import { holdApTracker, adoptApTracker } from './interface/ap-tracker.mjs';
 import { refreshObstacles } from './interface/obstacles.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 
@@ -139,6 +142,8 @@ Hooks.once('ready', () => {
  * happens here, so the sequence starts once there is something on screen to animate.
  */
 Hooks.on('sfhPower', async (on, { sequence } = {}) => {
+	// Fallout 2d20: the switch brings up the Pip-Boy in place of a projection
+	if (PipBoy.power(on, { sequence })) return;
 	if (on) {
 		const raised = await Projection.open();
 		if (!raised) return DeviceChrome.setPower(false, { silent: true });
@@ -163,8 +168,17 @@ let following = null;
 Hooks.on('controlToken', () => {
 	if (!game.user.isGM) return;
 	clearTimeout(following);
-	following = setTimeout(() => Projection.follow(), 0);
+	following = setTimeout(() => (PipBoy.handles() ? PipBoy.follow() : Projection.follow()), 0);
 });
+
+/* Fallout 2d20's AP tracker, wherever the system draws it, rides on the device beside the macro bar. */
+Hooks.once('setup', () => adoptApTracker());
+Hooks.on('renderAPTrackerV2', () => {
+	if (holdApTracker()) DeviceChrome.fit();
+});
+
+/* The Pip-Boy closed from its own window: the device goes off with it. */
+Hooks.on('closeApplicationV2', (app) => PipBoy.closed(app));
 
 /* The projection shows live data, so it follows the actor. */
 for (const hook of ['updateActor', 'createItem', 'updateItem', 'deleteItem', 'createActiveEffect', 'updateActiveEffect', 'deleteActiveEffect']) {
@@ -213,6 +227,9 @@ Hooks.on('sfhCarousel', () => Projection.scheduleFit());
 /* The strip over the main panel follows the chat log. */
 Hooks.on('createChatMessage', (message) => Projection.noteRoll(message));
 Hooks.on('deleteChatMessage', (message) => Projection.forgetRoll(message));
+
+/* A private message says so: a private GM roll, a blind roll, a self roll, or a whisper and between whom. */
+Hooks.on('renderChatMessageHTML', (message, html) => markMessage(message, html));
 
 /* The scene controls take the devices' icons each time Foundry prepares them. */
 Hooks.on('getSceneControlButtons', restyleControls);

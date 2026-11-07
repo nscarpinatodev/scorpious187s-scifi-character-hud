@@ -63,7 +63,6 @@ export function read(actor) {
 		rest: !npc,
 		hp: { value: hp.value ?? 0, max: hp.max ?? 0, temp: hp.temp ?? 0 },
 		ac: sys.attributes?.ac?.value ?? 10,
-		speed: landSpeed(actor),
 		defenses: defenses(actor),
 		iwr: iwr(actor),
 		vitals: {
@@ -179,9 +178,10 @@ function togglesRow(actor, spells) {
 	if (!shown.length) return '';
 	const items = shown.map(({ t, i }) => {
 		const label = game.i18n.localize(t.label ?? t.option);
-		const fixed = t.alwaysActive || t.enabled === false;
-		const button = `<button type="button" class="b sm ghost sfh-toggle ${t.checked ? 'on' : ''}" data-act="rollOption" data-k="${i}"
-			aria-pressed="${!!t.checked}"${fixed ? ' disabled' : ''}>${esc(label)}</button>`;
+		// one that is always on is not a switch, only its choice is (Stellar Attunement's Graviton or Photon)
+		const button = t.alwaysActive ? lbl(label)
+			: `<button type="button" class="b sm ghost sfh-toggle ${t.checked ? 'on' : ''}" data-act="rollOption" data-k="${i}"
+			aria-pressed="${!!t.checked}"${t.enabled === false ? ' disabled' : ''}>${esc(label)}</button>`;
 		const subs = t.suboptions ?? [];
 		const pick = subs.length > 1
 			? `<select class="sel" data-pick="suboption" data-k="${i}" aria-label="${esc(label)}">${subs.map((o) =>
@@ -192,13 +192,20 @@ function togglesRow(actor, spells) {
 	return `<div class="sec">${esc(game.i18n.localize('SFH.Projection.Options'))}</div><div class="row sfh-toggles" style="gap:6px;flex-wrap:wrap">${items}</div>`;
 }
 
-/** Turn a toggle on or off, or change its choice, by the system's own call. */
+/**
+ * Turn a toggle on or off, or change its choice, by the system's own call. A choice changes as on
+ * the sheet: the toggle stays as it is, and one that is always on can still have its choice changed.
+ */
 function toggleOption(actor, index, suboption) {
 	const t = allToggles(actor)[Number(index)];
-	if (!t || t.alwaysActive || t.enabled === false) return null;
-	const checked = suboption === undefined ? !t.checked : true;
-	const selected = suboption ?? t.suboptions?.find((o) => o.selected)?.value ?? null;
-	return actor.toggleRollOption?.(t.domain, t.option, t.itemId ?? null, checked, selected);
+	if (!t) return null;
+	if (suboption === undefined) {
+		if (t.alwaysActive || t.enabled === false) return null;
+		const selected = t.suboptions?.find((o) => o.selected)?.value ?? null;
+		return actor.toggleRollOption?.(t.domain, t.option, t.itemId ?? null, !t.checked, selected);
+	}
+	if (!t.suboptions?.some((o) => o.value === suboption)) return null;
+	return actor.toggleRollOption?.(t.domain, t.option, t.itemId ?? null, t.alwaysActive ? true : !!t.checked, suboption);
 }
 
 /** An effect's counter up or down. */
@@ -208,8 +215,24 @@ function stepEffect(actor, id, delta) {
 	return delta > 0 ? effect.increase?.() : effect.decrease?.();
 }
 
-/** The system keeps speed under movement, and deletes the old attribute as it prepares an actor. */
-const landSpeed = (actor) => actor.system?.movement?.speeds?.land?.value ?? actor.system?.attributes?.speed?.value ?? 25;
+/**
+ * The system keeps speed under movement, and deletes the old attribute as it prepares an actor.
+ * Since 8.7.0 a creature can have no land speed at all (a fish swims, an ooze may only climb).
+ */
+const landSpeed = (actor) => {
+	const speeds = actor.system?.movement?.speeds;
+	return speeds ? speeds.land?.value ?? null : actor.system?.attributes?.speed?.value ?? null;
+};
+
+/** The Speed cell: land speed, or, for a creature without one, the first speed it does have. */
+function speedCell(actor) {
+	const land = landSpeed(actor);
+	if (land) return { label: 'Speed', value: `${land} ft` };
+	const speeds = actor.system?.movement?.speeds ?? {};
+	const other = ['fly', 'swim', 'climb', 'burrow'].find((type) => speeds[type]?.value);
+	if (!other) return { label: 'Speed', value: '—' };
+	return { label: game.i18n.localize(`PF2E.Actor.Speed.Type.${other[0].toUpperCase()}${other.slice(1)}`), value: `${speeds[other].value} ft` };
+}
 
 function defenses(actor) {
 	const sys = actor.system ?? {};
@@ -222,7 +245,7 @@ function defenses(actor) {
 	}
 	const perception = actor.perception ?? sys.attributes?.perception;
 	if (perception) out.push({ label: 'Perception', value: sgn(perception.mod ?? perception.value ?? 0), act: 'perception', k: '' });
-	out.push({ label: 'Speed', value: `${landSpeed(actor)} ft` });
+	out.push(speedCell(actor));
 	// initiative is rolled with whatever the character has chosen, Perception unless they say otherwise
 	const init = sys.initiative;
 	const chosen = init?.statistic && init.statistic !== 'perception' ? actor.skills?.[init.statistic]?.mod : null;
@@ -417,18 +440,52 @@ export const creatable = (types) => {
 	return known?.length ? types.filter((type) => known.includes(type)) : types;
 };
 
-/** The held shield, with the sheet's hit points and its Raise a Shield. Nothing without one. */
+/**
+ * The held shield, with the sheet's hit points and its Raise a Shield. Nothing without one.
+ * A shield need not be an item: SF2e's Solar Shield is an effect standing in for one, named by a
+ * word to translate, whose hit points the system works out afresh each time and nothing can type.
+ */
 function shieldRow(actor) {
 	const shield = actor.system?.attributes?.shield;
 	if (!shield?.itemId) return '';
 	const state = shield.destroyed ? 'Destroyed' : shield.broken ? 'Broken' : '';
 	const stats = [shield.ac ? `AC ${sgn(shield.ac)}` : '', shield.hardness ? `Hardness ${shield.hardness}` : ''].filter(Boolean).join(' · ');
+	const typed = actor.items?.get(shield.itemId)?.type === 'shield';
+	const hp = typed
+		? `<input class="sfh-in mono" type="number" inputmode="numeric" min="0" value="${shield.hp?.value ?? 0}" data-commit="shieldHp" aria-label="Shield hit points">`
+		: `<span class="mono">${shield.hp?.value ?? 0}</span>`;
 	return `<div class="sec">Shield</div><div class="li sfh-shield">
-		<span class="grow"><b>${esc(shield.name)}</b> <span class="sub">${esc(stats)}</span></span>
+		<span class="grow"><b>${esc(game.i18n.localize(shield.name ?? ''))}</b> <span class="sub">${esc(stats)}</span></span>
 		${state ? `<span class="chip">${state}</span>` : ''}
-		<span class="row" style="gap:4px"><input class="sfh-in mono" type="number" inputmode="numeric" min="0" value="${shield.hp?.value ?? 0}"
-			data-commit="shieldHp" aria-label="Shield hit points"><span class="mono dimc">/ ${shield.hp?.max ?? 0}</span></span>
+		<span class="row" style="gap:4px">${hp}<span class="mono dimc">/ ${shield.hp?.max ?? 0}</span></span>
 		${actBtn(shield.raised ? 'Raised' : 'Raise', 'raiseShield', '', { cls: `sm ghost ${shield.raised ? 'on' : ''}`, title: 'Raise a Shield' })}</div>`;
+}
+
+/**
+ * Raise a Shield, or lower it, through the system. Its own call raises only a shield that is an
+ * item; one that is not (the Solar Shield) comes with a Raise a Shield action of its own, whose
+ * effect is put on, as the call does for a held one, and announced in the chat.
+ */
+async function raiseShield(actor, event) {
+	const shield = actor.system?.attributes?.shield;
+	const held = actor.items?.get(shield?.itemId ?? '')?.type === 'shield';
+	const action = !held && !shield?.raised
+		? actor.itemTypes?.action?.find((a) => a.slug === 'raise-a-shield' && a.system?.selfEffect?.uuid)
+		: null;
+	if (!action) return game.pf2e?.actions?.raiseAShield?.({ actors: [actor], event });
+	if (shield.broken || shield.destroyed) return ui.notifications.warn(game.i18n.format(
+		`PF2E.Actions.RaiseAShield.${shield.destroyed ? 'ShieldIsDestroyed' : 'ShieldIsBroken'}`, { actor: actor.name, shield: game.i18n.localize(shield.name ?? '') }));
+	const effect = await fromUuid(action.system.selfEffect.uuid);
+	if (!effect) return null;
+	await actor.createEmbeddedDocuments('Item', [effect.toObject()]);
+	return action.toMessage?.(event);
+}
+
+/** Shield hit points are the shield's own, as the sheet saves them; one that is not an item has none to type. */
+function setShieldHp(actor, value) {
+	const item = actor.items?.get(actor.system?.attributes?.shield?.itemId ?? '');
+	if (item?.type !== 'shield' || !Number.isFinite(value)) return null;
+	return item.update({ 'system.hp.value': Math.max(0, Math.round(value)) });
 }
 
 /** An attack's buttons: on a strike itself, or on one of its other usages when `alt` says which. */
@@ -960,8 +1017,8 @@ export async function act(actor, action, key, event) {
 		// these two windows and orderings are the system's own, and only its sheet can reach them
 		case 'reload': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-action="reload"]`, event?.target?.closest?.('[data-act]'));
 		case 'selectAmmo': return pressSheetButton(actor, `[data-strike][data-action-index="${Number(a)}"] [data-item-id="${CSS.escape(b)}"] [data-action="select-ammo"]`);
-		case 'raiseShield': return game.pf2e?.actions?.raiseAShield?.({ actors: [actor], event });
-		case 'setShieldHp': return actor.update({ 'system.attributes.shield.hp.value': Math.max(0, Number(key)) });
+		case 'raiseShield': return raiseShield(actor, event);
+		case 'setShieldHp': return setShieldHp(actor, Number(key));
 		case 'recovery': return actor.rollRecovery?.(event);
 		case 'focus': return actor.updateResource?.('focus', Number(key));
 		case 'consume': return consumeItem(actor, key);

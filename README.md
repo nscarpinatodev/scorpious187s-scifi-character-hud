@@ -26,7 +26,16 @@ https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/lat
 
 - Foundry VTT **v13+** (verified on **v14**)
 - **[Scorpious187's Module Library](https://github.com/nscarpinatodev/scorpious187s-lib)**
-- One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+
+- One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+, or **Fallout 2d20** 11.0+ (see below)
+
+**In a Fallout 2d20 world** the HUD has no projection of its own. The interface, chat, carousel
+and scene bar work as in any system, and with
+**[Scorpious187's Pip-Boy](https://github.com/nscarpinatodev/scorpious187s-pip-boy)** active, the
+device's switch brings up the Pip-Boy instead: a player's own character's, and the GM's for the
+token selected on the canvas. Closing the Pip-Boy turns the device off. Everyone wears the
+**Pip-Boy Lonestar Edition** there, the Pip-Boy's own forearm unit, in place of a device of their
+choosing; it is offered in no other system. The system's AP tracker rides on it, Overseer AP to
+the left of the macro bar and Party AP to the right.
 
 The devices' fonts (Michroma, Orbitron, Rajdhani, Share Tech Mono, Chakra Petch, VT323,
 Oxanium, Audiowide; IM Fell English, EB Garamond and Caveat for the Journal; Cinzel and Alegreya

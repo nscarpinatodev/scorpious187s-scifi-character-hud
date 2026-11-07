@@ -8,6 +8,7 @@ import { readDossier, adjustShields, regenShields } from './dossier.mjs';
 import { ornBack, ornDev, evaReadouts } from './ornaments.mjs';
 import { arcaneBolts, stopBolts } from './bolts.mjs';
 import { deviceArt } from '../device/art.mjs';
+import { messageMode } from '../interface/chat-modes.mjs';
 
 /**
  * The projection takes items, and nothing else: an item, from the sidebar, a compendium or another
@@ -736,6 +737,8 @@ export class Projection {
 	static noteRoll(message) {
 		const roll = getAdapter()?.readRoll?.(message);
 		if (!roll) return;
+		// a private roll says so here too, as it does in the chat
+		roll.mode = messageMode(message);
 		this.#latest.set(roll.actorId, roll);
 		if (this.#open && this.actor()?.id === roll.actorId) this.render();
 	}

@@ -294,9 +294,11 @@ const { DeviceChrome } = await import('../scripts/device/chrome.mjs');
 const { registerSettings } = await import('../scripts/settings.mjs');
 const { Projection } = await import('../scripts/projection/projection.mjs');
 const { seqMs } = await import('../scripts/constants.mjs');
+const { PipBoy } = await import('../scripts/interface/pipboy.mjs');
 
 // what module.mjs does in Foundry: the switch says what it wants, the projection obeys
 Hooks.on('sfhPower', async (on, { sequence } = {}) => {
+	if (PipBoy.power(on, { sequence })) return;
 	if (on) {
 		const raised = await Projection.open();
 		if (!raised) return DeviceChrome.setPower(false, { silent: true });
@@ -334,7 +336,11 @@ document.getElementById('rigSize').addEventListener('input', (e) => game.setting
 document.getElementById('rigPower').addEventListener('click', () => DeviceChrome.toggle());
 addEventListener('resize', () => Projection.scheduleFit());
 
-globalThis.SFH = { DeviceChrome, Projection, store, actor };
+Hooks.on('closeApplicationV2', (app) => PipBoy.closed(app));
+const { holdApTracker } = await import('../scripts/interface/ap-tracker.mjs');
+Hooks.on('renderAPTrackerV2', () => { if (holdApTracker()) DeviceChrome.fit(); });
+
+globalThis.SFH = { DeviceChrome, Projection, PipBoy, store, actor };
 
 // ?mockup adds the sequence mock-ups (tools/mockup-sequences.mjs) and their picker
 if (new URLSearchParams(location.search).has('mockup')) await import('./mockup-sequences.mjs');

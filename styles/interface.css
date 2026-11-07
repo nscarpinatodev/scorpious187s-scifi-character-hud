@@ -631,10 +631,11 @@ body[data-sfh-device][data-sfh-chat="on"] :is(.chat-log, #chat-notifications, .c
 	/* Foundry sets the parchment on each message, so inheriting from the log would not reach it */
 	--chat-message-background: var(--sfh-panel);
 	--chat-message-border-color: var(--sfh-line);
-	--color-whisper-background: var(--sfh-panel);
-	--color-whisper-border: var(--sfh-acc);
-	--color-blind-background: var(--sfh-panel);
-	--color-blind-border: var(--sfh-acc);
+	/* a private message is tinted, so it can be told from the rest at a glance */
+	--color-whisper-background: color-mix(in srgb, var(--sfh-whisper) 16%, var(--sfh-panel));
+	--color-whisper-border: var(--sfh-whisper);
+	--color-blind-background: color-mix(in srgb, var(--sfh-blind) 16%, var(--sfh-panel));
+	--color-blind-border: var(--sfh-blind);
 	--color-emote-background: var(--sfh-panel);
 	--color-emote-border: var(--sfh-line);
 	--color-text-emphatic: var(--sfh-bright);
@@ -645,6 +646,61 @@ body[data-sfh-device][data-sfh-chat="on"] :is(.chat-log, #chat-notifications, .c
 	--color-dark-2: var(--sfh-text);
 	--color-dark-3: var(--sfh-dim);
 	--color-dark-4: var(--sfh-dim);
+}
+
+/*
+ * Who a private message is for, in words (scripts/interface/chat-modes.mjs): a private GM roll,
+ * a blind roll, a self roll or a whisper. It says so with or without the device's chat colors.
+ */
+:root {
+	--sfh-whisper: #9a6bff;
+	--sfh-blind: #ff5a7a;
+	--sfh-self: #4aa3ff;
+}
+
+.chat-message .sfh-mode {
+	flex: 0 0 100%;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	margin: 2px 0;
+	padding: 1px 7px;
+	width: max-content;
+	max-width: 100%;
+	border: 1px solid var(--sfh-whisper);
+	border-radius: 3px;
+	background: color-mix(in srgb, var(--sfh-whisper) 22%, transparent);
+	color: inherit;
+	font-size: var(--font-size-11, 11px);
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	line-height: 1.5;
+}
+
+.chat-message .sfh-mode.sfh-mode-blind {
+	border-color: var(--sfh-blind);
+	background: color-mix(in srgb, var(--sfh-blind) 22%, transparent);
+}
+
+.chat-message .sfh-mode.sfh-mode-self {
+	border-color: var(--sfh-self);
+	background: color-mix(in srgb, var(--sfh-self) 22%, transparent);
+}
+
+/* the label names who it is to, so Foundry's own "To:" line would only say it again */
+.chat-message.sfh-moded .whisper-to {
+	display: none;
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .sfh-mode {
+	color: var(--sfh-bright);
+	font-family: var(--sfh-face);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message.sfh-mode-self {
+	--color-whisper-background: color-mix(in srgb, var(--sfh-self) 16%, var(--sfh-panel));
+	--color-whisper-border: var(--sfh-self);
 }
 
 /*
@@ -691,6 +747,45 @@ body[data-sfh-device][data-sfh-chat="on"] .chat-message {
 	--pill-background-color: var(--sfh-cell);
 	--pill-transparent-color: var(--sfh-text);
 	--pill-colored-text-color: var(--sfh-bright);
+}
+
+/*
+ * Fallout 2d20 lays a paper texture under every message, and draws a roll's result on painted
+ * plaques: green for successes, red for complications, yellow for damage. On the device's panels
+ * the paper goes, and each plaque is a cell edged in its own color, in the device's letters.
+ */
+body[data-sfh-device][data-sfh-chat="on"] .chat-message {
+	background-image: none;
+}
+body[data-sfh-device][data-sfh-chat="on"] .fallout-chat-message .content h2 {
+	color: var(--sfh-heading);
+	font-family: var(--sfh-display);
+	font-size: 20px;
+	line-height: 1.15;
+	margin: 2px 0 6px;
+}
+body[data-sfh-device][data-sfh-chat="on"] .fallout-chat-message .content :is(.success-plaq, .complication-plaq, .damage-plaq) {
+	--plaq: #4bd67a;
+	margin: 4px 0;
+	padding: 6px 10px;
+	background: var(--sfh-cell) none;
+	border: 1px solid var(--sfh-line-2);
+	border-left: 4px solid var(--plaq);
+	border-radius: var(--sfh-radius);
+	color: var(--plaq);
+	font: 700 15px/1.2 var(--sfh-display);
+	letter-spacing: .04em;
+	text-shadow: 0 0 6px color-mix(in srgb, var(--plaq) 45%, transparent);
+}
+body[data-sfh-device][data-sfh-chat="on"] .fallout-chat-message .content .complication-plaq { --plaq: var(--sfh-bad); }
+body[data-sfh-device][data-sfh-chat="on"] .fallout-chat-message .content .damage-plaq { --plaq: #ffc23c; }
+body[data-sfh-device][data-sfh-chat="on"] .fallout-chat-message .content :is(.success-plaq, .complication-plaq, .damage-plaq) .TN {
+	color: var(--sfh-dim);
+	font: 700 11px var(--sfh-face);
+	text-shadow: none;
+}
+body[data-sfh-device][data-sfh-chat="on"] .fallout-chat-message .content .hit-location-label {
+	color: var(--sfh-dim);
 }
 
 body[data-sfh-device][data-sfh-chat="on"] .chat-message .chat-card :is(.title, .name-stacked .title) {
@@ -1089,3 +1184,47 @@ body[data-sfh-device] .global-volume .sfh-volumes .bad {
 .global-volume .sfh-vol-who.off .sfh-vol-name {
 	opacity: 0.7;
 }
+
+/* =========================================================================
+   Fallout 2d20's AP tracker, on the device (scripts/interface/ap-tracker.mjs).
+   The form lays its counters out on the deck itself: Overseer AP to the left of the macro bar,
+   Party AP (and Max AP, when its cog opens it) to the right, in the device's colors.
+   ========================================================================= */
+#sfh-deck > #ap-tracker-app { display: contents; }
+#sfh-deck > #ap-tracker-app .ap-resource {
+	order: 1;
+	align-self: flex-end;
+	margin: 0;
+	padding: 5px 10px 7px;
+	background: var(--sfh-panel);
+	border: 1px solid var(--sfh-line);
+	border-radius: var(--sfh-radius);
+	box-shadow: 0 0 10px var(--sfh-line-2), inset 0 0 12px var(--sfh-line-2);
+	pointer-events: auto;
+}
+#sfh-deck > #ap-tracker-app .ap-resource.gm { order: -1; }
+#sfh-deck > #ap-tracker-app .ap-resource[hidden] { display: none; }
+#sfh-deck > #ap-tracker-app .ap-resource h4 {
+	display: flex; align-items: center; justify-content: center; gap: 6px;
+	margin: 0 0 4px; border: 0;
+	font: 700 11px/1.1 var(--sfh-display); letter-spacing: .12em; text-transform: uppercase;
+	color: var(--sfh-dim); white-space: nowrap;
+}
+#sfh-deck > #ap-tracker-app .ap-resource .toggle-maxAp { position: static; color: var(--sfh-dim); }
+#sfh-deck > #ap-tracker-app .ap-resource .toggle-maxAp:hover { color: var(--sfh-hot); }
+#sfh-deck > #ap-tracker-app .ap-resource .flexrow { flex-wrap: nowrap; gap: 4px; justify-content: center; }
+#sfh-deck > #ap-tracker-app .ap-resource input[type=number] {
+	flex: none; width: 3em; height: 26px; margin: 0; padding: 0;
+	text-align: center; font: 700 18px/1 var(--sfh-mono);
+	color: var(--sfh-hot); background: var(--sfh-cell); border: 1px solid var(--sfh-line); border-radius: var(--sfh-radius);
+	text-shadow: 0 0 6px var(--sfh-glow);
+}
+#sfh-deck > #ap-tracker-app .ap-resource input[type=number]:disabled { opacity: 1; color: var(--sfh-text); }
+#sfh-deck > #ap-tracker-app .ap-resource .ap-btn {
+	flex: none; min-width: 22px; max-width: 22px; min-height: 22px; height: 22px;
+	color: var(--sfh-hot); background: transparent; border: 1px solid var(--sfh-line); border-radius: var(--sfh-radius);
+	font-size: 11px;
+}
+#sfh-deck > #ap-tracker-app .ap-resource .ap-btn:hover { background: var(--sfh-hover); box-shadow: 0 0 6px var(--sfh-glow); }
+/* a player's view of the Overseer's pool: shown, but not theirs to change */
+#sfh-deck > #ap-tracker-app .ap-resource .ap-btn:not([data-action]) { opacity: .35; pointer-events: none; }

@@ -509,9 +509,77 @@ export const CYBERDECK = {
 	</g>`,
 };
 
+/**
+ * The Lonestar Edition: the forearm unit of Scorpious187's Pip-Boy, in its olive paint, worn only
+ * in a Fallout 2d20 world. Its switch is the strip under the unit's screen: the amber POWER lamp,
+ * lit while the device is on, and the maker's plate. The plate's title is Wide Glide (Brain Stew
+ * Fonts) drawn as outlines, so the font is never shipped.
+ */
+const LONESTAR_TITLE = 'M1051 -438 988 -321Q948 -246 779 -234Q754 -232 729 -232L352 -233L223 5L-74 7L-36 -64H84L299 -462H179L217 -533H884Q1061 -533 1061 -469Q1061 -457 1051 -438ZM819 -461 476 -462 392 -305H728Q804 -305 823 -340L873 -432Q880 -445 870.5 -453.0Q861 -461 819 -461ZM1413 -395Q1374 -370 1298 -370Q1256 -370 1228 -381Q1207 -393 1207 -409Q1207 -426 1232 -441Q1275 -467 1343 -467Q1389 -467 1412 -454Q1436 -445 1436 -427Q1436 -410 1413 -395ZM1452 0H920L957 -70H1065L1185 -292H1077L1115 -362H1391L1233 -70L1489 -69ZM2055 -283 1794 -284 1674 -62H1928Q1996 -62 2010 -73Q2015 -78 2019 -84L2118 -268Q2119 -270 2120 -271Q2124 -283 2055 -283ZM2160 -10Q2147 -15 2140 -24L2138 -26Q2080 8 1948 8H1637L1600 76L1601 77L1563 147H1296L1334 76H1432L1627 -284H1521L1559 -354H2136Q2279 -354 2294 -311Q2300 -294 2290 -276L2218 -142Q2216 -131 2216 -122Q2216 -105 2223 -95Q2239 -78 2286 -78L2284 -76H2389L2302 -2H2196Q2190 0 2151 -3ZM2977 -202H2438L2472 -265H3011ZM3910 -271Q3956 -257 3956 -229Q3956 -218 3949 -205L3890 -95Q3855 -30 3751 -8Q3690 5 3589 5H2918L2957 -66H3077L3292 -464H3172L3210 -535H3873Q3940 -535 3993 -523Q4078 -504 4078 -458Q4078 -446 4068.5 -427.0Q4059 -408 4042 -373Q4015 -322 3997 -306Q3975 -287 3914 -272ZM3899 -456Q3890 -463 3845 -463L3469 -464L3386 -310H3756Q3833 -310 3851 -344L3899 -434Q3907 -448 3899 -456ZM3723 -236 3346 -237 3254 -66H3624Q3701 -66 3720 -101L3777 -208Q3784 -222 3775.5 -229.0Q3767 -236 3723 -236ZM4510 -292 4343 -293Q4279 -293 4262 -280Q4257 -276 4253 -269L4154 -86Q4149 -77 4154 -75Q4167 -70 4215 -70L4438 -71Q4476 -73 4486 -92L4586 -277Q4593 -290 4555 -292Q4533 -292 4510 -292ZM4989 -284H4992L4905 -210Q4853 -210 4853 -210Q4752 -203 4722 -213L4719 -214L4642 -71Q4604 -1 4415 -1H4137Q3975 -1 3975 -54Q3975 -64 3982 -77L4098 -292Q4136 -362 4325 -362L4603 -363Q4764 -363 4764 -307Q4764 -303 4763 -298H5005ZM5751 -264H5632L5022 166H4814L5085 -25L4982 -264H4853L4901 -354H5304L5255 -264H5183L5235 -124L5425 -264H5345L5393 -354H5800Z';
+export const LONESTAR = {
+	viewBox: ARM.viewBox,
+	deck: ARM.deck,
+	svg: `
+	<defs>
+		<linearGradient id="sfh-ls-paint" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#6c794b"/><stop offset=".3" stop-color="#4f5b35"/><stop offset="1" stop-color="#262c19"/>
+		</linearGradient>
+		<linearGradient id="sfh-ls-sleeve" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#3b3a35"/><stop offset=".5" stop-color="#22211e"/><stop offset="1" stop-color="#0e0e0d"/>
+		</linearGradient>
+		<pattern id="sfh-ls-rib" width="12" height="10" patternUnits="userSpaceOnUse"><rect width="3" height="10" fill="#000" opacity=".4"/></pattern>
+		<linearGradient id="sfh-ls-rubber" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#45443e"/><stop offset=".5" stop-color="#2b2a26"/><stop offset="1" stop-color="#1a1917"/>
+		</linearGradient>
+		<radialGradient id="sfh-ls-dome" cx=".35" cy=".3" r=".75">
+			<stop offset="0" stop-color="#d8d6cc"/><stop offset=".5" stop-color="#77756c"/><stop offset="1" stop-color="#1c1c1a"/>
+		</radialGradient>
+		<radialGradient id="sfh-ls-lamp-off" cx=".4" cy=".35" r=".7">
+			<stop offset="0" stop-color="#b98a52"/><stop offset=".6" stop-color="#6b3f12"/><stop offset="1" stop-color="#2a1604"/>
+		</radialGradient>
+		<radialGradient id="sfh-ls-lamp-on" cx=".4" cy=".35" r=".7">
+			<stop offset="0" stop-color="#fff6d2"/><stop offset=".45" stop-color="#ffb43c"/><stop offset="1" stop-color="#9a4300"/>
+		</radialGradient>
+		<filter id="sfh-ls-halo" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6"/></filter>
+		<filter id="sfh-ls-grime" x="0" y="0" width="100%" height="100%">
+			<feTurbulence type="fractalNoise" baseFrequency=".02 .035" numOctaves="4" seed="11" result="blotch"/>
+			<feColorMatrix in="blotch" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.15" result="a"/>
+			<feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="1" seed="3" result="grain"/>
+			<feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.2 .62" result="b"/>
+			<feMerge><feMergeNode in="a"/><feMergeNode in="b"/></feMerge>
+		</filter>
+		<clipPath id="sfh-ls-body"><path d="M300 768 Q 300 750 320 750 H 960 Q 980 750 980 768 L 992 860 H 288 Z"/></clipPath>
+		<path id="sfh-ls-title" d="${LONESTAR_TITLE}"/>
+	</defs>
+	<path d="M276 802 Q 640 794 1004 802 V 860 H 276 Z" fill="url(#sfh-ls-sleeve)"/>
+	<path d="M276 802 Q 640 794 1004 802 V 860 H 276 Z" fill="url(#sfh-ls-rib)"/>
+	<path id="sfh-arm" d="M300 768 Q 300 750 320 750 H 960 Q 980 750 980 768 L 992 860 H 288 Z" fill="url(#sfh-ls-paint)" stroke="#11140b" stroke-width="2"/>
+	<g clip-path="url(#sfh-ls-body)"><rect x="276" y="728" width="728" height="132" filter="url(#sfh-ls-grime)" opacity=".34"/></g>
+	<path d="M316 753 H 964" stroke="#fff" stroke-opacity=".18" stroke-width="1.5"/>
+	<path d="M420 752 L 414 860 M860 752 L 866 860" stroke="#000" stroke-opacity=".45" stroke-width="2"/>
+	<g fill="#0d0d0c"><rect x="318" y="762" width="40" height="3.5" rx="1.7"/><rect x="318" y="769" width="40" height="3.5" rx="1.7"/><rect x="318" y="776" width="40" height="3.5" rx="1.7"/><rect x="318" y="783" width="40" height="3.5" rx="1.7"/><rect x="318" y="790" width="40" height="3.5" rx="1.7"/></g>
+	<g fill="#0b0b0a"><circle cx="924" cy="764" r="1.8"/><circle cx="931" cy="764" r="1.8"/><circle cx="938" cy="764" r="1.8"/><circle cx="945" cy="764" r="1.8"/><circle cx="952" cy="764" r="1.8"/><circle cx="959" cy="764" r="1.8"/><circle cx="966" cy="764" r="1.8"/><circle cx="927" cy="771" r="1.8"/><circle cx="934" cy="771" r="1.8"/><circle cx="941" cy="771" r="1.8"/><circle cx="948" cy="771" r="1.8"/><circle cx="955" cy="771" r="1.8"/><circle cx="962" cy="771" r="1.8"/><circle cx="969" cy="771" r="1.8"/><circle cx="924" cy="778" r="1.8"/><circle cx="931" cy="778" r="1.8"/><circle cx="938" cy="778" r="1.8"/><circle cx="945" cy="778" r="1.8"/><circle cx="952" cy="778" r="1.8"/><circle cx="959" cy="778" r="1.8"/><circle cx="966" cy="778" r="1.8"/><circle cx="927" cy="785" r="1.8"/><circle cx="934" cy="785" r="1.8"/><circle cx="941" cy="785" r="1.8"/><circle cx="948" cy="785" r="1.8"/><circle cx="955" cy="785" r="1.8"/><circle cx="962" cy="785" r="1.8"/><circle cx="969" cy="785" r="1.8"/><circle cx="924" cy="792" r="1.8"/><circle cx="931" cy="792" r="1.8"/><circle cx="938" cy="792" r="1.8"/><circle cx="945" cy="792" r="1.8"/><circle cx="952" cy="792" r="1.8"/><circle cx="959" cy="792" r="1.8"/><circle cx="966" cy="792" r="1.8"/></g>
+	<g fill="#3a4327" stroke="#000" stroke-opacity=".6">
+		<rect x="440" y="741" width="64" height="12" rx="3"/><rect x="776" y="741" width="64" height="12" rx="3"/>
+	</g>
+	<g fill="url(#sfh-ls-dome)">
+		<circle cx="448" cy="747" r="2.6"/><circle cx="496" cy="747" r="2.6"/><circle cx="784" cy="747" r="2.6"/><circle cx="832" cy="747" r="2.6"/>
+	</g>
+	<circle class="sfh-ls-halo" cx="578" cy="771" r="20" fill="#ffb43c" filter="url(#sfh-ls-halo)"/>
+	<g id="sfh-band" ${POWER}>
+		<rect x="552" y="744" width="176" height="54" rx="10" fill="url(#sfh-ls-rubber)" stroke="#000" stroke-opacity=".7"/>
+		<circle cx="578" cy="771" r="15" fill="#111" stroke="#55534b" stroke-width="2"/>
+		<circle class="sfh-ls-bulb" cx="578" cy="771" r="10.5" fill="url(#sfh-ls-lamp-off)"/>
+		<ellipse cx="574.5" cy="767" rx="3.5" ry="2.2" fill="#fff" opacity=".45"/>
+		<use href="#sfh-ls-title" transform="translate(603 778.3) scale(.019)" fill="#111" opacity=".85"/>
+		<use href="#sfh-ls-title" transform="translate(602 777) scale(.019)" fill="#e9e6da"/>
+		<text x="657" y="791" text-anchor="middle" font-family="Rajdhani, sans-serif" font-weight="700" font-size="7.4" letter-spacing="1.6" fill="#a9a698" opacity=".75">LONESTAR EDITION</text>
+	</g>`,
+};
+
 const ART = {
 	arm: ARM, disc: DISC, satchel: SATCHEL, grove: GROVE, bracer: BRACER, reliquary: RELIQUARY, runeforge: RUNEFORGE, witchfire: WITCHFIRE,
-	holoprojector: HOLOPROJECTOR, gauntlet: GAUNTLET, comm: COMM, crystal: CRYSTAL, cyberdeck: CYBERDECK,
+	holoprojector: HOLOPROJECTOR, gauntlet: GAUNTLET, comm: COMM, crystal: CRYSTAL, cyberdeck: CYBERDECK, lonestar: LONESTAR,
 };
 
 /** The art layer for a device, or null when it draws nothing at the foot of the screen. */

@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.4.0 — 2026-11-06
+
+- Fallout 2d20: the HUD can be enabled in a Fallout world. The interface, chat, carousel and scene
+  bar work as in any system, and the carousel reads a Fallout character's health. There is no
+  projection: with Scorpious187's Pip-Boy active, the device's switch brings up the Pip-Boy
+  instead, for the player's own character, or for the GM the selected token's (a character or a
+  robot), and follows the GM's selection as the projection does. Closing the Pip-Boy turns the
+  device off, and switching the device off puts the Pip-Boy away, even one that is still opening,
+  or whose opening failed part way.
+- Fallout 2d20: the Pip-Boy Lonestar Edition, a look of its own over the omni-tool: the Pip-Boy's
+  olive forearm unit, with its amber POWER lamp, lit while the device is on, as the switch, and the
+  interface in the Pip-Boy's phosphor green. Everyone wears it in a Fallout world, where the device
+  settings are hidden, and it is offered in no other system.
+- Fallout 2d20: the system's AP tracker rides on the device, Overseer AP to the left of the macro
+  bar and Party AP to the right, in the device's colors, and the device widens to carry them. It
+  had been left loose in the page, where it pushed the sidebar in from the edge of the screen.
+- Fallout 2d20: chat cards are drawn on the device's panels without the system's paper underneath,
+  which had left them light text on a light page. A roll's successes, complications and damage
+  are cells edged in green, red and yellow, in the device's letters, and the card's title is
+  sized for the chat log.
+- The carousel turns smoothly. A card that has not changed is no longer drawn again, so its
+  portrait does not reload. A redraw part way through a turn no longer starts the slide over. The
+  card going around from one end of the row to the other leaves off its edge and comes in at the
+  other, instead of crossing the whole row. The round marker slides with the cards, and a card
+  whose turn starts or ends grows or shrinks as it moves.
+- Private messages say so in the chat: a private GM roll, a blind roll, a self roll, or a whisper
+  and between whom, in a label on the card and in a tint of its own. The projection's Latest strip
+  marks a private roll too.
+- PF2e and SF2e: SF2e's Solar Shield shows its name, not the key the system keeps it under. Raise
+  raises it, and lowers it again; its hit points are shown rather than typed, since the system
+  works them out afresh. A held shield's hit points are typed into the shield, as the sheet saves
+  them.
+- PF2e and SF2e: the choice on a toggle that is always on, such as Stellar Attunement's Graviton or
+  Photon, can be changed. A toggle's choice changes as on the sheet, leaving the toggle on or off.
+- PF2e and SF2e: a creature with no land speed (allowed since PF2e 8.7.0) shows the speed it does
+  have, instead of 25 feet.
+
 ## 1.3.0 — 2026-11-05
 
 - PF2e and SF2e: a skill in the readout shows its modifier, training, attribute and the sheet's

@@ -20,6 +20,8 @@ export const MOD = 'scorpious187s-scifi-character-hud';
  *               look's own styles key off `data-sfh-look` (styles/looks.css). A look can open
  *               its own way: its animations are in styles/looks.css, and a `sequence` of its own
  *               names how long they run (SEQ_LONG).
+ *  - `system`   a look made for one game system: worn by everyone in a world of that system,
+ *               where nothing else can be chosen, and not offered in any other.
  */
 export const DEVICES = {
 	omni: { id: 'omni', genre: 'scifi', label: 'SFH.Device.Omni', hint: 'SFH.Device.OmniHint', art: 'arm', sequence: 'rise', switch: 'band' },
@@ -42,6 +44,8 @@ export const DEVICES = {
 	crystal: { id: 'crystal', genre: 'scifi', label: 'SFH.Device.Crystal', hint: 'SFH.Device.CrystalHint', base: 'vambrace', art: 'crystal', sequence: 'sigil', switch: 'band' },
 	retro: { id: 'retro', genre: 'scifi', label: 'SFH.Device.Retro', hint: 'SFH.Device.RetroHint', base: 'wrist', art: null, sequence: 'type', switch: 'bar' },
 	cyberdeck: { id: 'cyberdeck', genre: 'scifi', label: 'SFH.Device.Cyberdeck', hint: 'SFH.Device.CyberdeckHint', base: 'tron', art: 'cyberdeck', sequence: 'glitch', switch: 'band' },
+	// Fallout 2d20 only, and always there: the Pip-Boy's forearm unit, whose switch brings up the Pip-Boy
+	lonestar: { id: 'lonestar', genre: 'scifi', label: 'SFH.Device.Lonestar', hint: 'SFH.Device.LonestarHint', base: 'omni', art: 'lonestar', sequence: 'rise', switch: 'band', system: 'fallout' },
 };
 
 export const DEFAULT_DEVICE = 'omni';

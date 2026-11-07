@@ -109,7 +109,21 @@ const results = await page.evaluate(async () => {
 	const sub = q('.proj-b [data-pick="suboption"]');
 	check('a toggle with choices has them beside it', sub && [...sub.options].map((o) => o.value).join() === 'push,pull' && sub.value === 'push');
 	await pick(sub, 'pull');
-	check('choosing one turns it on with that choice', actor.lastToggle.suboption === 'pull' && actor.lastToggle.checked === true, actor.lastToggle);
+	check('choosing one changes the choice and leaves it as it was, as the sheet does', actor.lastToggle.suboption === 'pull' && actor.lastToggle.checked === false, actor.lastToggle);
+	// Stellar Attunement: always on, so it is no switch, but its choice still changes
+	t.alwaysActive = true;
+	t.checked = true;
+	await redraw();
+	const always = q('.proj-b .sfh-toggles');
+	check('one that is always on is named, not a button to press', !toggle() && /Biotic Momentum/.test(text(always)), always?.innerHTML.slice(0, 200));
+	actor.lastToggle = null;
+	await pick(q('.proj-b [data-pick="suboption"]'), 'push');
+	check('and its choice can still be changed, staying on', actor.lastToggle?.suboption === 'push' && actor.lastToggle.checked === true, actor.lastToggle);
+	actor.lastToggle = null;
+	q('.proj-b [data-pick="suboption"]').add(new Option('Sideways', 'sideways'));
+	await pick(q('.proj-b [data-pick="suboption"]'), 'sideways');
+	check('a choice it does not have is never sent', actor.lastToggle === null);
+	t.alwaysActive = false;
 	t.suboptions = [];
 	t.checked = false;
 	t.enabled = false;
