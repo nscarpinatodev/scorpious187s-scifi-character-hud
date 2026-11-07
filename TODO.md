@@ -33,10 +33,11 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **The release workflow's actions.** GitHub warned on the 1.0.0 build that
+1. **The release workflow's actions.** GitHub warned on every build through 1.4.0 that
    `actions/checkout@v4` and `softprops/action-gh-release@v2` target Node.js 20, which is
-   deprecated, and that `ubuntu-latest` is moving to Ubuntu 26. Move them to versions that run
-   on Node.js 24 before they stop working.
+   deprecated. They're now `@v7` and `@v3`, which run on Node.js 24. Check that the next
+   release's build passes with no Node.js 20 warning. `ubuntu-latest` is also moving to
+   Ubuntu 26, which needs nothing here: the steps use only `jq` and `zip`.
 2. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
    the labels on private messages, the Solar Shield's name and Raise, Stellar Attunement's
    choice, and the speed of a creature with no land speed. Checked against PF2e 8.7.0 and SF2e
