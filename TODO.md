@@ -18,7 +18,7 @@ Lonestar armband, the system's AP tracker on it, its chat cards readable), the c
 turning, labels on private messages, and the PF2e/SF2e fixes from the 2026-11-05 session. Then
 1.5.0 on 2026-11-08: D&D 3.5e (D35E 3.1.0, checked live on a Foundry 13 server), the HUD drawn over
 PF2e HUD's shortcut slots, and the Journal fitting a long name to its page. Its release build is
-the first on the Node 24 actions.
+the first on the Node 24 actions, and passed with no Node.js 20 warning.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -36,12 +36,7 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **The release workflow's actions.** GitHub warned on every build through 1.4.0 that
-   `actions/checkout@v4` and `softprops/action-gh-release@v2` target Node.js 20, which is
-   deprecated. They're now `@v7` and `@v3`, which run on Node.js 24. Check that the next
-   release's build passes with no Node.js 20 warning. `ubuntu-latest` is also moving to
-   Ubuntu 26, which needs nothing here: the steps use only `jq` and `zip`.
-2. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
+1. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
    the labels on private messages, the Solar Shield's name and Raise, Stellar Attunement's
    choice, and the speed of a creature with no land speed. Checked against PF2e 8.7.0 and SF2e
    1.7.0's code and changelog.
@@ -50,7 +45,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          actions and the Solarian's toggles all go through the system's own calls as the sheet's
          do. Find out which buttons, on which character.
 
-3. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
+2. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
    Foundry 13 server's `35-testing` world with five level-5 characters (fighter, ranger, wizard,
    sorcerer, cleric). Seen live and good: every tab, the GM's view, skill, attack and spell rolls
    and the latest-roll strip, the system's chat cards in the device's colors.
@@ -61,7 +56,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] **Attack totals** are not shown: the system works them out at roll time from many
          situational options. Showing an estimate would need checking against its rolls.
 
-4. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
+3. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
    brings up the Pip-Boy in place of a projection (`scripts/interface/pipboy.mjs`). Seen in
    Foundry and good: the handoff, the Lonestar armband, the AP tracker on it, and the roll cards.
    - [x] **The Lonestar armband** — a look of its own (`lonestar`, `system: 'fallout'`), always
