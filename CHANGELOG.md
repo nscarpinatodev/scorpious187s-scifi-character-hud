@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.5.0 — 2026-11-08
 
 - D&D 3.5e: the HUD works with the "Dungeons & Dragons 3.5 SRD" system (D35E 3.0 and later,
   verified on 3.1.0 with Foundry 13). The projection has eight tabs:

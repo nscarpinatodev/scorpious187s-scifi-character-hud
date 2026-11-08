@@ -26,7 +26,13 @@ https://github.com/nscarpinatodev/scorpious187s-scifi-character-hud/releases/lat
 
 - Foundry VTT **v13+** (verified on **v14**)
 - **[Scorpious187's Module Library](https://github.com/nscarpinatodev/scorpious187s-lib)**
-- One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+, or **Fallout 2d20** 11.0+ (see below)
+- One of: **PF2e** 7.0+, **SF2e** 1.0+, **D&D 5e** 5.0+, **D&D 3.5e** (the "Dungeons & Dragons
+  3.5 SRD" system, D35E) 3.0+, or **Fallout 2d20** 11.0+ (see below)
+
+**In a D&D 3.5e world** the projection has the system's own sheet in eight tabs: Character,
+Attacks, Skills, Spells, Feats, Inventory, Effects and Biography. Prepared casters prepare copies
+of a spell from the Spells tab, and spontaneous casters spend their slots there. Every roll goes
+through the system's own, with its dialogs, as from its sheet.
 
 **In a Fallout 2d20 world** the HUD has no projection of its own. The interface, chat, carousel
 and scene bar work as in any system, and with

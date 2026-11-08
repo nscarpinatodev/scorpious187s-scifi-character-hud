@@ -15,7 +15,10 @@ Then 1.1.1 and 1.1.2, 1.2.0 (devices by category, scenes viewed on a click, ever
 1.3.0 (PF2e skill readouts, 5e favorites for skills, tools and activities, and making and deleting
 items), all on 2026-11-05. Then 1.4.0 on 2026-11-06: Fallout 2d20 with Scorpious187's Pip-Boy (the
 Lonestar armband, the system's AP tracker on it, its chat cards readable), the carousel's
-turning, labels on private messages, and the PF2e/SF2e fixes from the 2026-11-05 session.
+turning, labels on private messages, and the PF2e/SF2e fixes from the 2026-11-05 session. Then
+1.5.0 on 2026-11-08: D&D 3.5e (D35E 3.1.0, checked live on a Foundry 13 server), the HUD drawn over
+PF2e HUD's shortcut slots, and the Journal fitting a long name to its page. Its release build is
+the first on the Node 24 actions.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -47,7 +50,18 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          actions and the Solarian's toggles all go through the system's own calls as the sheet's
          do. Find out which buttons, on which character.
 
-3. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
+3. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
+   Foundry 13 server's `35-testing` world with five level-5 characters (fighter, ranger, wizard,
+   sorcerer, cleric). Seen live and good: every tab, the GM's view, skill, attack and spell rolls
+   and the latest-roll strip, the system's chat cards in the device's colors.
+   - [ ] **A player's view and NPCs** have only been run in the harness, not seen live.
+   - [ ] **Psionics:** the system's psionic skills (Autohypnosis and the like) are listed for
+         everyone, as the system keeps them; powers and power points have no place on the
+         Spells tab yet.
+   - [ ] **Attack totals** are not shown: the system works them out at roll time from many
+         situational options. Showing an estimate would need checking against its rolls.
+
+4. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
    brings up the Pip-Boy in place of a projection (`scripts/interface/pipboy.mjs`). Seen in
    Foundry and good: the handoff, the Lonestar armband, the AP tracker on it, and the roll cards.
    - [x] **The Lonestar armband** — a look of its own (`lonestar`, `system: 'fallout'`), always
