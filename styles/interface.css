@@ -871,6 +871,57 @@ body[data-sfh-device][data-sfh-chat="on"] .chat-message .dice-roll .dice-total:i
 	color: var(--sfh-bad);
 }
 
+/*
+ * D&D 3.5e's cards draw their own heading, buttons and dice: a heading in a fixed dark gray,
+ * purple buttons with white lettering, and dice in a dark green, all of which vanish on a dark
+ * device. Its cards are chat cards like the others' and take the device's colors as they do.
+ */
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card :is(h3, .item-name) {
+	color: var(--sfh-heading);
+	font-family: var(--sfh-display);
+}
+
+/*
+ * Its card buttons' background and lettering are !important in the system's own layer, which an
+ * !important in the modules' later layer cannot outrank. So the button is painted over with an
+ * inset shadow, and the system's white lettering kept: on the device's cell where that is dark,
+ * and in the Journal's red ink on its paper.
+ */
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card button {
+	--sfh-d35e-fill: var(--sfh-cell);
+	background: var(--sfh-cell);
+	border: 1px solid var(--sfh-line);
+	color: var(--sfh-text);
+	text-shadow: none;
+	box-shadow: inset 0 0 0 999px var(--sfh-d35e-fill);
+}
+
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"])[data-sfh-chat="on"] .chat-message .D35E.chat-card button {
+	--sfh-d35e-fill: var(--sfh-hot);
+	border-color: var(--sfh-hot);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card button:hover {
+	border-color: var(--sfh-hot);
+	box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--sfh-hot) 35%, var(--sfh-d35e-fill)), 0 0 8px var(--sfh-glow);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card .roll.die {
+	color: var(--sfh-text);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card .roll.die.max {
+	color: color-mix(in srgb, #4bd67a 70%, var(--sfh-text));
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card .roll.die.min {
+	color: var(--sfh-bad);
+}
+
+body[data-sfh-device][data-sfh-chat="on"] .chat-message .D35E.chat-card :is(.dice-result.box, tr, .part-total) {
+	background: var(--sfh-cell);
+}
+
 body[data-sfh-device][data-sfh-chat="on"] .chat-message a:not(.content-link, .inline-roll) {
 	color: var(--sfh-hot);
 }
@@ -1099,6 +1150,18 @@ body[data-sfh-device]:not(.pf2e-hud-hidden-persistent) #pf2e-hud-persistent:not(
 	grid-row: bottom;
 	width: calc(10 * var(--row-2fr) + 10 * var(--panel-gap) + 24px);
 	pointer-events: none;
+}
+
+/*
+ * Shown on the left, its default, the panel sits in #ui-left, and its shortcuts reach right
+ * across into the middle of the screen. Foundry stacks #ui-left above the projection, which is
+ * drawn just beneath the interface so the device's front can cover its foot, so the shortcuts
+ * were drawn over the projection and what the device keeps beside it, though under the device
+ * itself. With the panel there, the left column goes beneath the projection and its light, and
+ * the whole HUD is drawn over it.
+ */
+body[data-sfh-device] #ui-left:has(#pf2e-hud-persistent) {
+	z-index: calc(var(--z-index-app, 60) - 3);
 }
 
 /*

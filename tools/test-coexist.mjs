@@ -118,6 +118,30 @@ const results = await page.evaluate(async () => {
 		hudPanel.remove();
 		link.remove();
 	}
+
+	/* ---- PF2e HUD's panel on the left: its shortcuts reach under the projection, not over it ---- */
+	await game.settings.set(null, 'device', 'journal');
+	await wait(200);
+	hud.setPower(true, { silent: true });
+	await wait(400);
+	const proj = document.getElementById('sfh-projection');
+	const left = document.getElementById('ui-left');
+	const z = (el) => Number(getComputedStyle(el).zIndex);
+	const leftBefore = z(left);
+	// as wide and tall as the screen, so whatever it is drawn over is under it everywhere
+	const shortcuts = Object.assign(document.createElement('div'), { id: 'pf2e-hud-persistent' });
+	shortcuts.style.cssText = 'position: absolute; inset: 0; width: 100vw; height: 100vh; pointer-events: all; background: rgb(0 0 0 / 37%)';
+	document.getElementById('ui-left-column-1').append(shortcuts);
+	const inside = (x, y, root) => root.contains(document.elementFromPoint(x, y));
+	const middle = (el) => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+	const pnl = [...proj.querySelectorAll('.pnl')].find((el) => getComputedStyle(el).pointerEvents !== 'none' && el.getBoundingClientRect().width);
+	check('the projection is up to be covered', proj.classList.contains('sfh-visible') && !!pnl);
+	if (pnl) check("the projection is drawn over PF2e HUD's shortcuts", inside(...middle(pnl), proj), document.elementFromPoint(...middle(pnl))?.id);
+	check('and so is the device', inside(...middle(document.getElementById('action-bar')), document.getElementById('sfh-device')));
+	check('the left column is under the projection only while the panel is in it', z(left) < z(proj) && leftBefore >= z(proj), { left: z(left), leftBefore, proj: z(proj) });
+	shortcuts.remove();
+	check("without it, Foundry's own stacking is left alone", z(left) === leftBefore);
+	hud.setPower(false, { silent: true });
 	return out;
 });
 

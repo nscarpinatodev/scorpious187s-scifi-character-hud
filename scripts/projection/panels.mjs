@@ -50,7 +50,7 @@ export function renderIdentity(c, device) {
 	if (device === 'journal') {
 		// the page's heading: whose journal this is, and beside it the level, experience and the rests
 		return `<div class="jn-who"><div class="jn-of">${esc(game.i18n.localize('SFH.Projection.Journal.Of'))}</div>
-				<div class="nm">${esc(c.name)}</div><div class="st">${esc(c.sub)}</div></div>
+				<div class="nm" style="--len:${[...String(c.name)].length}" title="${esc(c.name)}">${esc(c.name)}</div><div class="st">${esc(c.sub)}</div></div>
 			<div class="jn-side"><div class="row">${xp}${level}</div><div class="row">${rest}<span class="grow"></span>${sheet}${gear}</div></div>`;
 	}
 	if (device === 'wrist') {
@@ -110,6 +110,11 @@ export function renderVitals(c) {
 			${counter('Wounded', v.wounded, 'wounded', 'warn')}
 			${counter('Doomed', v.doomed, 'doomed', 'bad')}
 			${pools.filter((r) => !stamina.includes(r)).map(pool).join('')}`;
+	} else if (v.kind === 'd35e') {
+		// 3.5e has no death saves: below zero is dying, and nonlethal damage counts against what is left
+		cells = `${v.state ? `<div class="cell ${v.state.bad ? 'alert' : ''}">${lbl('Status')}<span class="v" style="color:var(--${v.state.bad ? 'bad' : 'acc'})">${esc(v.state.label)}</span></div>` : ''}
+			${pool(v.nonlethal)}
+			${counter('Neg. Levels', v.negativeLevels, 'negativeLevels', 'bad')}`;
 	} else {
 		// one track: three successes, a divider, three failures
 		const death = (key, count, cls) => Array.from({ length: 3 }, (_, i) =>

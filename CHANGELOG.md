@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+- D&D 3.5e: the HUD works with the "Dungeons & Dragons 3.5 SRD" system (D35E 3.0 and later,
+  verified on 3.1.0 with Foundry 13). The projection has eight tabs:
+  - **Character:** abilities with their checks, the three saves, base attack, melee, ranged,
+    grapple and initiative rolls, and size, speeds, senses, languages and resistances.
+  - **Attacks:** every attack and full attack, with its damage and critical range.
+  - **Skills:** one column, with ranks and totals; class skills and trained-only skills marked.
+  - **Spells:** by spellbook and level, with caster level and DC. A prepared caster prepares
+    copies with − and +; a spontaneous caster spends slots from segments.
+  - **Feats, Inventory, Effects and Biography:** buffs are switched on and off from the Effects
+    tab and their chips.
+
+  Hit points go below zero, to −10, with Disabled and Dying shown, and nonlethal damage and
+  negative levels sit beside them. Every roll goes through the system's own, with its dialogs.
+  The latest-roll strip reads the system's cards, and the cards take the device's colors.
+- PF2e HUD: its shortcut slots no longer cover the projection. With its panel on the left, the
+  HUD is drawn over it.
+- The Journal: a long character name is fitted to the page instead of running off it, and the
+  Journal's text is a little smaller, so more fits on a line.
+
 ## 1.4.0 — 2026-11-06
 
 - Fallout 2d20: the HUD can be enabled in a Fallout world. The interface, chat, carousel and scene
