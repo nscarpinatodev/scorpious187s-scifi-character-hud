@@ -10,6 +10,10 @@ import { MOD, S } from '../constants.mjs';
  * and what they show changes, in styles/sheet-tabs.css; what cannot be done in a stylesheet is done
  * here, each time a sheet is drawn:
  *
+ *  - the row is moved to stand after the sheet's header, where the system wrote it last. It is
+ *    moved, not reordered in the stylesheet, because a reordered box is also painted in its new
+ *    order: the banner the system lays over the top of a character's sheet in its dark theme
+ *    would be painted over the header and the row, and take every click meant for them;
  *  - the name is written into each tab, and its tooltip, which only repeated the name, is put away;
  *  - the side the tabs hung on is put away too, because the system keeps a sheet that far from the
  *    edge of the screen, and a row inside the sheet needs no such room;
@@ -100,9 +104,29 @@ function step(nav, way) {
 	return button;
 }
 
+/** The note left where the system wrote the row, while the row stands somewhere else. */
+const PLACE = 'sfh-sheet-tabs';
+const placeOf = (parent) => [...(parent?.childNodes ?? [])].find((node) => node.nodeType === 8 && node.data === PLACE);
+
+/**
+ * Stand the row after the sheet's header. The system redraws a part where the old one stood, so
+ * a redrawn row is already there; a vehicle has no header across its top and its row stays put.
+ */
+function seat(nav) {
+	const header = nav.parentElement?.querySelector(':scope > .sheet-header');
+	if (!header || header.nextElementSibling === nav) return;
+	if (!placeOf(nav.parentElement)) nav.before(document.createComment(PLACE));
+	header.after(nav);
+}
+
+function unseat(nav) {
+	placeOf(nav.parentElement)?.replaceWith(nav);
+}
+
 function dress(nav) {
 	// a sheet shown to someone with limited permission has no tabs, and the system hides the empty row
 	if (!nav.querySelector(':scope > .item')) return;
+	seat(nav);
 	for (const side of SIDES) {
 		if (!nav.classList.contains(side)) continue;
 		nav.classList.remove(side);
@@ -132,6 +156,7 @@ function dress(nav) {
 }
 
 function undress(nav) {
+	unseat(nav);
 	if (nav.dataset.sfhSide) {
 		nav.classList.add(nav.dataset.sfhSide);
 		delete nav.dataset.sfhSide;
@@ -156,7 +181,7 @@ export function dressSheet(element) {
 	document.body.dataset.sfhSheetTabs = on ? 'on' : 'off';
 	for (const nav of element.querySelectorAll('nav.tabs')) {
 		if (on) dress(nav);
-		else if (dressed.has(nav) || nav.dataset.sfhSide) undress(nav);
+		else if (dressed.has(nav) || nav.dataset.sfhSide || placeOf(nav.parentElement)) undress(nav);
 	}
 }
 

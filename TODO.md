@@ -40,7 +40,12 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e sheet tabs as a labeled row** (1.6.0). `scripts/interface/sheet-tabs.mjs` and
+1. **D&D 5e sheet tabs as a labeled row** (1.6.0; a fix is unreleased). 1.6.0 went out with the
+   header and the row unclickable on a character in the dark theme, where the system's banner
+   is a layer over the top of the sheet: the stand-ins were only ever in the light theme, and
+   nothing checked that a click landed. `tools/test-sheet-tabs.mjs` now clicks every control
+   in the header and every tab on all three sheets, in both themes.
+   `scripts/interface/sheet-tabs.mjs` and
    `styles/sheet-tabs.css`, tested in `tools/test-sheet-tabs.mjs` on stand-ins for the system's
    sheets (`tools/harness-sheet5e.html`: the system's parts and classes under its real
    stylesheet, with filler inside them). Not yet seen in Foundry:

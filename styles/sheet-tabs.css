@@ -20,7 +20,6 @@ body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs {
 	position: relative;
 	inset: auto;
 	z-index: auto;
-	order: -1;
 	flex: none;
 	box-sizing: border-box;
 	width: auto;
@@ -44,13 +43,12 @@ body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs::-webk
 	display: none;
 }
 /*
- * The system writes the row last. It is brought forward to stand after the header, and the header
- * before it, rather than the body being sent back: what is ordered later is also painted later,
- * and the body would be painted over the ability scores that lie on it.
+ * The system writes the row last, and the script moves it to stand after the header. Nothing here
+ * may do that with `order`: a box is painted in its order as well as laid out in it, and the
+ * sheet has layers that count as order 0 wherever they are written. The banner over the top of a
+ * character's sheet in the dark theme is one, and it was painted over a header and a row ordered
+ * ahead of it, so that neither could be clicked; the ability scores are another.
  */
-body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs .window-content > .sheet-header {
-	order: -2;
-}
 
 /* ---- a tab: its icon, then its name ---- */
 body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .item {

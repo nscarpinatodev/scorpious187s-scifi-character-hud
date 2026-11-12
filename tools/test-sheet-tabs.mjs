@@ -44,6 +44,16 @@ const results = await page.evaluate(async () => {
 	const tabs = (sheet) => [...nav(sheet).querySelectorAll(':scope > .item')];
 	const scores = (sheet) => [...sheet.querySelectorAll('.ability-scores .ability-score')];
 	const [character, npc, vehicle] = sheets();
+	// what a click on something would land on: the thing itself, or what is drawn over it
+	const struck = (el) => { const b = el.getBoundingClientRect(); return document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); };
+	const reached = (el) => { const hit = struck(el); return hit === el || el.contains(hit); };
+	const said = (el) => { const hit = struck(el); return hit && `${hit.tagName.toLowerCase()}.${String(hit.className).split(' ').slice(0, 2).join('.')}`; };
+	const controls = (sheet) => [...sheet.querySelectorAll('.window-header .header-control, .sheet-header :is(button, input, a)')];
+	const banner = () => getComputedStyle(character.querySelector('.window-content'), '::before');
+	// the system's two themes: in the dark one a character's banner is a layer over the top of the sheet
+	const THEMES = ['theme-light', 'theme-dark'];
+	const theme = async (name) => { for (const s of sheets()) { s.classList.remove(...THEMES); s.classList.add(name); } await wait(120); };
+	check('off: the controls in the header can be clicked', controls(character).length >= 5 && controls(character).every(reached), controls(character).filter((el) => !reached(el)).map(said));
 	const before = Object.fromEntries(sheets().map((s) => [s.id, { nav: box(nav(s)), body: box(s.querySelector('.sheet-body')), scores: scores(s).map(box) }]));
 
 	/* ---- off, as it comes ---- */
@@ -71,6 +81,23 @@ const results = await page.evaluate(async () => {
 		check(`${s.id}: the row fits the sheet as it opens, so no arrow shows`, nav(s).scrollWidth <= nav(s).clientWidth + 1 && [...nav(s).querySelectorAll('.sfh-tab-step')].every((b) => b.hidden && getComputedStyle(b).display === 'none'), [nav(s).scrollWidth, nav(s).clientWidth]);
 		const body = box(s.querySelector('.sheet-body'));
 		check(`${s.id}: the body starts under the row`, body.t >= n.b - 0.5 && body.t <= n.b + 12, [round(n), round(body)]);
+	}
+	for (const name of [...THEMES].reverse()) {
+		await theme(name);
+		if (name === 'theme-dark') await shot('on-dark');
+		if (name === 'theme-dark') check('in the dark theme the character has the banner the system lays over the top of the sheet', banner().content !== 'none' && banner().position === 'absolute' && parseFloat(banner().height) >= 200, [banner().content, banner().height]);
+		else check('in the light theme it has no such layer', banner().content === 'none', banner().content);
+		for (const s of sheets()) {
+			const missed = [...controls(s), ...tabs(s)].filter((el) => !reached(el));
+			check(`${s.id}, ${name}: nothing is drawn over the header's controls or the tabs, and a click lands on each`, missed.length === 0, missed.map((el) => [el.className, said(el)]));
+		}
+	}
+	for (const s of sheets()) {
+		const reordered = [nav(s), ...nav(s).parentElement.children].filter((el) => getComputedStyle(el).order !== '0');
+		check(`${s.id}: no part of the sheet is reordered, which would repaint it out of turn`, reordered.length === 0, reordered.map((el) => el.className));
+	}
+	for (const s of [character, npc]) {
+		check(`${s.id}: the row follows the header in the document`, s.querySelector('.sheet-header').nextElementSibling === nav(s), nav(s).previousElementSibling?.className);
 	}
 	for (const s of [character, npc]) {
 		const header = box(s.querySelector('.sheet-header'));
@@ -181,6 +208,7 @@ const results = await page.evaluate(async () => {
 	fresh.style.maxWidth = '420px';
 	await wait(150);
 	check('a redrawn tabs part is dressed again', fresh !== n && !fresh.classList.contains('tabs-right') && tabs(sheet).every((t) => t.querySelector('.sfh-tab-label')) && fresh.querySelectorAll('.sfh-tab-step').length === 2);
+	check('and stands where the old one stood, after the header, its tabs still to be clicked', sheet.querySelector('.sheet-header').nextElementSibling === fresh && tabs(sheet).filter((t) => box(t).r <= box(fresh).r - 30).every(reached));
 	SFH5.dressSheet(sheet);
 	check('and dressing it twice adds nothing twice', tabs(sheet).every((t) => t.querySelectorAll('.sfh-tab-label').length === 1) && fresh.querySelectorAll('.sfh-tab-step').length === 2);
 	fresh.style.maxWidth = '';
@@ -192,6 +220,11 @@ const results = await page.evaluate(async () => {
 	// the system eases its tabs' margins back over a quarter of a second
 	await wait(500);
 	check('off again: the body says so', document.body.dataset.sfhSheetTabs === 'off');
+	for (const s of [sheet, npc]) {
+		const content = s.querySelector('.window-content');
+		check(`${s.id}: the row is back where the system wrote it, last in the sheet, and no note of it is left`, content.lastElementChild === nav(s) && [...content.childNodes].every((node) => node.nodeType !== 8 || node.data !== 'sfh-sheet-tabs'), content.lastElementChild?.className);
+		check(`${s.id}: its header's controls can still be clicked`, controls(s).every(reached), controls(s).filter((el) => !reached(el)).map(said));
+	}
 	for (const s of [sheet, npc, vehicle]) {
 		const was = before[s.id];
 		const now = box(nav(s));

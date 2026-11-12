@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **D&D 5e sheet tabs: the header and the tabs could not be clicked.** With the tab row on and the
+  sheet in the system's dark theme, nothing in a character's header answered a click: not the
+  name, the rest buttons, Inspiration, nor the tabs in the row themselves. In that theme the
+  system lays the character's banner over the top of the sheet as a layer of its own, and it was
+  being drawn on top of them and took the clicks. The row is now moved to its place after the header instead of being
+  reordered there, which is what had put the banner in front. Sheets in the light theme, and any sheet
+  with the setting off, were not affected.
+
 ## 1.6.0 — 2026-11-11
 
 - **D&D 5e sheet tabs as a labeled row:** a new setting, off by default, lays the tabs of the

@@ -48,11 +48,22 @@ const VEHICLE = [
 const score = (abbr, flipped = false) => `<div class="ability-score ${flipped ? 'flipped' : ''}" data-ability="${abbr}">
 	<a class="label rollable ability-check">${abbr}</a><div class="mod">+2</div><div class="score">14</div></div>`;
 
-/** The character: header, body (as _onFirstRender nests it), ability scores, warnings, tabs. */
+/**
+ * The character: header, body (as _onFirstRender nests it), ability scores, warnings, tabs. The
+ * header has the system's own controls in it, to be clicked. In the dark theme the system draws
+ * the banner as a layer 300px tall over the top of the sheet (.window-content::before); in the
+ * light theme it is the header's own background and there is no such layer. A test that is to see
+ * what the layer covers has to put the sheet in the dark theme (theme-dark for theme-light).
+ */
 const character = (id, style, { optional = 0 } = {}) => frame(id, 'character tab-details', style, 'Vex Kaori', `
 	<header class="sheet-header" data-application-part="header">
-		<div class="left optional-ability-${optional}"><div class="document-name">Vex Kaori</div><div class="class roboto-upper">Fighter 5</div></div>
-		<div class="right"><div class="level-badge badge">5</div><div><div class="xp-label">XP</div><div class="xp-bar"></div></div></div>
+		<div class="left optional-ability-${optional}"><input type="text" name="name" class="document-name uninput" value="Vex Kaori"><div class="class roboto-upper">Fighter 5</div></div>
+		<div class="right"><div class="level-badge badge">5</div>
+			<button type="button" class="inspiration unbutton" data-action="toggleInspiration" aria-label="Inspiration"></button>
+			<div><div class="sheet-header-buttons">
+				<button type="button" class="short-rest gold-button" data-action="rest" aria-label="Short Rest"><i class="fa-solid fa-utensils" inert></i></button>
+				<button type="button" class="long-rest gold-button" data-action="rest" aria-label="Long Rest"><i class="fa-solid fa-campground" inert></i></button>
+			</div><div class="xp-label">XP</div><div class="xp-bar"></div></div></div>
 	</header>
 	<div class="sheet-body"><div class="main-content" data-container-id="main">
 		<div class="sidebar" data-application-part="sidebar"><div class="card"><div class="filler" style="min-height:220px">Portrait</div></div></div>
