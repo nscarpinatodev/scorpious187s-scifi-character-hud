@@ -23,7 +23,9 @@ the first on the Node 24 actions, and passed with no Node.js 20 warning. Then 1.
 Journal on paper and the Crystal core gone over for text that could not be read. The sheet tabs
 and the readability fixes went out tested on the harnesses but not seen in Foundry (items 1 and
 2 below). Then 1.6.1 on 2026-11-12: with the tab row on, a character's header and the row itself
-could not be clicked in the system's dark theme.
+could not be clicked in the system's dark theme. Then 1.7.0 the same day: D&D 5e items named in
+the color of their rarity and unprepared spells grayed, on the system's sheets and in the
+projection, a vitals panel that fits what is in it, and temporary hit points under the bar.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -41,7 +43,7 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e rarity colors, grayed unprepared spells, and the vitals panel** (unreleased).
+1. **D&D 5e rarity colors, grayed unprepared spells, and the vitals panel** (1.7.0).
    - Rarity and graying are on the projection (`scripts/adapters/dnd5e.mjs`: `rarityOf`,
      `unprepared`; colors in `design/1-head.html` `.rar-*` and, for the Crystal core,
      `styles/looks.css`) and on the D&D 5e sheets (`scripts/interface/sheet-marks.mjs` marks each

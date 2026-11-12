@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.0 — 2026-11-12
 
 - **D&D 5e: items named in the color of their rarity.** An uncommon item's name is green, a rare
   one's blue, a very rare one's purple, a legendary one's orange and an artifact's tan, as D&D
