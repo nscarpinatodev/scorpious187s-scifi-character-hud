@@ -73,7 +73,8 @@
 		"styles/projection.css",
 		"styles/projection-frame.css",
 		"styles/looks.css",
-		"styles/sheet-tabs.css"
+		"styles/sheet-tabs.css",
+		"styles/sheet-marks.css"
 	],
 	"languages": [
 		{

@@ -73,6 +73,8 @@ export const S = {
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
 	journalScale: 'journalScale', // client — the Journal's book size, % of the room it could take
 	sheetTabs: 'sheetTabs', // client — D&D 5e's sheet tabs as a labeled row across the sheet
+	rarityColors: 'rarityColors', // client — D&D 5e: an item named in the color of its rarity, on the projection and the sheets
+	grayUnprepared: 'grayUnprepared', // client — D&D 5e: a character's unprepared spells grayed, on the projection and the sheet
 	headingColor: 'headingColor', // client — the player's own color for the interface's headings
 	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names
 	fontBody: 'fontBody',         // client — the player's own font for text

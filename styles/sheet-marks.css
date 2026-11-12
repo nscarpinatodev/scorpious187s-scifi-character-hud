@@ -1,0 +1,48 @@
+/*
+ * D&D 5e's own sheets, marked as the projection is (scripts/interface/sheet-marks.mjs): an item
+ * named in the color of its rarity, and a character's unprepared spells grayed.
+ *
+ * The colors are D&D Beyond's: green for uncommon, blue for rare, purple for very rare, orange for
+ * legendary and tan for an artifact. Its own values are #1fc219, #4990e2, #9810e0, #fea227 and
+ * #be8972. Where one of those reads on the sheet it is used as it is; where it does not, it is the
+ * same color taken toward white on the dark theme or toward black on the light one, only as far
+ * as it takes to be read (4.5:1). The projection's are the same (design/1-head.html, .rar-*).
+ */
+
+/* the light theme: all five taken toward black */
+.dnd5e2.sheet.actor [data-sfh-rarity="uncommon"] { --sfh-rar: #10670d; }
+.dnd5e2.sheet.actor [data-sfh-rarity="rare"] { --sfh-rar: #2d598c; }
+.dnd5e2.sheet.actor [data-sfh-rarity="veryrare"] { --sfh-rar: #890eca; }
+.dnd5e2.sheet.actor [data-sfh-rarity="legendary"] { --sfh-rar: #7a4e13; }
+.dnd5e2.sheet.actor [data-sfh-rarity="artifact"] { --sfh-rar: #705143; }
+
+/* the dark theme, the sheet's own or the one it takes from the interface: green and orange as they are */
+.dnd5e2.sheet.actor.theme-dark [data-sfh-rarity="uncommon"],
+body.theme-dark .dnd5e2.sheet.actor:not(.theme-light) [data-sfh-rarity="uncommon"] { --sfh-rar: #1fc219; }
+.dnd5e2.sheet.actor.theme-dark [data-sfh-rarity="rare"],
+body.theme-dark .dnd5e2.sheet.actor:not(.theme-light) [data-sfh-rarity="rare"] { --sfh-rar: #73aae9; }
+.dnd5e2.sheet.actor.theme-dark [data-sfh-rarity="veryrare"],
+body.theme-dark .dnd5e2.sheet.actor:not(.theme-light) [data-sfh-rarity="veryrare"] { --sfh-rar: #ce8cf0; }
+.dnd5e2.sheet.actor.theme-dark [data-sfh-rarity="legendary"],
+body.theme-dark .dnd5e2.sheet.actor:not(.theme-light) [data-sfh-rarity="legendary"] { --sfh-rar: #fea227; }
+.dnd5e2.sheet.actor.theme-dark [data-sfh-rarity="artifact"],
+body.theme-dark .dnd5e2.sheet.actor:not(.theme-light) [data-sfh-rarity="artifact"] { --sfh-rar: #c89c89; }
+
+/* an item's row in a list, and a favorite: the name alone, not what is nested under it */
+.dnd5e2.sheet.actor li.item[data-sfh-rarity] > .item-row > .item-name .title,
+.dnd5e2.sheet.actor li[data-favorite-id][data-sfh-rarity] > .name-stacked > .title {
+	color: var(--sfh-rar);
+}
+
+/*
+ * A spell a character has not prepared: its row is grayed, all but its controls, where it is
+ * prepared from. It can still be read, rolled and opened.
+ */
+.dnd5e2.sheet.actor.character li.item[data-sfh-unprepared] > .item-row > :not(.item-controls),
+.dnd5e2.sheet.actor.character li[data-favorite-id][data-sfh-unprepared] > :not(.deletion-control) {
+	opacity: 0.5;
+	filter: grayscale(1);
+}
+.dnd5e2.sheet.actor.character li.item[data-sfh-unprepared]:hover > .item-row > :not(.item-controls) {
+	opacity: 0.8;
+}

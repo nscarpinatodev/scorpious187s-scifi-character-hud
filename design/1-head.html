@@ -105,6 +105,9 @@ button.cell{cursor:pointer;border-color:var(--line);height:auto}button.cell:hove
 .seg.bad.on{background:var(--bad);border-color:var(--bad);box-shadow:0 0 8px var(--bad)}
 .seg.lock{cursor:default;border-style:dashed;border-color:color-mix(in srgb,var(--bad) 50%,transparent);background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--bad) 35%,transparent) 0 2px,transparent 2px 5px)}
 .segsep{flex:none;width:1px;align-self:stretch;margin:0 3px;background:var(--line)}
+/* a track of six in a cell half a panel wide: its pips close up, and may narrow, so the last is not cut off */
+.cell.trk .segs:has(>.seg:nth-child(6)){gap:2px;padding:0}
+.cell.trk .segs:has(>.seg:nth-child(6)) .segsep{margin:0 2px}
 .t-wrist .seg{transform:none;border-radius:7px}
 .t-gdi .cell .lbl,.t-nod .cell .lbl{letter-spacing:.04em}
 .t-gdi .seg,.t-nod .seg{transform:none;height:11px;box-shadow:inset 0 0 0 1px #000}
@@ -206,6 +209,19 @@ button.cell{cursor:pointer;border-color:var(--line);height:auto}button.cell:hove
 .b.invest.on{color:var(--bright);border-color:var(--hot);background:var(--hotbg);box-shadow:0 0 8px var(--glow)}
 /* a spent spell fades, but the button that restores it should not */
 .li.spent>:not(.b){opacity:.55}
+/* a spell not prepared is grayed, in the device's own gray: still there to be read, and prepared */
+.li.unprepared .nm,.li.unprepared>.cost,.li.unprepared>.b.ghost{color:var(--dim)}
+.li.unprepared .nm:hover{color:var(--hot)}
+/*
+ * An item's name in the color of its rarity, as D&D Beyond colors them: green, blue, purple, orange
+ * and tan (#1fc219, #4990e2, #9810e0, #fea227, #be8972). On a dark panel the green and the orange
+ * are its own; the others are the same colors taken toward white, as far as it takes to read
+ * (4.5:1). On a page (the Journal, and the looks with one) all five are taken toward black.
+ */
+.rar-uncommon{--rar:#1fc219}.rar-rare{--rar:#73aae9}.rar-veryrare{--rar:#ce8cf0}.rar-legendary{--rar:#fea227}.rar-artifact{--rar:#c89c89}
+.li .nm.rar{color:var(--rar)}
+.li .nm.rar:hover{color:var(--hot)}
+.t-journal .rar-uncommon{--rar:#10670d}.t-journal .rar-rare{--rar:#2d598c}.t-journal .rar-veryrare{--rar:#890eca}.t-journal .rar-legendary{--rar:#7a4e13}.t-journal .rar-artifact{--rar:#705143}
 /* on paper a faded line is a gray one that cannot be read: a spent spell is struck out in the dim ink instead */
 .t-journal .li.spent>:not(.b){opacity:1}
 .t-journal .li.spent .nm,.t-journal .li.spent>.cost{color:var(--dim)}
@@ -275,8 +291,9 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .sfh-in[type=number]{-moz-appearance:textfield}
 .sfh-in-hp{width:3.2em;height:auto;min-height:0;font-size:26px;line-height:1;padding:0 2px;text-align:right;background:transparent;border-color:transparent;color:var(--bright);text-shadow:0 0 10px var(--glow)}
 .sfh-in-hp:hover{border-color:var(--line2)}
-.sfh-temp{display:flex;align-items:center;gap:5px;flex:none}
-.sfh-hp{align-items:stretch;gap:5px;padding:7px 10px}
+/* the temporary pool is under the bar it is spent ahead of */
+.sfh-temp{display:flex;align-items:center;justify-content:center;gap:6px;flex:none}
+.sfh-hp{align-items:stretch;gap:3px;padding:4px 10px}
 .sfh-hp .lbl{overflow:visible;text-overflow:clip;letter-spacing:.1em}
 .sfh-hp .sfh-in:not(.sfh-in-hp){height:24px;min-height:0}
 .sfh-hp .hp-a .b{height:24px;min-height:24px}
@@ -288,10 +305,11 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 :is(.t-omni,.t-vambrace) .sfh-hp .hp-a .b.ghost{font-size:10.5px}
 .sfh-hp .hp-b{align-self:center;width:100%}
 /* where the panel is wide or short, the number shares its row: with the buttons on the wrist, with the bar on the EVA */
-.t-wrist .sfh-hp{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"h h" "v a" "b b";column-gap:14px}
-.t-gdi .sfh-hp,.t-nod .sfh-hp{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"h h" "v b" "a a";column-gap:12px}
-.sfh-hp .hp-h{grid-area:h}.sfh-hp .hp-v{grid-area:v}.sfh-hp .hp-b{grid-area:b}.sfh-hp .hp-a{grid-area:a}
+.t-wrist .sfh-hp{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"h h" "v a" "b b" "t t";column-gap:14px}
+.t-gdi .sfh-hp,.t-nod .sfh-hp{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"h h" "v b" "v t" "a a";column-gap:12px}
+.sfh-hp .hp-h{grid-area:h}.sfh-hp .hp-v{grid-area:v}.sfh-hp .hp-b{grid-area:b}.sfh-hp .hp-t{grid-area:t}.sfh-hp .hp-a{grid-area:a}
 .sfh-temp .sfh-in{width:3.4em}
+.sfh-hp .hp-t .sfh-in{height:20px}
 .sfh-menu{position:absolute;left:8px;right:8px;top:8px;z-index:12;display:flex;flex-direction:column;gap:6px;padding:10px;background:linear-gradient(var(--pnl),var(--pnl)),#0a0b0e;border:1px solid var(--hot);border-radius:calc(var(--r)*.6);box-shadow:0 0 22px var(--glow)}
 .sfh-menu label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--dim)}
 .sfh-menu .sfh-in{width:5em;flex:none}
@@ -635,6 +653,9 @@ prose-mirror.sfh-rich menu button:is(:hover,.active){color:var(--bright);backgro
 .t-vambrace .sfh-latest .l-t{font-family:var(--display);font-size:11px;letter-spacing:.14em}
 /* tracks and pips are rune crystals, lit or dark */
 .t-vambrace .seg{transform:rotate(45deg) scale(.8);flex:0 0 12px;width:12px;height:12px;border-radius:2px}
+/* in a cell its crystals may narrow, staying square, where six of them would not fit at their size */
+.t-vambrace .cell.trk .segs{align-items:center}
+.t-vambrace .cell.trk .seg{flex:0 1 12px;width:auto;height:auto;aspect-ratio:1;min-width:7px}
 .t-vambrace .seg.on{border-color:#cfe5ff}
 .t-vambrace .pip{border-radius:2px}
 .t-vambrace .barx>i{background:linear-gradient(90deg,var(--acc),var(--hot))}

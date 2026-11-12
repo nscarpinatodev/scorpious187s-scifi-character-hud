@@ -1,5 +1,5 @@
 import { esc, sgn, lbl, rollBtn, actBtn, nameBtn, ro, COST_GLYPH } from '../projection/helpers.mjs';
-import { MOD } from '../constants.mjs';
+import { MOD, S } from '../constants.mjs';
 
 /**
  * D&D 5e (system 5.x–6.x).
@@ -245,10 +245,39 @@ function useButton(item, text = 'Use') {
 	return actBtn(text, 'use', item.id, { cls: 'sm ghost' });
 }
 
+/**
+ * The rarities that have a color, in the system's own keys. Common things, and things with no
+ * rarity, are named in the device's ordinary ink.
+ */
+export const RARITIES = ['uncommon', 'rare', 'veryRare', 'legendary', 'artifact'];
+
+/** A setting that is on unless it has been switched off. */
+const wanted = (key) => {
+	try { return game.settings.get(MOD, key) !== false; } catch { return true; }
+};
+
+/** What an item's rarity is, unless it has yet to be identified: its color would give it away. */
+export const rarityOf = (item) => (item?.system?.identified === false ? '' : String(item?.system?.rarity ?? ''));
+
+/** The classes that color a name by its rarity (the colors are in the stylesheet, by device). */
+const rarityClass = (rarity) => (RARITIES.includes(rarity) && wanted(S.rarityColors) ? `rar rar-${rarity.toLowerCase()}` : '');
+
+/** An item's name, to be read from: in its rarity's color if it has one. */
+const itemName = (item) => nameBtn(item.name, `item:${item.id}`, rarityClass(rarityOf(item)));
+
+/**
+ * A spell a character would have to prepare before casting it. An NPC's spells are what its stat
+ * block gives it, prepared or not, and are left as they are.
+ */
+export const unprepared = (actor, item) => item?.type === 'spell' && actor?.type === 'character' && !item.system?.linkedActivity && !castable(item);
+
+/** The class that grays a row, where the spell on it is a character's to prepare and the setting is on. */
+const grayed = (actor, item) => (unprepared(actor, item) && wanted(S.grayUnprepared) ? 'unprepared' : '');
+
 /** One row of an even grid: what it costs, its name and Use. The rest is in the readout. */
-const actionRow = (item, extra = '', text = 'Use') => `<div class="li sfh-action" ${ro(`item:${item.id}`)}>
+const actionRow = (item, extra = '', text = 'Use', cls = '') => `<div class="li sfh-action${cls ? ` ${cls}` : ''}" ${ro(`item:${item.id}`)}>
 	<span class="cost">${glyphFor(activationOf(item))}</span>
-	<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
+	<span class="grow">${itemName(item)}</span>
 	${extra}${useButton(item, text)}</div>`;
 
 /** A feature with something to use, as the sheet's Active group has it. */
@@ -264,7 +293,7 @@ function attackRow(item) {
 		: useButton(item);
 	return `<div class="li" style="flex-wrap:wrap;gap:8px 10px" ${ro(`item:${item.id}`)}>
 		<div class="grow" style="min-width:150px;display:flex;flex-direction:column;gap:2px">
-			${nameBtn(item.name, `item:${item.id}`)}
+			${itemName(item)}
 			${facts ? `<span class="sub">${esc(facts)}</span>` : ''}
 		</div>${buttons}</div>`;
 }
@@ -288,7 +317,7 @@ function favoriteRow(actor, { type, id }) {
 	if (!doc) return '';
 	if (type === 'item') {
 		if (actor.hiddenItems?.has?.(doc.id)) return '';
-		return actionRow(doc, '', doc.type === 'spell' ? 'Cast' : 'Use');
+		return actionRow(doc, '', doc.type === 'spell' ? 'Cast' : 'Use', grayed(actor, doc));
 	}
 	if (type === 'activity') {
 		const item = doc.item;
@@ -340,7 +369,7 @@ function itemRow(actor, item, others, depth = 0) {
 	// a container is marked as the sheet marks it, so what is dropped on it goes inside
 	const box = item.type === 'container' ? ` class="li flat sfh-nest container" data-item-id="${esc(item.id)}"` : ' class="li flat sfh-nest"';
 	const row = `<div${box} style="--depth:${depth}" ${ro(`item:${item.id}`)}>
-		<span class="grow">${nameBtn(item.name, `item:${item.id}`)}</span>
+		<span class="grow">${itemName(item)}</span>
 		<span class="row" style="gap:3px">
 			${actBtn('−', 'qty', `${item.id}:-1`, { cls: 'sm' })}
 			<span class="mono" style="width:26px;text-align:center">${sys.quantity ?? 1}</span>
@@ -552,7 +581,8 @@ function spells(actor) {
 		? `<div class="sfh-levels" role="group" aria-label="Spell level">${levelButton('all', 'All', 'Every level', spellLevel === null)}${
 			levels.map((level) => levelButton(level, level ? String(level) : 'C', levelName(level), spellLevel === level)).join('')}</div>`
 		: '';
-	const grid = (spells) => `<div class="grid2 sfh-actions">${spells.map((spell) => actionRow(spell, prepareToggle(spell), 'Cast')).join('')}</div>`;
+	// a character's unprepared spells are grayed, still there to be read and prepared
+	const grid = (spells) => `<div class="grid2 sfh-actions">${spells.map((spell) => actionRow(spell, prepareToggle(spell), 'Cast', grayed(actor, spell))).join('')}</div>`;
 	const lists = sections.map((section) => {
 		const items = shown(section).filter((spell) => spellLevel === null || (spell.system?.level ?? 0) === spellLevel);
 		// a level's slots still show with no spell prepared at it, unless another level was asked for
@@ -657,8 +687,9 @@ export function readoutMeta(doc) {
 		const period = CONFIG.DND5E?.limitedUsePeriods?.[uses.recovery?.[0]?.period]?.label;
 		meta.push(['Uses', `${uses.value ?? 0} / ${uses.max}${period ? ` · ${loc(period)}` : ''}`]);
 	}
+	const rarity = rarityOf(doc);
 	const rows = [
-		['Level', labels.level], ['School', labels.school], ['Time', labels.activation], ['Range', labels.range], ['Target', labels.target],
+		['Rarity', rarity && (CONFIG.DND5E?.itemRarity?.[rarity] ?? rarity)], ['Level', labels.level], ['School', labels.school], ['Time', labels.activation], ['Range', labels.range], ['Target', labels.target],
 		['Duration', labels.duration], ['Components', labels.components?.vsm], ['To hit', labels.modifier], ['Damage', damageText(labels)], ['Save', labels.save],
 	];
 	// a label that is not plain text has no place on this list
@@ -809,7 +840,8 @@ let catalog = null;
 function physicalIndex() {
 	catalog ??= dnd5e.applications.CompendiumBrowser.fetch(CONFIG.Item.documentClass, {
 		types: new Set(PHYSICAL),
-		indexFields: new Set(['system.price', 'system.rarity']),
+		// the system keeps an item's rarity as a set since 6.0; before that, as the one
+		indexFields: new Set(['system.price', 'system.rarity', 'system.rarities']),
 		sort: true,
 	}).catch((err) => {
 		catalog = null;
@@ -830,7 +862,7 @@ export async function searchItems(text) {
 		const price = entry.system?.price;
 		return `<div class="li flat qs">
 			<img src="${esc(entry.img)}" alt="">
-			<span class="grow"><button type="button" class="nm" data-act="viewItem" data-k="${esc(entry.uuid)}" data-tooltip="Open this item's sheet">${esc(entry.name)}</button></span>
+			<span class="grow"><button type="button" class="nm ${rarityClass(String([...(entry.system?.rarities ?? [])][0] ?? entry.system?.rarity ?? ''))}" data-act="viewItem" data-k="${esc(entry.uuid)}" data-tooltip="Open this item's sheet">${esc(entry.name)}</button></span>
 			<span class="mono dimc qs-price">${price?.value ? esc(`${price.value} ${price.denomination ?? 'gp'}`) : ''}</span>
 			${actBtn('Add', 'addItem', entry.uuid, { cls: 'sm ghost', title: 'Add to inventory, free' })}
 			${actBtn('Buy', 'buyItem', entry.uuid, { cls: 'sm ghost', title: 'Pay its price and add to inventory' })}</div>`;

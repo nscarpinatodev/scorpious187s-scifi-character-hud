@@ -174,7 +174,10 @@ and legendary actions and resistance.
 - **The same HUD in D&D 5e**, through 5e's own calls: attacks and features to use, spell slots to
   spend and restore, preparing spells, equipping and attuning, typed coins, quick search with Add
   and Buy, an editable Biography and the latest-roll strip. Giving an item to a character you do not
-  own goes through the GM's client, so a GM has to be online.
+  own goes through the GM's client, so a GM has to be online. An item is named in the color of
+  its rarity as D&D Beyond colors them (green, blue, purple, orange and tan, from uncommon to
+  artifact), and a character's spells that are not prepared are grayed. Both are done on the
+  D&D 5e sheets as well as in the projection, and each has a setting to switch it off.
 - **A scene bar** in place of Foundry's scene list: the scenes in navigation across the top left,
   a drawer of every scene by folder with a search, and a preview of each one with Preload,
   Activate, Pull all and the rest. It keeps clear of Calendaria's HUD at the top center.
@@ -212,6 +215,8 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
 | Journal size | client | How large the Journal's book opens, as a share of the room it could take (100% by default). The Grove follows it too. |
 | D&D 5e sheet tabs as a labeled row | client | In a D&D 5e world: the tabs of the character, NPC and vehicle sheets in a row across the sheet with their names, instead of icons down its side. Off by default. |
+| D&D 5e: items named in the color of their rarity | client | In a D&D 5e world: an item's name in its rarity's color, as D&D Beyond colors them, on the projection and on the D&D 5e sheets. On by default. |
+| D&D 5e: gray out unprepared spells | client | In a D&D 5e world: a character's spells that have to be prepared and are not, grayed on the projection and on the character sheet. On by default. |
 | Etched grid | client | The etching on the projection: hexes on the omni-tool, a square grid on TRON. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
 | The Journal's interface in the dark | client | With the Adventurer's Journal or the Grove, the sidebar, chat, player list, controls, scene bar and turn order in dark leather with pale ink instead of paper. The journal itself stays paper. Off by default. |

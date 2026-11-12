@@ -1,5 +1,35 @@
 # Changelog
 
+## Unreleased
+
+- **D&D 5e: items named in the color of their rarity.** An uncommon item's name is green, a rare
+  one's blue, a very rare one's purple, a legendary one's orange and an artifact's tan, as D&D
+  Beyond colors them. It is so on the D&D 5e character, NPC and vehicle sheets, in their lists and
+  among a character's favorites, and wherever the projection names an item: the Inventory tab, a
+  weapon among the attacks, a favorite, and what the quick search finds. Common things, and
+  things with no rarity, keep the ordinary ink. D&D Beyond's own green and orange are used as
+  they are on a dark sheet or panel; its other colors are lightened there, and all five are
+  darkened on a light sheet, the Journal, the Grove and the Crystal core, only as far as it
+  takes for each to be read. An item that has not been identified is not colored, since its
+  color would say what it is. The projection's readout also says an item's rarity in words. A
+  new setting, on by default, switches it off.
+- **D&D 5e: unprepared spells are grayed.** On a character's sheet and in the projection, on the
+  Spells tab and among the favorites, a spell that has to be prepared and is not is grayed. It
+  can still be read, prepared and cast. Cantrips, spells that are always prepared, and spells
+  that need no preparing (pact magic, innate spells, spells cast from an item) are not grayed.
+  An NPC's spells are left as they were. A new setting, on by default, switches it off.
+- **D&D 5e: a vitals panel that holds what is in it.** On the Vambrace and its looks, the
+  Crystal core, the omni-tool, the Armored gauntlet and the Comm unit, the six death saves and
+  the six levels of exhaustion were wider than their cells and the last of them were cut off,
+  and on several of those the panel was a few pixels too tall and scrolled. A track of six now
+  closes up to fit its cell. And every panel of cells is now measured once it is drawn: a label
+  too wide for its cell, as "Inspiration" is in a wider font than the device's own, is set a
+  little smaller, and a panel too tall for its place is drawn a little smaller as a whole,
+  so nothing is cut off whatever font a player has chosen.
+- **Temporary hit points under the bar.** The Temp box has moved from beside the Hit Points
+  label to under the bar, over Heal and Damage, on every device and in every system. The
+  block is set a little tighter so the panel is no taller for it.
+
 ## 1.6.1 — 2026-11-12
 
 - **D&D 5e sheet tabs: the header and the tabs could not be clicked.** With the tab row on and the

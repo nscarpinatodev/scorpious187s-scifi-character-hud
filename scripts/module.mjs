@@ -17,6 +17,7 @@ import { holdApTracker, adoptApTracker } from './interface/ap-tracker.mjs';
 import { refreshObstacles } from './interface/obstacles.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
 import { applySheetTabs, dressSheet } from './interface/sheet-tabs.mjs';
+import { applySheetMarks, markSheet } from './interface/sheet-marks.mjs';
 
 /**
  * Scorpious187's HUD UI for 5e and PF2e/SF2e.
@@ -43,7 +44,7 @@ const STYLES = [
 	'styles/scenes.css',
 	'styles/projection.css',
 	'styles/projection-frame.css',
-	'styles/looks.css', 'styles/sheet-tabs.css',
+	'styles/looks.css', 'styles/sheet-tabs.css', 'styles/sheet-marks.css',
 ];
 
 /**
@@ -109,6 +110,7 @@ Hooks.once('init', () => {
 Hooks.once('ready', () => {
 	ensureStyles();
 	applySheetTabs();
+	applySheetMarks();
 	game.socket?.on(`module.${MOD}`, (data) => {
 		if (data?.type === 'give') getAdapter()?.onGiveRequest?.(data);
 		else onVolumeMessage(data);
@@ -250,6 +252,11 @@ Hooks.on('renderSettingsConfig', splitDevicePicker);
 
 // D&D 5e's sheet tabs as a labeled row: the system redraws them with each sheet, and each part of one
 Hooks.on('renderActorSheetV2', (app) => dressSheet(app.element));
+
+// D&D 5e's sheets marked as the projection is: an item's rarity in its name's color, a character's
+// unprepared spells grayed. The sheet's rows are the system's, redrawn with it.
+Hooks.on('renderActorSheetV2', (app) => markSheet(app));
+Hooks.on('sfhMarks', () => Projection.render());
 
 /* The free area changes whenever Foundry's own furniture does. */
 for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {

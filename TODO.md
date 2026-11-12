@@ -41,7 +41,33 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e sheet tabs as a labeled row** (1.6.0, fixed in 1.6.1). 1.6.0 went out with the
+1. **D&D 5e rarity colors, grayed unprepared spells, and the vitals panel** (unreleased).
+   - Rarity and graying are on the projection (`scripts/adapters/dnd5e.mjs`: `rarityOf`,
+     `unprepared`; colors in `design/1-head.html` `.rar-*` and, for the Crystal core,
+     `styles/looks.css`) and on the D&D 5e sheets (`scripts/interface/sheet-marks.mjs` marks each
+     row on render; `styles/sheet-marks.css`). The first build was on the projection alone, which
+     was not what "PC sheets" meant. Tested in `tools/test-dnd5e.mjs` and
+     `tools/test-sheet-marks.mjs` (stand-in sheets, both themes, colors read against the pixels
+     behind them).
+   - The vitals panel: `scripts/projection/fit.mjs` shrinks a label too wide for its cell and
+     draws a panel of cells too tall for its slot a little smaller; a track of six closes up in
+     a half-width cell.
+   - [ ] See all of it in Foundry, on a real character's and NPC's sheet in both themes.
+   - [ ] **The colors are D&D Beyond's from memory** (#1fc219, #4990e2, #9810e0, #fea227,
+         #be8972); two searches could not confirm them. Check against the site.
+   - [ ] On a light sheet or page, legendary and artifact both darken to browns (#7a4e13 and
+         #705143) and are hard to tell apart; the readout says the rarity in words.
+   - [ ] The sheet marks do not stand down for SC - Item Rarity Colors or Tidy 5e Sheets, which
+         color items themselves; the setting is there to switch ours off.
+   - [ ] The Retro terminal and the Datapad are one-color screens, and rarity is now the one
+         other color on them. If that spoils them, leave those two looks in their own ink.
+   - [ ] An unprepared spell is grayed in each device's own dim ink, which on the Runeforge
+         and the Datapad is a little under 4.5:1 (4.1 and 4.0), as all their labels are.
+   - [ ] The contrast scan run across every look for this found text under 3:1 that is not
+         from this work: Datapad 12 pieces, Reliquary 3, Witchfire 2, Armored gauntlet 1.
+         Only the Journal, the Grove and the Crystal core have been gone over.
+
+2. **D&D 5e sheet tabs as a labeled row** (1.6.0, fixed in 1.6.1). 1.6.0 went out with the
    header and the row unclickable on a character in the dark theme, where the system's banner
    is a layer over the top of the sheet: the stand-ins were only ever in the light theme, and
    nothing checked that a click landed. `tools/test-sheet-tabs.mjs` now clicks every control
@@ -56,7 +82,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] dragging a sheet to the right edge of the screen, now that no tabs hang past it;
    - [ ] beside Carolingian UI, with its own sheet tabs on and off.
 
-2. **The Journal on paper** (1.6.0). `tools/scan-contrast.mjs` measures every piece of text
+3. **The Journal on paper** (1.6.0). `tools/scan-contrast.mjs` measures every piece of text
    against the pixels behind it on the two harnesses, and the Journal, the Grove and the Crystal
    core now have nothing under 3:1; `tools/test-light-hud.mjs` holds the fixes.
    - [ ] See the fixes in Foundry: the faded controls, tabs, players and scene list over a dark
@@ -69,7 +95,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          what is lit. See it in Foundry, and judge whether the deep cyan still looks like the
          Crystal; `#00708f` is the lightest that still passes on plain glass.
 
-3. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
+4. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
    the labels on private messages, the Solar Shield's name and Raise, Stellar Attunement's
    choice, and the speed of a creature with no land speed. Checked against PF2e 8.7.0 and SF2e
    1.7.0's code and changelog.
@@ -78,7 +104,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          actions and the Solarian's toggles all go through the system's own calls as the sheet's
          do. Find out which buttons, on which character.
 
-4. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
+5. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
    Foundry 13 server's `35-testing` world with five level-5 characters (fighter, ranger, wizard,
    sorcerer, cleric). Seen live and good: every tab, the GM's view, skill, attack and spell rolls
    and the latest-roll strip, the system's chat cards in the device's colors.
@@ -89,7 +115,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] **Attack totals** are not shown: the system works them out at roll time from many
          situational options. Showing an estimate would need checking against its rolls.
 
-5. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
+6. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
    brings up the Pip-Boy in place of a projection (`scripts/interface/pipboy.mjs`). Seen in
    Foundry and good: the handoff, the Lonestar armband, the AP tracker on it, and the roll cards.
    - [x] **The Lonestar armband** — a look of its own (`lonestar`, `system: 'fallout'`), always

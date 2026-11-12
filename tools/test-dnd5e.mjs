@@ -53,7 +53,7 @@ const results = await page.evaluate(async () => {
 			CompendiumBrowser: Object.assign(class { constructor(o) { record('browser')(o); } render() { calls.push(['browser.render']); } }, {
 				fetch: async (cls, options) => { calls.push(['fetch', [...options.types]]); return [
 					{ name: 'Rope, Hempen', img: 'x.png', uuid: 'Compendium.items.rope', system: { price: { value: 1, denomination: 'gp' } } },
-					{ name: 'Rope of Climbing', img: 'x.png', uuid: 'Compendium.items.climb', system: { price: { value: 2000, denomination: 'gp' } } },
+					{ name: 'Rope of Climbing', img: 'x.png', uuid: 'Compendium.items.climb', system: { rarity: 'uncommon', price: { value: 2000, denomination: 'gp' } } },
 					...Array.from({ length: 20 }, (_, i) => ({ name: `Torch ${i}`, img: 'x.png', uuid: `Compendium.items.t${i}`, system: {} })),
 				]; },
 			}),
@@ -75,6 +75,7 @@ const results = await page.evaluate(async () => {
 		currencies: { pp: {}, gp: {}, ep: {}, sp: {}, cp: {} },
 		conditionTypes: { blinded: { name: 'Blinded' }, exhaustion: { name: 'Exhaustion', levels: 6 }, bleeding: { name: 'Bleeding', pseudo: true } },
 		limitedUsePeriods: { lr: { label: 'Long Rest' }, recharge: { label: 'Recharge' } },
+		itemRarity: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', veryRare: 'Very Rare', legendary: 'Legendary', artifact: 'Artifact' },
 		spellLevels: { 0: 'Cantrip', 1: '1st Level', 2: '2nd Level', 3: '3rd Level' },
 		itemProperties: { concentration: { label: 'Concentration' }, fin: { label: 'Finesse' } },
 		spellPreparationStates: { unprepared: { value: 0, label: 'Unprepared' }, prepared: { value: 1, label: 'Prepared' }, always: { value: 2, label: 'Always Prepared' } },
@@ -106,13 +107,13 @@ const results = await page.evaluate(async () => {
 	item('breath', 'Breath Weapon', 'feat', { uses: { value: 0, max: 1, recovery: [{ period: 'recharge' }], rollRecharge: record('rollRecharge') }, activities: activities(spends('action')), properties: new Set() }, { isOnCooldown: true, flags: { dnd5e: { advancementOrigin: 'sp.y' } } });
 	item('react', 'A Very Long Reaction Feature Name That Would Certainly Not Fit On Two Lines Of Its Column', 'feat', { activities: activities(free('reaction')), properties: new Set() }, { flags: { dnd5e: { advancementOrigin: 'bg.y' } } });
 	item('passive', 'Darkvision Lore', 'feat', { activities: activities(), properties: new Set() });
-	item('sword', 'Longsword', 'weapon', { equipped: true, type: { value: 'martialM' }, quantity: 1, weight: { value: 3 }, activities: activities(attackActivity), properties: new Set(['fin']), attunement: '' }, { labels: { modifier: '+7', range: '5 ft', damages: [{ formula: '1d8 + 3', label: '1d8 + 3 Slashing', base: true }, { formula: '1d6', label: '1d6 Fire' }] } });
-	item('bow', 'Stowed Bow', 'weapon', { equipped: false, type: { value: 'martialR' }, quantity: 1, weight: { value: 2 }, activities: activities(attackActivity), properties: new Set() });
-	item('ring', 'Ring of Warmth', 'equipment', { equipped: false, attunement: 'required', attuned: false, quantity: 1, weight: { value: 0 }, activities: activities(), properties: new Set() });
-	item('potion', 'Potion of Healing', 'consumable', { quantity: 2, weight: { value: 0.5 }, uses: { value: 0, max: 1, recovery: [] }, activities: activities(spends('action')), properties: new Set() });
-	item('pack', 'Backpack', 'container', { equipped: true, quantity: 1, weight: { value: 5 }, activities: activities(), properties: new Set() });
-	item('inpack', 'Rations', 'consumable', { container: 'pack', quantity: 5, weight: { value: 2 }, activities: activities(), properties: new Set() });
-	item('mystery', 'Unidentified Wand', 'equipment', { identified: false, unidentified: { description: '<p>A plain stick.</p>' }, description: { value: '<p>Wand of Secrets.</p>' }, quantity: 1, weight: { value: 1 }, activities: activities(), properties: new Set() });
+	item('sword', 'Longsword', 'weapon', { rarity: 'rare', equipped: true, type: { value: 'martialM' }, quantity: 1, weight: { value: 3 }, activities: activities(attackActivity), properties: new Set(['fin']), attunement: '' }, { labels: { modifier: '+7', range: '5 ft', damages: [{ formula: '1d8 + 3', label: '1d8 + 3 Slashing', base: true }, { formula: '1d6', label: '1d6 Fire' }] } });
+	item('bow', 'Stowed Bow', 'weapon', { rarity: 'veryRare', equipped: false, type: { value: 'martialR' }, quantity: 1, weight: { value: 2 }, activities: activities(attackActivity), properties: new Set() });
+	item('ring', 'Ring of Warmth', 'equipment', { rarity: 'uncommon', equipped: false, attunement: 'required', attuned: false, quantity: 1, weight: { value: 0 }, activities: activities(), properties: new Set() });
+	item('potion', 'Potion of Healing', 'consumable', { rarity: 'common', quantity: 2, weight: { value: 0.5 }, uses: { value: 0, max: 1, recovery: [] }, activities: activities(spends('action')), properties: new Set() });
+	item('pack', 'Backpack', 'container', { rarity: 'legendary', equipped: true, quantity: 1, weight: { value: 5 }, activities: activities(), properties: new Set() });
+	item('inpack', 'Rations', 'consumable', { rarity: 'artifact', container: 'pack', quantity: 5, weight: { value: 2 }, activities: activities(), properties: new Set() });
+	item('mystery', 'Unidentified Wand', 'equipment', { rarity: 'artifact', identified: false, unidentified: { description: '<p>A plain stick.</p>' }, description: { value: '<p>Wand of Secrets.</p>' }, quantity: 1, weight: { value: 1 }, activities: activities(), properties: new Set() });
 	const spell = (id, name, level, method, prepared, extra = {}) => item(id, name, 'spell', { level, method, prepared, activities: activities(free('action')), properties: new Set(extra.props ?? []), description: { value: `<p>About ${name}. @UUID[x]{Link}</p>` } }, { labels: { level: `${level}th`, school: 'Evocation', components: { vsm: 'V, S' } } });
 	spell('cantrip', 'Shillelagh', 0, 'spell', 0);
 	spell('s1a', 'Cure Wounds', 1, 'spell', 1, { props: ['concentration'] });
@@ -303,6 +304,20 @@ const results = await page.evaluate(async () => {
 	check('what is in a container sits under it', parseFloat(nested.style.getPropertyValue('--depth')) === 1 && row('Backpack').compareDocumentPosition(nested) === Node.DOCUMENT_POSITION_FOLLOWING);
 	check('and only there', [...body().querySelectorAll('.li')].filter((l) => l.textContent.includes('Rations')).length === 1);
 	{
+		// a name is in the color of its rarity, as D&D Beyond colors them: green, blue, purple, orange and tan
+		const name = (text) => row(text).querySelector('.nm');
+		const ink = (text) => getComputedStyle(name(text)).color;
+		const plain = ink('Potion of Healing');
+		const colors = [['Ring of Warmth', 'uncommon'], ['Longsword', 'rare'], ['Stowed Bow', 'veryrare'], ['Backpack', 'legendary'], ['Rations', 'artifact']].map(([text, rarity]) => [text, rarity, ink(text)]);
+		check('an item of each rarity is named in the color of that rarity', colors.every(([text, rarity, color]) => name(text).classList.contains(`rar-${rarity}`) && color !== plain), colors);
+		check('each in a color of its own', new Set(colors.map((c) => c[2])).size === 5, colors.map((c) => c[2]));
+		const hue = (color) => { const [r, g, b] = color.match(/\d+/g).map(Number); return g > r && g > b ? 'green' : b > r && b > g && r < g ? 'blue' : b > g && r > g ? 'purple' : r > g && g > b && r - b > 150 ? 'orange' : r > g && g > b ? 'tan' : 'red'; };
+		check('green, blue, purple, orange and tan, in that order', colors.map((c) => hue(c[2])).join() === 'green,blue,purple,orange,tan', colors.map((c) => [c[2], hue(c[2])]));
+		check('the green and the orange are D&D Beyond\u2019s own on a dark panel', colors[0][2] === 'rgb(31, 194, 25)' && colors[3][2] === 'rgb(254, 162, 39)', [colors[0][2], colors[3][2]]);
+		check('a common thing is in the ordinary ink', !name('Potion of Healing').classList.contains('rar'));
+		check('and so is a thing not yet identified, whatever it is', !name('Unidentified Wand').classList.contains('rar') && ink('Unidentified Wand') === plain, ink('Unidentified Wand'));
+	}
+	{
 		// 5e's sheet looks for a container under the drop as `.container[data-item-id]`, and makes a
 		// dropped spell a scroll when its own tab is the inventory
 		const seen = [];
@@ -354,6 +369,7 @@ const results = await page.evaluate(async () => {
 	await wait(320);
 	const results = () => [...body().querySelectorAll('.sfh-results .qs')];
 	check('quick search finds things', results().length === 2, results().length);
+	check('what it finds is named in the color of its rarity too', results().find((r) => /Climbing/.test(r.textContent))?.querySelector('.nm').classList.contains('rar-uncommon') && !results().find((r) => /Hempen/.test(r.textContent))?.querySelector('.nm').classList.contains('rar'));
 	check('from physical items', calls.find((c) => c[0] === 'fetch')?.[1].includes('loot'));
 	search.value = 'torch';
 	search.dispatchEvent(new Event('input', { bubbles: true }));
@@ -442,6 +458,16 @@ const results = await page.evaluate(async () => {
 	check('and unpreparing', last()[2]?.['system.prepared'] === 0, last());
 	check('an always-prepared spell cannot be changed', body().querySelector('[data-act="prepare"][data-k="s1c"]').disabled);
 	check('a pact spell has no prepare toggle', !body().querySelector('[data-act="prepare"][data-k="p1"]'));
+	{
+		const gray = (text) => row(text).classList.contains('unprepared');
+		const inkOf = (text) => getComputedStyle(row(text).querySelector('.nm')).color;
+		check('a spell that is not prepared is grayed', gray('Unprepared Spell') && inkOf('Unprepared Spell') !== inkOf('Cure Wounds'), [inkOf('Unprepared Spell'), inkOf('Cure Wounds')]);
+		check('its Cast is grayed with it, and its prepare toggle is still there to press', getComputedStyle(row('Unprepared Spell').querySelector('[data-act="use"]')).color === inkOf('Unprepared Spell')
+			&& row('Unprepared Spell').querySelector('[data-act="prepare"]')?.disabled === false, getComputedStyle(row('Unprepared Spell').querySelector('[data-act="use"]')).color);
+		check('it can still be cast and read', !row('Unprepared Spell').querySelector('[data-act="use"]').disabled && !!row('Unprepared Spell').querySelector('.nm[data-act="read"]'));
+		const clear = ['Cure Wounds', 'Always Spell', 'Shillelagh', 'Pact Blast', 'Innate Trick'];
+		check('what is prepared, always prepared, a cantrip, or needs no preparing is not', clear.every((text) => !gray(text)), clear.filter(gray));
+	}
 	await press('[data-act="use"][data-k="s1a"]');
 	check('Cast casts', last()[0] === 'use:s1a');
 	await press('[data-act="spellFilter"]');
@@ -533,6 +559,10 @@ const results = await page.evaluate(async () => {
 	over(row('Unidentified Wand'));
 	await wait(200);
 	check('an unidentified item keeps its secret', /plain stick/.test(readout().textContent) && !/Wand of Secrets/.test(readout().textContent), readout().textContent);
+	check('its rarity among them', !/Artifact/.test(readout().textContent), readout().textContent);
+	over(row('Ring of Warmth'));
+	await wait(200);
+	check('the readout says what rarity a thing is, in words', /Rarity/.test(readout().textContent) && /Uncommon/.test(readout().textContent), readout().textContent);
 
 	/* ---- the latest roll ---- */
 	const rollDamage = record('latest.rollDamage');
@@ -680,6 +710,71 @@ const results = await page.evaluate(async () => {
 	check('and so are the coins', body().querySelector('[data-field="currency.gp"]').disabled);
 	actor.isOwner = true;
 
+	/* ---- the vitals panel holds what 5e puts in it, in any font ---- */
+	{
+		const vitalsOf = () => document.querySelector('#sfh-projection [data-slot="vitals"]');
+		// what is cut off, hangs out of its cell, or has to be scrolled to
+		const amiss = () => {
+			const panel = vitalsOf();
+			const cells = panel.querySelector('.cells.scroll');
+			const found = [];
+			if (cells.scrollHeight > cells.clientHeight + 1) found.push(`scrolls: ${cells.scrollHeight} in ${cells.clientHeight}`);
+			for (const cell of panel.querySelectorAll('.cell')) {
+				const box = cell.getBoundingClientRect();
+				for (const el of cell.querySelectorAll('.seg, .lbl, .b, .v')) {
+					const r = el.getBoundingClientRect();
+					if (r.left < box.left - 1.5 || r.right > box.right + 1.5) found.push(`${String(el.className).trim()} hangs out of "${cell.textContent.trim().slice(0, 14)}"`);
+				}
+			}
+			for (const label of panel.querySelectorAll('.cell .lbl')) if (label.scrollWidth > label.clientWidth + 1) found.push(`cut: ${label.textContent}`);
+			return found;
+		};
+		const wear = async (device) => { game.settings.set(null, 'device', device); await wait(350); };
+		for (const device of ['vambrace', 'reliquary', 'omni', 'gauntlet', 'comm', 'crystal', 'journal', 'tron']) {
+			await wear(device);
+			check(`${device}: the vitals panel holds hit points, hit dice, inspiration, death saves and exhaustion, none cut off or scrolled away`, amiss().length === 0, amiss());
+		}
+		await wear('vambrace');
+		check('vambrace: a panel that fits is left as the stylesheet has it', !vitalsOf().querySelector('.cells').style.zoom && ![...vitalsOf().querySelectorAll('.lbl')].some((l) => l.style.fontSize));
+		check('vambrace: all six death saves and all six levels of exhaustion are inside their cells', vitalsOf().querySelectorAll('.cell.trk .seg').length === 12);
+		for (const device of ['vambrace', 'omni', 'journal', 'wrist', 'gdi']) {
+			await wear(device);
+			const [barBox, tempBox, healBox] = ['.hp-b', '[data-commit="temp"]', '[data-act="heal"]'].map((sel) => vitalsOf().querySelector(sel).getBoundingClientRect());
+			check(`${device}: the temporary hit points are under the bar`, tempBox.top >= barBox.bottom - 0.5 && !vitalsOf().querySelector('.hp-h [data-commit="temp"]'), [Math.round(barBox.bottom), Math.round(tempBox.top)]);
+			if (!['wrist'].includes(device)) check(`${device}: and over Heal and Damage`, tempBox.bottom <= healBox.top + 0.5, [Math.round(tempBox.bottom), Math.round(healBox.top)]);
+		}
+		await wear('vambrace');
+		// a player's own font can be a good deal wider than the device's
+		const wide = document.head.appendChild(document.createElement('style'));
+		wide.textContent = '#sfh-projection .sfh-stage[data-device] .foldwrap .lbl { letter-spacing: .2em; font-size: 12.5px; font-variant: small-caps; }';
+		for (const device of ['omni', 'vambrace']) {
+			await wear(device);
+			const shrunk = [...vitalsOf().querySelectorAll('.lbl')].filter((l) => l.style.fontSize).map((l) => l.textContent);
+			check(`${device}, in a wider font: a word too long for its cell is set smaller, and the panel still holds everything`, amiss().length === 0 && shrunk.includes('Inspiration'), [amiss(), shrunk, vitalsOf().querySelector('.cells').style.zoom]);
+		}
+		check('and a panel a line too tall is drawn a little smaller, not cut off at the foot', Number(vitalsOf().querySelector('.cells').style.zoom) >= 0.8 && Number(vitalsOf().querySelector('.cells').style.zoom) < 1, vitalsOf().querySelector('.cells').style.zoom);
+		wide.remove();
+		await wear('omni');
+	}
+
+	/* ---- rarity on a page: inked dark enough to read ---- */
+	{
+		const lum = (c) => { const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+		const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+		for (const [device, ground] of [['journal', 'rgb(236, 223, 192)'], ['grove', 'rgb(233, 228, 198)'], ['crystal', 'rgb(195, 227, 240)']]) {
+			game.settings.set(null, 'device', device);
+			await wait(300);
+			await tab('inventory');
+			const inks = ['Ring of Warmth', 'Longsword', 'Stowed Bow', 'Backpack', 'Rations'].map((text) => getComputedStyle(row(text).querySelector('.nm')).color);
+			check(`${device}: the five rarities are inked to read on its page, each its own`, inks.every((c) => contrast(c, ground) >= 4.5) && new Set(inks).size === 5, inks.map((c) => [c, +contrast(c, ground).toFixed(2)]));
+			await tab('spells');
+			const gray = getComputedStyle(row('Unprepared Spell').querySelector('.nm')).color;
+			check(`${device}: an unprepared spell is grayed in ink that still reads`, row('Unprepared Spell').classList.contains('unprepared') && contrast(gray, ground) >= 4.5 && gray !== getComputedStyle(row('Cure Wounds').querySelector('.nm')).color, [gray, +contrast(gray, ground).toFixed(2)]);
+		}
+		game.settings.set(null, 'device', 'omni');
+		await wait(300);
+	}
+
 	/* ---- an NPC, as a GM brings one up by selecting its token ---- */
 	const sys = actor.system;
 	const kept = { type: actor.type, details: sys.details, hd: sys.attributes.hd, inspiration: sys.attributes.inspiration };
@@ -692,6 +787,8 @@ const results = await page.evaluate(async () => {
 	await wait(250);
 	const q = (sel) => document.querySelector(`#sfh-projection ${sel}`);
 	const vitals = () => q('[data-slot="vitals"]');
+	await tab('spells');
+	check('an NPC: its spells are left as they are, prepared or not', !!row('Unprepared Spell') && !body().querySelector('.li.unprepared'), body().querySelectorAll('.li.unprepared').length);
 	check('an NPC: its creature type under its name', /Humanoid \(Goblinoid\)/.test(q('.st')?.textContent ?? ''), q('.st')?.textContent);
 	check('its challenge rating where a level would be, as 5e writes it', /CR/.test(q('.lvl')?.textContent ?? '') && /1\/2/.test(q('.lvl')?.textContent ?? ''), q('.lvl')?.textContent.replace(/\s+/g, ' '));
 	check('no experience to earn', !q('[data-commit="xp"]'));

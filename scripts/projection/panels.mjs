@@ -82,13 +82,13 @@ export function renderVitals(c) {
 	// the value's box is as wide as its digits, so it sits against its maximum
 	const digits = Math.max(1, String(c.hp.value).length);
 	const hp = `<div class="cell wide sfh-hp" data-menu="hp">
-		<div class="row sp hp-h">${lbl('Hit Points')}
-			<label class="sfh-temp">${lbl('Temp')}<input class="sfh-in mono" type="number" inputmode="numeric"
-				value="${c.hp.temp}" data-commit="temp" aria-label="Temporary hit points"></label></div>
+		<div class="row sp hp-h">${lbl('Hit Points')}</div>
 		<div class="row hp-v" style="justify-content:center;align-items:baseline;gap:2px">
 			<input class="sfh-in sfh-in-hp mono" type="number" inputmode="numeric" value="${c.hp.value}" style="width:${digits + 0.6}ch"
 				data-commit="hp" aria-label="Hit points"><span class="mono" style="font-size:15px;color:var(--dim)">/ ${c.hp.max}</span></div>
 		${bar(c.hp.value, c.hp.max, 'hp-b')}
+		<label class="sfh-temp hp-t">${lbl('Temp')}<input class="sfh-in mono" type="number" inputmode="numeric"
+			value="${c.hp.temp}" data-commit="temp" aria-label="Temporary hit points"></label>
 		<div class="row hp-a" style="gap:4px">
 			<input class="sfh-in mono" type="number" inputmode="numeric" min="0" placeholder="amt" style="width:auto;flex:1 1 3.4em;min-width:2.6em"
 				data-amount="1" aria-label="Amount to heal or damage">

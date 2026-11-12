@@ -1,5 +1,6 @@
 import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
 import { applySheetTabs } from './interface/sheet-tabs.mjs';
+import { applySheetMarks } from './interface/sheet-marks.mjs';
 
 /**
  * Settings.
@@ -142,6 +143,23 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		default: false,
 		onChange: () => applySheetTabs(),
 	});
+
+	// both mark D&D 5e's own sheets as well as the projection, so both redraw
+	const marks = [
+		[S.rarityColors, 'SFH.Settings.RarityColors', 'SFH.Settings.RarityColorsHint'],
+		[S.grayUnprepared, 'SFH.Settings.GrayUnprepared', 'SFH.Settings.GrayUnpreparedHint'],
+	];
+	for (const [key, name, hint] of marks) {
+		game.settings.register(MOD, key, {
+			name,
+			hint,
+			scope: 'client',
+			config: game.system?.id === 'dnd5e',
+			type: Boolean,
+			default: true,
+			onChange: () => { applySheetMarks(); Hooks.callAll('sfhMarks'); },
+		});
+	}
 
 	game.settings.register(MOD, S.calendaria, {
 		name: 'SFH.Settings.Calendaria',

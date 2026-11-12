@@ -10,7 +10,11 @@ globalThis.game = {
 	i18n: { localize: (key) => key },
 };
 
+// what the 5e adapter reads of the system when it is asked whether a spell is prepared
+globalThis.CONFIG = { DND5E: { spellcasting: { spell: { prepares: true }, pact: { prepares: false } } } };
+
 const { applySheetTabs, dressSheet } = await import('../scripts/interface/sheet-tabs.mjs');
+const { markSheet } = await import('../scripts/interface/sheet-marks.mjs');
 
 /** The system's tabs part: templates/shared/sidebar-tabs.hbs, with the side its sheet class gives it. */
 const tabsPart = (tabs, active) => `<nav class="tabs tabs-right" data-group="primary" data-application-part="tabs" aria-roledescription="Form Tab Navigation">${
@@ -127,5 +131,57 @@ const redrawTabs = (sheet) => {
 };
 
 const set = (on) => { store.sheetTabs = on; applySheetTabs(); };
-globalThis.SFH5 = { store, set, applySheetTabs, dressSheet, redrawTabs, builders: { character, npc, vehicle } };
+/*
+ * Things to list, and the lists as the system writes them (templates/inventory/inventory.hbs): a
+ * row is li.item[data-item-id] > .item-row > (.item-name with the name in .title, the columns, and
+ * .item-controls last). A character's favorites are li[data-favorite-id][data-item-id] in its
+ * sidebar, with the name in .name-stacked > .title. Neither says a rarity or whether a spell is
+ * prepared: the sheet's actor does.
+ */
+const THINGS = [
+	['rope', 'Hempen Rope', {}], ['potion', 'Potion of Healing', { rarity: 'common' }], ['ring', 'Ring of Warmth', { rarity: 'uncommon' }],
+	['sword', 'Flame Tongue', { rarity: 'rare' }], ['bow', 'Oathbow', { rarity: 'veryRare' }], ['staff', 'Staff of the Magi', { rarity: 'legendary' }],
+	['orb', 'Orb of Dragonkind', { rarity: 'artifact' }], ['wand', 'Unidentified Wand', { rarity: 'artifact', identified: false }],
+].map(([id, name, system]) => ({ id, name, type: 'equipment', system }));
+const SPELLS = [
+	['cantrip', 'Fire Bolt', { level: 0, method: 'spell', prepared: 0 }], ['ready', 'Shield', { level: 1, method: 'spell', prepared: 1 }],
+	['unready', 'Sleep', { level: 1, method: 'spell', prepared: 0 }], ['always', 'Find Familiar', { level: 1, method: 'spell', prepared: 2 }],
+	['pact', 'Hex', { level: 1, method: 'pact', prepared: 0 }], ['fromitem', 'Staff Fireball', { level: 3, method: 'spell', prepared: 0, linkedActivity: {} }],
+].map(([id, name, system]) => ({ id, name, type: 'spell', system }));
+const actorOf = (type) => {
+	const all = new Map([...THINGS, ...SPELLS].map((item) => [item.id, item]));
+	return { type, items: { get: (id) => all.get(id) } };
+};
+const actors = { 'sheet-character': actorOf('character'), 'sheet-npc': actorOf('npc'), 'sheet-vehicle': actorOf('vehicle') };
+const listRow = (item) => `<li class="item collapsible collapsed" data-item-id="${item.id}" data-entry-id="${item.id}" data-item-name="${item.name}">
+	<div class="item-row draggable">
+		<div class="item-name item-action item-tooltip rollable" role="button" data-action="use" aria-label="${item.name}">
+			<div class="name name-stacked"><span class="title">${item.name}</span><span class="subtitle">Subtitle</span></div><div class="tags"></div>
+		</div>
+		<div class="item-detail item-quantity" data-column-id="quantity">1</div>
+		<div class="item-detail item-controls always-visible" data-column-id="controls">
+			<button type="button" class="unbutton config-button item-control item-action" data-action="${item.type === 'spell' ? 'prepare' : 'equip'}" aria-label="Control"><i class="fa-regular fa-sun" inert></i></button>
+		</div>
+	</div>
+	<div class="item-description collapsible-content"><div class="wrapper"></div></div></li>`;
+const listOf = (label, items) => `<div class="inventory-element"><section class="items-list"><div class="items-section card">
+	<div class="items-header header"><h3 class="item-name">${label}</h3></div><ol class="item-list unlist">${items.map(listRow).join('')}</ol></div></section></div>`;
+const favorite = (item) => `<li class="item-tooltip item draggable" data-favorite-id=".Item.${item.id}" data-item-id="${item.id}"><figure></figure>
+	<div class="name-stacked rollable" role="button" data-action="useFavorite"><span class="title">${item.name}</span><span class="subtitle">Favorite</span></div></li>`;
+for (const [id, actor] of Object.entries(actors)) {
+	const sheet = document.getElementById(id);
+	for (const [tab, label, items] of [['inventory', 'Equipment', THINGS], ['spells', '1st Level', SPELLS]]) {
+		const section = sheet.querySelector(`.tab-body > .tab[data-tab="${tab}"]`);
+		if (!section) continue;
+		section.querySelector('.filler')?.remove();
+		section.insertAdjacentHTML('beforeend', listOf(label, items));
+	}
+	if (actor.type === 'character') {
+		sheet.querySelector('.sidebar').insertAdjacentHTML('beforeend', `<div class="favorites"><ul class="unlist">${[THINGS[3], SPELLS[2]].map(favorite).join('')}</ul></div>`);
+	}
+}
+/** The render hook, for one sheet or all of them. */
+const mark = (sheet) => { for (const s of sheet ? [sheet] : Object.keys(actors).map((id) => document.getElementById(id))) markSheet({ element: s, actor: actors[s.id] }); };
+
+globalThis.SFH5 = { store, set, applySheetTabs, dressSheet, redrawTabs, mark, markSheet, actors, builders: { character, npc, vehicle } };
 applySheetTabs();

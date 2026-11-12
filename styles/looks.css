@@ -475,6 +475,12 @@ body[data-sfh-device][data-sfh-look="comm"] {
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] .pr-renegade { --pr: #a8231a; }
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] .b.pr { --pr-trough: rgba(24, 54, 80, .14); --pr-mark: rgba(11, 34, 56, .45); }
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] .pr-fill { box-shadow: none; }
+/* and an item's rarity is inked dark, as on the Journal's page */
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .rar-uncommon { --rar: #10670d; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .rar-rare { --rar: #2d598c; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .rar-veryrare { --rar: #890eca; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .rar-legendary { --rar: #7a4e13; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .rar-artifact { --rar: #705143; }
 /* only the name and the main heading in the wide face; the small buttons stay narrow */
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.proj-t, .ident .nm) { font-family: Michroma, Rajdhani, sans-serif; }
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.lbl, .cap) { font-weight: 700; }

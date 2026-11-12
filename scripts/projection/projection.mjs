@@ -2,6 +2,7 @@ import { EL, MOD, S, DEVICES, seqMs } from '../constants.mjs';
 import { currentDevice, currentLook, currentChoice, setting } from '../settings.mjs';
 import { layout, dossierHeight, BOARD, EVA_CAP, SEQ_ORDER } from './layout.mjs';
 import { pos, esc } from './helpers.mjs';
+import { fitCells } from './fit.mjs';
 import { renderIdentity, renderVitals, renderDefenses, renderEffectsSlot, renderExtras, renderReadout, renderNav, renderLatest } from './panels.mjs';
 import { getAdapter } from '../adapters/index.mjs';
 import { readDossier, adjustShields, regenShields } from './dossier.mjs';
@@ -381,6 +382,8 @@ export class Projection {
 		// the projection's own rectangle
 		this.element.classList.add('sfh-visible');
 		this.fit();
+		// it was drawn while hidden, when nothing could be measured
+		fitCells(this.element.querySelector('.sfh-stage'));
 		return true;
 	}
 
@@ -667,6 +670,9 @@ export class Projection {
 		</div>`;
 
 		this.#stagger(stage);
+		// what is in the cells is the system's and the player's font's: make it fit, now and once the fonts are in
+		fitCells(stage);
+		document.fonts?.ready?.then(() => fitCells(stage));
 		document.getElementById('sfh-readout')?.scrollTo({ top: readTo });
 		this.#fillReadout();
 		const restore = () => {

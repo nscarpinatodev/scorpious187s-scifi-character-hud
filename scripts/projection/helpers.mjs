@@ -29,8 +29,8 @@ export const rollBtn = (text, act, k, extra = '') => actBtn(text, act, k, { cls:
 export const ro = (key) => `data-ro="${esc(key)}"`;
 
 /** A name that opens its entry in the readout. */
-export const nameBtn = (name, key) =>
-	`<button type="button" class="nm" ${ro(key)} data-act="read" data-k="${esc(key)}"${/^(item|effect):/.test(key) ? ' draggable="true"' : ''}>${esc(name)}</button>`;
+export const nameBtn = (name, key, cls = '') =>
+	`<button type="button" class="nm${cls ? ` ${cls}` : ''}" ${ro(key)} data-act="read" data-k="${esc(key)}"${/^(item|effect):/.test(key) ? ' draggable="true"' : ''}>${esc(name)}</button>`;
 
 export const COST_GLYPH = { 1: '◆', 2: '◆◆', 3: '◆◆◆', R: '⟲', F: '◇', A: 'A', B: 'BA' };
 
