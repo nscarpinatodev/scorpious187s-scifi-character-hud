@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.6.1 — 2026-11-12
 
 - **D&D 5e sheet tabs: the header and the tabs could not be clicked.** With the tab row on and the
   sheet in the system's dark theme, nothing in a character's header answered a click: not the

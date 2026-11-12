@@ -22,7 +22,8 @@ the first on the Node 24 actions, and passed with no Node.js 20 warning. Then 1.
 2026-11-11: D&D 5e sheet tabs as a labeled row, the Journal's size, labels that fit, and the
 Journal on paper and the Crystal core gone over for text that could not be read. The sheet tabs
 and the readability fixes went out tested on the harnesses but not seen in Foundry (items 1 and
-2 below).
+2 below). Then 1.6.1 on 2026-11-12: with the tab row on, a character's header and the row itself
+could not be clicked in the system's dark theme.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -40,7 +41,7 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e sheet tabs as a labeled row** (1.6.0; a fix is unreleased). 1.6.0 went out with the
+1. **D&D 5e sheet tabs as a labeled row** (1.6.0, fixed in 1.6.1). 1.6.0 went out with the
    header and the row unclickable on a character in the dark theme, where the system's banner
    is a layer over the top of the sheet: the stand-ins were only ever in the light theme, and
    nothing checked that a click landed. `tools/test-sheet-tabs.mjs` now clicks every control
