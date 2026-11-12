@@ -18,7 +18,11 @@ Lonestar armband, the system's AP tracker on it, its chat cards readable), the c
 turning, labels on private messages, and the PF2e/SF2e fixes from the 2026-11-05 session. Then
 1.5.0 on 2026-11-08: D&D 3.5e (D35E 3.1.0, checked live on a Foundry 13 server), the HUD drawn over
 PF2e HUD's shortcut slots, and the Journal fitting a long name to its page. Its release build is
-the first on the Node 24 actions, and passed with no Node.js 20 warning.
+the first on the Node 24 actions, and passed with no Node.js 20 warning. Then 1.6.0 on
+2026-11-11: D&D 5e sheet tabs as a labeled row, the Journal's size, labels that fit, and the
+Journal on paper and the Crystal core gone over for text that could not be read. The sheet tabs
+and the readability fixes went out tested on the harnesses but not seen in Foundry (items 1 and
+2 below).
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -36,7 +40,7 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e sheet tabs as a labeled row** (unreleased). `scripts/interface/sheet-tabs.mjs` and
+1. **D&D 5e sheet tabs as a labeled row** (1.6.0). `scripts/interface/sheet-tabs.mjs` and
    `styles/sheet-tabs.css`, tested in `tools/test-sheet-tabs.mjs` on stand-ins for the system's
    sheets (`tools/harness-sheet5e.html`: the system's parts and classes under its real
    stylesheet, with filler inside them). Not yet seen in Foundry:
@@ -46,7 +50,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] dragging a sheet to the right edge of the screen, now that no tabs hang past it;
    - [ ] beside Carolingian UI, with its own sheet tabs on and off.
 
-2. **The Journal on paper** (unreleased). `tools/scan-contrast.mjs` measures every piece of text
+2. **The Journal on paper** (1.6.0). `tools/scan-contrast.mjs` measures every piece of text
    against the pixels behind it on the two harnesses, and the Journal, the Grove and the Crystal
    core now have nothing under 3:1; `tools/test-light-hud.mjs` holds the fixes.
    - [ ] See the fixes in Foundry: the faded controls, tabs, players and scene list over a dark

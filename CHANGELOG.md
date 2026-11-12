@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.6.0 — 2026-11-11
 
 - **D&D 5e sheet tabs as a labeled row:** a new setting, off by default, lays the tabs of the
   system's character, NPC and vehicle sheets in a row across the sheet, each with its name beside

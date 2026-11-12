@@ -78,7 +78,8 @@ and legendary actions and resistance.
   of the bag, and the book slides out, swings open on its spine and its writing fades in as you
   watch. The main body is
   on the left page, everything else kept as notes on the right, with index tabs cut into the
-  pages and the interface around it in ink on paper.
+  pages and the interface around it in ink on paper, dark enough to read wherever it falls:
+  the controls Foundry fades until they are pointed at stop fading while the page still reads.
 - **The Runic Vambrace.** An engraved bracer whose runes kindle one after another; a sigil turns
   open behind the board and the panels are drawn out of the light in dark glass edged in blue.
 - **Four looks.** The Reliquary (white gold and stained glass, for a cleric or a paladin), the
@@ -88,7 +89,7 @@ and legendary actions and resistance.
 - **Seven sci-fi looks.** The Holoprojector (a disc emitter and a flickering blue hologram), the
   Armored gauntlet (hammered steel and a red display) and the Comm unit (a teal and orange wrist
   slab) over the omni-tool; the Datapad (amber on a worn handheld) over the wrist computer; the
-  Crystal core (white ceramic and frosted glass) over the Vambrace; the Retro terminal (an old
+  Crystal core (white ceramic and frosted glass, lettered in deep cyan) over the Vambrace; the Retro terminal (an old
   green terminal in a chunky steel monitor, typing itself out) over the wrist computer's layout; and the Cyberdeck (neon magenta
   and cyan, glitching open) over TRON.
 - **The macro bar on the device.** It is Foundry's own `#hotbar`, moved and resized — drag,
