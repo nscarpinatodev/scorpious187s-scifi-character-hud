@@ -55,8 +55,10 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
      draws a panel of cells too tall for its slot a little smaller; a track of six closes up in
      a half-width cell.
    - [ ] See all of it in Foundry, on a real character's and NPC's sheet in both themes.
-   - [ ] **The colors are D&D Beyond's from memory** (#1fc219, #4990e2, #9810e0, #fea227,
-         #be8972); two searches could not confirm them. Check against the site.
+   - [x] **The colors are D&D Beyond's**, read on 2026-11-12 from the item names on
+         dndbeyond.com/magic-items: #1fc219 uncommon, #4990e2 rare, #9810e0 very rare, #fea227
+         legendary, #be8972 artifact. A common item's name there is its ordinary text (#242528),
+         and one whose rarity varies is too.
    - [ ] On a light sheet or page, legendary and artifact both darken to browns (#7a4e13 and
          #705143) and are hard to tell apart; the readout says the rarity in words.
    - [ ] The sheet marks do not stand down for SC - Item Rarity Colors or Tidy 5e Sheets, which
