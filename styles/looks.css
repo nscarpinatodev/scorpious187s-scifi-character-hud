@@ -204,7 +204,10 @@ body[data-sfh-device][data-sfh-look="grove"] {
 	--sfh-glow: rgb(30 40 20 / 22%);
 	--sfh-bright: #141a0d;
 	--sfh-text: #232a18;
-	--sfh-dim: #5a6446;
+	/* dark enough for the page under its grain, as the Journal's is */
+	--sfh-dim: #4a5438;
+	/* the token HUD's icons inked green-black, as the Journal's are brown (interface.css) */
+	--sfh-icon-filter: brightness(0) invert(.14) sepia(1) hue-rotate(45deg);
 	--sfh-line: rgb(60 76 40 / 50%);
 	--sfh-line-2: rgb(60 76 40 / 18%);
 	--sfh-hover: #d8dcb8;
@@ -243,7 +246,7 @@ body[data-sfh-device][data-sfh-look="grove"] :is(#ui-left, #ui-right, #ui-middle
 #sfh-projection .sfh-stage[data-device][data-look="grove"] {
 	--hot: #3f6b2a; --hotbg: rgba(63, 107, 42, .12); --hover: rgba(63, 107, 42, .08);
 	--line: rgba(60, 76, 40, .45); --line2: rgba(60, 76, 40, .16);
-	--text: #232a18; --bright: #141a0d; --dim: #5a6446;
+	--text: #232a18; --bright: #141a0d; --dim: #4a5438;
 	--good: #3f6b2a;
 	--jb-l1: #3f5a2a; --jb-l2: #2a4019; --jb-l3: #1a2a10; --jb-paper: #e9e4c6;
 }
@@ -434,9 +437,10 @@ body[data-sfh-device][data-sfh-look="comm"] {
 /* ---------------- the Crystal core: frosted glass, navy ink, cyan light, a crystal's rings behind */
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] {
 	--pnl: rgba(240, 247, 252, .8); --pnl2: rgba(79, 216, 255, .08);
-	--line: rgba(22, 150, 196, .55); --line2: rgba(22, 150, 196, .18); --text: #183650; --bright: #0b2238; --dim: #5a7690;
-	--hot: #0a9cc8; --hotbg: rgba(10, 156, 200, .14); --hover: rgba(10, 156, 200, .1); --glow: rgba(79, 216, 255, .5);
-	--acc: #6a5cff; --accbg: rgba(106, 92, 255, .12); --bad: #d8342a; --good: #138a5a;
+	--line: rgba(22, 150, 196, .55); --line2: rgba(22, 150, 196, .18); --text: #183650; --bright: #0b2238; --dim: #405a74;
+	/* two cyans: a deep one that letters, dark enough to read on the glass, and the bright one for what is lit */
+	--hot: #005d7e; --lit: #0a9cc8; --hotbg: rgba(10, 156, 200, .14); --hover: rgba(10, 156, 200, .1); --glow: rgba(79, 216, 255, .5);
+	--acc: #4e3fd6; --accbg: rgba(106, 92, 255, .12); --bad: #a8231a; --good: #0b6a44;
 	--font: Rajdhani, sans-serif; --display: Rajdhani, sans-serif; --mono: 'Share Tech Mono', monospace; --fs: 15px;
 	--pshadow: 0 0 26px rgba(79, 216, 255, .28), 0 12px 28px rgba(0, 20, 40, .35);
 	--edge: linear-gradient(140deg, rgba(255, 255, 255, .95), rgba(79, 216, 255, .7) 40%, rgba(255, 255, 255, .5) 70%, rgba(79, 216, 255, .9));
@@ -453,6 +457,24 @@ body[data-sfh-device][data-sfh-look="comm"] {
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.lbl, .proj-t) { color: var(--hot); text-shadow: none; }
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] .cell .lbl { color: var(--dim); }
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] .big { text-shadow: 0 0 10px rgba(79, 216, 255, .5); }
+/* what is lit keeps the bright cyan: a bar, a filled pip or segment, a chosen portrait, the power light */
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.pip.on:not(.bad), .seg.on:not(.bad), .cam.on, .powerbtn .dot2) { background: var(--lit); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .barx:not(.a) > i { background: linear-gradient(90deg, #6a5cff, var(--lit)); }
+/* and so does the name beside the tab buttons, which is over the map and not on the glass */
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .navlbl { color: var(--lit); }
+/*
+ * The glass is a page as the Journal's is, and wants the same of what is written on it: a spent
+ * spell struck out and not faded to nothing, the source line at full strength, and Paragon and
+ * Renegade inked dark, not lit.
+ */
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .li.spent > :not(.b) { opacity: 1; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .li.spent .nm, #sfh-projection .sfh-stage[data-device][data-look="crystal"] .li.spent > .cost { color: var(--dim); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .li.spent .nm { text-decoration: line-through; text-decoration-color: rgba(64, 90, 116, .65); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .src { opacity: 1; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .pr-paragon { --pr: #1a5590; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .pr-renegade { --pr: #a8231a; }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .b.pr { --pr-trough: rgba(24, 54, 80, .14); --pr-mark: rgba(11, 34, 56, .45); }
+#sfh-projection .sfh-stage[data-device][data-look="crystal"] .pr-fill { box-shadow: none; }
 /* only the name and the main heading in the wide face; the small buttons stay narrow */
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.proj-t, .ident .nm) { font-family: Michroma, Rajdhani, sans-serif; }
 #sfh-projection .sfh-stage[data-device][data-look="crystal"] :is(.lbl, .cap) { font-weight: 700; }
@@ -464,12 +486,19 @@ body[data-sfh-device][data-sfh-look="crystal"] #sfh-deck #action-bar .slot {
 	border-color: #9fb4c6; background: radial-gradient(circle at 50% 30%, #ffffff, #dde7ef); box-shadow: inset 0 2px 5px rgb(0 30 60 / 25%);
 }
 body[data-sfh-device][data-sfh-look="crystal"][data-sfh-power="on"] #sfh-deck #action-bar .slot { border-color: #4fd8ff; box-shadow: inset 0 2px 5px rgb(0 30 60 / 25%), 0 0 8px rgb(79 216 255 / 45%); }
-body[data-sfh-device][data-sfh-look="crystal"] #sfh-deck #action-bar .slot .key { color: #5a7690; }
+body[data-sfh-device][data-sfh-look="crystal"] #sfh-deck #action-bar .slot .key { color: #405a74; }
+/* the page number is on the band's gray ceramic, darker than the glass: navy, as the buttons beside it */
+body[data-sfh-device][data-sfh-look="crystal"] #sfh-deck .hotbar-page-number { color: var(--sfh-text); }
 body[data-sfh-device][data-sfh-look="crystal"] {
-	--sfh-bg-rgb: 232 241 248; --sfh-hot: #0a9cc8; --sfh-glow: rgb(79 216 255 / 45%); --sfh-bright: #0b2238; --sfh-text: #183650; --sfh-dim: #5a7690;
+	/* light glass, like the Journal's page, is not let fade to mud (interface.css) */
+	--sfh-fade-floor: 0.88;
+	/* the deep cyan letters; the bright one is in the glow, the edge and the lit sockets */
+	--sfh-bg-rgb: 232 241 248; --sfh-hot: #005d7e; --sfh-glow: rgb(79 216 255 / 45%); --sfh-bright: #0b2238; --sfh-text: #183650; --sfh-dim: #405a74;
+	/* the token HUD's icons inked navy on the light glass (interface.css) */
+	--sfh-icon-filter: brightness(0) invert(.2) sepia(1) hue-rotate(175deg) saturate(2.5);
 	/* a light look's hover and lit fills have to be light themselves: over the dark canvas a faint tint reads as dark */
 	--sfh-line: rgb(22 150 196 / 50%); --sfh-line-2: rgb(22 150 196 / 16%); --sfh-hover: rgb(198 236 250 / 94%);
-	--sfh-panel: rgb(236 244 250 / 90%); --sfh-cell: rgb(255 255 255 / 70%); --sfh-acc: #6a5cff; --sfh-bad: #d8342a;
+	--sfh-panel: rgb(236 244 250 / 90%); --sfh-cell: rgb(255 255 255 / 70%); --sfh-acc: #4e3fd6; --sfh-bad: #a8231a;
 	--sfh-face: Rajdhani, sans-serif; --sfh-display: Michroma, Rajdhani, sans-serif; --sfh-mono: 'Share Tech Mono', monospace; --sfh-radius: 4px;
 	--sfh-edge: linear-gradient(140deg, rgb(255 255 255 / 95%), rgb(79 216 255 / 70%) 40%, rgb(255 255 255 / 50%) 70%, rgb(79 216 255 / 90%));
 	--sfh-socket-line: #9fb4c6; --sfh-socket-a: #ffffff; --sfh-socket-b: #dde7ef; --sfh-socket-lit: #4fd8ff;

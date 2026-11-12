@@ -150,15 +150,18 @@ body[data-sfh-device="journal"] {
 	--sfh-glow: rgb(60 40 20 / 22%);
 	--sfh-bright: #1d150d;
 	--sfh-text: #2b2118;
-	--sfh-dim: #6b5842;
+	/* dark enough to read on the page under its grain, where the panel is a shade darker */
+	--sfh-dim: #5e4c38;
 	--sfh-line: rgb(80 58 36 / 50%);
 	--sfh-line-2: rgb(80 58 36 / 18%);
 	/* solid, not a tint: over a dark map a see-through red reads as mud, not as paper */
 	--sfh-hover: #e3cfb2;
 	--sfh-panel: rgb(236 223 192 / 97%);
 	--sfh-cell: rgb(246 238 219 / 94%);
-	--sfh-acc: #8a6a14;
+	--sfh-acc: #7a5c10;
 	--sfh-bad: #b0281c;
+	/* how far a control Foundry fades may go: a page seen through over a dark map is mud (interface.css) */
+	--sfh-fade-floor: 0.88;
 	--sfh-face: "EB Garamond", Georgia, serif;
 	--sfh-display: "IM Fell English SC", "EB Garamond", Georgia, serif;
 	--sfh-mono: "EB Garamond", Georgia, serif;
@@ -172,6 +175,7 @@ body[data-sfh-device="journal"] {
  */
 body[data-sfh-device="journal"][data-sfh-dark="on"] {
 	--sfh-bg-rgb: 30 20 14;
+	--sfh-fade-floor: 0;
 	--sfh-hot: #e26a4f;
 	--sfh-glow: rgb(0 0 0 / 40%);
 	--sfh-bright: #fbf3df;
@@ -464,7 +468,7 @@ body[data-sfh-device="journal"] #sfh-deck #action-bar .slot:hover {
 
 body[data-sfh-device="journal"] #sfh-deck #action-bar .slot .key,
 body[data-sfh-device="journal"] #sfh-deck #action-bar .slot.full .key {
-	color: #8a7050;
+	color: #6e5638;
 }
 
 /* the mute, menu, lock and page controls sit on the leather, so they are drawn in its stitching's color */

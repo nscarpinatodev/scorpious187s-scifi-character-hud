@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>D&amp;D 5e sheet harness</title>
+<!--
+	A stand-in for D&D 5e's actor sheets, for the labeled tab row (scripts/interface/sheet-tabs.mjs,
+	styles/sheet-tabs.css): Foundry's application frame and the system's parts, in the order and with
+	the classes its templates and its sheet classes give them (dnd5e 6.0: templates/actors and
+	templates/shared/sidebar-tabs.hbs), under Foundry's own stylesheet and the system's own, read
+	from where they are installed. What is inside each part is filler; where the parts lie is real.
+-->
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/css/foundry2.css">
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/fonts/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="file:///C:/Users/djsco/AppData/Local/FoundryVTT/Data/systems/dnd5e/dnd5e.css">
+<link rel="stylesheet" href="../styles/sheet-tabs.css">
+<style>
+	html, body { height: 100%; margin: 0; }
+	body.game { background: #20262e; overflow: hidden; }
+	.filler { min-height: 60px; margin: 4px; border: 1px dashed rgb(128 128 128 / 60%); border-radius: 4px;
+		padding: 6px; font: 12px system-ui; color: rgb(128 128 128); }
+</style>
+</head>
+<body class="vtt game system-dnd5e theme-dark">
+<script type="module" src="./harness-sheet5e.mjs"></script>
+</body>
+</html>

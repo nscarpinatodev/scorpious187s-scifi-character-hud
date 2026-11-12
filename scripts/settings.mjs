@@ -1,4 +1,5 @@
 import { MOD, S, DEVICES, DEFAULT_DEVICE } from './constants.mjs';
+import { applySheetTabs } from './interface/sheet-tabs.mjs';
 
 /**
  * Settings.
@@ -88,6 +89,19 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		onChange: () => onDeviceChange?.(),
 	});
 
+	// The Journal's book is not tied to a plate either; it opens as large as the room allows, which
+	// on a big screen is very large, so how much of that room it takes is the player's to choose.
+	game.settings.register(MOD, S.journalScale, {
+		name: 'SFH.Settings.JournalScale',
+		hint: 'SFH.Settings.JournalScaleHint',
+		scope: 'client',
+		config: true,
+		type: Number,
+		range: { min: 40, max: 100, step: 5 },
+		default: 100,
+		onChange: () => onDeviceChange?.(),
+	});
+
 	game.settings.register(MOD, S.controlIcons, {
 		name: 'SFH.Settings.ControlIcons',
 		hint: 'SFH.Settings.ControlIconsHint',
@@ -116,6 +130,17 @@ export function registerSettings(onDeviceChange, onControlIconsChange, onFontCha
 		type: Boolean,
 		default: true,
 		onChange: (v) => { document.body.dataset.sfhChat = v ? 'on' : 'off'; },
+	});
+
+	game.settings.register(MOD, S.sheetTabs, {
+		name: 'SFH.Settings.SheetTabs',
+		hint: 'SFH.Settings.SheetTabsHint',
+		scope: 'client',
+		// the sheet it changes is D&D 5e's
+		config: game.system?.id === 'dnd5e',
+		type: Boolean,
+		default: false,
+		onChange: () => applySheetTabs(),
 	});
 
 	game.settings.register(MOD, S.calendaria, {

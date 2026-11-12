@@ -219,9 +219,9 @@ body[data-sfh-device] {
 	--sfh-on-dark-shadow: 0 0 3px #000, 0 1px 2px #000;
 }
 
-/* the Crystal core's cyan is too light for its pale glass to read on, so it takes its navy */
+/* the Crystal core's lettering cyan is a deep one, and its pale glass would not read on it: white does */
 body[data-sfh-device][data-sfh-look="crystal"] {
-	--sfh-on-hot: var(--sfh-bright);
+	--sfh-on-hot: #ffffff;
 }
 
 body[data-sfh-device="journal"]:not([data-sfh-dark="on"]),
@@ -517,6 +517,20 @@ body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .token-image 
 body[data-sfh-device] :is(#combat, #combat-popout) .combat-tracker .combatant.active .token-image {
 	border-color: var(--sfh-hot);
 	box-shadow: 0 0 8px var(--sfh-glow);
+}
+
+/*
+ * On a page, a token with no art of its own is Foundry's white figure on cream, and the marks for
+ * its conditions are white too. The figure gets the ink tile the directories give theirs, and the
+ * marks are inked as the token HUD's are.
+ */
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"]) :is(#combat, #combat-popout) .combat-tracker .token-image,
+body[data-sfh-device][data-sfh-look="crystal"] :is(#combat, #combat-popout) .combat-tracker .token-image {
+	background: var(--sfh-thumb-bg);
+}
+
+body[data-sfh-device]:not([data-sfh-device="journal"][data-sfh-dark="on"]) :is(#combat, #combat-popout) .combat-tracker .token-effect[src$=".svg"] {
+	filter: var(--sfh-icon-filter, none);
 }
 
 /* a combatant's small controls stay quiet until they are on */
@@ -977,6 +991,66 @@ body[data-sfh-device="journal"] :is(#ui-left, #ui-right, #ui-middle, #hud, #menu
 	--control-active-bg-color: var(--sfh-hot);
 	--control-active-border-color: #7a1c14;
 	--control-active-icon-color: #fbf3df;
+}
+
+/*
+ * The token HUD's icons are white pictures, made for Foundry's dark controls, and Foundry colors
+ * them only through --control-icon-filter, which it sets to nothing on the HUD itself. On a light
+ * interface they were white on cream, so a light palette names a filter that inks them in its own
+ * text color (--sfh-icon-filter), and the HUD takes it. A lit control keeps its light icon on the
+ * Journal's red.
+ */
+body[data-sfh-device] #hud .placeable-hud {
+	--control-icon-filter: var(--sfh-icon-filter, none);
+}
+
+body[data-sfh-device="journal"] {
+	/* white to black, lifted to a dark gray, then warmed: the brown of the page's ink */
+	--sfh-icon-filter: brightness(0) invert(.14) sepia(1);
+}
+
+body[data-sfh-device="journal"][data-sfh-dark="on"] #hud .placeable-hud {
+	--control-icon-filter: none;
+}
+
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"]) #hud .placeable-hud .control-icon:is(.active, [aria-pressed="true"]) img {
+	filter: none;
+}
+
+/*
+ * The HUD's list of conditions shows the ones a token does not have at half strength, and tells
+ * the ones it has from them by that alone. Half of white on a dark panel reads; half of ink on a
+ * page is a pale smudge. On a light palette the ones it lacks are drawn stronger, and the ones it
+ * has are marked as well: ringed and tinted in the palette's own color.
+ */
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"]) #token-hud .status-effects .effect-control,
+body[data-sfh-device][data-sfh-look="crystal"] #token-hud .status-effects .effect-control {
+	opacity: 0.72;
+	border-radius: 3px;
+}
+
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"]) #token-hud .status-effects .effect-control:hover,
+body[data-sfh-device][data-sfh-look="crystal"] #token-hud .status-effects .effect-control:hover {
+	opacity: 0.9;
+}
+
+body[data-sfh-device="journal"]:not([data-sfh-dark="on"]) #token-hud .status-effects .effect-control:is(.active, .overlay),
+body[data-sfh-device][data-sfh-look="crystal"] #token-hud .status-effects .effect-control:is(.active, .overlay) {
+	opacity: 1;
+	background: color-mix(in srgb, var(--sfh-hot) 16%, transparent);
+	box-shadow: 0 0 0 1px var(--sfh-hot);
+}
+
+/*
+ * Foundry fades the controls, the sidebar's tabs, the player list, the scene list and the chat
+ * that pops up beside a closed sidebar until they are pointed at, to 40% unless the player has
+ * set otherwise. A dark panel faded over a dark map still carries light lettering. A light one
+ * does not: the page goes to a muddy gray and its ink with it, and nothing on it can be read. So
+ * a light palette names how far its panels may fade (--sfh-fade-floor), and they stop there. A
+ * dark palette names none, and fades as far as Foundry says.
+ */
+body[data-sfh-device] .faded-ui:not(:hover, .active, .detached *) {
+	opacity: max(var(--ui-fade-opacity), var(--sfh-fade-floor, 0));
 }
 
 body[data-sfh-device="journal"] :is(#ui-left, #ui-right, #ui-middle, #hud) .ui-control:is([aria-pressed="true"], :hover),

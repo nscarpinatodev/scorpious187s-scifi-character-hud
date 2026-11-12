@@ -1,5 +1,49 @@
 # Changelog
 
+## Unreleased
+
+- **D&D 5e sheet tabs as a labeled row:** a new setting, off by default, lays the tabs of the
+  system's character, NPC and vehicle sheets in a row across the sheet, each with its name beside
+  its icon, instead of the icons hung down its side. It is the layout Carolingian UI offers, for
+  tables that don't run it. The tabs are still the system's own, in its colors, and the rest of
+  the sheet is left alone; only the character's ability scores move, to sit just under the row.
+  A row too long for a narrow sheet scrolls with the mouse wheel or the arrow at its end. Where
+  Carolingian UI's own option is on, the HUD leaves the tabs to it.
+- **Journal size:** a new setting sets how large the Journal's book opens, as a share of the room
+  it could take. It is 100% by default, as before; lower it to keep more of the map in view. The
+  Grove look follows it too.
+- **Labels that fit:** a label too long for its box no longer ends in "…". "Death Saves" was cut
+  to "Death…" on every device. A label now goes onto a second line, and the Roll button beside
+  Death Saves or Dying moves under it when the two don't fit side by side. Single words that were
+  cut short by a few letters on the Vambrace, its looks and the EVA now fit: Perception,
+  Inspiration, Exhaustion, Flat-footed and Nonlethal.
+- **The Journal on paper, readable:** a run-through of the Journal's default light interface for
+  text that could not be read.
+  - Foundry fades the scene controls, the sidebar's tabs, the player list, the scene list and the
+    chat beside a closed sidebar until they are pointed at. Faded over a dark map, the page went
+    to a muddy gray and its ink with it. On the Journal, the Grove and the Crystal they now stop
+    fading while they can still be read. The Journal in the dark and every dark device fade as
+    before.
+  - In the turn order, a token with no art of its own was Foundry's white figure on cream, and its
+    condition marks were white too. The figure has ink behind it and the marks are inked.
+  - In the token HUD's list of conditions, the ones a token lacks were a pale smudge. They are
+    drawn stronger, and the ones it has are ringed.
+  - In the book, Paragon and Renegade were bright blue and red on the page; they are inked darker.
+    A spent spell is struck out instead of fading to gray. Field prompts, the source line in a
+    page's heading, the numbers on the macro keys and the dim label ink are all darker, on the
+    Grove as well.
+- **The Crystal core, readable:** its bright cyan was used for lettering as well as for light, and
+  on pale glass bright cyan cannot be read: headings, labels, small buttons, the sidebar's
+  headings and the names in chat were all about half as dark as they needed to be. The Crystal now
+  has two cyans. A deep one letters, in the projection and across the interface, and the bright
+  one is kept for what is lit: bars, filled pips, the glow, the edge of the glass and the tab's
+  name over the map. Its violet, red, green and dim label inks are darker too. As on the Journal,
+  a spent spell is struck out instead of fading, and Paragon and Renegade are inked dark.
+- **Token HUD on light interfaces:** with the Journal on paper, the Grove and the Crystal, the
+  token HUD's icons were white on cream and couldn't be read. They are now inked in the
+  interface's own text color, and a lit control keeps a light icon. The Journal in the dark is
+  unchanged.
+
 ## 1.5.0 — 2026-11-08
 
 - D&D 3.5e: the HUD works with the "Dungeons & Dragons 3.5 SRD" system (D35E 3.0 and later,

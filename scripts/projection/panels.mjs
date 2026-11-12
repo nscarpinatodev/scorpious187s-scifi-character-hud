@@ -233,11 +233,12 @@ export function renderEffectsSlot(c, device) {
 
 export function renderExtras(c) {
 	const x = c.extras;
-	const track = (key, value, color) => {
-		const ticks = [20, 40, 60, 80].map((p) => `<span style="position:absolute;left:${p}%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.35)"></span>`).join('');
-		return `<button type="button" class="b" data-act="read" data-k="pr:${key}" ${ro(`pr:${key}`)} style="display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:5px 8px;min-height:0;border-color:${color}55">
-			<span class="row sp" style="font-size:11px;font-weight:700;letter-spacing:.12em;color:${color}">${key.toUpperCase()}<span class="mono" style="font-size:14px">${value}</span></span>
-			<span style="position:relative;height:6px;background:rgba(255,255,255,.08)"><span style="position:absolute;left:0;top:0;bottom:0;width:${Math.max(0, Math.min(100, value))}%;background:${color};box-shadow:0 0 8px ${color}"></span>${ticks}</span></button>`;
+	// the colors are the stylesheet's (.pr-paragon, .pr-renegade), so a light theme can ink them darker
+	const track = (key, value) => {
+		const ticks = [20, 40, 60, 80].map((p) => `<span class="pr-tick" style="left:${p}%"></span>`).join('');
+		return `<button type="button" class="b pr pr-${key}" data-act="read" data-k="pr:${key}" ${ro(`pr:${key}`)}>
+			<span class="row sp pr-h">${key.toUpperCase()}<span class="mono">${value}</span></span>
+			<span class="pr-bar"><span class="pr-fill" style="width:${Math.max(0, Math.min(100, value))}%"></span>${ticks}</span></button>`;
 	};
 	const t = (key, data) => (data ? game.i18n.format(key, data) : game.i18n.localize(key));
 	// the shields, with the mock-up's −5 and the recharge beside the bar
@@ -261,8 +262,8 @@ export function renderExtras(c) {
 		: '';
 	return `<div class="row sp hd">${lbl('Dossier')}<span class="chip me">ME</span></div>
 		${shields}
-		${x.paragon != null ? track('paragon', x.paragon, '#4aa8ff') : ''}
-		${x.renegade != null ? track('renegade', x.renegade, '#ff4a3a') : ''}
+		${x.paragon != null ? track('paragon', x.paragon) : ''}
+		${x.renegade != null ? track('renegade', x.renegade) : ''}
 		${kit}`;
 }
 

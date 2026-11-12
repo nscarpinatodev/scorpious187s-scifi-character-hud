@@ -36,7 +36,30 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
+1. **D&D 5e sheet tabs as a labeled row** (unreleased). `scripts/interface/sheet-tabs.mjs` and
+   `styles/sheet-tabs.css`, tested in `tools/test-sheet-tabs.mjs` on stand-ins for the system's
+   sheets (`tools/harness-sheet5e.html`: the system's parts and classes under its real
+   stylesheet, with filler inside them). Not yet seen in Foundry:
+   - [ ] the character sheet, on Details (the ability scores under the row) and the other tabs,
+         in the light and dark themes;
+   - [ ] an NPC and a vehicle, whose insides the stand-ins only sketch;
+   - [ ] dragging a sheet to the right edge of the screen, now that no tabs hang past it;
+   - [ ] beside Carolingian UI, with its own sheet tabs on and off.
+
+2. **The Journal on paper** (unreleased). `tools/scan-contrast.mjs` measures every piece of text
+   against the pixels behind it on the two harnesses, and the Journal, the Grove and the Crystal
+   core now have nothing under 3:1; `tools/test-light-hud.mjs` holds the fixes.
+   - [ ] See the fixes in Foundry: the faded controls, tabs, players and scene list over a dark
+         map and a light one; the turn order; the token HUD's conditions; the book.
+   - [ ] What the scan cannot reach: hover and focus states, a system's own chat cards, tooltips,
+         menus, the scene bar and the carousel.
+   - [ ] The Journal's red on tinted rows is 3.8 to 4.4:1 in seven places: readable, under 4.5.
+   - [ ] **The Crystal core** had 115 pieces under 3:1 and now has none under 4.5:1: it letters
+         in a deep cyan (`--hot`, `--sfh-hot`: `#005d7e`) and keeps the bright one (`--lit`) for
+         what is lit. See it in Foundry, and judge whether the deep cyan still looks like the
+         Crystal; `#00708f` is the lightest that still passes on plain glass.
+
+3. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
    the labels on private messages, the Solar Shield's name and Raise, Stellar Attunement's
    choice, and the speed of a creature with no land speed. Checked against PF2e 8.7.0 and SF2e
    1.7.0's code and changelog.
@@ -45,7 +68,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          actions and the Solarian's toggles all go through the system's own calls as the sheet's
          do. Find out which buttons, on which character.
 
-2. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
+4. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
    Foundry 13 server's `35-testing` world with five level-5 characters (fighter, ranger, wizard,
    sorcerer, cleric). Seen live and good: every tab, the GM's view, skill, attack and spell rolls
    and the latest-roll strip, the system's chat cards in the device's colors.
@@ -56,7 +79,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] **Attack totals** are not shown: the system works them out at roll time from many
          situational options. Showing an estimate would need checking against its rolls.
 
-3. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
+5. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
    brings up the Pip-Boy in place of a projection (`scripts/interface/pipboy.mjs`). Seen in
    Foundry and good: the handoff, the Lonestar armband, the AP tracker on it, and the roll cards.
    - [x] **The Lonestar armband** — a look of its own (`lonestar`, `system: 'fallout'`), always

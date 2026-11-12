@@ -1,0 +1,161 @@
+/*
+ * D&D 5e's sheet tabs as a labeled row (scripts/interface/sheet-tabs.mjs).
+ *
+ * The system hangs the tabs of its character, NPC and vehicle sheets down the outside of the
+ * window, as icons. With the setting on they lie in a row inside the sheet, between its header and
+ * its body, each with its name. The tabs keep the system's own colors and faces, black and gold in
+ * either theme, and nothing else on the sheet is restyled: the only other rules here move what the
+ * row would otherwise sit on.
+ *
+ * The body carries the switch, so a sheet redrawn by the system is already laid out before the
+ * script has written the names in. Carolingian UI has the same option; where it is on, the script
+ * leaves the switch off.
+ */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs {
+	--sfh-tabs-h: 36px;
+}
+
+/* ---- the row ---- */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs {
+	position: relative;
+	inset: auto;
+	z-index: auto;
+	order: -1;
+	flex: none;
+	box-sizing: border-box;
+	width: auto;
+	height: var(--sfh-tabs-h);
+	flex-direction: row;
+	align-items: center;
+	/* from the left, so a name stays where it is when the sheet is resized, and a row too long
+	   for its sheet runs off one end only, where it can be scrolled to */
+	justify-content: flex-start;
+	gap: 4px;
+	margin: 0;
+	padding: 0 6px;
+	border: 0;
+	border-block: 1px solid var(--dnd5e-color-gold);
+	border-radius: 0;
+	contain: none;
+	overflow: auto hidden;
+	scrollbar-width: none;
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs::-webkit-scrollbar {
+	display: none;
+}
+/*
+ * The system writes the row last. It is brought forward to stand after the header, and the header
+ * before it, rather than the body being sent back: what is ordered later is also painted later,
+ * and the body would be painted over the ability scores that lie on it.
+ */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs .window-content > .sheet-header {
+	order: -2;
+}
+
+/* ---- a tab: its icon, then its name ---- */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .item {
+	flex: none;
+	height: 26px;
+	margin: 0;
+	padding: 0 9px;
+	gap: 6px;
+	font-family: var(--dnd5e-font-roboto-condensed);
+	font-size: var(--font-size-12);
+	font-weight: bold;
+	letter-spacing: 0.04em;
+	line-height: 1;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .item > .sfh-tab-label {
+	pointer-events: none;
+}
+
+/*
+ * ---- the arrows: one at each end that has more, lying over the row's edge ----
+ * Each takes no room in the row (its margins give back its width), so showing one moves nothing.
+ * A stuck element is held inside the row's padding; the offsets reach back out across it.
+ */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .sfh-tab-step {
+	position: sticky;
+	z-index: 1;
+	flex: none;
+	display: grid;
+	place-content: center;
+	width: 28px;
+	min-width: 0;
+	height: calc(var(--sfh-tabs-h) - 2px);
+	min-height: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	outline: 0;
+	color: var(--dnd5e-color-gold);
+	font-size: var(--font-size-14);
+	line-height: 1;
+	cursor: pointer;
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .sfh-tab-step[hidden] {
+	display: none;
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .sfh-tab-step.earlier {
+	left: -6px;
+	margin-inline: -6px -22px;
+	background: linear-gradient(to right, var(--dnd5e-color-black) 62%, transparent);
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .sfh-tab-step.later {
+	right: -6px;
+	margin-inline: -22px -6px;
+	background: linear-gradient(to left, var(--dnd5e-color-black) 62%, transparent);
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .sfh-tab-step:hover {
+	filter: brightness(1.5);
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vertical-tabs nav.tabs > .sfh-tab-step > i {
+	margin: 0;
+}
+
+/*
+ * ---- the character's ability scores ----
+ * They hang across the foot of the header, 22px in it and the rest over the body, which is where
+ * the row now lies. So they are set down under the row instead: the row's height, the 22px, and
+ * 6px of air; and the Details tab starts that much lower to stay clear of them. The scores for
+ * optional abilities, which the system hangs higher up in the header on a narrow sheet, stay put.
+ */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.character.vertical-tabs .ability-scores .rows > .bottom {
+	margin-top: calc(var(--sfh-tabs-h) + 28px);
+}
+@container (min-width: 700px) {
+	/* on a wide sheet the system puts every score in the one row */
+	body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.character.vertical-tabs .ability-scores .rows > :is(.top, .bottom) {
+		margin-top: calc(var(--sfh-tabs-h) + 28px);
+	}
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.character.vertical-tabs.tab-details:not(.limited) .tab-body {
+	padding-top: 84px;
+}
+
+/*
+ * ---- the vehicle ----
+ * Its window is a grid of columns, the body the last of them. The row goes over the body, and the
+ * columns beside it run the full height past both.
+ */
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vehicle.vertical-tabs .window-content {
+	grid-template-rows: auto minmax(0, 1fr);
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vehicle.vertical-tabs .window-content > nav.tabs {
+	grid-column: -2 / -1;
+	grid-row: 1;
+	border-left: 1px solid var(--dnd5e-color-gold);
+	border-bottom-left-radius: 6px;
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vehicle.vertical-tabs .window-content > .sheet-body {
+	grid-column: -2 / -1;
+	grid-row: 2;
+	min-height: 0;
+}
+body[data-sfh-sheet-tabs="on"] .dnd5e2.sheet.actor.vehicle.vertical-tabs .window-content > :is(.sheet-sidebar, .sheet-stations) {
+	grid-row: 1 / span 2;
+}

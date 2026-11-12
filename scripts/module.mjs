@@ -16,6 +16,7 @@ import { PipBoy } from './interface/pipboy.mjs';
 import { holdApTracker, adoptApTracker } from './interface/ap-tracker.mjs';
 import { refreshObstacles } from './interface/obstacles.mjs';
 import { applyHeadingColor, scheduleFitHeadings, watchHeadings } from './interface/headings.mjs';
+import { applySheetTabs, dressSheet } from './interface/sheet-tabs.mjs';
 
 /**
  * Scorpious187's HUD UI for 5e and PF2e/SF2e.
@@ -42,7 +43,7 @@ const STYLES = [
 	'styles/scenes.css',
 	'styles/projection.css',
 	'styles/projection-frame.css',
-	'styles/looks.css',
+	'styles/looks.css', 'styles/sheet-tabs.css',
 ];
 
 /**
@@ -107,6 +108,7 @@ Hooks.once('init', () => {
 
 Hooks.once('ready', () => {
 	ensureStyles();
+	applySheetTabs();
 	game.socket?.on(`module.${MOD}`, (data) => {
 		if (data?.type === 'give') getAdapter()?.onGiveRequest?.(data);
 		else onVolumeMessage(data);
@@ -246,6 +248,9 @@ Hooks.on('renderSettingsConfig', suggestFonts);
 /* The devices and looks are chosen by category first, then look. */
 Hooks.on('renderSettingsConfig', splitDevicePicker);
 
+// D&D 5e's sheet tabs as a labeled row: the system redraws them with each sheet, and each part of one
+Hooks.on('renderActorSheetV2', (app) => dressSheet(app.element));
+
 /* The free area changes whenever Foundry's own furniture does. */
 for (const hook of ['collapseSidebar', 'renderSidebar', 'renderSceneNavigation', 'renderSceneControls', 'renderHotbar']) {
 	Hooks.on(hook, () => Projection.scheduleFit());
@@ -283,6 +288,7 @@ function debug() {
 		character: Projection.actor()?.name ?? null,
 		deckSize: game.settings.get(MOD, S.deckSize),
 		projScale: game.settings.get(MOD, S.projScale),
+		journalScale: game.settings.get(MOD, S.journalScale),
 		fit: Projection.lastFit ?? null,
 		styles: STYLES.map((p) => !!document.querySelector(`link[href^="modules/${MOD}/${p}"]`)),
 	};

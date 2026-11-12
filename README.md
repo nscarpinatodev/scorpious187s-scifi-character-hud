@@ -156,6 +156,13 @@ and legendary actions and resistance.
 - **The whole interface in the device's colors** — sidebar (directories, Compendium, Settings and
   tabs popped out of it), chat, scene bar, controls and player list. Sheets and dialogs keep their own look. The scene controls also take sci-fi
   icons; each control still does exactly what it did.
+- **D&D 5e sheet tabs as a labeled row**, if you switch it on. The system's character, NPC and
+  vehicle sheets hang their tabs down the side as icons; with the setting on they lie in a row
+  across the sheet, under its header, each with its name, as Carolingian UI's horizontal sheet
+  tabs do. They are still the system's tabs in the system's colors, and the rest of the sheet
+  is untouched, apart from the character's ability scores, which sit just under the row. A row
+  too long for a narrow sheet scrolls with the wheel or the arrow at its end. If Carolingian
+  UI's own option is on, the HUD leaves the tabs to it.
 - **Headings that fit.** The sidebar's headings scale to fit its width in whatever face is
   showing, and take the device's main color or one you choose.
 - **Your own fonts.** Each player can set a heading, text and number font of their own:
@@ -202,6 +209,8 @@ un-hides it too, so a hidden HUD is never a lost one.
 | Power sequences | client | Play the rise/fold/scan animations. |
 | Macro key size | client | Size of the macro bar keys. The omni-tool's arm and TRON's deck follow it, and their projections follow them. |
 | Wrist computer and EVA projection size | client | How much of the free space those projections take (55% by default). The omni-tool's and TRON's are not affected. |
+| Journal size | client | How large the Journal's book opens, as a share of the room it could take (100% by default). The Grove follows it too. |
+| D&D 5e sheet tabs as a labeled row | client | In a D&D 5e world: the tabs of the character, NPC and vehicle sheets in a row across the sheet with their names, instead of icons down its side. Off by default. |
 | Etched grid | client | The etching on the projection: hexes on the omni-tool, a square grid on TRON. |
 | Sci-fi control icons | client | Sci-fi icons on the scene controls (astronaut, radar, datapad…). Off keeps Foundry's own. |
 | The Journal's interface in the dark | client | With the Adventurer's Journal or the Grove, the sidebar, chat, player list, controls, scene bar and turn order in dark leather with pale ink instead of paper. The journal itself stays paper. Off by default. |

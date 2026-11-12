@@ -71,6 +71,8 @@ export const S = {
 	sceneBarHover: 'sceneBarHover', // client — collapsed, it opens under the pointer
 	sceneClick: 'sceneClick',       // client — a click in the Scenes tab: 'view' the scene | 'configure' it
 	projScale: 'projScale',       // client — wrist and EVA projection size, % of the free space
+	journalScale: 'journalScale', // client — the Journal's book size, % of the room it could take
+	sheetTabs: 'sheetTabs', // client — D&D 5e's sheet tabs as a labeled row across the sheet
 	headingColor: 'headingColor', // client — the player's own color for the interface's headings
 	fontDisplay: 'fontDisplay',   // client — the player's own font for headings and names
 	fontBody: 'fontBody',         // client — the player's own font for text

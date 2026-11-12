@@ -204,7 +204,9 @@ export class Projection {
 		const tied = art && DEVICES[deviceId]?.projects !== false;
 		const fitsArm = tied ? (art.getBoundingClientRect().width || board.w) / L.projection[2] : null;
 		const share = Math.max(0.2, Math.min(1, (setting(S.projScale) ?? 55) / 100));
-		const scale = tied ? Math.min(room, fitsArm) : art ? room : room * share;
+		// the Journal's book has its own size setting: all the room by default, or less of it
+		const book = art && !tied ? Math.max(0.2, Math.min(1, (setting(S.journalScale) ?? 100) / 100)) : null;
+		const scale = tied ? Math.min(room, fitsArm) : room * (book ?? share);
 		const clear = clearance(scale * board.h);
 		// the layer is as wide as what it draws, so it never reaches over the furniture beside it
 		const width = scale * board.w;
@@ -215,10 +217,10 @@ export class Projection {
 			standsAt: Math.round(standsAt),
 			room: { scale: +room.toFixed(3), height: Math.round(height), byHeight: +(height / board.h).toFixed(3) },
 			fitsArm: fitsArm && +fitsArm.toFixed(3),
-			share: art ? `not used (the projection ${tied ? 'follows the plate' : 'takes the room'})` : share,
+			share: book ?? (art ? 'not used (the projection follows the plate)' : share),
 			scale: +scale.toFixed(3),
 			limitedBy: tied && scale >= fitsArm - 0.001 ? 'arm'
-				: !art && share < 1 ? 'size setting'
+				: (book ?? (art ? 1 : share)) < 1 ? 'size setting'
 				: room >= height / board.h - 0.001 ? 'height'
 				: `width: ${clear.leftBy?.id ?? 'window'} on the left, ${clear.rightBy?.id ?? 'window'} on the right`,
 			clear: { left: Math.round(clear.leftEdge), right: Math.round(clear.rightEdge) },
