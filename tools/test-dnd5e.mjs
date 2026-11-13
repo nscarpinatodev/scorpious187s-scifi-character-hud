@@ -710,6 +710,41 @@ const results = await page.evaluate(async () => {
 	check('and so are the coins', body().querySelector('[data-field="currency.gp"]').disabled);
 	actor.isOwner = true;
 
+	/* ---- what D&D 5e 6.1 added or moved, that the projection follows ---- */
+	{
+		const sys61 = actor.system;
+		const kept = { movement: sys61.attributes.movement, weight: items.get('sword').system.weight };
+		// a special kind of damage trait (falling), speeds under movement.speeds, and weights in the world's unit
+		CONFIG.DND5E.damageResistanceTypes = { falling: { label: 'Falling Damage' } };
+		CONFIG.DND5E.weightUnits = { lb: { abbreviation: 'lb' }, kg: { abbreviation: 'kg' } };
+		sys61.traits.dr.value.add('falling');
+		sys61.attributes.movement = { speeds: { walk: 9 }, units: 'm' };
+		items.get('sword').system.weight = { value: 1.3607771, units: 'kg' };
+		Projection.render();
+		await wait(200);
+		const stageText = () => stage().textContent.replace(/\s+/g, ' ');
+		check('6.1: a resistance to falling is named as the system names it, not by its key', /Falling Damage/.test(stageText()) && !/\bfalling\b/.test(stageText()), stageText().match(/.{20}alling.{20}/)?.[0]);
+		check('6.1: the walking speed is read from where the system keeps it now, in its own unit', /Speed\s*9 m/.test(stageText()), stageText().match(/Speed.{0,14}/)?.[0]);
+		await tab('inventory');
+		check('6.1: an item weighed in kilograms says so, to two places', /1\.36 kg/.test(row('Longsword').textContent) && !/lb/.test(row('Longsword').textContent), row('Longsword').textContent.replace(/\s+/g, ' '));
+		check('6.1: one weighed in pounds still says pounds', /0\.5 lb/.test(row('Potion of Healing').textContent));
+		// inside an antimagic region the system's sheet lists no spells
+		actor.statuses.add('antimagic');
+		await tab('actions'); await tab('spells');
+		check('6.1: under antimagic the Spells tab says so and lists no spell', /Antimagic/.test(body().textContent) && !row('Cure Wounds'), body().textContent.slice(0, 80));
+		actor.statuses.delete('antimagic');
+		await tab('actions'); await tab('spells');
+		check('6.1: and out of it they are back', !!row('Cure Wounds') && !/Antimagic/.test(body().textContent));
+		sys61.traits.dr.value.delete('falling');
+		sys61.attributes.movement = kept.movement;
+		items.get('sword').system.weight = kept.weight;
+		delete CONFIG.DND5E.damageResistanceTypes;
+		delete CONFIG.DND5E.weightUnits;
+		Projection.render();
+		await wait(150);
+		check('6.0 and earlier: a speed kept in the old place is still read', /Speed\s*35 ft/.test(stageText()), stageText().match(/Speed.{0,14}/)?.[0]);
+	}
+
 	/* ---- the vitals panel holds what 5e puts in it, in any font ---- */
 	{
 		const vitalsOf = () => document.querySelector('#sfh-projection [data-slot="vitals"]');

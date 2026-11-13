@@ -43,7 +43,26 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e rarity colors, grayed unprepared spells, and the vitals panel** (1.7.0).
+1. **D&D 5e 6.1.0** (unreleased), gone over on 2026-11-13 against the system's source changes
+   from 6.0.6 (139 commits) and its installed copy.
+   - Checked and unchanged: every actor and item method the adapter calls, the roll and chat
+     message data the latest-roll strip reads, the Compendium Browser's index, the advancement
+     flags the Features tab groups by, and the templates the tab row and the sheet marks
+     depend on. Only the character, NPC and vehicle sheets hang their tabs down the side; the
+     new faction sheet and the group sheet have a row of their own. `tools/test-sheet-tabs.mjs`
+     and `tools/test-sheet-marks.mjs` pass against 6.1.0's stylesheet.
+   - Followed: falling as a damage trait, weights in the world's unit, antimagic on the Spells
+     tab, speeds under `movement.speeds` (`tools/test-dnd5e.mjs`).
+   - [ ] **Not seen live on 6.1.0.** `module.json` still says the module is verified against
+         6.0.6; raise it once the sheets and the projection have been looked at in a 6.1 world.
+   - [ ] **Renown** (a 6.1 variant rule, off by default): a new item type, a Renown tab on
+         the character sheet and a Faction actor. The projection has no place for renown, and
+         a faction selected by a GM has not been tried in it.
+   - [ ] On chat cards 6.1 puts Attack and Damage on a row of their own with short labels and
+         redraws the die behind a total. The device's chat colors still apply to them by the
+         same rules; not looked at.
+
+2. **D&D 5e rarity colors, grayed unprepared spells, and the vitals panel** (1.7.0).
    - Rarity and graying are on the projection (`scripts/adapters/dnd5e.mjs`: `rarityOf`,
      `unprepared`; colors in `design/1-head.html` `.rar-*` and, for the Crystal core,
      `styles/looks.css`) and on the D&D 5e sheets (`scripts/interface/sheet-marks.mjs` marks each
@@ -71,7 +90,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          from this work: Datapad 12 pieces, Reliquary 3, Witchfire 2, Armored gauntlet 1.
          Only the Journal, the Grove and the Crystal core have been gone over.
 
-2. **D&D 5e sheet tabs as a labeled row** (1.6.0, fixed in 1.6.1). 1.6.0 went out with the
+3. **D&D 5e sheet tabs as a labeled row** (1.6.0, fixed in 1.6.1). 1.6.0 went out with the
    header and the row unclickable on a character in the dark theme, where the system's banner
    is a layer over the top of the sheet: the stand-ins were only ever in the light theme, and
    nothing checked that a click landed. `tools/test-sheet-tabs.mjs` now clicks every control
@@ -86,7 +105,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] dragging a sheet to the right edge of the screen, now that no tabs hang past it;
    - [ ] beside Carolingian UI, with its own sheet tabs on and off.
 
-3. **The Journal on paper** (1.6.0). `tools/scan-contrast.mjs` measures every piece of text
+4. **The Journal on paper** (1.6.0). `tools/scan-contrast.mjs` measures every piece of text
    against the pixels behind it on the two harnesses, and the Journal, the Grove and the Crystal
    core now have nothing under 3:1; `tools/test-light-hud.mjs` holds the fixes.
    - [ ] See the fixes in Foundry: the faded controls, tabs, players and scene list over a dark
@@ -99,7 +118,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          what is lit. See it in Foundry, and judge whether the deep cyan still looks like the
          Crystal; `#00708f` is the lightest that still passes on plain glass.
 
-4. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
+5. **From the 2026-11-05 session.** Fixed but not yet seen in Foundry: the carousel's turning,
    the labels on private messages, the Solar Shield's name and Raise, Stellar Attunement's
    choice, and the speed of a creature with no land speed. Checked against PF2e 8.7.0 and SF2e
    1.7.0's code and changelog.
@@ -108,7 +127,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
          actions and the Solarian's toggles all go through the system's own calls as the sheet's
          do. Find out which buttons, on which character.
 
-5. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
+6. **D&D 3.5e.** `scripts/adapters/d35e.mjs`, tested in `tools/test-d35e.mjs` and live on the
    Foundry 13 server's `35-testing` world with five level-5 characters (fighter, ranger, wizard,
    sorcerer, cleric). Seen live and good: every tab, the GM's view, skill, attack and spell rolls
    and the latest-roll strip, the system's chat cards in the device's colors.
@@ -119,7 +138,7 @@ publishes both; the updates repo's hourly sync picks the release up for the boar
    - [ ] **Attack totals** are not shown: the system works them out at roll time from many
          situational options. Showing an estimate would need checking against its rolls.
 
-6. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
+7. **Fallout 2d20.** The HUD runs in a Fallout world, and with Scorpious187's Pip-Boy its switch
    brings up the Pip-Boy in place of a projection (`scripts/interface/pipboy.mjs`). Seen in
    Foundry and good: the handoff, the Lonestar armband, the AP tracker on it, and the roll cards.
    - [x] **The Lonestar armband** — a look of its own (`lonestar`, `system: 'fallout'`), always

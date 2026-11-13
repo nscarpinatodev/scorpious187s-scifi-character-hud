@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- **D&D 5e 6.1.** The module was gone over against the system's 6.1.0 release, and nothing in
+  it was broken by it. Four things the release added or moved are now followed in the
+  projection:
+  - A resistance, immunity or vulnerability to falling damage, which 6.1 adds, is named as
+    the system names it; it was listed by its bare key.
+  - An item's weight is shown in its own unit. 6.1 converts weights to kilograms in a world
+    set to metric, and the Inventory tab called every weight pounds.
+  - Inside an antimagic region, which 6.1 adds, the Spells tab says so and lists no spells,
+    as the system's sheet does.
+  - The walking speed is read from where the system has kept it since 6.0, and shown in the
+    character's own unit, not always in feet. The old place still answers until 7.0.
+
 ## 1.7.0 — 2026-11-12
 
 - **D&D 5e: items named in the color of their rarity.** An uncommon item's name is green, a rare

@@ -59,7 +59,7 @@ export function read(actor) {
 		xp: npc ? null : { value: sys.details?.xp?.value ?? 0, max: sys.details?.xp?.max ?? 300 },
 		hp: { value: hp.value ?? 0, max: hp.effectiveMax ?? hp.max ?? 0, temp: hp.temp ?? 0 },
 		ac: sys.attributes?.ac?.value ?? 10,
-		speed: sys.attributes?.movement?.walk ?? 30,
+		speed: walkSpeed(sys),
 		defenses: defenses(actor),
 		iwr: iwr(actor),
 		vitals: {
@@ -126,7 +126,7 @@ function defenses(actor) {
 	return [
 		{ label: 'AC', value: sys.attributes?.ac?.value ?? 10, lead: true },
 		{ label: 'Initiative', value: sgn(sys.attributes?.init?.total ?? 0), act: 'initiative', k: '' },
-		{ label: 'Speed', value: `${sys.attributes?.movement?.walk ?? 30} ft` },
+		{ label: 'Speed', value: `${walkSpeed(sys)} ${sys.attributes?.movement?.units ?? 'ft'}` },
 		{ label: 'Prof', value: sgn(sys.attributes?.prof ?? 2) },
 		{ label: 'Passive', value: sys.skills?.prc?.passive ?? 10 },
 		{ label: 'Spell DC', value: sys.attributes?.spell?.dc ?? sys.attributes?.spelldc ?? 10 },
@@ -134,10 +134,18 @@ function defenses(actor) {
 }
 
 /** What the character resists, is vulnerable to, and is immune to, named as the system names them. */
+/**
+ * Walking speed. Since 6.0 the system keeps speeds under `movement.speeds`; the old place still
+ * answers, but only until 7.0.
+ */
+const walkSpeed = (sys) => sys?.attributes?.movement?.speeds?.walk ?? sys?.attributes?.movement?.walk ?? 30;
+
 function iwr(actor) {
 	const traits = actor.system?.traits ?? {};
+	// since 6.1 a damage trait can also be one of the system's special kinds, such as falling
+	const special = CONFIG.DND5E?.damageResistanceTypes;
 	const names = (trait, config) => [
-		...[...(trait?.value ?? [])].map((k) => config?.[k]?.label ?? config?.[k] ?? k),
+		...[...(trait?.value ?? [])].map((k) => config?.[k]?.label ?? config?.[k] ?? special?.[k]?.label ?? k),
 		...String(trait?.custom ?? '').split(';').map((s) => s.trim()).filter(Boolean),
 	];
 	const damage = CONFIG.DND5E?.damageTypes;
@@ -356,6 +364,17 @@ function actions(actor) {
 const INVENTORY = [['Weapons', 'weapon'], ['Equipment', 'equipment'], ['Consumables', 'consumable'], ['Tools', 'tool'], ['Loot', 'loot']];
 const PHYSICAL = ['weapon', 'equipment', 'consumable', 'tool', 'loot', 'container'];
 
+/**
+ * An item's weight in its own unit. The system gives each item its unit, and since 6.1 converts
+ * it to the world's (pounds or kilograms) while preparing the item, so the number can come with
+ * decimals and is not always in pounds.
+ */
+function weightOf(weight) {
+	const unit = weight?.units ?? 'lb';
+	const short = CONFIG.DND5E?.weightUnits?.[unit]?.abbreviation;
+	return `${Math.round((weight?.value ?? 0) * 100) / 100} ${esc(short ? loc(short) : unit)}`;
+}
+
 function itemRow(actor, item, others, depth = 0) {
 	const sys = item.system ?? {};
 	const equip = 'equipped' in sys
@@ -375,7 +394,7 @@ function itemRow(actor, item, others, depth = 0) {
 			<span class="mono" style="width:26px;text-align:center">${sys.quantity ?? 1}</span>
 			${actBtn('+', 'qty', `${item.id}:1`, { cls: 'sm' })}
 		</span>
-		<span class="mono dimc" style="width:44px;text-align:right">${sys.weight?.value ?? 0} lb</span>
+		<span class="mono dimc" style="width:44px;text-align:right">${weightOf(sys.weight)}</span>
 		${use}${attune}${equip}${givePicker(item, others)}</div>`;
 	if (item.type !== 'container') return row;
 	const inside = actor.items.filter((i) => i.system?.container === item.id);
@@ -560,6 +579,8 @@ function castable(spell) {
 }
 
 function spells(actor) {
+	// since 6.1 the system's sheet lists no spells for a creature inside an antimagic region
+	if (actor.statuses?.has?.('antimagic')) return '<p class="dimc">Antimagic: no spell can be cast here.</p>';
 	const sections = spellbook(actor);
 	if (!sections.some((s) => s.items.length)) return '<p class="dimc">No spells.</p>';
 	const casters = Object.values(actor.spellcastingClasses ?? {}).map((cls) => {
