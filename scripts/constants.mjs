@@ -123,3 +123,16 @@ export const EL = {
 
 /** The Mass Effect conversion, whose data the Dossier panel reads. */
 export const ME_MODULE = 'mass-effect-sf2e-conversion';
+
+/**
+ * Whether the game has got as far as registering this module's settings. Anything drawn reads
+ * them, and a draw can be asked for before there is anything to read: the page's scripts are
+ * already running, and its window can already be resized, while the world is still being fetched.
+ * On a far-off server that is a good while.
+ */
+export function gameStarted() {
+	const settings = globalThis.game?.settings;
+	if (typeof settings?.get !== 'function') return false;
+	const known = settings.settings;
+	return typeof known?.has === 'function' ? known.has(`${MOD}.${S.device}`) : true;
+}

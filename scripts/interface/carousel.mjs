@@ -1,4 +1,4 @@
-import { EL, MOD, S } from '../constants.mjs';
+import { EL, MOD, S, gameStarted } from '../constants.mjs';
 import { esc } from '../projection/helpers.mjs';
 import { topObstacles, watchObstacles } from './obstacles.mjs';
 
@@ -44,6 +44,8 @@ export class Carousel {
 	}
 
 	static async render() {
+		// a resize or another module's window can ask for a draw while the world is still loading
+		if (!gameStarted()) return;
 		const combat = this.combat;
 		if (!game.settings.get(MOD, S.carousel) || !combat?.turns?.length) return this.remove();
 

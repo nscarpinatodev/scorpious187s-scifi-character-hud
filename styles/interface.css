@@ -217,6 +217,8 @@ body[data-sfh-device] {
 	/* lettering on a dark band the device did not paint: a GM's folder color, a system's own row */
 	--sfh-on-dark: #f4f1ea;
 	--sfh-on-dark-shadow: 0 0 3px #000, 0 1px 2px #000;
+	/* the device's lit color on such a band: its own where it is a light one */
+	--sfh-on-dark-hot: var(--sfh-hot);
 }
 
 /* the Crystal core's lettering cyan is a deep one, and its pale glass would not read on it: white does */
@@ -227,6 +229,15 @@ body[data-sfh-device][data-sfh-look="crystal"] {
 body[data-sfh-device="journal"]:not([data-sfh-dark="on"]),
 body[data-sfh-device][data-sfh-look="crystal"] {
 	--sfh-thumb-bg: color-mix(in srgb, var(--sfh-text) 88%, transparent);
+}
+
+/*
+ * Where the lit color is an ink (the Journal's red, on paper and in the dark alike, and the
+ * Crystal core's deep cyan) it is as dark as the band is: there the band's own light lettering.
+ */
+body[data-sfh-device="journal"],
+body[data-sfh-device][data-sfh-look="crystal"] {
+	--sfh-on-dark-hot: var(--sfh-on-dark);
 }
 
 body[data-sfh-device] :is(#sidebar-content, .sidebar-popout) .directory-header search input:focus {

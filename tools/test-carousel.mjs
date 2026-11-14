@@ -592,6 +592,20 @@ const results = await page.evaluate(async () => {
 	check('the hide key clears it', getComputedStyle(el()).display === 'none');
 	SFH.DeviceChrome.setHidden(false);
 	check('and brings it back', getComputedStyle(el()).display !== 'none');
+	/* ---- a draw asked for while the world is still loading: no settings yet, or no game at all ---- */
+	{
+		const whole = globalThis.game;
+		const drew = async (state) => {
+			globalThis.game = state;
+			try { await Carousel.render(); return true; } catch (err) { return String(err); } finally { globalThis.game = whole; }
+		};
+		check('before the game has its settings, a draw does nothing and throws nothing', (await drew({})) === true);
+		check('nor before there is a game', (await drew(undefined)) === true);
+		check('nor between the game and its settings being registered', (await drew({ settings: { get: () => { throw new Error('not a registered game setting'); }, settings: new Map() } })) === true);
+		const again = await drew(whole);
+		check('and with the game there it draws as before', again === true, again);
+	}
+
 	return out;
 });
 

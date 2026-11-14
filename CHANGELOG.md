@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- **Errors in the console while a world loads.** The scene bar and the carousel redraw when
+  the window is resized, and a window can be resized while the world is still loading, before
+  the game has any settings to read. Each such resize threw two errors, "Cannot read
+  properties of undefined (reading 'get')", one from each. It was most likely on a server far
+  enough away for loading to take a while. Nothing was left broken by it: both drew normally
+  once the world was in. They now wait for the game before drawing.
+- **The scene window's Active flag, readable on the Journal.** In the drawer of scenes, the
+  flag on the active scene's picture is lettered on black. On the Journal's paper, the Grove
+  and the Crystal core it took the device's ink, which is as dark as the black behind it, and
+  could not be read. It is lettered light on every device now. The pills on a scene's
+  preview (Active, Viewing and the rest) had the same flaw and the same fix; on the Journal,
+  in the dark as well, the lit one is lettered light inside its red border.
 - **D&D 5e 6.1.** The module was gone over against the system's 6.1.0 release, and nothing in
   it was broken by it. Four things the release added or moved are now followed in the
   projection:

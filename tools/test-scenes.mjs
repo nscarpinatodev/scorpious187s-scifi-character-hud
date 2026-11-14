@@ -391,6 +391,50 @@ const results = await page.evaluate(async () => {
 		check(`${device}: every button's label fits`, !labels.length, labels.map((x) => x.textContent));
 	}
 
+	/* ---- a draw asked for while the world is still loading: no settings yet, or no game at all ---- */
+	{
+		const whole = globalThis.game;
+		const drew = async (state) => {
+			globalThis.game = state;
+			try { await SceneBar.render(); return true; } catch (err) { return String(err); } finally { globalThis.game = whole; }
+		};
+		check('before the game has its settings, a draw does nothing and throws nothing', (await drew({})) === true);
+		check('nor before there is a game', (await drew(undefined)) === true);
+		check('nor between the game and its settings being registered', (await drew({ settings: { get: () => { throw new Error('not a registered game setting'); }, settings: new Map() } })) === true);
+		const again = await drew(whole);
+		check('and with the game there it draws as before', again === true, again);
+	}
+
+	/* ---- what is lettered on black over a picture: a tile's Active flag, a preview's pills ---- */
+	{
+		const lum = (c) => { const [r, g, b] = c.slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+		const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+		const ink = (node) => getComputedStyle(node).color.match(/[\d.]+/g).slice(0, 3).map(Number);
+		// the band at its lightest: seven tenths black over a white picture
+		const band = [77, 77, 77];
+		const probe = document.body.appendChild(document.createElement('div'));
+		probe.id = 'sfh-scenes-preview';
+		probe.style.cssText = 'position:fixed;left:-999px;top:0';
+		probe.innerHTML = '<span class="sfh-pill">Viewing</span><span class="sfh-pill hot">Active</span>';
+		for (const [device, dark] of [['journal', false], ['journal', true], ['grove', false], ['crystal', false], ['omni', false], ['tron', false]]) {
+			game.settings.set(null, 'device', device);
+			document.body.dataset.sfhDark = dark ? 'on' : 'off';
+			await wait(200);
+			await draw();
+			if (!el().querySelector('.sfh-drawer')) await click(el().querySelector('[data-sact="drawer"]'));
+			if (!tile('bridge')) await click(el().querySelector('.sfh-drawer [data-folder="ship"]'));
+			const tag = `${device}${dark ? ' in the dark' : ''}`;
+			const flag = tile('bridge')?.querySelector('.sfh-flag');
+			check(`${tag}: the active scene's flag can be read on its black`, flag && /active/i.test(flag.textContent) && contrast(ink(flag), band) >= 4.5, flag && [getComputedStyle(flag).color, +contrast(ink(flag), band).toFixed(2)]);
+			const pills = [...probe.children].map((pill) => +contrast(ink(pill), band).toFixed(2));
+			// a device's own bright color on the lit pill is held to 3:1 against the band at its very lightest
+			check(`${tag}: and so can a preview's pills, the lit one too`, pills[0] >= 4.5 && pills[1] >= 3 && contrast(ink(probe.children[1]), [0, 0, 0]) >= 7, pills);
+		}
+		probe.remove();
+		document.body.dataset.sfhDark = 'off';
+		if (el().querySelector('.sfh-drawer')) await click(el().querySelector('[data-sact="drawer"]'));
+	}
+
 	/* ---- just the button ---- */
 	SFH.store.sceneBarStyle = 'button';
 	game.settings.set(null, 'device', 'tron');

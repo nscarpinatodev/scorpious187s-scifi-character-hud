@@ -348,7 +348,9 @@ body[data-sfh-device="omni"] :is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, 
 	padding: 1px 6px;
 	background: rgb(0 0 0 / 70%);
 	border: 1px solid var(--sfh-hot);
-	color: var(--sfh-bright);
+	/* on black over a picture, whatever the device: light lettering, not the device's own ink,
+	   which on the Journal's page is as dark as the black behind it */
+	color: var(--sfh-on-dark, #f4f1ea);
 	font: 700 10px var(--sfh-face);
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
@@ -403,14 +405,15 @@ body[data-sfh-device="omni"] :is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, 
 	padding: 2px 7px;
 	background: rgb(0 0 0 / 72%);
 	border: 1px solid var(--sfh-line);
-	color: var(--sfh-bright);
+	/* on black over a picture, as the flag on a tile is */
+	color: var(--sfh-on-dark, #f4f1ea);
 	font: 600 11px var(--sfh-face);
 	letter-spacing: 0.06em;
 }
 
 #sfh-scenes-preview .sfh-pill.hot {
 	border-color: var(--sfh-hot);
-	color: var(--sfh-hot);
+	color: var(--sfh-on-dark-hot, var(--sfh-hot));
 }
 
 #sfh-scenes-preview .sfh-card-b {
