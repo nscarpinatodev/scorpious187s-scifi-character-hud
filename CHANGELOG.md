@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.1 — 2026-11-14
 
 - **Errors in the console while a world loads.** The scene bar and the carousel redraw when
   the window is resized, and a window can be resized while the world is still loading, before

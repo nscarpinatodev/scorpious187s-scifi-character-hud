@@ -26,6 +26,9 @@ and the readability fixes went out tested on the harnesses but not seen in Found
 could not be clicked in the system's dark theme. Then 1.7.0 the same day: D&D 5e items named in
 the color of their rarity and unprepared spells grayed, on the system's sheets and in the
 projection, a vitals panel that fits what is in it, and temporary hit points under the bar.
+Then 1.7.1 on 2026-11-14: errors thrown by the scene bar and the carousel when the window was
+resized while a world was still loading (seen on a production server, in a PF2e world), the
+scene window's Active flag made readable on the Journal, and what D&D 5e 6.1 added followed.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
@@ -43,7 +46,7 @@ tag. `.github/workflows/release.yml` stamps `module.json` from the tag, builds `
 publishes both; the updates repo's hourly sync picks the release up for the board.
 `./build.ps1` builds the same zip locally to look at first.
 
-1. **D&D 5e 6.1.0** (unreleased), gone over on 2026-11-13 against the system's source changes
+1. **D&D 5e 6.1.0** (1.7.1), gone over on 2026-11-13 against the system's source changes
    from 6.0.6 (139 commits) and its installed copy.
    - Checked and unchanged: every actor and item method the adapter calls, the roll and chat
      message data the latest-roll strip reads, the Compendium Browser's index, the advancement
