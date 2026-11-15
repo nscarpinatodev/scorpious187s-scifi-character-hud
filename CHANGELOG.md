@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.2 — 2026-11-14
 
 - **Defeated and hidden combatants in the carousel keep a card.** A defeated combatant's card
   had no fill at all, and a hidden one's was faded as a whole, so the map showed through both.

@@ -29,6 +29,9 @@ projection, a vitals panel that fits what is in it, and temporary hit points und
 Then 1.7.1 on 2026-11-14: errors thrown by the scene bar and the carousel when the window was
 resized while a world was still loading (seen on a production server, in a PF2e world), the
 scene window's Active flag made readable on the Journal, and what D&D 5e 6.1 added followed.
+Then 1.7.2 the same day, from a PF2e game on the production server: the private-message label
+on cards with a portrait, an enemy's hit points in the GM's projection from its first hit, and
+defeated and hidden combatants in the carousel kept on a solid card.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
