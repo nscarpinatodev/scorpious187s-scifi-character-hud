@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.8.0 — 2026-11-15
 
 - **The scene bar always shows the scene you are on.** Collapsed, or set to just the Scenes
   button, the bar hid every scene, the one you were on with them, so the GM could lose track

@@ -31,7 +31,11 @@ resized while a world was still loading (seen on a production server, in a PF2e 
 scene window's Active flag made readable on the Journal, and what D&D 5e 6.1 added followed.
 Then 1.7.2 the same day, from a PF2e game on the production server: the private-message label
 on cards with a portrait, an enemy's hit points in the GM's projection from its first hit, and
-defeated and hidden combatants in the carousel kept on a solid card.
+defeated and hidden combatants in the carousel kept on a solid card. Then 1.8.0 on 2026-11-15:
+the scene you are on kept in the scene bar when it is collapsed or just its button, and the
+D&D 5e Compendium Browser's tabs laid in a labeled row by the sheet tabs' setting. The
+browser's row went out tested on its harness (`tools/test-browser-tabs.mjs`) but not seen in
+a D&D 5e world.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
