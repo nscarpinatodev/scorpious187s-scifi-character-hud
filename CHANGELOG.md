@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **Defeated and hidden combatants in the carousel keep a card.** A defeated combatant's card
+  had no fill at all, and a hidden one's was faded as a whole, so the map showed through both.
+  A defeated name was lost wherever the map behind it was the same shade as the name: on the
+  Journal's paper, dark red over a dark map, and in the dark, light red over a light one; on
+  every device somewhere. Both keep a solid card now, on every device, and a defeated name
+  reads whatever part of the map is behind it. A defeated one's portrait is still grayed and
+  its name struck out, and a hidden one's portrait and name are still faded, but not the
+  GM's buttons on it.
+- **An enemy's hit points in the GM's projection, from its first hit.** With an enemy's token
+  selected, the projection showed its sheet, but the first time that enemy was hurt its hit
+  points stayed where they were, and so did every hit after, until the token was selected
+  again. Foundry builds an unlinked token's actor from the token, and the first change to it
+  makes Foundry build that actor again as a new one; the projection kept drawing the old one,
+  which is never updated. It now looks a token's actor up through the token each time it
+  draws. Any system, and any change, not only hit points: a condition, a spent spell.
+- **The private-message label on PF2e and SF2e cards with a portrait.** PF2e lays such a
+  card's header out as a grid, with a place for each part of it. The label that says who a
+  message is for had no place there, so it was put in the narrow column under the portrait,
+  broke onto two lines and lay over the message: on a damage-taken card with its Undo,
+  "Only Gamemaster" covered "Wolf takes 11 damage." It now takes the place of the "To:" line
+  it stands in for, on one line under the name.
+
 ## 1.7.1 — 2026-11-14
 
 - **Errors in the console while a world loads.** The scene bar and the carousel redraw when

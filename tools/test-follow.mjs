@@ -146,6 +146,40 @@ const results = await page.evaluate(async () => {
 	Projection.render = render;
 	check("a selected token's own actor is redrawn when it or its things change, and no one else's", drawn === 2, drawn);
 
+	/*
+	 * ---- an enemy never hurt before: its first hit makes Foundry build its actor anew ----
+	 * An unlinked token's actor is built from the token, and built again, as a new object, the
+	 * first time anything on it changes. The projection followed the old one, which is never
+	 * updated again, so the first hit, and every one after it, left the hit points where they were.
+	 */
+	{
+		const wolfScene = { documentName: 'Scene', id: 'scene2', tokens: null };
+		const wolfToken = { documentName: 'Token', id: 'wolfTok', parent: wolfScene };
+		wolfScene.tokens = { get: (id) => (id === wolfToken.id ? wolfToken : undefined) };
+		const wolfAs = (hp) => like({ documentName: 'Actor', id: 'geth', name: 'Wolf', type: 'npc', isToken: true, token: wolfToken, parent: wolfToken,
+			heroPoints: undefined, ancestry: null, heritage: null, class: null, background: null,
+			system: { ...geth.system, attributes: { ...geth.system.attributes, hp: { ...geth.system.attributes.hp, value: hp, max: 24, temp: 0 } } } });
+		let current = wolfAs(24);
+		Object.defineProperty(wolfToken, 'actor', { configurable: true, get: () => current });
+		await select(current);
+		const hpShown = () => Number(q('[data-commit="hp"]')?.value);
+		check('an untouched enemy, selected, shows its hit points', shown() === 'Wolf' && hpShown() === 24, [shown(), hpShown()]);
+		// the first hit: Foundry replaces the actor; the hook brings the new one
+		current = wolfAs(13);
+		Projection.refreshFor(current);
+		await wait(120);
+		check('its first hit shows at once, though Foundry made it a new actor to take it', hpShown() === 13, hpShown());
+		// a later hit updates that same new actor, as Foundry does from then on
+		current.system.attributes.hp.value = 6;
+		Projection.refreshFor(current);
+		await wait(120);
+		check('and the next hit too', hpShown() === 6, hpShown());
+		check('it is still the one shown, and selecting it again changes nothing', Projection.actor() === current);
+		// the token is deleted: the projection lets it go
+		wolfScene.tokens = { get: () => undefined };
+		check('once its token is gone it is let go of', Projection.actor() !== current);
+	}
+
 	await power(false);
 	ui.notifications.warn = warn;
 	delete globalThis.canvas;

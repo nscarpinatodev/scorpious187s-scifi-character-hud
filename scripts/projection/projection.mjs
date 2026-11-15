@@ -324,8 +324,26 @@ export class Projection {
 	static actor() {
 		// a player's is only ever their own character, whatever was shown before
 		if (!game.user.isGM) return this.#assigned();
-		if (this.#actor?.id && game.actors.get(this.#actor.id)) return this.#actor;
+		if (this.#actor?.isToken) {
+			this.#actor = Projection.#live(this.#actor);
+			if (this.#actor) return this.#actor;
+		}
+		else if (this.#actor?.id && game.actors.get(this.#actor.id)) return this.#actor;
 		return this.#selected() ?? this.#assigned();
+	}
+
+	/**
+	 * An unlinked token's actor as it is now. Foundry builds such an actor from the token, and builds
+	 * it again, as a new object, the first time anything on it is changed: the first hit on an enemy
+	 * that has never been hurt. The one held from before that is never updated again, so a token's
+	 * actor is always looked up through its token. Null once the token is gone from its scene.
+	 */
+	static #live(actor) {
+		const token = actor?.token;
+		if (!token) return actor ?? null;
+		const scene = token.parent;
+		if (scene?.tokens?.get && !scene.tokens.get(token.id)) return null;
+		return token.actor ?? null;
 	}
 
 	/** The character assigned to this user, or the one character they own if none is. */
@@ -355,7 +373,7 @@ export class Projection {
 	 */
 	static follow() {
 		const next = this.#selected();
-		if (!next || next === this.#actor) return;
+		if (!next || next === this.actor()) return;
 		this.#finishEditing();
 		this.#actor = next;
 		if (!this.#open) return;

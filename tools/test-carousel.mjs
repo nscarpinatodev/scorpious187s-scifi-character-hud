@@ -592,6 +592,46 @@ const results = await page.evaluate(async () => {
 	check('the hide key clears it', getComputedStyle(el()).display === 'none');
 	SFH.DeviceChrome.setHidden(false);
 	check('and brings it back', getComputedStyle(el()).display !== 'none');
+	/* ---- a hidden or defeated combatant keeps a card of its own, the map not let through it ---- */
+	{
+		const solid = (node) => {
+			let alpha = 1;
+			for (let e = node; e && e !== el(); e = e.parentElement) alpha *= Number(getComputedStyle(e).opacity);
+			const bg = getComputedStyle(node).backgroundColor.match(/[\d.]+/g).map(Number);
+			return { alpha: +alpha.toFixed(2), fill: bg.length > 3 ? bg[3] : 1 };
+		};
+		for (const [device, dark] of [['journal', false], ['grove', false], ['crystal', false], ['journal', true], ['omni', false], ['tron', false]]) {
+			game.settings.set(null, 'device', device);
+			document.body.dataset.sfhDark = dark ? 'on' : 'off';
+			await wait(200);
+			await draw();
+			const tag = `${device}${dark ? ' in the dark' : ''}`;
+			const [hidden, defeated] = [solid(card('c3')), solid(card('c4'))];
+			// as solid as an ordinary card, which on some devices is a glass of their own
+			const ordinary = solid(card('c2'));
+			check(`${tag}: a hidden combatant's card is not see-through`, hidden.alpha === 1 && hidden.fill >= Math.min(0.9, ordinary.fill), [hidden, ordinary]);
+			check(`${tag}: nor is a defeated one's`, defeated.alpha === 1 && defeated.fill >= Math.min(0.9, ordinary.fill), [defeated, ordinary]);
+			// a defeated name is read on its card's fill, laid over whatever the map has behind it: white or black
+			{
+				const rgb = (c) => c.match(/[\d.]+/g).map(Number);
+				const lum = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((t, v, i) => t + v * [0.2126, 0.7152, 0.0722][i], 0);
+				const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+				const [r, g, b, a = 1] = rgb(getComputedStyle(card('c4')).backgroundColor);
+				const over = (m) => [r, g, b].map((v) => v * a + m * (1 - a));
+				const name = rgb(getComputedStyle(card('c4').querySelector('.sfh-name')).color);
+				const worst = Math.min(contrast(name, over(255)), contrast(name, over(0)));
+				check(`${tag}: a defeated name can be read whatever part of the map is behind its card`, worst >= 4.5, +worst.toFixed(2));
+			}
+			check(`${tag}: a hidden one is still faded, its portrait and name`, Number(getComputedStyle(card('c3').querySelector('.sfh-portrait')).opacity) < 0.8);
+			const ctls = card('c3').querySelector('.sfh-card-ctls');
+			check(`${tag}: but not the GM's buttons on it`, !ctls || Number(getComputedStyle(ctls).opacity) === 1);
+		}
+		document.body.dataset.sfhDark = 'off';
+		game.settings.set(null, 'device', 'omni');
+		await wait(150);
+		await draw();
+	}
+
 	/* ---- a draw asked for while the world is still loading: no settings yet, or no game at all ---- */
 	{
 		const whole = globalThis.game;

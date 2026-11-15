@@ -124,6 +124,37 @@ const results = await page.evaluate(async () => {
 	await wait(80);
 	check('one the table saw has no mark', /Stealth/.test(strip()?.textContent ?? '') && !strip().querySelector('.l-m'));
 	SFH.DeviceChrome.setPower(false, { silent: true });
+
+	/* ---- PF2e's header with a portrait: a grid of named places ---- */
+	{
+		const sheet = document.head.appendChild(document.createElement('link'));
+		sheet.rel = 'stylesheet';
+		sheet.href = 'file:///C:/Users/djsco/AppData/Local/FoundryVTT/Data/systems/pf2e/styles/pf2e.css';
+		await new Promise((r) => { sheet.onload = r; sheet.onerror = r; setTimeout(r, 3000); });
+		// the damage-taken card, with its Undo, whispered by the GM to the GM alone
+		const li = document.createElement('li');
+		li.className = 'chat-message message flexcol whisper';
+		li.style.cssText = 'width:300px;list-style:none';
+		li.innerHTML = `<header class="message-header with-image"><div class="portrait token-image"><img src="" width="36" height="36" alt=""></div>
+			<h4 class="message-sender">Wolf</h4><span class="user">Gamemaster</span>
+			<span class="message-metadata"><time class="message-timestamp">17s ago</time></span><span class="whisper-to">To: Gamemaster</span></header>
+			<div class="message-content"><section class="damage-taken"><span>Wolf takes 11 damage.</span><button type="button" data-action="revert-damage">Undo</button></section></div>`;
+		document.getElementById('chat-log-test')?.remove();
+		const log = document.createElement('ol');
+		log.id = 'chat-log-test';
+		log.append(li);
+		document.body.append(log);
+		check('the PF2e stylesheet is in, and lays the header out as a grid', getComputedStyle(li.querySelector('.message-header')).display === 'grid');
+		markMessage(msg('gm', ['gm']), li);
+		const tag = li.querySelector('.sfh-mode');
+		const box = (el) => el.getBoundingClientRect();
+		const [t, img, name, content] = [tag, li.querySelector('.portrait'), li.querySelector('.message-sender'), li.querySelector('.message-content')].map(box);
+		check('PF2e: the label is under the portrait and the name, not beside the portrait', t.top >= Math.max(img.bottom, name.bottom) - 0.5, [Math.round(t.top), Math.round(img.bottom), Math.round(name.bottom)]);
+		check('PF2e: on one line, from the header\'s left edge', t.height < 24 && Math.abs(t.left - box(li.querySelector('.message-header')).left) < 1, [Math.round(t.height), Math.round(t.left)]);
+		check('PF2e: and over the message, not on it', t.bottom <= content.top + 0.5, [Math.round(t.bottom), Math.round(content.top)]);
+		log.remove();
+		sheet.remove();
+	}
 	return out;
 });
 

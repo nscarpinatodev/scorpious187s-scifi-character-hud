@@ -309,14 +309,22 @@
 	font-size: calc(11.5px * var(--cs));
 }
 
-/* the GM's hidden combatants, and the defeated */
+/*
+ * The GM's hidden combatants, and the defeated. Each card keeps a ground of its own: the map is
+ * behind the carousel, and a card that let it through, by fading the whole card or by dropping
+ * its fill, put dark ink on a dark map wherever the interface is a light page (the Journal, the
+ * Grove, the Crystal core). What is faded is what is on the card; the GM's own buttons are not.
+ */
 #sfh-carousel .sfh-card.hide {
 	border-style: dashed;
+}
+
+#sfh-carousel .sfh-card.hide > :not(.sfh-card-ctls) {
 	opacity: 0.65;
 }
 
 #sfh-carousel .sfh-card.defeated {
-	background: none;
+	background: rgb(var(--sfh-bg-rgb));
 	border-color: var(--sfh-line-2);
 	box-shadow: none;
 }

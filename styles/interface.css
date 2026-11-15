@@ -718,6 +718,17 @@ body[data-sfh-device][data-sfh-chat="on"] :is(.chat-log, #chat-notifications, .c
 	display: none;
 }
 
+/*
+ * PF2e and SF2e lay a header with a portrait out as a grid of named places: the portrait, the
+ * name, the user, a gap, the "To:" line and the flavor. A label with no place of its own was put
+ * in the first free cell, the narrow column under the portrait, and spilled over the message.
+ * It takes the "To:" line's place, which it stands in for, across the whole header.
+ */
+.chat-message .message-header.with-image > .sfh-mode {
+	grid-area: whisper;
+	justify-self: start;
+}
+
 body[data-sfh-device][data-sfh-chat="on"] .chat-message .sfh-mode {
 	color: var(--sfh-bright);
 	font-family: var(--sfh-face);
