@@ -361,7 +361,13 @@ body[data-sfh-device="omni"] :is(#sfh-scenes .sfh-bar, #sfh-scenes .sfh-drawer, 
 	color: var(--sfh-dim);
 }
 
-/* collapsed: the buttons and nothing else */
+/* collapsed, or just the button: the scene this user is on, whose long name gives way first */
+#sfh-scenes .sfh-current .sfh-scene {
+	flex: 0 1 auto;
+	min-width: 0;
+}
+
+/* collapsed: the buttons, that scene, and nothing else */
 #sfh-scenes.collapsed .sfh-drawer {
 	display: none;
 }

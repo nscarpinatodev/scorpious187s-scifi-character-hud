@@ -3,14 +3,17 @@ import { MOD, S } from '../constants.mjs';
 /**
  * D&D 5e's sheet tabs as a labeled row.
  *
- * The system hangs its tabs down the outside of a character's, an NPC's and a vehicle's sheet, as
- * icons that name themselves only when hovered. With the setting on, the same tabs are laid in a
- * row across the sheet, between its header and its body, each with its name beside its icon. They
+ * The system hangs its tabs down the outside of a character's, an NPC's and a vehicle's sheet, and
+ * of its Compendium Browser, as icons that name themselves only when hovered. With the setting on,
+ * the same tabs are laid in a row across the window, between its header and its body, each with its
+ * name beside its icon. They
  * are still the system's own tabs: its markup, its click handling, its colors. Only where they sit
  * and what they show changes, in styles/sheet-tabs.css; what cannot be done in a stylesheet is done
  * here, each time a sheet is drawn:
  *
- *  - the row is moved to stand after the sheet's header, where the system wrote it last. It is
+ *  - the row is moved to stand after the sheet's header, where the system wrote it last. The
+ *    Compendium Browser has no such header, and its row stays where it is written: the browser is
+ *    a grid, and the stylesheet gives the row its place in it. It is
  *    moved, not reordered in the stylesheet, because a reordered box is also painted in its new
  *    order: the banner the system lays over the top of a character's sheet in its dark theme
  *    would be painted over the header and the row, and take every click meant for them;
@@ -23,7 +26,7 @@ import { MOD, S } from '../constants.mjs';
  * itself, this stands down.
  */
 
-const SHEETS = '.dnd5e2.sheet.actor.vertical-tabs';
+const SHEETS = '.dnd5e2.sheet.actor.vertical-tabs, .dnd5e2.compendium-browser.vertical-tabs';
 const SIDES = ['tabs-right', 'tabs-left'];
 
 /** The rows that are dressed, and the ones whose listeners are already on. */

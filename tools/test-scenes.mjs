@@ -115,6 +115,9 @@ const results = await page.evaluate(async () => {
 	const tile = (id) => el().querySelector(`.sfh-tile[data-scene-id="${id}"]`);
 	const last = () => calls.at(-1);
 	const draw = async () => { SceneBar.render(); await wait(40); };
+	// the bar's row of scenes, apart from the scene this user is on, which stays when there is no row
+	const row = () => el().querySelector('.sfh-chips:not(.sfh-current) .sfh-scene');
+	const here = () => [...el().querySelectorAll('.sfh-current .sfh-scene')];
 	const hover = async (target) => { target.dispatchEvent(new PointerEvent('pointerover', { bubbles: true })); await wait(320); };
 	const unhover = async () => { el().dispatchEvent(new PointerEvent('pointerleave')); document.body.dispatchEvent(new PointerEvent('pointerover', { bubbles: true })); await wait(380); };
 	const click = async (target) => { target.click(); await wait(260); };
@@ -311,20 +314,40 @@ const results = await page.evaluate(async () => {
 
 	/* ---- collapsing ---- */
 	await click(el().querySelector('[data-sact="collapse"]'));
-	check('collapsing leaves the buttons', !el().querySelector('.sfh-scene') && game.settings.get(null, 'sceneBarCollapsed') === true);
+	check('collapsing leaves the buttons', !row() && game.settings.get(null, 'sceneBarCollapsed') === true);
+	check('and the scene you are on, so you always know where you are', here().length === 1 && here()[0].dataset.sceneId === 'bridge' && /Normandy Bridge/.test(here()[0].textContent), here().map((c) => c.dataset.sceneId).join());
+	check('marked as it is in the row: viewed, and active', here()[0].classList.contains('viewed') && here()[0].classList.contains('active') && !!here()[0].querySelector('.sfh-mark.hot'));
+	{
+		const bridge = game.scenes.get('bridge');
+		const club = game.scenes.get('club');
+		bridge.isView = false;
+		club.isView = true;
+		await draw();
+		check('looking at another scene, it follows', here().length === 1 && here()[0].dataset.sceneId === 'club' && !here()[0].classList.contains('active'), here().map((c) => c.dataset.sceneId).join());
+		SFH.store.sceneBarHover = false;
+		await hover(here()[0]);
+		check('and it has its preview, as in the row', card()?.classList.contains('show') && card().dataset.sceneId === 'club');
+		await unhover();
+		SFH.store.sceneBarHover = true;
+		club.isView = false;
+		bridge.isView = true;
+		await draw();
+	}
+	check('the bar is still short, collapsed', el().querySelector('.sfh-bar').getBoundingClientRect().width < 420, el().querySelector('.sfh-bar').getBoundingClientRect().width);
 	el().dispatchEvent(new PointerEvent('pointerenter'));
 	await wait(40);
-	check('pointing at it opens it for a look', !!el().querySelector('.sfh-scene'));
+	check('pointing at it opens it for a look', !!row());
+	check('and the scene you are on is then in the row, not twice', !here().length);
 	el().dispatchEvent(new PointerEvent('pointerleave'));
 	await wait(40);
-	check('and leaving closes it again', !el().querySelector('.sfh-scene'));
+	check('and leaving closes it again', !row());
 	SFH.store.sceneBarHover = false;
 	el().dispatchEvent(new PointerEvent('pointerenter'));
 	await wait(40);
-	check('unless that is turned off', !el().querySelector('.sfh-scene'));
+	check('unless that is turned off', !row());
 	SFH.store.sceneBarHover = true;
 	await click(el().querySelector('[data-sact="collapse"]'));
-	check('and it opens again', !!el().querySelector('.sfh-scene'));
+	check('and it opens again', !!row());
 
 	// as a pointer really does it: onto the bar, which opens it for a look, then the button
 	await click(el().querySelector('[data-sact="collapse"]'));
@@ -333,20 +356,20 @@ const results = await page.evaluate(async () => {
 	const reopen = el().querySelector('[data-sact="collapse"]');
 	check('open for a look, the button still offers to open it', /Open/.test(reopen.dataset.tooltip) && reopen.getAttribute('aria-pressed') === 'true', reopen.dataset.tooltip);
 	await click(reopen);
-	check('and pressing it opens it for good', game.settings.get(null, 'sceneBarCollapsed') === false && !!el().querySelector('.sfh-scene'));
+	check('and pressing it opens it for good', game.settings.get(null, 'sceneBarCollapsed') === false && !!row());
 	el().dispatchEvent(new PointerEvent('pointerleave'));
 	await wait(40);
-	check('so it stays open when the pointer leaves', !!el().querySelector('.sfh-scene'));
+	check('so it stays open when the pointer leaves', !!row());
 
 	SFH.store.sceneBarCombat = true;
 	game.combats = [{ started: true, scene: canvas.scene }];
 	SceneBar.noteCombat();
 	await wait(60);
-	check('it gets out of the way during combat', !el().querySelector('.sfh-scene'));
+	check('it gets out of the way during combat', !row());
 	game.combats = [];
 	SceneBar.noteCombat();
 	await wait(60);
-	check('and comes back when it ends', !!el().querySelector('.sfh-scene'));
+	check('and comes back when it ends', !!row());
 	SFH.store.sceneBarCombat = false;
 
 	/* ---- a player ---- */
@@ -440,10 +463,12 @@ const results = await page.evaluate(async () => {
 	game.settings.set(null, 'device', 'tron');
 	await wait(150);
 	await draw();
-	check('just the button: no row of scenes', !el().querySelector('.sfh-scene') && !el().querySelector('.sfh-more'));
+	check('just the button: no row of scenes', !row() && !el().querySelector('.sfh-more'));
+	check('but the scene you are on beside it', here().length === 1 && here()[0].dataset.sceneId === 'bridge', here().map((c) => c.dataset.sceneId).join());
 	check('and nothing to collapse', !el().querySelector('[data-sact="collapse"]'));
 	check('Foundry\'s list stays hidden', getComputedStyle(document.getElementById('scene-navigation')).display === 'none');
-	check('the button is small', el().querySelector('.sfh-bar').getBoundingClientRect().width < 200, el().querySelector('.sfh-bar').getBoundingClientRect().width);
+	check('the button is small', el().querySelector('[data-sact="drawer"]').getBoundingClientRect().width < 120, el().querySelector('[data-sact="drawer"]').getBoundingClientRect().width);
+	check('and so is the bar, with your scene beside it', el().querySelector('.sfh-bar').getBoundingClientRect().width < 360, el().querySelector('.sfh-bar').getBoundingClientRect().width);
 	await click(el().querySelector('[data-sact="drawer"]'));
 	check('it opens the drawer', !!el().querySelector('.sfh-drawer'));
 	check('which calls the first list "In navigation"', /In navigation/.test(el().querySelector('[data-folder="bar"]').textContent));
@@ -461,11 +486,12 @@ const results = await page.evaluate(async () => {
 	await draw();
 	el().dispatchEvent(new PointerEvent('pointerenter'));
 	await wait(40);
-	check('a collapsed bar left from before does not hide the button', !!el().querySelector('[data-sact="drawer"]') && !el().classList.contains('collapsed') && !el().querySelector('.sfh-scene'));
+	check('a collapsed bar left from before does not hide the button', !!el().querySelector('[data-sact="drawer"]') && !el().classList.contains('collapsed') && !row());
 	SFH.store.sceneBarCollapsed = false;
 	SFH.store.sceneBarStyle = 'bar';
 	await draw();
-	check('back to the bar, the scenes come back', !!el().querySelector('.sfh-scene') && !!el().querySelector('[data-sact="collapse"]'));
+	check('back to the bar, the scenes come back', !!row() && !!el().querySelector('[data-sact="collapse"]'));
+	check('open, the scene you are on is only in the row', !here().length && !!el().querySelector('.sfh-chips .sfh-scene.viewed'));
 
 	/* ---- off ---- */
 	SFH.store.sceneBar = false;
@@ -529,6 +555,22 @@ if (shotsTo) {
 		['TRON: the drawer, a folder, and a tile previewed', async () => page.evaluate(async () => { document.body.dispatchEvent(new PointerEvent('pointerover', { bubbles: true })); await new Promise((r) => setTimeout(r, 380)); document.querySelector('#sfh-scenes [data-sact="drawer"]').click(); await new Promise((r) => setTimeout(r, 60)); document.querySelector('#sfh-scenes [data-folder="omega"]').click(); await new Promise((r) => setTimeout(r, 60)); document.querySelector('#sfh-scenes .sfh-tile[data-scene-id="market"]').dispatchEvent(new PointerEvent('pointerover', { bubbles: true })); await new Promise((r) => setTimeout(r, 350)); })],
 		['Omni-tool: the drawer', async () => page.evaluate(async () => { game.settings.set(null, 'device', 'omni'); await new Promise((r) => setTimeout(r, 250)); SceneBar.render(); await new Promise((r) => setTimeout(r, 60)); document.querySelector('#sfh-scenes .sfh-tile[data-scene-id="club"]').dispatchEvent(new PointerEvent('pointerover', { bubbles: true })); await new Promise((r) => setTimeout(r, 350)); })],
 		['Wrist computer: collapsed', async () => page.evaluate(async () => { document.body.dispatchEvent(new PointerEvent('pointerover', { bubbles: true })); await new Promise((r) => setTimeout(r, 380)); game.settings.set(null, 'device', 'wrist'); await new Promise((r) => setTimeout(r, 250)); document.querySelector('#sfh-scenes [data-sact="collapse"]').click(); await new Promise((r) => setTimeout(r, 100)); })],
+		...[['tron', false, 'collapsed'], ['journal', false, 'collapsed'], ['journal', true, 'collapsed'], ['crystal', false, 'collapsed'], ['tron', false, 'button'], ['journal', true, 'button']].map(([device, dark, style]) => [
+			`${device}${dark ? ' in the dark' : ''}: ${style === 'button' ? 'just the button' : 'collapsed'}, on a scene with a long name`,
+			async () => page.evaluate(async ([device, dark, style]) => {
+				document.body.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+				document.body.dataset.sfhDark = dark ? 'on' : 'off';
+				game.settings.set(null, 'device', device);
+				SFH.store.sceneBarHover = false;
+				SFH.store.sceneBarStyle = style === 'button' ? 'button' : 'bar';
+				SFH.store.sceneBarCollapsed = style !== 'button';
+				for (const s of game.scenes) s.isView = s.id === 'club';
+				game.scenes.get('club').navName = 'The Afterlife Club, Lower Level, Behind the Bar';
+				await new Promise((r) => setTimeout(r, 250));
+				SceneBar.render();
+				await new Promise((r) => setTimeout(r, 100));
+			}, [device, dark, style]),
+		]),
 	];
 	for (const [label, run] of states) {
 		await run();

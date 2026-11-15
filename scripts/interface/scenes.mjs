@@ -178,12 +178,15 @@ export class SceneBar {
 		const back = this.#previous && game.scenes.get(this.#previous)
 			? `<button type="button" class="sfh-sb" data-sact="back" aria-label="${esc(l('SFH.Scenes.Back'))}" data-tooltip="${esc(game.i18n.format('SFH.Scenes.BackTo', { name: this.#name(game.scenes.get(this.#previous)) }))}">${icon('M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3')}</button>`
 			: '';
+		// with no row of scenes, the one this user is on still shows, so the GM always knows where they are
+		const viewed = collapsed || buttonOnly ? game.scenes.find((s) => s.isView) : null;
+		const here = viewed ? `<ol class="sfh-chips sfh-current plain">${this.#chip(viewed, viewers[viewed.id])}</ol>` : '';
 		el.classList.toggle('collapsed', collapsed);
 		el.classList.toggle('button-only', buttonOnly);
 		// with just the button, a scene of several levels still needs its picker beside it
 		const row = buttonOnly
-			? this.#levels()
-			: collapsed ? '' : `<span class="sfh-sep"></span><ol class="sfh-chips plain">${chips}</ol>${this.#levels()}
+			? here + this.#levels()
+			: collapsed ? (here && `<span class="sfh-sep"></span>${here}`) : `<span class="sfh-sep"></span><ol class="sfh-chips plain">${chips}</ol>${this.#levels()}
 			<button type="button" class="sfh-sb sfh-more" data-sact="more" hidden></button>`;
 		const collapse = buttonOnly ? '' : `<span class="sfh-sep"></span>
 			<button type="button" class="sfh-sb" data-sact="collapse" aria-pressed="${kept}" aria-label="${esc(l(kept ? 'SFH.Scenes.Expand' : 'SFH.Scenes.Collapse'))}" data-tooltip="${esc(l(kept ? 'SFH.Scenes.Expand' : 'SFH.Scenes.Collapse'))}">${icon(kept ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6')}</button>`;

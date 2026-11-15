@@ -252,6 +252,8 @@ Hooks.on('renderSettingsConfig', splitDevicePicker);
 
 // D&D 5e's sheet tabs as a labeled row: the system redraws them with each sheet, and each part of one
 Hooks.on('renderActorSheetV2', (app) => dressSheet(app.element));
+// the Compendium Browser's tabs are the sheets' tabs, and follow the same setting
+Hooks.on('renderCompendiumBrowser', (app) => dressSheet(app.element));
 
 // D&D 5e's sheets marked as the projection is: an item's rarity in its name's color, a character's
 // unprepared spells grayed. The sheet's rows are the system's, redrawn with it.

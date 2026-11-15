@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- **The scene bar always shows the scene you are on.** Collapsed, or set to just the Scenes
+  button, the bar hid every scene, the one you were on with them, so the GM could lose track
+  of where they were. That scene now stays beside the Scenes button, marked as it is in the
+  row when it is the active one, with its preview, its right-click menu, and a double-click
+  to activate it. A long name is cut short. Open, the bar shows it in the row as before.
+- **The Compendium Browser's tabs as a labeled row.** The setting that lays the D&D 5e sheets'
+  tabs in a row now does the same for the system's Compendium Browser: its tabs, which hung
+  down the outside of the window as icons, lie in a row across the top of it, over the search
+  and the results, each with its name. The basic set fits the browser at the size it opens
+  at; narrower, the row scrolls, with the arrows the sheets have. The Advanced set is laid out
+  the same way, and a browser opened for one kind of thing, which has no tabs, is left as it
+  is. The browser's own background shows through the row, in either theme; in the light one
+  the tabs are named in a darker shade of the system's gold, so they read on the paper. The
+  setting is now called "D&D 5e tabs as a labeled row".
+
 ## 1.7.2 — 2026-11-14
 
 - **Defeated and hidden combatants in the carousel keep a card.** A defeated combatant's card
