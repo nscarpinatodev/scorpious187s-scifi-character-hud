@@ -205,9 +205,11 @@ addEventListener('resize', () => Carousel.schedule());
  * can sit at the top of the screen beside it, such as Calendaria's HUD.
  */
 for (const hook of ['createScene', 'updateScene', 'deleteScene', 'createFolder', 'updateFolder', 'deleteFolder',
-	'updateUser', 'userConnected', 'updatePlaylistSound', 'collapseSidebar', 'renderSidebar', 'renderApplicationV2', 'closeApplicationV2']) {
+	'updateUser', 'userConnected', 'updatePlaylistSound', 'collapseSidebar', 'renderSidebar']) {
 	Hooks.on(hook, () => SceneBar.schedule());
 }
+// only the windows that share the bar's space redraw it (see SceneBar.noteWindow)
+for (const hook of ['renderApplicationV2', 'closeApplicationV2']) Hooks.on(hook, (app) => SceneBar.noteWindow(app));
 Hooks.on('canvasReady', () => SceneBar.noteView());
 // an application opening or closing may be Calendaria's HUD, which the bar and the carousel keep clear of
 for (const hook of ['renderApplicationV2', 'closeApplicationV2']) Hooks.on(hook, () => refreshObstacles());

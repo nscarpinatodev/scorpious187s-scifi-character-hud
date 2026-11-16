@@ -291,15 +291,20 @@ export class SceneBar {
 	/**
 	 * Hold the bar to the room it has, and move what does not fit behind "+N". The interface can
 	 * be scaled, which rectangles see and a style's pixels do not.
+	 *
+	 * Every size read after a change to the page makes the browser lay the whole page out again,
+	 * which takes a while on a busy Foundry screen. So the sizes are read in as few passes as
+	 * possible: everything outside the bar first, then whether the row overflows, then where
+	 * each scene ends, and only then is anything changed.
 	 */
 	static #fit(el) {
 		const bar = el.querySelector('.sfh-bar');
 		const box = bar.getBoundingClientRect();
 		const scale = box.width / (bar.offsetWidth || box.width) || 1;
 		const sidebar = document.getElementById('sidebar')?.getBoundingClientRect();
+		const obstacles = this.#obstacles().map((other) => other.getBoundingClientRect());
 		let right = sidebar?.width ? sidebar.left : window.innerWidth;
-		for (const other of this.#obstacles()) {
-			const r = other.getBoundingClientRect();
+		for (const r of obstacles) {
 			// only something level with the bar is in its way
 			if (r.top < box.bottom + 4 && r.bottom > box.top - 4 && r.left > box.left) right = Math.min(right, r.left);
 		}
@@ -308,11 +313,20 @@ export class SceneBar {
 		const more = el.querySelector('.sfh-more');
 		if (chips && more) {
 			more.hidden = true;
-			let hidden = 0;
-			while (chips.scrollWidth > chips.clientWidth + 1 && chips.children.length > 1) {
-				chips.lastElementChild.remove();
-				hidden++;
+			const all = [...chips.children];
+			if (all.length > 1 && chips.scrollWidth > chips.clientWidth + 1) {
+				// "+N" goes up first, at its widest, so the room it takes is already counted
 				more.hidden = false;
+				more.textContent = `+${all.length}`;
+				const room = chips.clientWidth + 1;
+				// where the row starts, in the frame the scenes' own offsets are measured from
+				const start = all[0].offsetParent === chips ? 0 : chips.offsetLeft;
+				let keep = all.findIndex((chip) => chip.offsetLeft - start + chip.offsetWidth > room);
+				if (keep === -1) keep = all.length;
+				keep = Math.max(1, keep);
+				for (const chip of all.slice(keep)) chip.remove();
+				const hidden = all.length - keep;
+				more.hidden = hidden === 0;
 				more.textContent = `+${hidden}`;
 				const tip = game.i18n.format('SFH.Scenes.More', { count: hidden });
 				more.dataset.tooltip = tip;
@@ -325,8 +339,7 @@ export class SceneBar {
 			const width = Math.min(900, ((sidebar?.width ? sidebar.left : window.innerWidth) - 20 - box.left) / scale);
 			drawer.style.width = `${Math.max(320, width)}px`;
 			let drop = 0;
-			for (const other of this.#obstacles()) {
-				const r = other.getBoundingClientRect();
+			for (const r of obstacles) {
 				if (box.left + width * scale > r.left && r.right > box.left && r.bottom > box.bottom) drop = Math.max(drop, (r.bottom + 8 - box.bottom - 6) / scale);
 			}
 			drawer.style.marginTop = `${drop}px`;
@@ -607,6 +620,19 @@ export class SceneBar {
 	/* -------------------------------------------- */
 	/*  What changes it                              */
 	/* -------------------------------------------- */
+
+	/**
+	 * A window has rendered or closed. Windows do that all the time (selecting a token alone
+	 * redraws several), and a redraw lays the page out, which on a busy screen held the next
+	 * click back long enough to break a double-click on a token. So only the windows that share
+	 * the bar's space redraw it; Calendaria's HUD moving or resizing is caught by its own
+	 * watchers (watchObstacles). If the bar has gone from the page, it is put back.
+	 */
+	static noteWindow(app) {
+		if (SceneBar.#neighbors.has(app?.id) || (this.enabled && !this.element?.isConnected)) this.schedule();
+	}
+
+	static #neighbors = new Set(['scene-navigation', 'sidebar', 'calendaria-hud']);
 
 	/** A new scene on the canvas: the one before it is where Back goes. */
 	static noteView() {

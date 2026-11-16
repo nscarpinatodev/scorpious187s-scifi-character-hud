@@ -142,6 +142,26 @@ const results = await page.evaluate(async () => {
 	const more = el().querySelector('.sfh-more');
 	const shown = el().querySelectorAll('.sfh-scene').length;
 	check('what does not fit is counted in +N', !more.hidden && Number(more.textContent.slice(1)) + shown === order.length + Number(more.textContent.slice(1)) - (order.length - shown), more.textContent);
+	const inBar = game.scenes.filter((s) => s.active || s.isView || (s.navigation && s.visible)).length;
+	check('+N is exactly the scenes left out', Number(more.textContent.slice(1)) === inBar - shown, [more.textContent, inBar, shown]);
+	{
+		// the next scene really would not have fit: put it back and the row overflows
+		const chipsEl = el().querySelector('.sfh-chips');
+		const next = chipsEl.lastElementChild.cloneNode(true);
+		chipsEl.append(next);
+		check('the row holds as many scenes as fit', chipsEl.scrollWidth > chipsEl.clientWidth + 1, [chipsEl.scrollWidth, chipsEl.clientWidth]);
+		next.remove();
+	}
+
+	/* ---- other windows leave the bar alone ---- */
+	el().querySelector('.sfh-bar').dataset.probe = 'kept';
+	SceneBar.noteWindow({ id: 'token-hud' });
+	SceneBar.noteWindow({ id: 'pf2e-hud-persistent' });
+	await wait(80);
+	check('a window that is not beside the bar does not redraw it', el().querySelector('.sfh-bar')?.dataset.probe === 'kept');
+	SceneBar.noteWindow({ id: 'sidebar' });
+	await wait(80);
+	check('the sidebar rendering does redraw it', !el().querySelector('.sfh-bar')?.dataset.probe);
 	document.getElementById('calendaria-hud').style.display = 'none';
 	await draw();
 	const roomy = el().querySelectorAll('.sfh-scene').length;
@@ -497,6 +517,19 @@ const results = await page.evaluate(async () => {
 	SFH.store.sceneBar = false;
 	await draw();
 	check('turned off, Foundry\'s list comes back', !el() && getComputedStyle(document.getElementById('scene-navigation')).display !== 'none');
+	SFH.store.sceneBar = true;
+	await draw();
+
+	/* ---- gone from the page: any window puts it back ---- */
+	el().remove();
+	SceneBar.noteWindow({ id: 'token-hud' });
+	await wait(80);
+	check('if the bar has gone, any window puts it back', !!el());
+	SFH.store.sceneBar = false;
+	await draw();
+	SceneBar.noteWindow({ id: 'token-hud' });
+	await wait(80);
+	check('turned off, a window does not bring it back', !el());
 	SFH.store.sceneBar = true;
 	await draw();
 	return out;
