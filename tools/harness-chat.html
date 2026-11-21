@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat log harness</title>
+<!--
+	A stand-in for Foundry's chat log as far as following new messages goes (ChatLog in Foundry 14:
+	#onScrollLog, isAtBottom, scrollBottom and #postOne), in the sidebar and popped out, for
+	scripts/interface/chat-follow.mjs. tools/test-chat-follow.mjs drives it.
+-->
+<style>
+	body { margin: 0; font: 13px system-ui; }
+	.chat-scroll { position: absolute; top: 10px; width: 300px; height: 300px; overflow: hidden auto; border: 1px solid; }
+	#chat .chat-scroll { left: 10px; }
+	#chat-popout .chat-scroll { left: 330px; }
+	.chat-log { margin: 0; padding: 0; list-style: none; }
+	.chat-message { margin: 4px; border: 1px solid; }
+	.chat-message p { margin: 0; }
+	/* the page dressed after the log was drawn: every message grows, as with the device's face and cards */
+	body.dressed .chat-message::before { content: "a header the dressing adds"; display: block; font-size: 15px; }
+</style>
+</head>
+<body>
+<section id="chat"><div class="chat-scroll"><ol class="chat-log"></ol></div></section>
+<section id="chat-popout"><div class="chat-scroll"><ol class="chat-log"></ol></div></section>
+<script type="module">
+	/** Foundry's ChatLog, its scrolling only. */
+	class ChatLog {
+		#isAtBottom = true;
+		rendered = true;
+		constructor(element) {
+			this.element = element;
+			this.element.querySelector('.chat-scroll').addEventListener('scroll', (event) => this.#onScrollLog(event), { passive: true });
+		}
+		get isAtBottom() { return this.#isAtBottom; }
+		#onScrollLog(event) {
+			if (!this.rendered) return;
+			const log = event.currentTarget;
+			const range = log.scrollHeight - log.clientHeight;
+			const pct = range > 0 ? log.scrollTop / range : 0;
+			this.#isAtBottom = (range <= 0) || (pct > 0.99);
+		}
+		static async waitForImages(element) {
+			const images = Array.from(element.querySelectorAll('img')).filter((img) => !img.complete);
+			if (!images.length) return;
+			let loaded = 0;
+			const { promise, resolve } = Promise.withResolvers();
+			const onLoad = (img) => { loaded++; img.onload = img.onerror = null; if (loaded >= images.length) resolve(); };
+			for (const img of images) img.onload = img.onerror = onLoad.bind(img, img);
+			return promise;
+		}
+		async scrollBottom({ waitImages = false } = {}) {
+			if (!this.rendered) return;
+			const scroll = this.element.querySelector('.chat-scroll');
+			if (waitImages) await this.constructor.waitForImages(scroll);
+			scroll.scrollTop = 0x7fffffbf;
+		}
+		/** #postOne: append, and follow it down if the log was at its bottom or the message is the user's own. */
+		post(html, { mine = false } = {}) {
+			const li = document.createElement('li');
+			li.className = 'chat-message';
+			li.innerHTML = html;
+			this.element.querySelector('.chat-log').append(li);
+			if (this.isAtBottom || mine) this.scrollBottom({ waitImages: true });
+			return li;
+		}
+	}
+
+	const chat = new ChatLog(document.getElementById('chat'));
+	chat.popout = new ChatLog(document.getElementById('chat-popout'));
+	globalThis.ui = { chat };
+
+	const scroll = (app) => app.element.querySelector('.chat-scroll');
+	globalThis.CHAT = {
+		chat,
+		/** Post to both logs, as Foundry does with a popout open; returns the two messages. */
+		post: (html, opts) => [chat.post(html, opts), chat.popout.post(html, opts)],
+		state: (app) => { const s = scroll(app); return { gap: Math.round(s.scrollHeight - s.clientHeight - s.scrollTop), following: app.isAtBottom }; },
+		scrollUp: (app, by = 400) => { scroll(app).scrollTop -= by; },
+		load: () => import('../scripts/interface/chat-follow.mjs'),
+		dress: (on) => document.body.classList.toggle('dressed', on),
+	};
+	for (let i = 0; i < 20; i++) CHAT.post(`<p style="height:40px">earlier ${i}</p>`);
+</script>
+</body>
+</html>

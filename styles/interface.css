@@ -645,6 +645,21 @@ body[data-sfh-device]:is([data-sfh-device="gdi"], [data-sfh-device="nod"]) :is(#
 	box-shadow: inset 6px 0 0 var(--sfh-hot);
 }
 
+/* ---------------------------------------------------------------- speech bubbles */
+/*
+ * Foundry sizes a speech bubble from a hidden copy of it put straight on the page's body, then
+ * draws the real one in the canvas overlay, which wears the device's face (above). Measured in
+ * Foundry's face and drawn in a wider one, a line wrapped that the bubble had no room for, and
+ * was cut off. The copy wears the same face; and an emote, drawn in italics, is measured in them
+ * (scripts/interface/bubbles.mjs marks the page while a bubble is measured).
+ */
+body[data-sfh-device] > .chat-bubble {
+	font-family: var(--sfh-face);
+}
+body[data-sfh-bubble~="emote"] > .chat-bubble {
+	font-style: italic;
+}
+
 /* ---------------------------------------------------------------- chat */
 /*
  * Foundry prints chat on parchment, in a light theme of its own. Here the cards are the

@@ -12,6 +12,8 @@ import { viewScenesOnClick } from './interface/scene-directory.mjs';
 import { addVolumeCheck, onVolumeMessage } from './interface/volumes.mjs';
 import { splitDevicePicker } from './interface/device-picker.mjs';
 import { markMessage } from './interface/chat-modes.mjs';
+import { followChat, keepFollowing } from './interface/chat-follow.mjs';
+import { dressBubble } from './interface/bubbles.mjs';
 import { PipBoy } from './interface/pipboy.mjs';
 import { holdApTracker, adoptApTracker } from './interface/ap-tracker.mjs';
 import { refreshObstacles } from './interface/obstacles.mjs';
@@ -118,6 +120,8 @@ Hooks.once('ready', () => {
 	// by now Foundry has loaded the fonts added in its own settings, so they can be told apart
 	reportMissingFonts();
 	watchHeadings();
+	// the chat log keeps following new messages: through the device dressing the page, and the tab hidden
+	followChat();
 	Carousel.schedule();
 	SceneBar.ready();
 	if (!DeviceChrome.mount()) {
@@ -236,6 +240,10 @@ Hooks.on('deleteChatMessage', (message) => Projection.forgetRoll(message));
 
 /* A private message says so: a private GM roll, a blind roll, a self roll, or a whisper and between whom. */
 Hooks.on('renderChatMessageHTML', (message, html) => markMessage(message, html));
+// speech bubbles: measured in the face they are drawn in, and up long enough to read
+// a chat log drawn again, or popped out, is kept following too
+Hooks.on('renderChatLog', (app) => keepFollowing(app));
+Hooks.on('chatBubbleHTML', (token, html, message, options) => dressBubble(token, html, message, options));
 
 /* The scene controls take the devices' icons each time Foundry prepares them. */
 Hooks.on('getSceneControlButtons', restyleControls);

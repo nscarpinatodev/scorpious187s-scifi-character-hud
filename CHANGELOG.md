@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+- **The chat follows new messages from the moment the world loads.** Foundry follows a new
+  message down only while the log is at its bottom, and it judges that from the log's
+  scrolling. As a world loaded, Foundry drew the chat and scrolled it to its bottom; a moment
+  later the HUD dressed the page as the device, every message grew a little, and the browser
+  kept the view where it was, short of the new bottom. Foundry took that for the player having
+  scrolled up, and from then on followed nothing until they scrolled down themselves. A player
+  watching the chat scrolled without noticing; one who was in another window came back to
+  find the chat stopped where it was. It happened on every load. The log is now kept at its
+  bottom when it grows or shrinks under the player (the device's dressing, a font arriving
+  late, a card redrawn), and when they come back to Foundry from another window, or to a tab
+  that loaded while they were away. A log the player had scrolled up is left where they put
+  it. In the sidebar and popped out; any world and any system. Checked in a Fallout 2d20
+  world: four loads out of four were stuck before, none after.
+- **Speech bubbles hold all they say, and stay up long enough to read.** Foundry sizes a bubble
+  from a hidden copy of it in its own face, and the HUD draws the real one in the device's.
+  Where the device's face is the wider one, as it is on the Pip-Boy, most of the sci-fi
+  devices and the Journal's emotes, a line wrapped that the bubble had no room for, and was
+  cut off. The copy is now measured in the face the bubble is drawn in, an emote in italics.
+  Foundry kept a bubble up a fifth of a second a word, so a line of six words was gone in
+  just over a second; it now stays two and a half seconds, and three tenths of a second more
+  a word, up to Foundry's twenty. A long one scrolls through its words over that time, and a
+  token that speaks again still replaces its bubble at once.
+
 ## 1.8.0 — 2026-11-15
 
 - **The scene bar always shows the scene you are on.** Collapsed, or set to just the Scenes
