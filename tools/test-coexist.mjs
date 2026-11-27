@@ -142,6 +142,38 @@ const results = await page.evaluate(async () => {
 	shortcuts.remove();
 	check("without it, Foundry's own stacking is left alone", z(left) === leftBefore);
 	hud.setPower(false, { silent: true });
+
+	/* ---- PF2e HUD's panel on the left does not squeeze the projection ---- */
+	const { Projection } = SFH;
+	for (const id of ['omni', 'vambrace']) {
+		await game.settings.set(null, 'device', id);
+		await wait(200);
+		hud.setPower(true, { silent: true });
+		await wait(400);
+		Projection.fit();
+		const alone = Projection.lastFit.scale;
+		// as PF2e HUD draws it: along the foot of the left column, its box as wide as the macro bar's row keeps it
+		const wide = (pid) => {
+			const el = Object.assign(document.createElement('div'), { id: pid });
+			el.style.cssText = `position: fixed; left: 0; bottom: 0; width: ${Math.round(innerWidth * 0.5)}px; height: 190px; pointer-events: all`;
+			document.getElementById('ui-left-column-1').append(el);
+			return el;
+		};
+		const pf2eHud = wide('pf2e-hud-persistent');
+		Projection.fit();
+		const beside = Projection.lastFit;
+		check(`${id}: PF2e HUD's panel on the left leaves the projection its size`, Math.abs(beside.scale - alone) < 0.001 && alone > 0.3, { alone, beside: beside.scale, limitedBy: beside.limitedBy });
+		check(`${id}: and is not counted among what it keeps clear of`, !beside.panels.left.some((p) => p.startsWith('pf2e-hud-persistent')), beside.panels.left);
+		pf2eHud.remove();
+		// anything else there still keeps it clear
+		const other = wide('another-module-panel');
+		Projection.fit();
+		check(`${id}: another module's panel there still narrows it`, Projection.lastFit.scale < alone - 0.01, { alone, now: Projection.lastFit.scale, limitedBy: Projection.lastFit.limitedBy });
+		other.remove();
+		Projection.fit();
+		hud.setPower(false, { silent: true });
+		await wait(200);
+	}
 	return out;
 });
 

@@ -7,10 +7,26 @@
  * hidden, a browser holds back the log's scroll events; a message that grows after it was scrolled
  * to then reads, once the tab is back, as the player having scrolled up, and Foundry stops
  * following. The first checks show that happening without the fix, the rest that it no longer does.
+ *
+ * Foundry 14 has reckoned the bottom of the log two ways (within a hundredth of its length up to
+ * 14.369, within twenty pixels from 14.370), so everything is run once under each.
  */
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
+import { spawnSync } from 'child_process';
 import path from 'path';
+
+const RULE = process.env.SFH_BOTTOM;
+if (!RULE) {
+	let failed = 0;
+	for (const rule of ['hundredth', 'pixels']) {
+		const run = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env: { ...process.env, SFH_BOTTOM: rule }, encoding: 'utf8' });
+		process.stdout.write(run.stdout.split(/\r?\n/).filter(Boolean).map((line) => `[${rule}] ${line}`).join('\n') + '\n');
+		process.stderr.write(run.stderr);
+		if (run.status !== 0) failed++;
+	}
+	process.exit(failed ? 1 : 0);
+}
 
 // puppeteer lives in the sibling conversion repo; this tool is dev-only
 const require = createRequire('C:/Users/djsco/OneDrive/Documents/GitHub/mass-effect-sf2e-conversion/package.json');
@@ -31,7 +47,7 @@ page.on('request', async (req) => {
 	await new Promise((r) => setTimeout(r, 400));
 	req.respond({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="160"/>' });
 });
-await page.goto(`file:///${dir}/harness-chat.html`);
+await page.goto(`file:///${dir}/harness-chat.html?bottom=${RULE}`);
 await new Promise((r) => setTimeout(r, 400));
 const other = await browser.newPage();
 await page.bringToFront();
@@ -188,6 +204,20 @@ await page.evaluate(() => CHAT.post('<p style="height:30px">next</p>'));
 await frames();
 s = await state();
 check('the next message is followed down', s.sidebar.gap === 0, s);
+
+/* ---- a long log: a little growth is a small part of it, and still more than twenty pixels ---- */
+await page.evaluate(() => { for (let i = 0; i < 600; i++) CHAT.post(`<p style="height:40px">long ${i}</p>`); });
+await reset();
+await page.evaluate(() => CHAT.dress(true));
+await frames();
+await wait(100);
+s = await state();
+check('a long log dressed after it was drawn is kept at its bottom', s.sidebar.gap === 0 && s.popout.gap === 0, s);
+check('and still following', s.sidebar.following && s.popout.following, s);
+await page.evaluate(() => CHAT.post('<p style="height:30px">next</p>'));
+await frames();
+s = await state();
+check('long and dressed, the next message is followed down', s.sidebar.gap === 0 && s.popout.gap === 0, s);
 
 await browser.close();
 for (const r of out) if (!r.ok) console.log(`FAIL ${r.name} ${r.detail}`);

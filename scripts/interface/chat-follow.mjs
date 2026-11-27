@@ -35,11 +35,8 @@ const kept = new WeakSet();
 /** The chat logs drawn now: the sidebar's, and a popped-out one. */
 const logs = () => [globalThis.ui?.chat, globalThis.ui?.chat?.popout].filter((app) => app?.rendered);
 
-/** At its bottom, as Foundry reckons it (ChatLog#onScrollLog). */
-const atBottom = (scroll) => {
-	const range = scroll.scrollHeight - scroll.clientHeight;
-	return range <= 0 || scroll.scrollTop / range > 0.99;
-};
+/** How far a log is from its bottom, in pixels. */
+const gap = (scroll) => scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop;
 
 function onVisibility() {
 	if (document.hidden) {
@@ -52,19 +49,20 @@ function onVisibility() {
 }
 
 /**
- * Keep one log at its bottom through a change of size, if it was there before the change. Its
- * own scroll events say where it was; a resize is seen after the browser has laid the page out
- * and before the scroll that layout caused is delivered, so putting it back then is in time.
+ * Keep one log at its bottom through a change of size, if it was there before the change. Foundry's
+ * own mark says where it was: a resize is seen after the browser has laid the page out and before
+ * the scroll that layout caused is delivered, so the mark is still the one from before the change,
+ * and putting the log back then is in time. The mark is Foundry's, not a reckoning of our own,
+ * because what counts as the bottom is its to decide, and has changed (within a hundredth of the
+ * log's length up to 14.369, within twenty pixels from 14.370).
  */
 export function keepFollowing(app) {
 	const scroll = app?.element?.querySelector?.('.chat-scroll');
 	const log = scroll?.querySelector('.chat-log');
 	if (!scroll || !log || kept.has(scroll)) return;
 	kept.add(scroll);
-	let bottom = atBottom(scroll);
-	scroll.addEventListener('scroll', () => { bottom = atBottom(scroll); }, { passive: true });
 	const resized = new ResizeObserver(() => {
-		if (!bottom || atBottom(scroll) || !app.rendered || !scroll.isConnected) return;
+		if (app.isAtBottom !== true || gap(scroll) < 1 || !app.rendered || !scroll.isConnected) return;
 		app.scrollBottom();
 	});
 	resized.observe(log);

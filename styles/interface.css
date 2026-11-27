@@ -645,6 +645,29 @@ body[data-sfh-device]:is([data-sfh-device="gdi"], [data-sfh-device="nod"]) :is(#
 	box-shadow: inset 6px 0 0 var(--sfh-hot);
 }
 
+/* ---------------------------------------------------------------- d&d 5e: a roll's dice, in its card */
+/*
+ * D&D 5e's compact cards hang a roll's dice in a pop-up under the total, over the next card.
+ * scripts/interface/roll-breakdown.mjs stops the pop-up and marks the list open instead; here it
+ * is laid in the card, on a line of its own under the roll's row, so the card grows to hold it.
+ * The pop-up's own place and size, the browser's and the system's, are undone.
+ */
+.message.compact .icon-row:has(> .roll-breakdown.sfh-open) {
+	flex-wrap: wrap;
+}
+.message.compact .icon-row > .roll-breakdown.sfh-open {
+	display: block;
+	position: static;
+	inset: auto;
+	flex: 0 0 100%;
+	order: 99;
+	width: auto;
+	height: auto;
+	margin: 0;
+	box-shadow: none;
+	color: inherit;
+}
+
 /* ---------------------------------------------------------------- speech bubbles */
 /*
  * Foundry sizes a speech bubble from a hidden copy of it put straight on the page's body, then

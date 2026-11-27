@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>D&amp;D 5e compact chat cards harness</title>
+<!--
+	A stand-in for D&D 5e's compact chat cards (6.1), for a roll's dice opening in its card
+	(scripts/interface/roll-breakdown.mjs, styles/interface.css): a chat log with an attack, a
+	damage roll, a private roll and a summary of saves, built as the system's templates build them
+	(templates/chat/attack-card.hbs, parts/card-rolls.hbs, parts/roll-compact.hbs,
+	roll-breakdown.hbs, save-summary.hbs), under Foundry's stylesheet and the system's own, read
+	from where they are installed. tools/test-roll-breakdown.mjs drives it.
+-->
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/css/foundry2.css">
+<link rel="stylesheet" href="file:///C:/Program Files/Foundry Virtual Tabletop/resources/app/public/fonts/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="file:///C:/Users/djsco/AppData/Local/FoundryVTT/Data/systems/dnd5e/dnd5e.css">
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/device.css">
+<link rel="stylesheet" href="../styles/interface.css">
+<style>
+	html, body { height: 100%; margin: 0; }
+	body.game { background: #20262e; overflow: hidden; }
+	#sidebar { position: absolute; right: 0; top: 0; width: 320px; height: 620px; display: flex; flex-direction: column; }
+	#chat { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+</style>
+</head>
+<body class="vtt game system-dnd5e theme-dark">
+<div id="ui-right"><aside id="sidebar"><section id="chat" class="tab sidebar-tab chat-sidebar flexcol active themed theme-dark">
+	<div class="chat-scroll"><ol class="chat-log plain themed theme-light"></ol></div>
+</section></aside></div>
+<script type="module">
+	globalThis.game = { system: { id: 'dnd5e' } };
+
+	/* templates/chat/roll-breakdown.hbs */
+	const breakdown = (parts) => `<div class="dice-tooltip-collapser"><div class="dice-tooltip">${parts.map(([dice, total, constant]) => constant
+		? `<section class="tooltip-part constant-term"><div class="dice"><span class="flavor"></span><div class="total"><span class="value">${total}</span></div></div></section>`
+		: `<section class="tooltip-part"><div class="dice"><ol class="dice-rolls">${dice.map((d) => `<li class="roll d20">${d}</li>`).join('')}</ol><div class="total"><span class="label"></span><span class="value">${total}</span></div></div></section>`).join('')}</div></div>`;
+
+	/* templates/chat/parts/roll-compact.hbs */
+	const roll = (total, d20, parts, { disabled = false } = {}) => `<button type="button" class="dice-roll" ${disabled ? 'disabled' : ''}>
+		<span class="icons"><i class="fa-solid fa-check" inert></i></span>
+		<span class="result"><strong class="total">${total}</strong></span>
+		${d20 ? `<span class="d20die"><i class="fa-fw fa-solid fa-hexagon fa-rotate-90" inert></i><span class="roll">${d20}</span></span>` : ''}
+	</button>
+	<div class="roll-breakdown" popover>${breakdown(parts)}</div>`;
+
+	const header = (name, sub) => `<div class="chat-card"><section class="card-header no-description"><div class="item-icon"><img class="gold-icon" alt=""></div>
+		<div class="name-stacked"><span class="title">${name}</span><span class="subtitle">${sub}</span></div></section></div>`;
+
+	/** A message as the system leaves it: compact, its pop-ups tied to their buttons (ChatMessageData#_onRender). */
+	const message = (id, sender, content) => {
+		const li = document.createElement('li');
+		li.className = 'chat-message message flexcol dnd5e2 compact';
+		li.dataset.messageId = id;
+		li.innerHTML = `<header class="message-header flexrow"><h4 class="message-sender">${sender}</h4><span class="message-metadata"><time class="message-timestamp">16s ago</time></span></header>
+			<div class="message-content">${content}</div>`;
+		for (const popover of li.querySelectorAll('.roll-breakdown[popover]')) popover.previousElementSibling.popoverTargetElement = popover;
+		document.querySelector('.chat-log').append(li);
+		return li;
+	};
+
+	const D20 = [[[17], 17], [null, '+2', true], [null, '+2', true]];
+	message('attack', 'Animated Armor', `${header('Slam', 'Attack')}<section class="icon-row">${roll(21, 17, D20)}</section>`);
+	message('damage', 'Animated Armor', `${header('Slam', 'Attack - Damage Roll')}<section class="icon-row">${roll(9, null, [[[3, 4], 7], [null, '+2', true]])}</section>`);
+	message('private', 'Gamemaster', `<section class="icon-row">${roll('?', null, D20, { disabled: true })}</section>`);
+	message('saves', 'Gamemaster', `<div class="card-summary" data-message-id="saves-1"><section class="icon-row save-summary with-buttons">
+		<i class="fa-fw fa-solid fa-dice"></i><ul class="pills unlist"><li class="pill target transparent">Belka Tampson</li></ul>${roll(14, 11, D20)}</section></div>`);
+	message('last', 'Belka Tampson', `${header('Longsword', 'Attack')}<section class="icon-row">${roll(19, 12, [[[12], 12], [null, '+7', true]])}</section>`);
+
+	globalThis.ROLLS = { message, roll, D20, load: () => import('../scripts/interface/roll-breakdown.mjs') };
+</script>
+</body>
+</html>

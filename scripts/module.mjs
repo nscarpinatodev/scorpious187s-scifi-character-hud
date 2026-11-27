@@ -14,6 +14,7 @@ import { splitDevicePicker } from './interface/device-picker.mjs';
 import { markMessage } from './interface/chat-modes.mjs';
 import { followChat, keepFollowing } from './interface/chat-follow.mjs';
 import { dressBubble } from './interface/bubbles.mjs';
+import { openRollsInCard } from './interface/roll-breakdown.mjs';
 import { PipBoy } from './interface/pipboy.mjs';
 import { holdApTracker, adoptApTracker } from './interface/ap-tracker.mjs';
 import { refreshObstacles } from './interface/obstacles.mjs';
@@ -122,6 +123,8 @@ Hooks.once('ready', () => {
 	watchHeadings();
 	// the chat log keeps following new messages: through the device dressing the page, and the tab hidden
 	followChat();
+	// D&D 5e: a roll's dice open in its card, not in a pop-up over the next one
+	openRollsInCard();
 	Carousel.schedule();
 	SceneBar.ready();
 	if (!DeviceChrome.mount()) {

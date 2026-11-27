@@ -6,7 +6,8 @@
 <!--
 	A stand-in for Foundry's chat log as far as following new messages goes (ChatLog in Foundry 14:
 	#onScrollLog, isAtBottom, scrollBottom and #postOne), in the sidebar and popped out, for
-	scripts/interface/chat-follow.mjs. tools/test-chat-follow.mjs drives it.
+	scripts/interface/chat-follow.mjs. tools/test-chat-follow.mjs drives it, once for each way
+	Foundry 14 has reckoned the bottom of the log (?bottom=hundredth, ?bottom=pixels).
 -->
 <style>
 	body { margin: 0; font: 13px system-ui; }
@@ -24,6 +25,9 @@
 <section id="chat"><div class="chat-scroll"><ol class="chat-log"></ol></div></section>
 <section id="chat-popout"><div class="chat-scroll"><ol class="chat-log"></ol></div></section>
 <script type="module">
+	// ?bottom=hundredth for Foundry's reckoning of the bottom up to 14.369; otherwise the one from 14.370
+	const RULE = new URLSearchParams(location.search).get('bottom') ?? 'pixels';
+
 	/** Foundry's ChatLog, its scrolling only. */
 	class ChatLog {
 		#isAtBottom = true;
@@ -37,8 +41,10 @@
 			if (!this.rendered) return;
 			const log = event.currentTarget;
 			const range = log.scrollHeight - log.clientHeight;
-			const pct = range > 0 ? log.scrollTop / range : 0;
-			this.#isAtBottom = (range <= 0) || (pct > 0.99);
+			// what counts as the bottom: within a hundredth of the log's length (to 14.369), or
+			// within twenty pixels (from 14.370)
+			if (RULE === 'hundredth') this.#isAtBottom = (range <= 0) || ((range > 0 ? log.scrollTop / range : 0) > 0.99);
+			else this.#isAtBottom = (range - log.scrollTop) < 20;
 		}
 		static async waitForImages(element) {
 			const images = Array.from(element.querySelectorAll('img')).filter((img) => !img.complete);

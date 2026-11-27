@@ -129,14 +129,21 @@ export class Projection {
 		 * the scene buttons take only the top of it. Foundry turns pointer events off on those
 		 * containers and back on for the panels in them, so the panels are what the projection
 		 * keeps clear of — and only the ones beside it, not a scene list high above it.
+		 *
+		 * Not PF2e HUD's panel, though. The projection is drawn over it (styles/interface.css), so
+		 * there is nothing to keep clear of; and its box is far wider than what it shows, for it
+		 * keeps the macro bar's width in it, so keeping clear of the box squeezed the projection
+		 * down to a sliver beside the device.
 		 */
+		const OVER = '#pf2e-hud-persistent';
 		const panels = (root) => {
 			const out = [];
 			const walk = (node) => {
 				for (const child of node.children) {
+					if (child.matches(OVER)) continue;
 					const r = rect(child);
 					if (!shown(r)) continue;
-					if (getComputedStyle(child).pointerEvents !== 'none') out.push({ r, id: child.id || child.className });
+					if (getComputedStyle(child).pointerEvents !== 'none' && !child.querySelector(OVER)) out.push({ r, id: child.id || child.className });
 					else walk(child);
 				}
 			};

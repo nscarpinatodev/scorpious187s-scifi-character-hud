@@ -14,7 +14,9 @@
   late, a card redrawn), and when they come back to Foundry from another window, or to a tab
   that loaded while they were away. A log the player had scrolled up is left where they put
   it. In the sidebar and popped out; any world and any system. Checked in a Fallout 2d20
-  world: four loads out of four were stuck before, none after.
+  world: four loads out of four were stuck before, none after. Foundry 14.370 changed what it
+  counts as the bottom of the log, from within a hundredth of its length to within twenty
+  pixels; the HUD goes by Foundry's own mark, so it holds on both.
 - **Speech bubbles hold all they say, and stay up long enough to read.** Foundry sizes a bubble
   from a hidden copy of it in its own face, and the HUD draws the real one in the device's.
   Where the device's face is the wider one, as it is on the Pip-Boy, most of the sci-fi
@@ -24,6 +26,20 @@
   just over a second; it now stays two and a half seconds, and three tenths of a second more
   a word, up to Foundry's twenty. A long one scrolls through its words over that time, and a
   token that speaks again still replaces its bubble at once.
+- **PF2e HUD's panel no longer shrinks the projection.** With PF2e HUD's panel on the left,
+  the projection came up as a sliver beside the device, at the smallest size it allows. It
+  keeps clear of the panels down the left of the screen, and that panel's box reaches far past
+  what it shows: it keeps the macro bar's width, so the party's portraits do not narrow. The
+  projection is drawn over that panel anyway, so it no longer makes room for it, and comes up
+  at its full size, as wide as the device's plate. Anything else down the left is still kept
+  clear of.
+- **D&D 5e: a roll's dice open in its card.** On its compact chat cards, which from 6.1 is
+  most of them, the system shows what was rolled in a pop-up hung under the total. The card
+  stayed the size it was, so the list lay over the next card, and under the last card it
+  could run past the foot of the chat. A click on the total now opens the dice inside the
+  card, under the roll's row: the card grows, the cards below move down, and the chat scrolls
+  to them like anything else. A second click closes them. Attacks, damage, checks, and each
+  save in a summary of saves.
 
 ## 1.8.0 — 2026-11-15
 
