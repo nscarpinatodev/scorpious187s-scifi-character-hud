@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.8.1 — 2026-11-27
 
 - **The chat follows new messages from the moment the world loads.** Foundry follows a new
   message down only while the log is at its bottom, and it judges that from the log's
@@ -40,6 +40,12 @@
   card, under the roll's row: the card grows, the cards below move down, and the chat scrolls
   to them like anything else. A second click closes them. Attacks, damage, checks, and each
   save in a summary of saves.
+- **A double-click on a token opens its sheet again.** Selecting a token redraws several of
+  Foundry's windows, and the scene bar redrew itself with each of them, fitting its row one
+  scene at a time. With scenes folded behind "+N", that kept the page busy for about a
+  quarter of a second, so the second click of a double-click came too late and only selected
+  the token. The bar now redraws only for the windows that share its space, and fits its row
+  in one pass.
 
 ## 1.8.0 — 2026-11-15
 

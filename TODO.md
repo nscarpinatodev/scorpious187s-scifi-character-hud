@@ -35,7 +35,12 @@ defeated and hidden combatants in the carousel kept on a solid card. Then 1.8.0 
 the scene you are on kept in the scene bar when it is collapsed or just its button, and the
 D&D 5e Compendium Browser's tabs laid in a labeled row by the sheet tabs' setting. The
 browser's row went out tested on its harness (`tools/test-browser-tabs.mjs`) but not seen in
-a D&D 5e world.
+a D&D 5e world. Then 1.8.1 on 2026-11-27, checked against Foundry 14.371: the chat kept
+following new messages (by Foundry's own mark of the bottom, which 14.370 changed), speech
+bubbles that fit and last, a D&D 5e roll's dice opened in its card, the projection no longer
+shrunk by PF2e HUD's panel, and a double-click on a token no longer held back by the scene
+bar. The chat, the dice and the projection were seen in Foundry as a player, in D&D 5e 6.1.2
+and in PF2e 8.7.1 with PF2e HUD 2.57.1.
 
 Everything built so far has been seen in Foundry and is good: the looks, fantasy and sci-fi, with
 their own openings; the Journal's satchel, its clutter and flap, and its interface in the dark;
